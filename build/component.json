@@ -1,0 +1,15 @@
+{
+  "name": "r360",
+  "description": "JavaScript library for mobile-friendly network analysis maps",
+  "scripts": [
+    "dist/r360.js",
+    "dist/r360-src.js"
+  ],
+  "images":[
+    
+  ],
+  "styles":[
+    "dist/r360.css"
+  ],
+  "main": "dist/r360-src.js"
+}
