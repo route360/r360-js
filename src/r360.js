@@ -1,12 +1,12 @@
 
-var L = {
+var r360 = {
 	version: '0.1-dev'
 };
 
 function expose() {
 	var oldr360 = window.r360;
 
-	L.noConflict = function () {
+	r360.noConflict = function () {
 		window.r360 = oldr360;
 		return this;
 	};
