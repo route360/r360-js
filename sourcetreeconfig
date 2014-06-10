@@ -1,5 +1,5 @@
 remoteProjectLink0.remoteName=origin
-lastCheckedRemotes=2014-06-06 09:54:05 +0000
+lastCheckedRemotes=2014-06-10 06:41:38 +0000
 remoteProjectLink0.type=0
 remoteProjectLink0.username=gerbsen
 savedIncoming=0
@@ -9,3 +9,4 @@ remoteProjectLink0.baseUrl=https://www.bitbucket.org
 autorefresh=1
 savedOutgoing=0
 lastUsedView=1
+autorefreshremotes=1

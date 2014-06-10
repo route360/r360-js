@@ -1,28 +1,39 @@
 /*
  *
  */
-r360.Control.TravelTimeControl : L.Control.extend({
+r360.TravelTimeControl = L.Control.extend({
    
-    /*
-     *
-     */
-    initialize: function (sliderOptions) {
+    /**
+      * ...
+      * 
+      * @param {Object} [options] The typical JS options array.
+      * @param {Number} [options.position] 
+      * @param {Number} [options.initValue] 
+      * @param {Number} [options.label] 
+      * @param {Array}  [options.travelTimes] Each element of this arrays has to contain a "time" and a "color" field.
+      *     An example would be: { time : 600  , color : "#006837"}. The color needs to be specified in HEX notation.
+      * @param {Number} [options.icon] 
+      */
+    initialize: function (travelTimeControlOptions) {
         
-        this.options = MiConfig.defaultTravelTimeSliderOptions;
-        if(typeof sliderOptions != "undefined"){
-            if(typeof sliderOptions.position != "undefined")
-                this.options.position = sliderOptions.position;
-            if(typeof sliderOptions.initValue != "undefined")
-                this.options.initValue = sliderOptions.initValue;
-            if(typeof sliderOptions.label != "undefined")
-                this.options.label = sliderOptions.label;
-            if(typeof sliderOptions.travelTimes != "undefined")
-                this.options.travelTimes = sliderOptions.travelTimes;
-            if(typeof sliderOptions.icon != 'undefined')
-                this.options.icon = sliderOptions.icon;
+        // use the default options
+        this.options = r360.config.defaultTravelTimeControlOptions;
+        
+        // overwrite default options if possible
+        if ( typeof travelTimeControlOptions != "undefined" ) {
+            
+            if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
+            if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
+            if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
+            if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
+            if ( _.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
         }
-        this.options.maxValue = MiConfig.defaultTravelTimeSliderOptions.travelTimes[MiConfig.defaultTravelTimeSliderOptions.travelTimes.length-1].time/60;
-        this.options.step = (MiConfig.defaultTravelTimeSliderOptions.travelTimes[1].time - MiConfig.defaultTravelTimeSliderOptions.travelTimes[0].time)/60;
+
+        this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
+        this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
+
+        // TODO Ich glaube das wird hier nicht richtig aufgerufen, in der Doc steht 
+        // setOptions( <Object> obj, <Object> options )
         L.Util.setOptions(this);
     },
 
@@ -45,6 +56,32 @@ r360.Control.TravelTimeControl : L.Control.extend({
                 sliderColors += '<div style="position: absolute; top: 0; bottom: 0; left: ' + i * percent + '%; right: ' + (100 - (i + 1)* percent )+ '%; background-color: ' + this.options.travelTimes[i].color + '; -moz-border-top-right-radius: 8px;-webkit-border-radius-topright: 8px; border-top-right-radius: 8px; -moz-border-bottom-right-radius: 8px;-webkit-border-radius-bottomright: 8px; border-bottom-right-radius: 8px;"></div>';
         }
 
+        // started to remove jQuery dependency here
+        // this.options.miBox = L.DomUtil.create("r360-box", "mi-box");
+        // this.options.travelTimeInfo = L.DomUtil.create("travelTimeInfo");
+        // this.options.travelTimeControl = L.DomUtil.create("travelTimeControl", "no-border");
+        // this.options.travelTimeControlHandle = L.DomUtil.create("travelTimeControlHandle", "ui-slider-handle");
+
+        // this.options.labelSpan = L.DomUtil.create("labelSpan");
+        // this.options.labelSpan.innerHTML = this.options.label;
+
+        // if ( this.options.icon != 'undefined' ) {
+
+        //     this.options.iconHTML = new Image;
+        //     this.options.iconHTML.src = "picture.gif";
+        // }
+
+        // this.options.travelTimeSpan = L.DomUtil.create("travelTimeSpan");
+        // this.options.travelTimeSpan.innerHTML = this.options.initValue;
+        // var unitSpan = L.DomUtil.create("unitSpan");
+        // unitSpan.innerHTML = "min";
+
+
+        // this.options.sliderContainer.innerHTML += this.options.miBox;
+        // this.options.miBox.innerHTML += this.options.travelTimeInfo;
+        // this.options.miBox.innerHTML += this.options.travelTimeControl;
+        // this.options.travelTimeControl.innerHTML =+ travelTimeControlHandle;
+
         // Create a control sliderContainer with a jquery ui slider
         this.options.sliderContainer = L.DomUtil.create('div', this._container);
 
@@ -64,6 +101,8 @@ r360.Control.TravelTimeControl : L.Control.extend({
         this.options.miBox.append(this.options.travelTimeSlider);
         this.options.travelTimeSlider.append(travelTimeSliderHandle);
         this.options.travelTimeInfo.append(this.options.iconHTML).append(this.options.labelSpan).append(this.options.travelTimeSpan).append(unitSpan);
+
+        console.log(this.options);
 
         $(this.options.travelTimeSlider).slider({
             range:  false,
@@ -137,8 +176,8 @@ r360.Control.TravelTimeControl : L.Control.extend({
             travelTimes.push(options.travelTimes[i/options.step]);
         return travelTimes;
     }
- }):
+});
 
-r360.control.zoom = function (options) {
-    return new r360.Control.TravelTimeControl(options);
+r360.travelTimeControl = function (options) {
+    return new r360.TravelTimeControl(options);
 };

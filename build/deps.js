@@ -1,6 +1,7 @@
 var deps = {
 	api: {
 		src: ['r360.js',
+              'r360-defaults.js',
 		      'api/polygons/PolygonService.js',
 		      'api/routes/RouteService.js',
 		      'api/time/TimeService.js'
@@ -22,8 +23,7 @@ var deps = {
 
 	polygon: {
 		src: ['geometry/polygon/Polygon.js',
-              'geometry/polygon/MultiPolygon.js',
-              'geometry/polygon/PolygonParser.js'
+              'geometry/polygon/MultiPolygon.js'
              ],
 		desc: '',
 		heading: ''
@@ -31,8 +31,7 @@ var deps = {
 
     route: {
         src: ['geometry/route/RouteSegment.js',
-              'geometry/route/Route.js',
-              'geometry/route/RouteParser.js'
+              'geometry/route/Route.js'
              ],
         desc: '',
         heading: ''

@@ -93,7 +93,7 @@ exports.build = function (callback, version, compsBase32, buildName) {
 	    outro = '}(window, document));',
 	    newSrc = copy + intro + combineFiles(files) + outro,
 
-	    pathPart = 'dist/leaflet' + (buildName ? '-' + buildName : ''),
+	    pathPart = 'dist/r360' + (buildName ? '-' + buildName : ''),
 	    srcPath = pathPart + '-src.js',
 
 	    oldSrc = loadSilently(srcPath),

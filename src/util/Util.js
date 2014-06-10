@@ -57,6 +57,7 @@ r360.Util = {
         _.each(json.routes, function(route, routeIndex){
 
             routes[routeIndex] = new r360.Route();
+            routes[routeIndex].travelTime = route.traveltime;
 
             _.each(route.segments, function(segment, segmentIndex){
 

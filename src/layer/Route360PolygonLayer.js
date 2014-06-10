@@ -1,24 +1,39 @@
 /*
  *
  */
-r360.Route360PolygonLayer : L.Class.extend({
+r360.Route360PolygonLayer = L.Class.extend({
    
-    /*
-     *
-     */
+    /**
+      * This methods initializes the polygon layer's stroke width and polygon opacity.
+      * It uses the default values, and in case the options contain other values, the
+      * default values are overwritten. 
+      *
+      * @method send
+      * 
+      * @param {Object} [options] The typical JS options array.
+      * @param {Number} [options.opacity] Defines the opacity of the polygons. 
+      *     Higher values mean that the polygon is less opaque.
+      * @param {Number} [options.strokeWidth] Defines the strokewidth of the polygons boundaries.
+      *     Since we have degenerated polygons (they can have no area), the stroke width defines the
+      *     thickness of a polygon. Thicker polygons are not as informative as thinner ones.
+      */
     initialize: function (options) {
-        this.opacity = MiConfig.defaultPolygonOptions.opacity;
-        this.strokeWidth = MiConfig.defaultPolygonOptions.strokeWidth;
-        if(typeof options != 'undefined'){
-            if(typeof options.opacity != 'undefined')
-                this.opacity = options.opacity;
-            if(typeof options.strokeWidth != 'undefined')
-                this.strokeWidth = options.strokeWidth;
-        }       
+        
+        // set default parameters
+        this.opacity     = r360.config.defaultPolygonLayerOptions.opacity;
+        this.strokeWidth = r360.config.defaultPolygonLayerOptions.strokeWidth;
+        
+        // overwrite defaults with optional parameters
+        if ( typeof options != 'undefined' ) {
+
+            if(typeof options.opacity != 'undefined')     this.opacity      = options.opacity;
+            if(typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
+        }
+
         this._multiPolygons = new Array(); 
     },
 
-    /*
+    /* 
      *
      */
     getBoundingBox : function(){
@@ -45,13 +60,16 @@ r360.Route360PolygonLayer : L.Class.extend({
     /*
      *
      */
-    addLayer:function(polygonArray){        
+    addLayer:function(polygons){        
+        
         this._resetBoundingBox();
         this._multiPolygons = new Array();
-        for(var i = 0; i < polygonArray.length; i++){
-                this._updateBoundingBox(polygonArray[i].outerBoundary);
-                this._addPolygonToMultiPolygon(polygonArray[i]);
-        }
+        
+        _.each(polygons, function(polygon){
+
+            this._updateBoundingBox(polygon.outerBoundary);
+            this._addPolygonToMultiPolygon(polygon);
+        });
         this._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
         this._reset();
     },
@@ -60,13 +78,16 @@ r360.Route360PolygonLayer : L.Class.extend({
      *
      */
     _addPolygonToMultiPolygon: function(polygon){
-        for(var i = 0; i < this._multiPolygons.length; i++){
-            if(this._multiPolygons[i].getTravelTime() == polygon.travelTime){
-                this._multiPolygons[i].addPolygon(polygon);
+
+        _.each(this._multiPolygons, function(multiPolygon){
+
+            if ( multiPolygon.getTravelTime() == polygon.travelTime ){
+                multiPolygon.addPolygon(polygon);
                 return;
             }
-        }
-        var mp = new MI.MultiPolygon();
+        });
+
+        var mp = new r360.multiPolygon();
         mp.setTravelTime(polygon.travelTime);
         mp.addPolygon(polygon);
         mp.setColor(polygon.getColor());
@@ -85,28 +106,26 @@ r360.Route360PolygonLayer : L.Class.extend({
     /*
      *
      */
-    _updateBoundingBox:function(CoordinateArray){
-        for(var i = 0; i < CoordinateArray.length; i++){
-            if(CoordinateArray[i].lat > this._topRight.lat) 
-                this._topRight.lat = CoordinateArray[i].lat;                
-            else if(CoordinateArray[i].lat < this._bottomLeft.lat)  
-                this._bottomLeft.lat = CoordinateArray[i].lat;
-               
-            if(CoordinateArray[i].lng > this._topRight.lng)
-                this._topRight.lng = CoordinateArray[i].lng;
-            else if(CoordinateArray[i].lng < this._bottomLeft.lng)
-                this._bottomLeft.lng = CoordinateArray[i].lng;
-        }
-        if(this._latlng.lat < this._topRight.lat)
-            this._latlng.lat = this._topRight.lat;
-        if(this._latlng.lng > this._bottomLeft.lng)
-            this._latlng.lng = this._bottomLeft.lng;
+    _updateBoundingBox:function(coordinates){
+
+        _.each(coordinates, function(coordinate){
+
+            if ( coordinate.lat > this._topRight.lat )          this._topRight.lat   = coordinate.lat;                
+            else if( coordinate.lat < this._bottomLeft.lat )    this._bottomLeft.lat = coordinate.lat;
+            
+            if ( coordinate.lng > this._topRight.lng )          this._topRight.lng   = coordinate.lng;
+            else if( coordinate.lng < this._bottomLeft.lng )    this._bottomLeft.lng = coordinate.lng;
+        })
+        
+        if ( this._latlng.lat < this._topRight.lat)     this._latlng.lat = this._topRight.lat;
+        if ( this._latlng.lng > this._bottomLeft.lng)   this._latlng.lng = this._bottomLeft.lng;
     },
   
     /*
      *
      */
     onRemove: function (map) {
+
         // remove layer's DOM elements and listeners
         map.getPanes().overlayPane.removeChild(this._el);
         map.off('viewreset', this._reset, this);
@@ -116,6 +135,7 @@ r360.Route360PolygonLayer : L.Class.extend({
      *
      */
     _buildString:function(path, point, suffix){
+        
         path += suffix + point.x + ' ' + point.y;
         return path;
     },
@@ -124,13 +144,17 @@ r360.Route360PolygonLayer : L.Class.extend({
      *
      */
     _createSVGData: function(polygon){
-        pathData ='';
-        var point = this._map.latLngToLayerPoint(polygon[0]);
-        pathData = this._buildString(pathData, point, 'M')
-        for(var i = 1; i < polygon.length; i++){
-            point = this._map.latLngToLayerPoint(polygon[i]);
+
+        pathData    = '';
+        var point   = this._map.latLngToLayerPoint(polygon[0]);
+        pathData    = this._buildString(pathData, point, 'M')
+        
+        _.each(polygon, function(point){
+
+            point    = this._map.latLngToLayerPoint(point);
             pathData = this._buildString(pathData, point, 'L')
-        }
+        });
+
         pathData += 'z ';
         return pathData;
     },
@@ -139,6 +163,7 @@ r360.Route360PolygonLayer : L.Class.extend({
      *
      */
     clearLayers: function(){
+        
         $('#canvas'+ $(this._map._container).attr("id")).empty();
         this.initialize();
     },
@@ -160,10 +185,10 @@ r360.Route360PolygonLayer : L.Class.extend({
 
             //ie 8 and 9 
             if (navigator.appVersion.indexOf("MSIE 9.") != -1 )  {
-                        $('#canvas'+ $(this._map._container).attr("id")).css("transform", "translate(" + pos.x + "px, " + pos.y + "px)");
+                $('#canvas'+ $(this._map._container).attr("id")).css("transform", "translate(" + pos.x + "px, " + pos.y + "px)");
             }
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                        $('#canvas'+ $(this._map._container).attr("id")).css({"position" : "absolute"});
+                $('#canvas'+ $(this._map._container).attr("id")).css({"position" : "absolute"});
             }
             $('#canvas'+ $(this._map._container).attr("id")).empty();         
 
@@ -216,6 +241,6 @@ r360.Route360PolygonLayer : L.Class.extend({
     }
 });
 
-r360.Route360PolygonLayer = function () {
+r360.route360PolygonLayer = function () {
     return new r360.Route360PolygonLayer();
 };

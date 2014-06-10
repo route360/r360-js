@@ -10,3 +10,7 @@ r360.Route = function(){
         that.routeSegments.push(routeSegment);
     }
 };
+
+r360.route = function () { 
+    return new r360.Route();
+};
