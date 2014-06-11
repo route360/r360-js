@@ -1,10 +1,10 @@
 /*
  *
  */
-r360.RouteSegment = function(){      
+r360.RouteSegment = function(segment){      
 
     this.polyLine = L.polyline([]);
-
+    this.segment = segment;
     this.travelTime;
     this.length;
     this.elevationGain;  
@@ -13,6 +13,6 @@ r360.RouteSegment = function(){
     this.transit;
 };
 
-r360.routeSegment = function () { 
-    return new r360.RouteSegment();
+r360.routeSegment = function (segment) { 
+    return new r360.RouteSegment(segment);
 };

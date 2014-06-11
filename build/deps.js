@@ -2,6 +2,7 @@ var deps = {
 	api: {
 		src: ['r360.js',
               'r360-defaults.js',
+              'util/Util.js',
 		      'api/polygons/PolygonService.js',
 		      'api/routes/RouteService.js',
 		      'api/time/TimeService.js'

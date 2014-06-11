@@ -102,8 +102,6 @@ r360.TravelTimeControl = L.Control.extend({
         this.options.travelTimeSlider.append(travelTimeSliderHandle);
         this.options.travelTimeInfo.append(this.options.iconHTML).append(this.options.labelSpan).append(this.options.travelTimeSpan).append(unitSpan);
 
-        console.log(this.options);
-
         $(this.options.travelTimeSlider).slider({
             range:  false,
             value:  that.options.initValue,

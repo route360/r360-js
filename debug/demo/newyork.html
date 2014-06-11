@@ -19,6 +19,10 @@
     <script src="../leaflet.js"></script>
     <script type="text/javascript" src="../../build/deps.js"></script>
     <script src="../r360-include.js"></script>
+
+    <script src="../raphael-min.js"></script>
+    <script src="../g.raphael-min.js"></script>
+    <script src="../g.line-min.js"></script>
 </head>
 <body>
 
@@ -30,8 +34,8 @@
 
             /*-----------------------------------------   setting up the map ------------------------------------*/
 
-            // var map = L.map('map', {zoomControl: false}).setView([40.71448, -74.00598], 13);
-            var map = L.map('map', {zoomControl: false}).setView([52.516389, 13.377778], 13);
+            var map = L.map('map', {zoomControl: false}).setView([40.71448, -74.00598], 13);
+            // var map = L.map('map', {zoomControl: false}).setView([52.516389, 13.377778], 13);
             var zoom = L.control.zoom({position: 'bottomleft'});
                 map.addControl( zoom );
 
@@ -86,28 +90,28 @@
 
             var buttonOptions = {
                 buttons : [
-                  {label: 'Transit', value: 'transit', tooltip: 'public transport'},
-                  {label: 'Cycling', value: 'bike', tooltip: 'bicycle'},
-                  {label: 'Walking', value: 'walk', tooltip: 'walking'},
-                  {label: 'Car', value: 'car', tooltip: 'car'},
+                  {label: 'Transit', value: 'transit',  tooltip: 'public transport'},
+                  {label: 'Cycling', value: 'bike',     tooltip: 'bicycle'},
+                  {label: 'Walking', value: 'walk',     tooltip: 'walking'},
+                  {label: 'Car',     value: 'car',      tooltip: 'car'},
                 ],
                 checked : 'bike'
             };
 
             var cycleSpeedButtonOptions = {
                 buttons : [
-                  {label: 'slow', value: 12, tooltip: 'cycling speed 12 km/h'},
+                  {label: 'slow',   value: 12, tooltip: 'cycling speed 12 km/h'},
                   {label: 'medium', value: 17, tooltip: 'cycling speed 17 km/h'},
-                  {label: 'fast', value: 22, tooltip: 'cycling speed 22 km/h'}
+                  {label: 'fast',   value: 22, tooltip: 'cycling speed 22 km/h'}
                 ],
                 checked : 17
             };
 
             var walkSpeedButtonOptions = {
                 buttons : [
-                  {label: 'slow', value: 4, tooltip: 'walking speed 4 km/h'},
+                  {label: 'slow',   value: 4, tooltip: 'walking speed 4 km/h'},
                   {label: 'medium', value: 6, tooltip: 'walking speed 6 km/h'},
-                  {label: 'fast', value: 8, tooltip: 'walking speed 8 km/h'}
+                  {label: 'fast',   value: 8, tooltip: 'walking speed 8 km/h'}
                 ],
                 checked : 6
             };
@@ -127,7 +131,7 @@
 
 
             map.addControl(travelTimeControl);               
-            // map.addLayer(cpl);
+            map.addLayer(cpl);
             // map.addControl(travelModeButtons); 
             // map.addControl(startNamePicker);
 
@@ -176,15 +180,15 @@
                 // MI.getAddressByCoordinates(sourceMarker.getLatLng(), function(json){
                 //     startNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
                 // });
-                // sourceMarker.on("dragend", function(e){
-                //     showPolygons();
-                //     MI.getAddressByCoordinates(sourceMarker.getLatLng(), function(json){
-                //         startNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
-                //     });
-                //     if(map.hasLayer(targetMarker)){
-                //         showRoutes();
-                //     }
-                // });
+                sourceMarker.on("dragend", function(e){
+                    showPolygons();
+                    // MI.getAddressByCoordinates(sourceMarker.getLatLng(), function(json){
+                    //     startNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
+                    // });
+                    // if(map.hasLayer(targetMarker)){
+                    //     showRoutes();
+                    // }
+                });
                 showPolygons();
                 if ( map.hasLayer(targetMarker) ) showRoutes();
                 // addTargetNamePicker();

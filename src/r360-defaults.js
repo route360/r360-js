@@ -3,6 +3,7 @@ r360.config = {
     nominatimUrl        : 'http://geocode.route360.net/',  
 
     serviceUrl          : 'http://localhost:8080/api/',
+    // serviceUrl          : 'http://144.76.246.52:8080/api/',
     serviceVersion      : 'v1',
 
     //serviceUrl          : 'http://api.route360.net:8080/api/',

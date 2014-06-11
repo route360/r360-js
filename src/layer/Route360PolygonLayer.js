@@ -62,16 +62,20 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(polygons){        
         
-        this._resetBoundingBox();
-        this._multiPolygons = new Array();
+        var that = this;
+        that._resetBoundingBox();
+        that._multiPolygons = new Array();
+
+        console.log(polygons)
         
         _.each(polygons, function(polygon){
 
-            this._updateBoundingBox(polygon.outerBoundary);
-            this._addPolygonToMultiPolygon(polygon);
+            that._updateBoundingBox(polygon.outerBoundary);
+            that._addPolygonToMultiPolygon(polygon);
         });
-        this._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-        this._reset();
+
+        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
+        that._reset();
     },
 
     /*
@@ -108,17 +112,19 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _updateBoundingBox:function(coordinates){
 
+        var that = this;
+
         _.each(coordinates, function(coordinate){
 
-            if ( coordinate.lat > this._topRight.lat )          this._topRight.lat   = coordinate.lat;                
-            else if( coordinate.lat < this._bottomLeft.lat )    this._bottomLeft.lat = coordinate.lat;
+            if ( coordinate.lat > that._topRight.lat )          that._topRight.lat   = coordinate.lat;                
+            else if( coordinate.lat < that._bottomLeft.lat )    that._bottomLeft.lat = coordinate.lat;
             
-            if ( coordinate.lng > this._topRight.lng )          this._topRight.lng   = coordinate.lng;
-            else if( coordinate.lng < this._bottomLeft.lng )    this._bottomLeft.lng = coordinate.lng;
+            if ( coordinate.lng > that._topRight.lng )          that._topRight.lng   = coordinate.lng;
+            else if( coordinate.lng < that._bottomLeft.lng )    that._bottomLeft.lng = coordinate.lng;
         })
         
-        if ( this._latlng.lat < this._topRight.lat)     this._latlng.lat = this._topRight.lat;
-        if ( this._latlng.lng > this._bottomLeft.lng)   this._latlng.lng = this._bottomLeft.lng;
+        if ( that._latlng.lat < that._topRight.lat)     that._latlng.lat = that._topRight.lat;
+        if ( that._latlng.lng > that._bottomLeft.lng)   that._latlng.lng = that._bottomLeft.lng;
     },
   
     /*
@@ -145,14 +151,15 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _createSVGData: function(polygon){
 
+        var that    = this;
         pathData    = '';
         var point   = this._map.latLngToLayerPoint(polygon[0]);
         pathData    = this._buildString(pathData, point, 'M')
         
         _.each(polygon, function(point){
 
-            point    = this._map.latLngToLayerPoint(point);
-            pathData = this._buildString(pathData, point, 'L')
+            point    = that._map.latLngToLayerPoint(point);
+            pathData = that._buildString(pathData, point, 'L')
         });
 
         pathData += 'z ';
