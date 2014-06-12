@@ -7,12 +7,39 @@ r360.Route = function(travelTime){
     that.travelTime = travelTime;
     that.routeSegments = new Array();
 
+    /*
+     *
+     */
     that.addRouteSegment = function(routeSegment){
         that.routeSegments.push(routeSegment);
     }
 
+    /*
+     *
+     */
     that.setTravelTime = function(travelTime){
         that.travelTime = travelTime;
+    }
+
+    /*
+     *
+     */
+    that.getLength = function(){
+        return that.routeSegments.length;
+    }
+
+    /*
+     *
+     */
+    that.getSegments = function(){
+        return that.routeSegments;
+    }
+
+    /*
+     *
+     */
+    that.getTravelTime = function(){
+        return that.travelTime;
     }
 };
 

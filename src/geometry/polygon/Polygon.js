@@ -79,6 +79,20 @@ r360.Polygon = function(traveltime, outerBoundary) {
     /**
      *
      */
+    that.setTravelTime = function(travelTime){
+        that.travelTime = travelTime;
+    }
+
+    /**
+     *
+     */
+    that.getTravelTime = function(){
+        return that.travelTime;
+    }
+
+    /**
+     *
+     */
     that.setColor = function(color){
         that.color = color;
     }

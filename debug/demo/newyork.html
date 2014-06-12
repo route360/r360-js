@@ -23,6 +23,7 @@
     <script src="../raphael-min.js"></script>
     <script src="../g.raphael-min.js"></script>
     <script src="../g.line-min.js"></script>
+    <script src="museum.js"></script>
 </head>
 <body>
 
@@ -119,9 +120,10 @@
              // the layer the polygons will be shown later on
             var cpl                     = r360.route360PolygonLayer(polygonLayerOptions); 
              // defining the layer where our routes will be shown later on
-            var routeLayer              = L.featureGroup().addTo(map);         
+            var routeLayer              = L.featureGroup().addTo(map);
+            var museumLayer             = L.featureGroup().addTo(map);         
             var travelTimeControl       = r360.travelTimeControl(travelTimeControlOptions);
-            // var travelStartDateControl  = new MI.TravelStartDateControl();
+            // var travelStartDateControl  = r360.travelStartDateControl();
             // var travelModeButtons       = new MI.RadioButtonControl(buttonOptions);
             // var travelStartTimeControl  = new MI.TravelStartTimeControl();
             // var cycleSpeedButtons       = new MI.RadioButtonControl(cycleSpeedButtonOptions);
@@ -129,6 +131,11 @@
             // var targetNamePicker        = new MI.NamePicker({country : "Deutschland", reset : true, placeholder : 'To:'});
             // var startNamePicker         = new MI.NamePicker({placeholder : "From", country : "Deutschland", reset : false});
 
+            _.each(museums, function(museum){
+
+                var marker = L.marker([museum.lat, museum.lon]).addTo(map);
+                marker.bindPopup("<b>" + museum.name + "</b>");
+            });
 
             map.addControl(travelTimeControl);               
             map.addLayer(cpl);
@@ -157,15 +164,15 @@
                         // });
                     }
                     map.panTo(e.latlng, panOptions);
-                    // showRoutes();                       
+                    showRoutes();                       
                 }                          
                 else {
 
                     addSourceMarker(e.latlng);
 
-                    // if ( map.hasLayer(targetMarker) ) showRoutes();
+                    if ( map.hasLayer(targetMarker) ) showRoutes();
                     
-                    showPolygons();
+                    // showPolygons();
                 }
             });
 
@@ -185,21 +192,35 @@
                     // MI.getAddressByCoordinates(sourceMarker.getLatLng(), function(json){
                     //     startNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
                     // });
-                    // if(map.hasLayer(targetMarker)){
-                    //     showRoutes();
-                    // }
+                    if(map.hasLayer(targetMarker)){
+                        showRoutes();
+                    }
                 });
                 showPolygons();
                 if ( map.hasLayer(targetMarker) ) showRoutes();
                 // addTargetNamePicker();
             };
 
+            function addTargetMarker(latlng){
+                targetMarker = L.marker(latlng, {icon: targetIcon, draggable:true});
+                targetMarker.addTo(map);
+                targetMarker.id = "targetMarker";
+                // MI.getAddressByCoordinates(targetMarker.getLatLng(), function(json){
+                //   targetNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
+                // });
+                targetMarker.on("dragend", function(e){                         
+                    showRoutes();
+                    // MI.getAddressByCoordinates(targetMarker.getLatLng(), function(json){
+                    //   targetNamePicker.setFieldValue(json.display_name.replace(/, Norwegen/g, ''));
+                    // });
+                });
+            };
+
             function showPolygons(){
                 var travelOptions = getTravelOptionsFromControls(); 
 
-                r360.PolygonService.getTravelTimePolygons(travelOptions, function(json){
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
-                    var polygons = r360.Util.parsePolygons(json, travelTimeControl.getValues());
                     cpl.addLayer(polygons)
                     
                     if ( polygons.length > 0 ) map.fitBounds(cpl.getBoundingBox());
@@ -212,6 +233,7 @@
             };
 
             function getTravelOptionsFromControls(){
+
                 var travelOptions = {
                     sources     : [sourceMarker],
                     targets     : [targetMarker],
@@ -230,13 +252,45 @@
 
                     // travelOptions.time = travelStartTimeControl.getValue() * 60;
                     // travelOptions.date = travelStartDateControl.getValue();
-                    travelOptions.time = 720;
+                    travelOptions.time = 42720;
                     travelOptions.date = 20140612;
                 }
 
                 return travelOptions;
             };
 
+            function showRoutes(){                  
+
+                // abort if no target was added
+                if( !map.hasLayer(targetMarker) ) return;
+                
+                // collect the configuration for all controls     
+                var travelOptions = getTravelOptionsFromControls(); 
+                
+                // start the service
+                r360.RouteService.getRoutes(travelOptions, function(routes){
+
+                    // remove all previous routes
+                    routeLayer.clearLayers();
+
+                    // add each route seperatly
+                    _.each(routes, function(route){
+
+                        // create one polyline for the route and a polyline for the polyline's halo
+                        _.each(r360.Util.routeToLeafletPolylines(route), function(polylineSegment){
+
+                            // add halo and line
+                            _.each(polylineSegment, function(polylines){
+
+                                polylines.addTo(routeLayer);
+                            });
+                        });
+                    });
+
+                    if ( routes.length > 0) { /*map.fitBounds(routeLayer.getBounds())*/ }
+                    else alert(r360.config.i18n.noRouteFound[r360.config.i18n.language]);
+                });
+            };   
         });
     </script>
 </body>

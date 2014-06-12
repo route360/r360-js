@@ -65,8 +65,6 @@ r360.Route360PolygonLayer = L.Class.extend({
         var that = this;
         that._resetBoundingBox();
         that._multiPolygons = new Array();
-
-        console.log(polygons)
         
         _.each(polygons, function(polygon){
 

@@ -3,6 +3,80 @@
  */
 r360.Util = {
 
+    /* 
+     * This method returns the current time, at the time this method is executed,
+     * in seconds. This means that the current hours, minutes and seconds of the current
+     * time are added up, e.g.: 12:11:15 pm: 
+     *
+     *      -> (12 * 3600) + (11 * 60) + 15 = 43875
+     * 
+     * @method getCurrentDate
+     * 
+     * @returns {Number} The current time in seconds
+     */
+    getTime : function() {
+
+        var now = new Date();
+        return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+    },
+
+    /*
+      * Returns the current date in the form 20140508 (YYYYMMDD). Note that month is 
+      * not zero but 1 based, which means 6 == June.
+      *
+      * @method getCurrentDate
+      * 
+      * @return {String} the date object in string representation YYYYMMDD
+      */
+    getCurrentDate : function() {
+
+        var date  = new Date();
+        var year  = date.getFullYear();
+        var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1); 
+        var day   = date.getDate() < 10 ? "0" + date.getDate() : date.getDate(); 
+        
+        return year + "" + month + "" + day;
+    },
+
+    /*
+     * Transforms the given seconds to a hour and minuten view. This means
+     * that for example 10:15 (one hour and 15 minutes) is translates to the string:
+     *      -> 10h 15min
+     *
+     * Note that no trailing zeros are returned. Also if hours < 1 only minute values will be returned.
+     * 
+     * @method secondsToHoursAndMinutes
+     * @returns {String} the transformed seconds in "xh ymin"
+     */
+    secondsToHoursAndMinutes : function(seconds) {
+
+        var minutes = (seconds / 60).toFixed(0);
+        var hours = Math.floor(minutes / 60);
+
+        minutes = minutes - hours * 60;
+        var timeString = "";
+
+        if (hours != 0) timeString += (hours + "h "); 
+        timeString += (minutes + "min");
+
+        return timeString;
+    },
+
+    /*
+     * This methods transforms a given time in seconds to a format like:
+     *      43200 -> 12:00:00
+     * 
+     * @method secondsToTimeOfDay
+     * @returns {String} the formated time string in the format HH:MM:ss
+     */
+    secondsToTimeOfDay : function(seconds){
+
+        var hours   = Math.floor(seconds/3600);
+        var minutes = Math.floor(seconds/60)-hours*60;
+        seconds     = seconds - (hours * 3600) - (minutes *60);
+        return hours+":"+ ("0" + minutes).slice(-2) +":"+ ("0" + seconds).slice(-2);
+    },
+
     /*
      *
      */
@@ -20,7 +94,80 @@ r360.Util = {
     /*
      *
      */
-    parsePolygons : function(polygonsJson, travelTimes) {
+    routeToLeafletPolylines : function(route, options) {
+
+        var polylines = [];
+
+        _.each(route.getSegments(), function(segment, index){
+
+            var polylineOptions       = {};
+            polylineOptions.color     = segment.getColor();
+
+            var polylineHaloOptions = {};
+            polylineHaloOptions.weight = 7;
+            polylineHaloOptions.color     = "white";
+            
+            // the first and the last segment is walking so we need to dotted lines
+            if ( index == 0 || index == (route.getLength() - 1) ) polylineOptions.dashArray = "1, 8";
+
+            var halo = L.polyline(segment.getPoints(), polylineHaloOptions);
+            var line = L.polyline(segment.getPoints(), polylineOptions);
+
+            var i18n = r360.config.i18n;
+            var lang = i18n.language;
+
+            var warningHtml = "";
+            if ( typeof segment.getWarning() !== "undefined") 
+                warningHtml = "<tr><td colspan='3'><b>" + segment.getWarning() + "</b></td></tr>";
+
+            var popup = L.popup({autoPan : false});
+
+            if ( !segment.isTransit() ) {
+                
+                popup.setContent(
+                    "<table style='width:400px; color:#07456b'> \
+                        <tr> \
+                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
+                            <td>" + i18n.distance[lang]   + ": <b>" + segment.getLength() + "km</b></td> \
+                            <td>" + i18n.elevation[lang]  + ": <b>" + segment.getElevationGain() + "m</b></td></tr> \
+                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime()) + "</b></td> \
+                        </tr> \
+                        " + warningHtml  + " \
+                    </table> \
+                    <div id='chart' style='width:250px; height:100px'></div>");   
+            }
+            else {
+
+                popup.setContent(
+                    "<table style='width:400px; color:#07456b'> \
+                        <tr> \
+                            <td>" + i18n.line[lang]     + ": <b>" + segment.routeShortName + "</b></td> \
+                            <td>" + i18n.from[lang]     + ": <b>" + segment.getStartName() + "</b></td> \
+                            <td>" + i18n.departure[lang]+ ": <b>" + r360.Util.secondsToTimeOfDay(segment.getDepartureTime()) + "</b></td> \
+                            <td>" + i18n.to[lang]       + ": <b>" + segment.getEndName() + "</b></td> \
+                        </tr> \
+                        <tr> \
+                            <td>" + i18n.arrival[lang]    + ": <b>" + r360.Util.secondsToTimeOfDay(segment.getArrivalTime())      + "</b></td> \
+                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
+                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime())   + "</b></td> \
+                        </tr> \
+                        <div id='chart' style='width:250px; height:100px'></div> \
+                        " + warningHtml  + " \
+                    </table>");  
+            }
+            
+            line.bindPopup(popup);
+            halo.bindPopup(popup);
+            polylines.push([halo, line]);
+        });
+
+        return polylines;
+    },
+
+    /*
+     *
+     */
+    parsePolygons : function(polygonsJson) {
                
         var polygons = new Array();
 
@@ -29,17 +176,14 @@ r360.Util = {
         _.each(polygonsJson["polygons"], function (polygonJson) {
 
             var polygon = r360.polygon();
-            polygon.travelTime = polygonJson.traveltime;
+            polygon.setTravelTime(polygonJson.travelTime);
+            polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
             polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
             polygon.setBoundingBox();
 
             _.each(polygonJson.innerBoundary, function (innerBoundary) {
                 polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
             });
-
-            for ( var i = 0; i < travelTimes.length; i++)
-                if ( travelTimes[i].time == polygon.travelTime )
-                    polygon.setColor(travelTimes[i].color);
             
             polygons.push(polygon);
         });
@@ -57,7 +201,7 @@ r360.Util = {
 
         _.each(json.routes, function(jsonRoute){
 
-            var route = r360.route(jsonRoute.traveltime);
+            var route = r360.route(jsonRoute.travelTime);
 
             _.each(jsonRoute.segments, function(segment){                
 

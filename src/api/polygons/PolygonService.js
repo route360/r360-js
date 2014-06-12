@@ -115,6 +115,8 @@ r360.PolygonService = {
             cfg.sources.push(src);
         });
         
-        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", callback);
+        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+            callback(r360.Util.parsePolygons(result));
+        });
     }
 }
