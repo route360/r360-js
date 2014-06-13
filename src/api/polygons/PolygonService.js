@@ -16,8 +16,6 @@ r360.PolygonService = {
         var time = 28800;
         var date = 20140331;
 
-        console.log(travelOptions);
-
         /*
         *   TODO reading the parameter from either default values or travelOptions needs to be done properly
         */

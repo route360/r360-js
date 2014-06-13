@@ -7,13 +7,23 @@ header {
     background-size: cover;
 }
 
+#map-example1, #map-addTravelTimeControlExample {
+
+    height: 400px;
+}
+
+#map-addTravelTimeControlExample {
+
+    margin-bottom: 15px; 
+}
+
+section.tutorials {
+    color: #fff;
+    background: #212E3E;
+}
+
 /* remove the star from the heading */
 hr.star-light:after, hr.star-primary:after {
 
     content: "";
-}
-
-#map-example1 {
-
-    height: 400px;
 }

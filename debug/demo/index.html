@@ -26,8 +26,9 @@
     <![endif]-->
 
     <link rel="stylesheet" href="css/demo.css"/>
-    <link rel="stylesheet" href="css/leaflet.css"/>
-    <link rel="stylesheet" href="css/jquery_ui_slider.css"/>
+    <link rel="stylesheet" href="css/r360.css"/>
+    <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+    <link rel="stylesheet" href="lib/jquery/jquery_ui_slider.css"/>
 </head>
 
 <body id="page-top" class="index">
@@ -54,6 +55,9 @@
                     </li>
                     <li class="page-scroll">
                         <a href="#gettingStarted">Getting started</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#tutorials">Tutorials</a>
                     </li>
                     <li class="page-scroll">
                         <a href="#about">About</a>
@@ -115,7 +119,7 @@ marker.addTo(map);
 // set the service url, note that this is a development/testing endpoint only
 // we do not guarantuee service uptime at any point
 r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-    
+
 // create the layer to add the polygons
 var cpl = r360.route360PolygonLayer();
 // add it to the map
@@ -147,6 +151,41 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
         </div>
     </section>
+
+    <section class="tutorials" id="tutorials">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Tutorials</h2>
+                    <hr class="star-light">
+                </div>
+            </div>
+            <div class="row">
+                <div class="container">
+                    <div class="col-lg-2">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li class="active"><a href="#traveltimecontrol" data-toggle="tab">Travel time control</a></li>
+                            <li><a href="#routing" data-toggle="tab">Routing</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-10">
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="traveltimecontrol">
+                                <p>In this tutorial, we will show you how to add a travel time control to the map and add behaviour to it, so that users can select different travel times and the map is automatically updated with larger or smaller (timely speaking) polygons. This tutorial builds up on the getting started section, so if you haven't done this already, go ahead and show some polygons! In any case, enjoy!</p>
+                                <div id="map-addTravelTimeControlExample"></div>
+                                <p>And the code with explanations:</p>
+                                <pre class="prettyprint" id="addTravelTimeControlExample"></pre>                            
+                            </div>
+                            <div class="tab-pane" id="routing">
+                                Bacon ipsum dolor sit amet shoulder pork t-bone, hamburger sirloin tongue porchetta. Spare ribs ham hock meatball jerky, strip steak rump capicola tri-tip porchetta. Brisket turkey leberkas kevin fatback ground round cow ribeye landjaeger ball tip meatloaf t-bone pastrami meatball jowl. Shank salami short loin, prosciutto pig cow spare ribs bresaola meatloaf shoulder doner chicken landjaeger pork chop. Tenderloin turducken strip steak cow turkey short loin. Pastrami bresaola ground round pork, hamburger flank frankfurter meatball kielbasa fatback venison corned beef beef ribs. Venison sausage leberkas, salami biltong pork chop tenderloin meatball flank.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <section class="success" id="about">
         <div class="container">
@@ -261,204 +300,15 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
         </a>
     </div>
 
-    <!-- Portfolio Modals -->
-    <div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/cabin.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/cake.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal3" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/circus.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/game.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal5" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/safe.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="portfolio-modal modal fade" id="portfolioModal6" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-content">
-            <div class="close-modal" data-dismiss="modal">
-                <div class="lr">
-                    <div class="rl">
-                    </div>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 col-lg-offset-2">
-                        <div class="modal-body">
-                            <h2>Project Title</h2>
-                            <hr class="star-primary">
-                            <img src="img/portfolio/submarine.png" class="img-responsive img-centered" alt="">
-                            <p>Use this area of the page to describe your project. The icon above is part of a free icon set by <a href="https://sellfy.com/p/8Q9P/jV3VZ/">Flat Icons</a>. On their website, you can download their free set with 16 icons, or you can purchase the entire set with 146 icons for only $12!</p>
-                            <ul class="list-inline item-details">
-                                <li>Client: <strong><a href="http://startbootstrap.com">Start Bootstrap</a></strong>
-                                </li>
-                                <li>Date: <strong><a href="http://startbootstrap.com">April 2014</a></strong>
-                                </li>
-                                <li>Service: <strong><a href="http://startbootstrap.com">Web Development</a></strong>
-                                </li>
-                            </ul>
-                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/jquery-1.10.2.js"></script>
+    <script src="lib/jquery/jquery-1.10.2.js"></script>
+    <script src="lib/jquery/jquery_ui_1_10_4.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="js/classie.js"></script>
     <script src="js/cbpAnimatedHeader.js"></script>
     <script src="js/freelancer.js"></script>
     <script src="js/prettify.js"></script>
-    <script src="js/jquery-1.10.2.js"></script>
-    <script src="js/jquery_ui_1_10_4.js"></script>
-    <script src="js/leaflet.js"></script>
+    <script src="lib/leaflet/leaflet.js"></script>
     <script src="js/underscore.js"></script>
     <script src="js/raphael-min.js"></script>
     <script src="js/g.raphael-min.js"></script>
@@ -466,8 +316,6 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
     <script type="text/javascript" src="../../build/deps.js"></script>
     <script src="../r360-include.js"></script>
-
-    <script> !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery)</script>
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
@@ -484,13 +332,13 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     attribution: attribution
             }).addTo(map);
 
-            // create a marker and add it to the map (make sure to fix the icon urls)
-            var marker = L.marker([52.51, 13.37], {icon : L.icon({iconUrl: 'img/marker-icon.png', shadowUrl: 'img/marker-shadow.png', iconAnchor: [12,45]})});
+            // create a marker and add it to the map
+            var marker = L.marker([52.51, 13.37]);
             marker.addTo(map);
 
             // set the service url, note that this is a development/testing endpoint only
             // we do not guarantuee service uptime at any point
-            r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+            // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();
@@ -503,7 +351,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                 // we only have one source which is the marker we just added
                 sources : [marker],
                 // we want to have polygons for 10 minutes and 20 minutes
-                travelTimes : [600,1200]
+                travelTimes : [1200,2400]
             };
 
             // call the service
@@ -515,6 +363,93 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     // zoom the map to fit the polygons perfectly
                     map.fitBounds(cpl.getBoundingBox());
             });
+        });
+    </script>
+
+    <!-- Code for example 2 -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            addTravelTimeControl();
+            $('#addTravelTimeControlExample').text(addTravelTimeControl.toString());
+
+            !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+
+function addTravelTimeControl(){
+
+    // add the map and set the initial center to berlin
+    var map = L.map('map-addTravelTimeControlExample').setView([52.51, 13.37], 13);
+    // attribution to give credit to OSM map data and VBB for public transportation 
+    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+     // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: attribution
+    }).addTo(map);
+
+    // create a marker and add it to the map
+    var marker = L.marker([52.51, 13.37]);
+    marker.addTo(map);
+
+    // set the service url, note that this is a development/testing endpoint only
+    // we do not guarantuee service uptime at any point
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+
+    // create the layer to add the polygons
+    var cpl = r360.route360PolygonLayer();
+    // add it to the map
+    map.addLayer(cpl);
+
+    // define time steps and colors here. Always use time values of the same distance and not too much time. 
+    // the maximum travel time size is 2 hours, 7200s respectivly, higher values will be blocked be the server
+    // travel times are defined in seconds the initial values in minutes... Also the label may be altered here
+    var travelTimeControl       = r360.travelTimeControl({
+        travelTimes     : [
+            { time : 1200 , color : "#006837"},
+            { time : 2400 , color : "#39B54A"},
+            { time : 3600 , color : "#8CC63F"}
+        ],
+        position : 'topright', // this is the position in the map
+        label: 'Travel time: ', // the label, customize for i18n
+        initValue: 40 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
+    });
+
+    //  bind the action to the travel time control
+    travelTimeControl.onSlideStop(function(){ showPolygons(); });
+
+    // add the newly created control to the map
+    map.addControl(travelTimeControl);
+
+    // call the helper function to display polygons with initial value
+    showPolygons();
+
+    // helper function to encapsulate the show polygon action
+    function showPolygons(){
+
+        // you need to define some options for the polygon service
+        // for more travel options check out the other tutorials
+        var travelOptions = {
+            // we only have one source which is the marker we just added
+            sources : [marker],
+            // we want to have polygons for 10 minutes and 20 minutes
+            travelTimes : travelTimeControl.getValues()
+        };
+
+        // call the service
+        r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+            
+            // in case there are already polygons on the map/layer
+            cpl.clearLayers();
+
+            // add the returned polygons to the polygon layer 
+            cpl.addLayer(polygons);
+            
+            // zoom the map to fit the polygons perfectly
+            map.fitBounds(cpl.getBoundingBox());
+        });
+    };
+}
         });
     </script>
 </body>

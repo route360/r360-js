@@ -20,7 +20,7 @@ r360.TravelTimeControl = L.Control.extend({
         this.options = r360.config.defaultTravelTimeControlOptions;
         
         // overwrite default options if possible
-        if ( typeof travelTimeControlOptions != "undefined" ) {
+        if ( typeof travelTimeControlOptions !== "undefined" ) {
             
             if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
             if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
@@ -170,8 +170,11 @@ r360.TravelTimeControl = L.Control.extend({
     getValues : function() {
         var options = this.options;
         var travelTimes = new Array()
-        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step)
-            travelTimes.push(options.travelTimes[i/options.step]);
+
+        // console.log($(this.options.travelTimeSlider).slider("value"));
+        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
+            travelTimes.push(options.travelTimes[i/options.step].time);
+            
         return travelTimes;
     }
 });

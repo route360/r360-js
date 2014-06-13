@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (2ad56a0), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (4d2ee0b), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -355,8 +355,6 @@ r360.PolygonService = {
         var time = 28800;
         var date = 20140331;
 
-        console.log(travelOptions);
-
         /*
         *   TODO reading the parameter from either default values or travelOptions needs to be done properly
         */
@@ -694,7 +692,7 @@ r360.TravelTimeControl = L.Control.extend({
         this.options = r360.config.defaultTravelTimeControlOptions;
         
         // overwrite default options if possible
-        if ( typeof travelTimeControlOptions != "undefined" ) {
+        if ( typeof travelTimeControlOptions !== "undefined" ) {
             
             if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
             if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
@@ -844,8 +842,11 @@ r360.TravelTimeControl = L.Control.extend({
     getValues : function() {
         var options = this.options;
         var travelTimes = new Array()
-        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step)
-            travelTimes.push(options.travelTimes[i/options.step]);
+
+        // console.log($(this.options.travelTimeSlider).slider("value"));
+        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
+            travelTimes.push(options.travelTimes[i/options.step].time);
+            
         return travelTimes;
     }
 });
