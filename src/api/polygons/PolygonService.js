@@ -16,6 +16,8 @@ r360.PolygonService = {
         var time = 28800;
         var date = 20140331;
 
+        console.log(travelOptions);
+
         /*
         *   TODO reading the parameter from either default values or travelOptions needs to be done properly
         */
@@ -73,23 +75,23 @@ r360.PolygonService = {
         TODO handling here is not nice. There need to be a better way to deal with different travelMode. Complex issue
         */  
 
-        var times = new Array();
+        // var times = new Array();
 
-        for(var i = 0; i < travelTimes.length; i++){
-            if(travelTimes[i].time > 7200){
-                alert("invalid parameter: do not use times higher 7200");
-                return;
-            }
-            times[i] = travelTimes[i].time;
-        }
+        // for(var i = 0; i < travelTimes.length; i++){
+        //     if(travelTimes[i].time > 7200){
+        //         alert("invalid parameter: do not use times higher 7200");
+        //         return;
+        //     }
+        //     times[i] = travelTimes[i].time;
+        // }
             
    
         var cfg = {};
-        cfg.polygon = { values : times };
+        cfg.polygon = { values : travelTimes };
         cfg.sources = [];
         _.each(sources, function(source){
             var src = {};
-            src.id = source.id;
+            src.id =  _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng;
             src.lat = source.getLatLng().lat;
             src.lon = source.getLatLng().lng;
             src.tm = {};   

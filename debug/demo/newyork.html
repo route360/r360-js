@@ -1,21 +1,33 @@
 <!DOCTYPE html>
-<html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 <head>
     <title>Route 360 - New York</title>
+    <meta charset="utf-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script src="../underscore.js"></script>
-    <!-- // <script src="../jquery_v2_1_1.js"></script> -->
-    <!-- // <script src="../jquery_ui_1_10_4.js"></script> -->
-    <!-- <link rel="stylesheet" href="../jquery_ui_slider.css"/> -->
 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" href="http://144.76.246.53/norway/lib/query-ui/jquery-ui-1.10.4.custom.css"/>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <script src="http://144.76.246.53/norway/src/jquery.ui.touch-punch.min.js"></script>
 
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
 
     <link rel="stylesheet" href="../leaflet.css"/>
     <link rel="stylesheet" href="../../dist/r360.css"/>
+    <link rel="stylesheet" href="demo.css"/>
     <script src="../leaflet.js"></script>
     <script type="text/javascript" src="../../build/deps.js"></script>
     <script src="../r360-include.js"></script>
@@ -26,8 +38,40 @@
     <script src="museum.js"></script>
 </head>
 <body>
+    <div nav class="navbar navbar-default" role="navigation" ng-controller="NavCtrl">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="" ng-click="loadHome()">
+            <img src="../images/r360-logo.png" class="img-responsive" style="width:120px;margin-top: -5px;" alt="Dein Freizeit-Tipp für ohne Auto"/>
+          </a>
+        </div>
 
-    <div id="map"></div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul id="left-nav-bar" class="nav navbar-nav">
+            <!-- <li ng-class="navClass('blog')" ng-click="loadBlog()"><a href="">Blog</a></li> -->
+            <!-- <li ng-class="navClass('newsletter')" ng-click="loadNewsletter()"><a href="">Newsletter</a></li> -->
+          </ul>
+          
+          <ul class="nav navbar-nav navbar-right">
+            <!-- <li ng-class="navClass('test')" ng-click="loadTest()"><a href=""><i class="fa fa-cogs"></i> Test</a></li> -->
+            <li ng-class="navClass('team')" ng-click="loadTeam()"><a href=""><i class="fa fa-users"></i> Team</a></li>
+            <li ng-class="navClass('contact')" ng-click="loadContact()"><a href=""><i class="fa fa-envelope"></i> Kontakt</a></li>
+            <li ng-class="navClass('about')" ng-click="loadAbout()"><a href=""><i class="fa fa-info"></i> Impressum</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <div class="container">
+        <div id="map-example1"></div>
+    </div>
 
     <script type="text/javascript">
 
@@ -35,13 +79,13 @@
 
             /*-----------------------------------------   setting up the map ------------------------------------*/
 
-            var map = L.map('map', {zoomControl: false}).setView([40.71448, -74.00598], 13);
+            var map = L.map('map-example1', {zoomControl: false}).setView([40.71448, -74.00598], 13);
             // var map = L.map('map', {zoomControl: false}).setView([52.516389, 13.377778], 13);
             var zoom = L.control.zoom({position: 'bottomleft'});
                 map.addControl( zoom );
 
             //attribution to give credit to OSM Kartverket and MI
-                var attribution ='<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox © OpenStreetMap</a> | DEM © <a href="http://www.data.kartverket.no/" target="_blank">Kartverket</a> | Utviklet av <a href="http://www.route360.net/en/" target="_blank">Route360°</a> for <a href="http://www.forbrukerradet.no/" target="_blank">Forbrukerrådet</a>';
+            var attribution ='<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox © OpenStreetMap</a> | DEM © <a href="http://www.data.kartverket.no/" target="_blank">Kartverket</a> | Utviklet av <a href="http://www.route360.net/en/" target="_blank">Route360°</a> for <a href="http://www.forbrukerradet.no/" target="_blank">Forbrukerrådet</a>';
 
              // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
             L.tileLayer('http://a.tiles.mapbox.com/v3/mi.i65jib2f/{z}/{x}/{y}.png', {
@@ -117,7 +161,7 @@
                 checked : 6
             };
 
-             // the layer the polygons will be shown later on
+            // the layer the polygons will be shown later on
             var cpl                     = r360.route360PolygonLayer(polygonLayerOptions); 
              // defining the layer where our routes will be shown later on
             var routeLayer              = L.featureGroup().addTo(map);

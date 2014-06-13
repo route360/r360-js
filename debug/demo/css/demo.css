@@ -1,0 +1,19 @@
+header {
+
+     background: url(../img/background-image-start.png) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+/* remove the star from the heading */
+hr.star-light:after, hr.star-primary:after {
+
+    content: "";
+}
+
+#map-example1 {
+
+    height: 400px;
+}
