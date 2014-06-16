@@ -10,14 +10,31 @@ r360.Util = {
      *
      *      -> (12 * 3600) + (11 * 60) + 15 = 43875
      * 
-     * @method getCurrentDate
+     * @method getTimeInSeconds
      * 
      * @returns {Number} The current time in seconds
      */
-    getTime : function() {
+    getTimeInSeconds : function() {
 
         var now = new Date();
         return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+    },
+
+    /* 
+     * This method returns the current time, at the time this method is executed,
+     * in seconds. This means that the current hours, minutes and seconds of the current
+     * time are added up, e.g.: 12:11 pm: 
+     *
+     *      -> (12 * 3600) + (11 * 60) = 43875
+     * 
+     * @method getTimeInSeconds
+     * 
+     * @returns {Number} The current time in seconds
+     */
+    getHoursAndMinutesInSeconds : function() {
+
+        var now = new Date();
+        return (now.getHours() * 3600) + (now.getMinutes() * 60);
     },
 
     /*
@@ -36,6 +53,13 @@ r360.Util = {
         var day   = date.getDate() < 10 ? "0" + date.getDate() : date.getDate(); 
         
         return year + "" + month + "" + day;
+    },
+
+    getTimeFormat : function(seconds) {
+
+        var i18n = r360.config.i18n;
+        if ( i18n.language == 'en' ) if ( seconds >= 43200 ) return 'p.m.';
+        return i18n.get('timeFormat');
     },
 
     /*
@@ -75,6 +99,27 @@ r360.Util = {
         var minutes = Math.floor(seconds/60)-hours*60;
         seconds     = seconds - (hours * 3600) - (minutes *60);
         return hours+":"+ ("0" + minutes).slice(-2) +":"+ ("0" + seconds).slice(-2);
+    },
+
+    /*
+     * This methods generates a unique ID with the given length or 10 if no length was given.
+     * The method uses all characters from [A-z0-9] but does not guarantuee a unique string.
+     * It's more a pseudo random string. 
+     * 
+     * @method generateId
+     * @param the length of the returnd pseudo random string
+     * @return a random string with the given length
+     */
+    generateId : function(length) {
+        
+        var id       = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        _.each(_.range(length ? length : 10), function(i){
+            id += possible.charAt(Math.floor(Math.random() * possible.length));
+        })
+
+        return id;
     },
 
     /*

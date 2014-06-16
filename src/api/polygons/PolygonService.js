@@ -67,6 +67,7 @@ r360.PolygonService = {
                 date = travelOptions.date;
             }
 
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
         }      
 
         /*
@@ -114,8 +115,14 @@ r360.PolygonService = {
 
             cfg.sources.push(src);
         });
-        
-        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+            
+        // make the request to the Route360° backend 
+        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
+            encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+
+            // hide the please wait control
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+            // call callback with returned results
             callback(r360.Util.parsePolygons(result));
         });
     }

@@ -81,7 +81,21 @@ r360.config = {
         travelTime          : { en : 'Travel time',     de : 'Reisezeit' },
         totalTime           : { en : 'Total time',      de : 'Gesamtzeit' },
         distance            : { en : 'Distance',        de : 'Distanz' },
+        wait                : { en : 'Please wait!',    de : 'Bitte warten!' },
         elevation           : { en : 'Elevation',       de : 'Höhenunterschied' },
+        timeFormat          : { en : 'a.m.',            de : 'Uhr' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
+        monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
+        dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },
+        dayNamesMin         : { de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] },
+        get : function(key){
+
+            var translation;
+            _.each(_.keys(r360.config.i18n), function(aKey){
+                if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
+            })
+
+            return translation;
+        }
     }
 }

@@ -7,14 +7,19 @@ header {
     background-size: cover;
 }
 
-#map-example1, #map-addTravelTimeControlExample {
+#map-example1, #map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample {
 
     height: 400px;
 }
 
-#map-addTravelTimeControlExample {
+#map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample {
 
     margin-bottom: 15px; 
+}
+
+.tutorial {
+
+    padding-top: 100px;
 }
 
 section.tutorials {
