@@ -26,9 +26,9 @@
     <![endif]-->
 
     <link rel="stylesheet" href="css/demo.css"/>
-    <link rel="stylesheet" href="css/r360.css"/>
     <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
-    <link rel="stylesheet" href="lib/jquery/jquery-ui-1.9.2.custom.css"/>
+    <link rel="stylesheet" href="lib/jquery/jquery-ui-1.10.0.custom.css"/>
+    <link rel="stylesheet" href="css/r360.css"/>
 </head>
 
 <body id="page-top" class="index">
@@ -185,12 +185,12 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         <ul id="menu" class="nav nav-pills nav-stacked">
                             <li><a href="#traveltimecontrol">Travel time control</a></li>
                             <li><a href="#traveltypecontrol">Travel type control</a></li>
-                            <li><a href="#travelstartdatecontrol">Travel date and time control</a></li>
+                            <li><a href="#travelstartdatecontrol">Travel date and time of day control</a></li>
                             <li><a href="#geocodingcontrol">Route360° geocoding service</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-10">
-                        <div id="traveltimecontrol"></div>
+                        <div id="traveltimecontrol">
                             <h3>Adding a travel time control</h3>
                             <p>In this tutorial, we will show you how to add a <code>TravelTimeControl</code> to the map and add behaviour to it, so that users can select different travel times and the map is automatically updated with larger or smaller (timely speaking) polygons. This tutorial builds up on the getting started section, so if you haven't done this already, go ahead and show some polygons! In any case, enjoy!</p>
                             <div id="map-addTravelTimeControlExample"></div>
@@ -212,8 +212,8 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                             <pre class="prettyprint" id="addTravelStartDateControlExample"></pre>                            
                         </div>
                         <div class="tutorial" id="geocodingcontrol">
-                            <h3>TODO</h3>
-                            <p>TODO</p>
+                            <h3>Adding place autocompletion for variable source points</h3>
+                            <p>In this tutorial we will show you how to use the Route360° geocoding service to be able to let users enter for example there home address. We will add a <code>PlaceAutoCompleteControl</code> to the map and bind an action to add or move the marker as well as clearing already shown polygons. The <code>PlaceAutoCompleteControl</code> also offers the ability to add to buttons to it. One button is used to delete already made user inputs and the other should be used to switch source and target for a routing request. Both of these examples will be covered in another tutorial.</p>
                             <div id="map-addPlaceAutoCompleteControlExample"></div>
                             <p>And the code with explanations:</p>
                             <pre class="prettyprint" id="addPlaceAutoCompleteControlExample"></pre>                            
@@ -338,9 +338,9 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
         </a>
     </div>
 
-    <script src="lib/jquery/jquery-1.8.3.min.js"></script>
+    <script src="lib/jquery/jquery-1.10.2.js"></script>
     <!-- // <script src="js/bootstrap.min.js"></script> -->
-    <script src="lib/jquery/jquery-ui-1.9.2.custom.min.js"></script>
+    <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
     
     <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="js/classie.js"></script>
@@ -538,9 +538,9 @@ function addTravelTypeControl(){
         buttons : [
             // each button has a label which is displayed, a key, a tooltip for mouseover events 
             // and a boolean which indicates if the button is selected by default
-            { label: 'Cycling', key: 'bike',     tooltip: 'bicycle',            checked : false },
-            { label: 'Walking', key: 'walk',     tooltip: 'walking',            checked : true },
-            { label: 'Car',     key: 'car',      tooltip: 'car',                checked : false }
+            { label: 'Cycling', key: 'bike', tooltip: 'Cycling speed is on average 15km/h', checked : false },
+            { label: 'Walking', key: 'walk', tooltip: 'Walking speed is on average 5km/h', checked : true },
+            { label: 'Car',     key: 'car',  tooltip: 'Car speed is limited by speed limit',     checked : false }
         ]
     };
 
@@ -668,7 +668,7 @@ function addTravelStartDateControl(){
 function addPlaceAutoCompleteControl(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map-addTravelStartDateControlExample').setView([52.51, 13.37], 13);
+    var map = L.map('map-addPlaceAutoCompleteControlExample', {zoomControl : false}).setView([52.51, 13.37], 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -679,6 +679,9 @@ function addPlaceAutoCompleteControl(){
             attribution: attribution
     }).addTo(map);
 
+    // create a marker and but dont add it to the map yet
+    var marker;
+
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
     // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
@@ -688,7 +691,22 @@ function addPlaceAutoCompleteControl(){
     // add it to the map
     map.addLayer(cpl);
 
-    // TODO add code for place auto complete
+    // create an auto complete control and set it to return only german cities, streets etc. 
+    var placeAutoComplete = r360.placeAutoCompleteControl({country : "Deutschland", placeholder : 'Select start!'});
+    // add the controls to the map
+    map.addControl(placeAutoComplete);
+    map.addControl(L.control.zoom({ position : 'topright' }));
+
+    // define what happens if someone clicks an item in the autocomplete
+    placeAutoComplete.onSelect(function(item){
+
+        // if the source marker is on the map already, move it to the new position
+        if ( map.hasLayer(marker) ) marker.setLatLng(item.latlng);
+        // otherwise add it
+        else marker = L.marker(item.latlng).addTo(map);
+        // and show the polygons for the new source
+        showPolygons();
+    });
 
     // helper function to encapsulate the show polygon action
     function showPolygons(){

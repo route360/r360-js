@@ -6,9 +6,9 @@ r360.TravelStartTimeControl = L.Control.extend({
         position    : 'topright',
         range       : false,
         min         : 0,
-        max         : 1440 * 60,
-        step        : 10 * 60,
-        initValue   : 480 * 60,
+        max         : 1440 * 60, // start time is now in seconds
+        step        : 10 * 60, // start time is now in seconds
+        initValue   : 480 * 60, // start time is now in seconds
         value       : 0
     },
 

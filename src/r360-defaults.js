@@ -40,11 +40,14 @@ r360.config = {
         { routeType : 1 , color : "red"}
     ],
 
-    defaultNamePickerOptions : {
+    defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net:8983/solr/select?",
         position : 'topleft',
         reset : false,
-        placeholder : ''
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
     },
 
     defaultRadioOptions: {
@@ -84,6 +87,8 @@ r360.config = {
         wait                : { en : 'Please wait!',    de : 'Bitte warten!' },
         elevation           : { en : 'Elevation',       de : 'Höhenunterschied' },
         timeFormat          : { en : 'a.m.',            de : 'Uhr' },
+        reset               : { en : 'Reset input',     de : 'Eingeben löschen' },
+        reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
         monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
         dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },

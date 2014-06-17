@@ -1,76 +1,77 @@
-r360.placeAutoCompleteControl = function () {
-    return new r360.PlaceAutoCompleteControl();
+r360.placeAutoCompleteControl = function (options) {
+    return new r360.PlaceAutoCompleteControl(options);
 };
 
 r360.PlaceAutoCompleteControl = L.Control.extend({
 
     initialize: function(options){
 
-            this.options = MiConfig.defaultNamePickerOptions;
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultPlaceAutoCompleteOptions));
 
-           
-            if ( typeof options != "undefined" ) {
-                
-                if(typeof options.position != "undefined") this.options.position = options.position;
-                if(typeof options.label != "undefined") this.options.label = options.label;
-                if(typeof options.country != "undefined") this.options.country = options.country;
-                if(typeof options.reset != "undefined") this.options.reset = options.reset;
-                if(typeof options.reset != "undefined")this.options.reverse = options.reverse;
-                if(typeof options.placeholder != "undefined") this.options.placeholder = options.placeholder;
-            }
-
-            L.Util.setOptions(this);
+        if ( typeof options !== "undefined" ) {
+            
+            if ( _.has(options, 'position'))    this.options.position    = options.position;
+            if ( _.has(options, 'label'))       this.options.label       = options.label;
+            if ( _.has(options, 'country'))     this.options.country     = options.country;
+            if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
+            if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
+            if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
+            if ( _.has(options, 'width'))       this.options.width       = options.width;
+            if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+        }
     },
 
     onAdd: function(map){
+        
         var that = this;
         var countrySelector =  "";
 
         var nameContainer = L.DomUtil.create('div', this._container);
-        var miBox = $('<div/>', {"class" : "mi-box"});
 
-        that.options.input = $('<input/>', {"placeholder" : that.options.placeholder, "onclick" : "this.select()"});
         that.options.map = map;
+        var mapId = $(map._container).attr("id");
         map.on("resize", this.onResize.bind(this));          
 
-        $(nameContainer).append(miBox);        
-        $(miBox).append(that.options.input);
+        var i18n = r360.config.i18n;   
 
-        if(that.options.reset){
-            that.options.resetButton = $('<button/>', {"text": "reset", "style": "width:22px; height:22px; bottom: 2px;"});
+        // calculate the width in dependency to the number of buttons attached to the field
+        var width = this.options.width;
+        if ( that.options.reset ) width += 44;
+        if ( that.options.reverse ) width += 37;
+        var style = 'style="width:'+ width +'px;"';
 
-            $(miBox).append(that.options.resetButton);    
+        that.options.input = 
+            '<div class="input-group autocomplete" '+style+'> \
+                <input id="autocomplete-'+mapId+'" style="color: black;width:'+width+'" \
+                type="text" class="form-control" placeholder="' + this.options.placeholder + '" onclick="this.select()">';
 
-            $(this.options.resetButton).button({
-                icons: {
-                    primary: "ui-icon-close"
-                },
-            text: false}
-            );
-        }        
+        // add a reset button to the input field
+        if ( that.options.reset ) {
 
-        if(that.options.reverse){
-            that.options.reverseButton = $('<button/>', {"text": "reverse", "style": "width:22px; height:22px; bottom: 2px;"});
+            that.options.input += 
+                '<span class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" onclick="this.onReset()" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                </span>'
+        }
+        if ( that.options.reverse ) {
 
-            $(miBox).append(that.options.reverseButton);    
+            this.options.input += 
+                '<span class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" onclick="this.onReverse()" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
+                </span>'
+        }
 
-            $(this.options.reverseButton).button({
-                icons: {
-                    primary: "ui-icon-transferthick-e-w"
-                },
-            text: false}
-            );
-        }        
-         
-       
-        L.DomEvent.disableClickPropagation(nameContainer);         
+        that.options.input += '</div>';
 
-        if(typeof that.options.country != 'undefined')
-            countrySelector += " AND country:" + that.options.country;
+        // add the control to the map
+        $(nameContainer).append(that.options.input);        
+        
+        // no click on the map, if click on container        
+        L.DomEvent.disableClickPropagation(nameContainer);      
 
-        $(that.options.input).autocomplete({
+        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
-           
+        $(nameContainer).find("#autocomplete-"+mapId).autocomplete({
 
             source: function( request, response ) {
 
@@ -80,100 +81,110 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 var numbers = new Array();
                 var requestString = "";
                 var numberString = "";
+                var places = [];
+                    
                 for(var i = 0; i < requestElements.length; i++){
+                    
                     if(requestElements[i].search(".*[0-9].*") != -1)
                         numbers.push(requestElements[i]);
                     else
                         requestString += requestElements[i] + " ";
                 }
 
-                if(numbers.length > 0){
+                if ( numbers.length > 0 ) {
                     numberString += " OR ";
+                    
                     for(var j = 0; j < numbers.length; j++){
                         var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
                         numberString +=  n;
                     }
                 }
 
-
-                delay: 150,
+                // delay: 150,
 
                 $.ajax({
-                  url: that.options.serviceUrl, 
-                  dataType: "jsonp",
-                  jsonp: 'json.wrf',
-                  data: {
-                    wt:'json',
-                    indent : true,
-                    rows: 10,
-                    qt: 'en',
-                    q:  "(" + requestString + numberString + ")" + countrySelector
-                  }, 
-                  success: function( data ) {
+                    url: that.options.serviceUrl, 
+                    dataType: "jsonp",
+                    jsonp: 'json.wrf',
+                    async: false,
+                    data: {
+                      wt:'json',
+                      indent : true,
+                      rows: that.options.maxRows,
+                      qt: 'en',
+                      q:  "(" + requestString + numberString + ")" + countrySelector
+                    }, 
+                    success: function( data ) {
 
-                    var pastArrays = new Array();
-                    response( $.map( data.response.docs, function( item ) {
+                        var places = new Array();
+                        response( $.map( data.response.docs, function( item ) {
 
-                        if(item.osm_key == "boundary")
-                            return;
+                            if ( item.osm_key == "boundary" ) return;
 
-                        var latlng = item.coordinate.split(',');
-                        var place           = {};
-                        var firstRow        = [];
-                        var secondRow       = [];
-                        place.name          = item.name;
-                        place.city          = item.city;
-                        place.street        = item.street;
-                        place.housenumber   = item.housenumber;
-                        place.country       = item.country;
-                        place.postalCode    = item.postcode;
-                        if (place.name)       firstRow.push(place.name);
-                        if (place.city)       firstRow.push(place.city);
-                        if (place.street)     secondRow.push(place.street);
-                        if (place.housenumber) secondRow.push(place.housenumber);
-                        if (place.postalCode) secondRow.push(place.postalCode);
-                        if (place.city)       secondRow.push(place.city);
+                            var latlng = item.coordinate.split(',');
+                            var place           = {};
+                            var firstRow        = [];
+                            var secondRow       = [];
+                            place.name          = item.name;
+                            place.city          = item.city;
+                            place.street        = item.street;
+                            place.housenumber   = item.housenumber;
+                            place.country       = item.country;
+                            place.postalCode    = item.postcode;
+                            if (place.name)       firstRow.push(place.name);
+                            if (place.city)       firstRow.push(place.city);
+                            if (place.street)     secondRow.push(place.street);
+                            if (place.housenumber) secondRow.push(place.housenumber);
+                            if (place.postalCode) secondRow.push(place.postalCode);
+                            if (place.city)       secondRow.push(place.city);
 
-                        /*only show country if undefined*/
-                        if(typeof that.options.country == 'undefined')
-                            if (place.country)    secondRow.push(place.country);
+                            // only show country if undefined
+                            if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
-                        /*if same looking object is in list already: return*/
-                        for(var i = 0; i < pastArrays.length; i++)
-                            if(pastArrays[i] == ""+firstRow.join()+secondRow.join())
-                                return;
+                            // if same looking object is in list already: return 
+                            _.each(places, function(pastPlace){
+                                if ( pastPlace == "" + firstRow.join() + secondRow.join() ) return;
+                            })
 
-                        pastArrays.push(""+firstRow.join()+secondRow.join());
+                            places.push("" + firstRow.join()+secondRow.join());
 
-                      return {
-                        label: firstRow.join(", "),
-                        value: firstRow.join(", "),
-                        firstRow: firstRow.join(", "),
-                        secondRow: secondRow.join(" "),
-                        latlng: new L.LatLng(latlng[0], latlng[1])
-                      }
-                    }));
-                  }
+                            return {
+                                label       : firstRow.join(", "),
+                                value       : firstRow.join(", "),
+                                firstRow    : firstRow.join(", "),
+                                secondRow   : secondRow.join(" "),
+                                term        : request.term,
+                                latlng      : new L.LatLng(latlng[0], latlng[1])
+                            }
+                        }));
+                    }
                 });
-              },
-              minLength: 1,
-              select: function( event, ui ) {
+            },
+            minLength: 2,
+              
+            select: function( event, ui ) {
                 that.options.value = ui.item;
-                that.options.onEnter(ui.item);
-              },
-              open: function() {
-                $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-              },
-              close: function() {
-                $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-              },
-               create: function() {
-                $( this ).addClass( "ui-corner-all" );
-             }
-            }).data( "ui-autocomplete" )._renderItem = function( ul, item ) {
-            /*Styling in two rows would be nice. Looks ugly in JQuery though*/
+                that.options.onSelect(ui.item);
+            },
+
+            open: function(e,ui) {},
+            close: function() {},
+            create: function() {}
+        })
+        .data("ui-autocomplete")._renderItem = function( ul, item ) {
+
+            // this has been copied from here: https://github.com/angular-ui/bootstrap/blob/master/src/typeahead/typeahead.js
+            // thank you angular bootstrap team
+            function escapeRegexp(queryToEscape) {
+                return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+            }
+
+            var matchItem = "<a><span class='address-row1'>"+ item.firstRow + "</span><br/><span class='address-row2'>  " + item.secondRow + "</span></a>";
+
+            var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
+
             return $( "<li>" )
-                .append( "<a><span class='address-row1'>"+ item.firstRow + "</span><span class='address-row2'>  " + item.secondRow + "</span></a>" )
+                .append(html)
                 .appendTo( ul );
             };
             this.onResize();     
@@ -204,9 +215,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         }
     },
 
-    onEnter: function(onEnter){
+    onSelect: function(onSelect){
+
         var that = this;
-        that.options.onEnter = onEnter;       
+        that.options.onSelect = onSelect;       
     },
 
     setFieldValue : function(val){

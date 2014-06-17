@@ -17,8 +17,8 @@ r360.TravelTimeControl = L.Control.extend({
     initialize: function (travelTimeControlOptions) {
         
         // use the default options
-        this.options = r360.config.defaultTravelTimeControlOptions;
-        
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultTravelTimeControlOptions));
+
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
@@ -31,10 +31,6 @@ r360.TravelTimeControl = L.Control.extend({
 
         this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
         this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
-
-        // TODO Ich glaube das wird hier nicht richtig aufgerufen, in der Doc steht 
-        // setOptions( <Object> obj, <Object> options )
-        L.Util.setOptions(this);
     },
 
     /*

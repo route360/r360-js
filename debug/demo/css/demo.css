@@ -7,13 +7,9 @@ header {
     background-size: cover;
 }
 
-#map-example1, #map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample {
+#map-example1, #map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-addPlaceAutoCompleteControlExample {
 
     height: 400px;
-}
-
-#map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample {
-
     margin-bottom: 15px; 
 }
 

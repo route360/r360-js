@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (4d2ee0b), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (5674ef7), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -19,18 +19,42 @@ function expose() {
 }
 
 // define r360 for Node module pattern loaders, including Browserify
-if (typeof module === 'object' && typeof module.exports === 'object') {
+if (typeof module === 'object' && typeof module.exports === 'object') 
 	module.exports = r360;
 
 // define r360 as an AMD module
-} else if (typeof define === 'function' && define.amd) {
-	define(r360);
+else if (typeof define === 'function' && define.amd) define(r360);
 
 // define r360 as a global r360 variable, saving the original r360 to restore later if needed
-} else {
-	expose();
-}
+else expose();
 
+
+/*
+* IE 8 does not get the bind function. This is a workaround...
+*/
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== "function") {
+      // closest thing possible to the ECMAScript 5 internal IsCallable function
+      throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+    }
+
+    var aArgs = Array.prototype.slice.call(arguments, 1), 
+        fToBind = this, 
+        fNOP = function () {},
+        fBound = function () {
+          return fToBind.apply(this instanceof fNOP && oThis
+                                 ? this
+                                 : oThis,
+                               aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
 
 r360.config = {
 
@@ -74,11 +98,14 @@ r360.config = {
         { routeType : 1 , color : "red"}
     ],
 
-    defaultNamePickerOptions : {
+    defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net:8983/solr/select?",
         position : 'topleft',
         reset : false,
-        placeholder : ''
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
     },
 
     defaultRadioOptions: {
@@ -115,8 +142,24 @@ r360.config = {
         travelTime          : { en : 'Travel time',     de : 'Reisezeit' },
         totalTime           : { en : 'Total time',      de : 'Gesamtzeit' },
         distance            : { en : 'Distance',        de : 'Distanz' },
+        wait                : { en : 'Please wait!',    de : 'Bitte warten!' },
         elevation           : { en : 'Elevation',       de : 'Höhenunterschied' },
+        timeFormat          : { en : 'a.m.',            de : 'Uhr' },
+        reset               : { en : 'Reset input',     de : 'Eingeben löschen' },
+        reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
+        monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
+        dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },
+        dayNamesMin         : { de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] },
+        get : function(key){
+
+            var translation;
+            _.each(_.keys(r360.config.i18n), function(aKey){
+                if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
+            })
+
+            return translation;
+        }
     }
 }
 
@@ -132,14 +175,31 @@ r360.Util = {
      *
      *      -> (12 * 3600) + (11 * 60) + 15 = 43875
      * 
-     * @method getCurrentDate
+     * @method getTimeInSeconds
      * 
      * @returns {Number} The current time in seconds
      */
-    getTime : function() {
+    getTimeInSeconds : function() {
 
         var now = new Date();
         return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+    },
+
+    /* 
+     * This method returns the current time, at the time this method is executed,
+     * in seconds. This means that the current hours, minutes and seconds of the current
+     * time are added up, e.g.: 12:11 pm: 
+     *
+     *      -> (12 * 3600) + (11 * 60) = 43875
+     * 
+     * @method getTimeInSeconds
+     * 
+     * @returns {Number} The current time in seconds
+     */
+    getHoursAndMinutesInSeconds : function() {
+
+        var now = new Date();
+        return (now.getHours() * 3600) + (now.getMinutes() * 60);
     },
 
     /*
@@ -158,6 +218,13 @@ r360.Util = {
         var day   = date.getDate() < 10 ? "0" + date.getDate() : date.getDate(); 
         
         return year + "" + month + "" + day;
+    },
+
+    getTimeFormat : function(seconds) {
+
+        var i18n = r360.config.i18n;
+        if ( i18n.language == 'en' ) if ( seconds >= 43200 ) return 'p.m.';
+        return i18n.get('timeFormat');
     },
 
     /*
@@ -197,6 +264,27 @@ r360.Util = {
         var minutes = Math.floor(seconds/60)-hours*60;
         seconds     = seconds - (hours * 3600) - (minutes *60);
         return hours+":"+ ("0" + minutes).slice(-2) +":"+ ("0" + seconds).slice(-2);
+    },
+
+    /*
+     * This methods generates a unique ID with the given length or 10 if no length was given.
+     * The method uses all characters from [A-z0-9] but does not guarantuee a unique string.
+     * It's more a pseudo random string. 
+     * 
+     * @method generateId
+     * @param the length of the returnd pseudo random string
+     * @return a random string with the given length
+     */
+    generateId : function(length) {
+        
+        var id       = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        _.each(_.range(length ? length : 10), function(i){
+            id += possible.charAt(Math.floor(Math.random() * possible.length));
+        })
+
+        return id;
     },
 
     /*
@@ -352,109 +440,99 @@ r360.PolygonService = {
         var uphill = 20;
         var downhill = -10;
 
-        var time = 28800;
-        var date = 20140331;
+        var time = r360.Util.getTimeInSeconds();
+        var date = r360.Util.getCurrentDate();
 
-        /*
-        *   TODO reading the parameter from either default values or travelOptions needs to be done properly
-        */
-        if(typeof callback == 'undefined')
-            alert('callback needs to be defined');
-        if(typeof travelOptions == 'undefined')
-            alert('define travel options');
-        else{
-            if(typeof travelOptions.sources == 'undefined')
-                alert("we need a source point");
-            else
-                sources = travelOptions.sources;
-            if(typeof travelOptions.travelTimes != 'undefined')
-                travelTimes = travelOptions.travelTimes;
-            else
-                travelTimes = r360.config.defaultTravelTimeControlOptions.travelTimes;
-            if(typeof travelOptions.travelMode != 'undefined'){
-                travelMode = travelOptions.travelMode;
-            }               
-            else
-                travelMode = r360.config.defaultTravelMode;
+        // reading the parameter from either default values or travelOptions
+        if ( typeof callback       == 'undefined') alert('callback needs to be defined');
+        if ( typeof travelOptions !== 'undefined') {
 
-            if(typeof travelOptions.speed != 'undefined'){
-                if(travelOptions.speed < 1){
-                    alert("invalid paramters. speed needs to be higher")
-                    return;
-                }
-                speed = travelOptions.speed;
-            }
+            if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
+            else alert("No sources for routing given!");
 
-            if(typeof travelOptions.uphill != 'undefined'){
-                uphill = travelOptions.uphill;
-            }
-
-            if(typeof travelOptions.downhill != 'undefined'){
-                downhill = travelOptions.downhill;
-            }
-
-            if(uphill < 0 || downhill > 0 || uphill < -(downhill)){
-                alert("wrong parameters for uphill and downhill")
-                return;
-            }
-
-            if(typeof travelOptions.time != 'undefined'){
-                time = travelOptions.time;
-            }
-
-            if(typeof travelOptions.date != 'undefined'){
-                date = travelOptions.date;
-            }
-
-        }      
-
-        /*
-        TODO handling here is not nice. There need to be a better way to deal with different travelMode. Complex issue
-        */  
-
-        // var times = new Array();
-
-        // for(var i = 0; i < travelTimes.length; i++){
-        //     if(travelTimes[i].time > 7200){
-        //         alert("invalid parameter: do not use times higher 7200");
-        //         return;
-        //     }
-        //     times[i] = travelTimes[i].time;
-        // }
+            if ( _.has(travelOptions, "travelTimes") ) travelTimes = travelOptions.travelTimes;
+            else travelTimes = r360.config.defaultTravelTimeControlOptions.travelTimes;
             
-   
-        var cfg = {};
-        cfg.polygon = { values : travelTimes };
-        cfg.sources = [];
-        _.each(sources, function(source){
-            var src = {};
-            src.id =  _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng;
-            src.lat = source.getLatLng().lat;
-            src.lon = source.getLatLng().lng;
-            src.tm = {};   
+            if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
+            else travelMode = r360.config.defaultTravelMode;
 
-                   
+            if ( _.has(travelOptions, "speed") ) { 
+                
+                if ( travelOptions.speed < 1) alert("Speed needs to larger then 0.");
+                else speed = travelOptions.speed;
+            }
+
+            if ( typeof travelOptions.uphill   != 'undefined') uphill = travelOptions.uphill;
+            if ( typeof travelOptions.downhill != 'undefined') downhill = travelOptions.downhill;
+
+
+            if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
+                alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
+                    Absolute value of downhill speed needs to be smaller then uphill speed.");
+
+            if ( _.has(travelOptions, "uphill") )   uphill   = travelOptions.uphill;
+            if ( _.has(travelOptions, "downhill") ) downhill = travelOptions.downhill;
+            if ( _.has(travelOptions, "time") )     time     = travelOptions.time;
+            if ( _.has(travelOptions, "date") )     date     = travelOptions.date;
+
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
+        }
+        else alert('define travel options');
+
+        // we only need the source points for the polygonizing and the polygon travel times
+        var cfg = {
+            polygon : { values : travelTimes },
+            sources : []
+        };
+
+        // add each source point and it's travel configuration to the cfg
+        _.each(sources, function(source){
+            
+            var src = {
+                id  :  _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
+                lat : source.getLatLng().lat,
+                lon : source.getLatLng().lng,
+                tm  : {}
+            };
+            // since we don't need special parameters for car for now, it's enough to create
+            // this empty travel type object 'car'
             src.tm[travelMode.type] = {};
-            if(travelMode.type == "transit"){
-               src.tm.transit.frame = {};
-                src.tm.transit.frame.time = time;
-                src.tm.transit.frame.date = date;
+                   
+            // set special routing parameters depending on the travel mode
+            if ( travelMode.type == "transit" ) {
+                
+                src.tm.transit.frame = {
+                    time : time,
+                    date : date
+                };
             }
-            if(travelMode.type == "bike"){
-                src.tm.bike.speed = speed;
-                src.tm.bike.uphill = uphill;
-                src.tm.bike.downhill = downhill;
+            if ( travelMode.type == "bike" ) {
+                
+                src.tm.bike = {
+                    speed       : speed,
+                    uphill      : uphill,
+                    downhill    : downhill
+                };
             }
-            if(travelMode.type == "walk"){
-                src.tm.walk.speed = speed;
-                src.tm.walk.uphill = uphill;
-                src.tm.walk.downhill = downhill;
+            if ( travelMode.type == "walk") {
+                
+                src.tm.walk = {
+                    speed       : speed,
+                    uphill      : uphill,
+                    downhill    : downhill
+                };
             }
 
             cfg.sources.push(src);
         });
-        
-        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+            
+        // make the request to the Route360° backend 
+        $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
+            encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+
+            // hide the please wait control
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+            // call callback with returned results
             callback(r360.Util.parsePolygons(result));
         });
     }
@@ -476,6 +554,7 @@ r360.RouteService = {
         var time        = r360.Util.getTime();
         var date        = r360.Util.getCurrentDate();
 
+        if ( typeof callback       == 'undefined') alert('callback needs to be defined');
         if ( typeof travelOptions !== 'undefined') {
 
             if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
@@ -504,6 +583,8 @@ r360.RouteService = {
             if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
                 alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
                     Absolute value of downhill speed needs to be smaller then uphill speed.");
+
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
         }
         else alert('Travel options not defined! Cannot call Route360° service!');   
 
@@ -516,7 +597,7 @@ r360.RouteService = {
 
                 // set the basic information for this source
                 var src = {
-                    id  : source.id,
+                    id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
                     lat : source.getLatLng().lat,
                     lon : source.getLatLng().lng,
                     tm  : {}
@@ -562,8 +643,13 @@ r360.RouteService = {
                 cfg.targets.push(trg);
             });
 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
-                callback(r360.Util.parseRoutes(result)); 
+            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+
+                    // hide the please wait control
+                    if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+                    // call callback with returned results
+                    callback(r360.Util.parseRoutes(result)); 
             });
         }
     }
@@ -662,13 +748,445 @@ r360.TimeService = {
     }
 };
 
+r360.placeAutoCompleteControl = function (options) {
+    return new r360.PlaceAutoCompleteControl(options);
+};
 
+r360.PlaceAutoCompleteControl = L.Control.extend({
 
+    initialize: function(options){
 
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultPlaceAutoCompleteOptions));
 
+        if ( typeof options !== "undefined" ) {
+            
+            if ( _.has(options, 'position'))    this.options.position    = options.position;
+            if ( _.has(options, 'label'))       this.options.label       = options.label;
+            if ( _.has(options, 'country'))     this.options.country     = options.country;
+            if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
+            if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
+            if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
+            if ( _.has(options, 'width'))       this.options.width       = options.width;
+            if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+        }
+    },
 
+    onAdd: function(map){
+        
+        var that = this;
+        var countrySelector =  "";
 
+        var nameContainer = L.DomUtil.create('div', this._container);
 
+        that.options.map = map;
+        var mapId = $(map._container).attr("id");
+        map.on("resize", this.onResize.bind(this));          
+
+        var i18n = r360.config.i18n;   
+
+        // calculate the width in dependency to the number of buttons attached to the field
+        var width = this.options.width;
+        if ( that.options.reset ) width += 44;
+        if ( that.options.reverse ) width += 37;
+        var style = 'style="width:'+ width +'px;"';
+
+        that.options.input = 
+            '<div class="input-group autocomplete" '+style+'> \
+                <input id="autocomplete-'+mapId+'" style="color: black;width:'+width+'" \
+                type="text" class="form-control" placeholder="' + this.options.placeholder + '" onclick="this.select()">';
+
+        // add a reset button to the input field
+        if ( that.options.reset ) {
+
+            that.options.input += 
+                '<span class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" onclick="this.onReset()" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                </span>'
+        }
+        if ( that.options.reverse ) {
+
+            this.options.input += 
+                '<span class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" onclick="this.onReverse()" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
+                </span>'
+        }
+
+        that.options.input += '</div>';
+
+        // add the control to the map
+        $(nameContainer).append(that.options.input);        
+        
+        // no click on the map, if click on container        
+        L.DomEvent.disableClickPropagation(nameContainer);      
+
+        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
+
+        $(nameContainer).find("#autocomplete-"+mapId).autocomplete({
+
+            source: function( request, response ) {
+
+                that.source = this;
+
+                var requestElements = request.term.split(" ");
+                var numbers = new Array();
+                var requestString = "";
+                var numberString = "";
+                var places = [];
+                    
+                for(var i = 0; i < requestElements.length; i++){
+                    
+                    if(requestElements[i].search(".*[0-9].*") != -1)
+                        numbers.push(requestElements[i]);
+                    else
+                        requestString += requestElements[i] + " ";
+                }
+
+                if ( numbers.length > 0 ) {
+                    numberString += " OR ";
+                    
+                    for(var j = 0; j < numbers.length; j++){
+                        var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
+                        numberString +=  n;
+                    }
+                }
+
+                // delay: 150,
+
+                $.ajax({
+                    url: that.options.serviceUrl, 
+                    dataType: "jsonp",
+                    jsonp: 'json.wrf',
+                    async: false,
+                    data: {
+                      wt:'json',
+                      indent : true,
+                      rows: that.options.maxRows,
+                      qt: 'en',
+                      q:  "(" + requestString + numberString + ")" + countrySelector
+                    }, 
+                    success: function( data ) {
+
+                        var places = new Array();
+                        response( $.map( data.response.docs, function( item ) {
+
+                            if ( item.osm_key == "boundary" ) return;
+
+                            var latlng = item.coordinate.split(',');
+                            var place           = {};
+                            var firstRow        = [];
+                            var secondRow       = [];
+                            place.name          = item.name;
+                            place.city          = item.city;
+                            place.street        = item.street;
+                            place.housenumber   = item.housenumber;
+                            place.country       = item.country;
+                            place.postalCode    = item.postcode;
+                            if (place.name)       firstRow.push(place.name);
+                            if (place.city)       firstRow.push(place.city);
+                            if (place.street)     secondRow.push(place.street);
+                            if (place.housenumber) secondRow.push(place.housenumber);
+                            if (place.postalCode) secondRow.push(place.postalCode);
+                            if (place.city)       secondRow.push(place.city);
+
+                            // only show country if undefined
+                            if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
+
+                            // if same looking object is in list already: return 
+                            _.each(places, function(pastPlace){
+                                if ( pastPlace == "" + firstRow.join() + secondRow.join() ) return;
+                            })
+
+                            places.push("" + firstRow.join()+secondRow.join());
+
+                            return {
+                                label       : firstRow.join(", "),
+                                value       : firstRow.join(", "),
+                                firstRow    : firstRow.join(", "),
+                                secondRow   : secondRow.join(" "),
+                                term        : request.term,
+                                latlng      : new L.LatLng(latlng[0], latlng[1])
+                            }
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+              
+            select: function( event, ui ) {
+                that.options.value = ui.item;
+                that.options.onSelect(ui.item);
+            },
+
+            open: function(e,ui) {},
+            close: function() {},
+            create: function() {}
+        })
+        .data("ui-autocomplete")._renderItem = function( ul, item ) {
+
+            // this has been copied from here: https://github.com/angular-ui/bootstrap/blob/master/src/typeahead/typeahead.js
+            // thank you angular bootstrap team
+            function escapeRegexp(queryToEscape) {
+                return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+            }
+
+            var matchItem = "<a><span class='address-row1'>"+ item.firstRow + "</span><br/><span class='address-row2'>  " + item.secondRow + "</span></a>";
+
+            var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
+
+            return $( "<li>" )
+                .append(html)
+                .appendTo( ul );
+            };
+            this.onResize();     
+
+        return nameContainer;
+    },
+
+    onReset: function(onReset){
+        var that = this;   
+
+        $(this.options.resetButton).click(onReset);
+        $(this.options.resetButton).click(function(){
+            $(that.options.input).val("");
+        });
+    },
+
+    onReverse: function(onReverse){
+       var that = this;  
+       $(this.options.reverseButton).click(onReverse);
+    },
+
+    onResize: function(){
+        var that = this;
+        if(this.options.map.getSize().x < 550){
+            $(that.options.input).css({'width':'45px'});
+        }else{
+            $(that.options.input).css({'width':''});
+        }
+    },
+
+    onSelect: function(onSelect){
+
+        var that = this;
+        that.options.onSelect = onSelect;       
+    },
+
+    setFieldValue : function(val){
+         $(this.options.input).val(val);
+    },
+
+    getFieldValue : function(){
+        return $(this.options.input).val();
+    },
+
+    getValue : function(){
+        return this.options.value;
+    }
+
+})
+
+/*
+ *
+ */
+r360.TravelStartDateControl = L.Control.extend({
+    
+    options: {
+        position: 'topright',
+        dateFormat: "yy-mm-dd"
+    },
+
+    initialize: function (options) {
+        L.Util.setOptions(this, options);
+    },
+
+    onChange: function (func){
+        this.options.onChange = func;
+    },
+
+    onAdd: function (map) {
+        var that = this;
+        that.options.map = map;
+       
+        var dateContainer = L.DomUtil.create('div', 'startDatePicker', this._container);
+
+        that.datepicker = $('<div/>');
+
+        $(dateContainer).append(that.datepicker);
+
+        var options = {
+
+            onSelect: function(e, ui){ that.options.onChange(that.getValue()); },
+            firstDay: 1
+        }
+
+        var i18n = r360.config.i18n;
+
+        if ( i18n.language != 'en' ) {
+
+            options.monthNames  = i18n.monthNames[i18n.language];
+            options.dayNames    = i18n.dayNames[i18n.language];
+            options.dayNamesMin = i18n.dayNamesMin[i18n.language];
+        }
+
+        $(that.datepicker).datepicker(options);    
+
+        L.DomEvent.disableClickPropagation(dateContainer);         
+       
+        return dateContainer;
+    },
+
+    getValue : function() {   
+        var that = this;
+        var date = $(that.datepicker).datepicker({ dateFormat: 'dd-mm-yy' }).val()
+        var splitDate = date.split('/');
+        var yyyymmdd = splitDate[2] + '' + splitDate[0] + '' + splitDate[1];
+        return yyyymmdd;
+    }
+});
+
+r360.travelStartDateControl = function () {
+    return new r360.TravelStartDateControl();
+};
+
+/*
+ *
+ */
+r360.TravelStartTimeControl = L.Control.extend({
+    options: {
+        position    : 'topright',
+        range       : false,
+        min         : 0,
+        max         : 1440 * 60, // start time is now in seconds
+        step        : 10 * 60, // start time is now in seconds
+        initValue   : 480 * 60, // start time is now in seconds
+        value       : 0
+    },
+
+    /*
+     *
+     */
+    initialize: function (options) {
+
+        this.options.value = r360.Util.getHoursAndMinutesInSeconds();
+        L.Util.setOptions(this, options);
+    },
+
+    /*
+     *
+     */
+    onSlideStop: function (func){
+
+        this.options.slideStop = func;
+    },
+
+    /*
+     *
+     */
+    minToString: function(minutes){
+
+        minutes = minutes / 60;
+        var hours = Math.floor(minutes / 60);
+        var min = minutes - (hours * 60);
+        if ( hours > 24 ) hours -= 24;
+        if ( hours < 10 ) hours = '0' + hours;
+        if ( min < 10 ) min = '0' + min;
+        if ( min == 0 ) min = '00';
+        return ( hours + ':' + min);
+    },
+
+    /*
+     *
+     */
+    onAdd: function (map) {
+
+        var that = this;
+
+        that.options.map = map;
+        that.options.mapId = $(map._container).attr("id");
+
+        map.on("resize", this.onResize.bind(this));
+        // Create a control sliderContainer with a jquery ui slider
+        var sliderContainer = L.DomUtil.create('div', 'startTimeSlider', this._container);
+
+        that.miBox = $('<div/>', {"class" : "mi-box"});
+        that.startTimeInfo = $('<div/>');
+        that.label = $('<span/>');
+        that.slider = $('<div/>');
+
+        43200
+
+        $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
+
+        $(that.label).text(r360.config.i18n.get('departure') + ': '+ 
+            that.minToString(this.options.value) + ' ' + r360.Util.getTimeFormat(that.options.value));
+
+        $(that.slider).slider({
+            range:  that.options.range,
+            value:  that.options.value,
+            min:    that.options.min,
+            max:    that.options.max,
+            step:   that.options.step,
+            
+            slide: function (e, ui) {
+
+                $(that.label).text(r360.config.i18n.get('departure') + ': ' +
+                    that.minToString(ui.value) + ' ' + r360.Util.getTimeFormat(ui.value));
+                
+                that.options.value = ui.value;
+            },
+            stop: function(e, ui){
+
+                that.options.slideStop(ui.value);
+            }
+        });
+    
+        this.onResize();
+       /*
+        prevent map click when clicking on slider
+        */
+        L.DomEvent.disableClickPropagation(sliderContainer);  
+
+        return sliderContainer;
+    },
+
+    /*
+     *
+     */
+    onResize: function(){
+
+        if ( this.options.map.getSize().x < 550 ) {
+
+            this.removeAndAddClass(this.miBox, 'leaflet-traveltime-slider-container-max', 'leaflet-traveltime-slider-container-min');
+            this.removeAndAddClass(this.startTimeInfo, 'travel-time-info-max', 'travel-time-info-min');
+            this.removeAndAddClass(this.slider, 'leaflet-traveltime-slider-max', 'leaflet-traveltime-slider-min');
+        }
+        else {
+            this.removeAndAddClass(this.miBox, 'leaflet-traveltime-slider-container-min', 'leaflet-traveltime-slider-container-max');
+            this.removeAndAddClass(this.startTimeInfo, 'travel-time-info-min', 'travel-time-info-max');
+            this.removeAndAddClass(this.slider, 'leaflet-traveltime-slider-min', 'leaflet-traveltime-slider-max');
+        }
+    },
+
+    /*
+     *
+     */
+    removeAndAddClass: function(id,oldClass,newClass){
+
+        $(id).addClass(newClass);
+        $(id).removeClass(oldClass);
+    },
+
+    /*
+     *
+     */
+    getValue : function() {    
+        return this.options.value;
+    }
+});
+
+r360.travelStartTimeControl = function () {
+    return new r360.TravelStartTimeControl();
+};
 
 /*
  *
@@ -689,8 +1207,8 @@ r360.TravelTimeControl = L.Control.extend({
     initialize: function (travelTimeControlOptions) {
         
         // use the default options
-        this.options = r360.config.defaultTravelTimeControlOptions;
-        
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultTravelTimeControlOptions));
+
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
@@ -703,10 +1221,6 @@ r360.TravelTimeControl = L.Control.extend({
 
         this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
         this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
-
-        // TODO Ich glaube das wird hier nicht richtig aufgerufen, in der Doc steht 
-        // setOptions( <Object> obj, <Object> options )
-        L.Util.setOptions(this);
     },
 
     /*
@@ -855,7 +1369,156 @@ r360.travelTimeControl = function (options) {
     return new r360.TravelTimeControl(options);
 };
 
+r360.waitControl = function (options) {
+    return new L.Control.WaitControl(options);
+};
 
+L.Control.WaitControl = L.Control.extend({
+    
+    options: {
+        position: 'topleft',
+    },
+
+    initialize: function (options) {
+        L.Util.setOptions(this, options);
+    },
+
+    onAdd: function (map) {
+        this.options.map = map;
+        this.options.mapId = $(map._container).attr("id");
+        console.log(this.options.mapId);
+       
+        var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
+        $(waitContainer).append(
+            '<div id="wait-control-'+this.options.mapId+'" class="mi-box waitControl"> \
+                <i class="fa fa-spinner fa-spin"></i> '+ r360.config.i18n.get('wait') +  '\
+            </div>');
+
+        return waitContainer;
+    },
+
+    show : function(){
+
+        $('#wait-control-'+this.options.mapId).show();
+    },
+
+    hide : function(){
+        
+        $('#wait-control-'+this.options.mapId).hide();  
+    }
+});
+
+r360.RadioButtonControl = L.Control.extend({
+
+    initialize: function (options) {
+
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
+
+        if ( typeof options !== 'undefined') { 
+            
+            if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
+            if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
+            else alert("No buttons supplied!");
+        }
+    },
+
+    onAdd: function (map) {
+
+        var that = this;
+
+        this.options.map    = map;
+        var buttonContainer = L.DomUtil.create('div', this._container);
+        this.options.input  = this.getRadioButtonHTML();
+        $(buttonContainer).append(this.options.input);
+
+        $(this.options.input).buttonset({}).change(function(){
+
+            that.options.checked = $("input[name='r360_radiobuttongroup_" + that.options.buttonGroupId + "']:checked").attr("key");
+            that.options.onChange(that.options.checked);
+        });  
+
+
+        $(this.options.input).each(function(){
+
+            $(this).tooltip({
+                position: {
+                    my: "center top+10",
+                    at: "center bottom",
+                    using: function( position, feedback ) {
+                        $( this ).css( position );
+                        $( "<div>" )
+                        .addClass( "arrow top" )
+                        .addClass( feedback.vertical )
+                        .addClass( feedback.horizontal )
+                        .appendTo( this );
+                    }
+                }
+            });
+        }); 
+
+        // prevent map click when clicking on slider
+        L.DomEvent.addListener(buttonContainer, 'click', L.DomEvent.stopPropagation);
+
+        return buttonContainer;
+    },
+
+    onChange: function (func){
+
+        this.options.onChange = func;      
+    },
+
+    getValue: function(){
+
+        return this.options.checked;
+    },
+
+    getRadioButtonHTML: function(){
+
+        var that = this; 
+
+        // generate an ID for the complete button group
+        that.options.buttonGroupId = r360.Util.generateId(5);
+
+        var div = $('<div/>', { id : that.options.buttonGroupId });
+
+        // add each button to the group
+        _.each(that.options.buttons, function(button){
+
+            // generate a unique id for each button
+            var id = r360.Util.generateId();
+
+            var input = $('<input/>', { 
+                "type" : 'radio', 
+                "id"   : 'r360_' + id, 
+                "value": button.key, 
+                "key"  : button.key, 
+                "name" : 'r360_radiobuttongroup_' + that.options.buttonGroupId
+            });
+
+            var label = $('<label/>', { 
+                "for"  : 'r360_' + id, 
+                "text" : button.label
+            });
+
+            var checked = '';
+            var tooltip = '';
+
+            // make the button selected (default buttin)
+            if ( button.checked ) input.attr({"checked" : "checked"});
+            // add a tooltip if one was provided
+            if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
+
+            div.append(input);
+            div.append(label);
+        });
+
+        return div;
+    },
+});
+
+r360.radioButtonControl = function (options) {
+    return new r360.RadioButtonControl(options);
+};
 
 /*
  *

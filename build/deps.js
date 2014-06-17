@@ -12,7 +12,6 @@ var deps = {
 
 	control: {
 		src: ['control/PlaceAutoCompleteControl.js',
-              'control/TravelSpeedControl.js',
               'control/TravelStartDateControl.js',
               'control/TravelStartTimeControl.js',
               'control/TravelTimeControl.js',

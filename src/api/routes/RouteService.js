@@ -14,6 +14,7 @@ r360.RouteService = {
         var time        = r360.Util.getTime();
         var date        = r360.Util.getCurrentDate();
 
+        if ( typeof callback       == 'undefined') alert('callback needs to be defined');
         if ( typeof travelOptions !== 'undefined') {
 
             if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
@@ -42,6 +43,8 @@ r360.RouteService = {
             if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
                 alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
                     Absolute value of downhill speed needs to be smaller then uphill speed.");
+
+            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
         }
         else alert('Travel options not defined! Cannot call Route360° service!');   
 
@@ -54,7 +57,7 @@ r360.RouteService = {
 
                 // set the basic information for this source
                 var src = {
-                    id  : source.id,
+                    id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
                     lat : source.getLatLng().lat,
                     lon : source.getLatLng().lng,
                     tm  : {}
@@ -100,8 +103,13 @@ r360.RouteService = {
                 cfg.targets.push(trg);
             });
 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
-                callback(r360.Util.parseRoutes(result)); 
+            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+
+                    // hide the please wait control
+                    if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+                    // call callback with returned results
+                    callback(r360.Util.parseRoutes(result)); 
             });
         }
     }

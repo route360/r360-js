@@ -2,7 +2,7 @@ r360.RadioButtonControl = L.Control.extend({
 
     initialize: function (options) {
 
-        this.options = r360.config.defaultRadioOptions;
+        this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
 
         if ( typeof options !== 'undefined') { 
             
@@ -10,8 +10,6 @@ r360.RadioButtonControl = L.Control.extend({
             if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
             else alert("No buttons supplied!");
         }
-
-        L.Util.setOptions(this, options);
     },
 
     onAdd: function (map) {
@@ -29,8 +27,23 @@ r360.RadioButtonControl = L.Control.extend({
             that.options.onChange(that.options.checked);
         });  
 
+
         $(this.options.input).each(function(){
-            $("[title]").tooltip();   
+
+            $(this).tooltip({
+                position: {
+                    my: "center top+10",
+                    at: "center bottom",
+                    using: function( position, feedback ) {
+                        $( this ).css( position );
+                        $( "<div>" )
+                        .addClass( "arrow top" )
+                        .addClass( feedback.vertical )
+                        .addClass( feedback.horizontal )
+                        .appendTo( this );
+                    }
+                }
+            });
         }); 
 
         // prevent map click when clicking on slider
