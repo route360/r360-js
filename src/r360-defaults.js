@@ -7,7 +7,7 @@ r360.config = {
     serviceVersion      : 'v1',
 
     pathSerializer      : 'compact',
-    maxRoutingTime      : 7200,
+    maxRoutingTime      : 3600,
     //serviceUrl          : 'http://api.route360.net:8080/api/',
     //serviceUrl          : 'http://144.76.246.53:8080/api_bb/',
     //serviceUrl          : 'http://141.89.192.241:8080/api/',
@@ -30,14 +30,14 @@ r360.config = {
     routeTypes  : [
         // berlin
         { routeType : 102  , color : "#006837"},
-        { routeType : 400 , color : "#156ab8"},
-        { routeType : 900 , color : "red"},
-        { routeType : 700 , color : "#A3007C"},
+        { routeType : 400  , color : "#156ab8"},
+        { routeType : 900  , color : "red"},
+        { routeType : 700  , color : "#A3007C"},
         { routeType : 1000 , color : "blue"},
-        { routeType : 109 , color : "#006F35"},
-        { routeType : 100 , color : "red"},
+        { routeType : 109  , color : "#006F35"},
+        { routeType : 100  , color : "red"},
         // new york
-        { routeType : 1 , color : "red"}
+        { routeType : 1    , color : "red"}
     ],
 
     defaultPlaceAutoCompleteOptions : {
@@ -75,7 +75,7 @@ r360.config = {
 
     i18n : {
 
-        language            : 'en',
+        language            : 'de',
         departure           : { en : 'Departure',       de : 'Abfahrt' },
         line                : { en : 'Line',            de : 'Linie' },
         arrival             : { en : 'Arrival',         de : 'Ankunft' },

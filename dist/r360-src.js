@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (5674ef7), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (8671da4), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -65,7 +65,7 @@ r360.config = {
     serviceVersion      : 'v1',
 
     pathSerializer      : 'compact',
-    maxRoutingTime      : 7200,
+    maxRoutingTime      : 3600,
     //serviceUrl          : 'http://api.route360.net:8080/api/',
     //serviceUrl          : 'http://144.76.246.53:8080/api_bb/',
     //serviceUrl          : 'http://141.89.192.241:8080/api/',
@@ -88,14 +88,14 @@ r360.config = {
     routeTypes  : [
         // berlin
         { routeType : 102  , color : "#006837"},
-        { routeType : 400 , color : "#156ab8"},
-        { routeType : 900 , color : "red"},
-        { routeType : 700 , color : "#A3007C"},
+        { routeType : 400  , color : "#156ab8"},
+        { routeType : 900  , color : "red"},
+        { routeType : 700  , color : "#A3007C"},
         { routeType : 1000 , color : "blue"},
-        { routeType : 109 , color : "#006F35"},
-        { routeType : 100 , color : "red"},
+        { routeType : 109  , color : "#006F35"},
+        { routeType : 100  , color : "red"},
         // new york
-        { routeType : 1 , color : "red"}
+        { routeType : 1    , color : "red"}
     ],
 
     defaultPlaceAutoCompleteOptions : {
@@ -133,7 +133,7 @@ r360.config = {
 
     i18n : {
 
-        language            : 'en',
+        language            : 'de',
         departure           : { en : 'Departure',       de : 'Abfahrt' },
         line                : { en : 'Line',            de : 'Linie' },
         arrival             : { en : 'Arrival',         de : 'Ankunft' },
@@ -192,7 +192,7 @@ r360.Util = {
      *
      *      -> (12 * 3600) + (11 * 60) = 43875
      * 
-     * @method getTimeInSeconds
+     * @method getHoursAndMinutesInSeconds
      * 
      * @returns {Number} The current time in seconds
      */
@@ -366,8 +366,14 @@ r360.Util = {
                     </table>");  
             }
             
-            line.bindPopup(popup);
-            halo.bindPopup(popup);
+            if ( options.addPopup ) {
+
+                var newPopup = _.has(options, 'popup') ? options.popup : popup;
+
+                line.bindPopup(newPopup);
+                halo.bindPopup(newPopup);
+            }
+
             polylines.push([halo, line]);
         });
 
@@ -497,6 +503,8 @@ r360.PolygonService = {
             // since we don't need special parameters for car for now, it's enough to create
             // this empty travel type object 'car'
             src.tm[travelMode.type] = {};
+
+            console.log(src);
                    
             // set special routing parameters depending on the travel mode
             if ( travelMode.type == "transit" ) {
@@ -548,14 +556,17 @@ r360.RouteService = {
 
         var sources;
         var targets;
-        var speed       = 15;
-        var uphill      = 20;
-        var downhill    = -10;
-        var time        = r360.Util.getTime();
-        var date        = r360.Util.getCurrentDate();
+        var speed           = 15;
+        var uphill          = 20;
+        var downhill        = -10;
+        var time            = r360.Util.getTimeInSeconds();
+        var date            = r360.Util.getCurrentDate();
+        var pathSerializer  = 'compact';
 
         if ( typeof callback       == 'undefined') alert('callback needs to be defined');
         if ( typeof travelOptions !== 'undefined') {
+
+            if ( _.has(travelOptions, "pathSerializer") ) pathSerializer = travelOptions.pathSerializer;
 
             if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
             else alert("No sources for routing given!");
@@ -591,7 +602,7 @@ r360.RouteService = {
         // if there are no target points available, no routing is possible! 
         if ( sources.length != 0 && targets.length != 0 ) {
 
-            var cfg = { sources : [], targets : [] };
+            var cfg = { sources : [], targets : [], pathSerializer : pathSerializer };
             
             _.each(sources, function(source){
 
@@ -637,7 +648,7 @@ r360.RouteService = {
             _.each(targets, function(target){
 
                 var trg = {};
-                trg.id  = target.id;
+                trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
                 trg.lat = target.getLatLng().lat;
                 trg.lon = target.getLatLng().lng;
                 cfg.targets.push(trg);
@@ -659,12 +670,10 @@ r360.TimeService = {
 
     getRouteTime : function(travelOptions, callback) {
 
-        var cfg = { 
-            sources : [], 
-            targets : [], 
-            pathSerializer : _.has(travelOptions, 'pathSerializer') ? travelOptions.pathSerializer : r360.pathSerializer, 
-            maxRoutingTime : _.has(travelOptions, 'maxRoutingTime') ? travelOptions.pathSerializer : r360.maxRoutingTime 
-        };
+        var sources;
+        var targets;
+        var time            = r360.Util.getTimeInSeconds();
+        var date            = r360.Util.getCurrentDate();
 
         // validate travel options
         if ( typeof travelOptions !== 'undefined') {
@@ -674,19 +683,31 @@ r360.TimeService = {
 
             if ( _.has(travelOptions, "targets") ) targets = travelOptions.targets;
             else alert("No targets for routing given!");
+
+            if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
+            else travelMode = r360.config.defaultTravelMode;
         }
         else alert('Travel options not defined! Cannot call Route360° service!'); 
+
+        var cfg = { 
+            sources : [], targets : [],
+            pathSerializer : _.has(travelOptions, 'pathSerializer') ? travelOptions.pathSerializer : r360.config.pathSerializer, 
+            maxRoutingTime : _.has(travelOptions, 'maxRoutingTime') ? travelOptions.pathSerializer : r360.config.maxRoutingTime 
+        };
 
         // configure sources
         _.each(sources, function(source){
 
+            console.log(source);
+
             // set the basic information for this source
             var src = {
-                id  : _.has(source, 'id') ? source.id : source.lat + ";" + source.lon,
-                lat : source.lat,
-                lon : source.lon,
+                id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
+                lat : source.getLatLng().lat,
+                lon : source.getLatLng().lng,
                 tm  : {}
             };
+            src.tm[travelMode.type] = {};
             
             // set special routing parameters depending on the travel mode
             if ( travelMode.type == "transit" ) {
@@ -721,11 +742,11 @@ r360.TimeService = {
         // configure targets for routing
         _.each(targets, function(target){
 
-            cfg.targets.push({
-                id  : _.has(target, 'id') ? target.id : target.lat + ";" + target.lon,
-                lat : target.getLatLng().lat,
-                lon : target.getLatLng().lng
-            });
+            var trg = {};
+            trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
+            trg.lat = target.getLatLng().lat;
+            trg.lon = target.getLatLng().lng;
+            cfg.targets.push(trg);
         });
 
         // execute routing time service and call callback with results
@@ -1504,7 +1525,11 @@ r360.RadioButtonControl = L.Control.extend({
             var tooltip = '';
 
             // make the button selected (default buttin)
-            if ( button.checked ) input.attr({"checked" : "checked"});
+            if ( button.checked ) {
+
+                that.options.checked = button.key;
+                input.attr({"checked" : "checked"})
+            };
             // add a tooltip if one was provided
             if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
 

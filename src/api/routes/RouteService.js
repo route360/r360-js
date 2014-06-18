@@ -8,14 +8,17 @@ r360.RouteService = {
 
         var sources;
         var targets;
-        var speed       = 15;
-        var uphill      = 20;
-        var downhill    = -10;
-        var time        = r360.Util.getTime();
-        var date        = r360.Util.getCurrentDate();
+        var speed           = 15;
+        var uphill          = 20;
+        var downhill        = -10;
+        var time            = r360.Util.getTimeInSeconds();
+        var date            = r360.Util.getCurrentDate();
+        var pathSerializer  = 'compact';
 
         if ( typeof callback       == 'undefined') alert('callback needs to be defined');
         if ( typeof travelOptions !== 'undefined') {
+
+            if ( _.has(travelOptions, "pathSerializer") ) pathSerializer = travelOptions.pathSerializer;
 
             if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
             else alert("No sources for routing given!");
@@ -51,7 +54,7 @@ r360.RouteService = {
         // if there are no target points available, no routing is possible! 
         if ( sources.length != 0 && targets.length != 0 ) {
 
-            var cfg = { sources : [], targets : [] };
+            var cfg = { sources : [], targets : [], pathSerializer : pathSerializer };
             
             _.each(sources, function(source){
 
@@ -97,7 +100,7 @@ r360.RouteService = {
             _.each(targets, function(target){
 
                 var trg = {};
-                trg.id  = target.id;
+                trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
                 trg.lat = target.getLatLng().lat;
                 trg.lon = target.getLatLng().lng;
                 cfg.targets.push(trg);

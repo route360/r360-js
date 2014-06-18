@@ -27,7 +27,7 @@ r360.Util = {
      *
      *      -> (12 * 3600) + (11 * 60) = 43875
      * 
-     * @method getTimeInSeconds
+     * @method getHoursAndMinutesInSeconds
      * 
      * @returns {Number} The current time in seconds
      */
@@ -201,8 +201,14 @@ r360.Util = {
                     </table>");  
             }
             
-            line.bindPopup(popup);
-            halo.bindPopup(popup);
+            if ( options.addPopup ) {
+
+                var newPopup = _.has(options, 'popup') ? options.popup : popup;
+
+                line.bindPopup(newPopup);
+                halo.bindPopup(newPopup);
+            }
+
             polylines.push([halo, line]);
         });
 

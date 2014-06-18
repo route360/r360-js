@@ -2,12 +2,10 @@ r360.TimeService = {
 
     getRouteTime : function(travelOptions, callback) {
 
-        var cfg = { 
-            sources : [], 
-            targets : [], 
-            pathSerializer : _.has(travelOptions, 'pathSerializer') ? travelOptions.pathSerializer : r360.pathSerializer, 
-            maxRoutingTime : _.has(travelOptions, 'maxRoutingTime') ? travelOptions.pathSerializer : r360.maxRoutingTime 
-        };
+        var sources;
+        var targets;
+        var time            = r360.Util.getTimeInSeconds();
+        var date            = r360.Util.getCurrentDate();
 
         // validate travel options
         if ( typeof travelOptions !== 'undefined') {
@@ -17,19 +15,31 @@ r360.TimeService = {
 
             if ( _.has(travelOptions, "targets") ) targets = travelOptions.targets;
             else alert("No targets for routing given!");
+
+            if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
+            else travelMode = r360.config.defaultTravelMode;
         }
         else alert('Travel options not defined! Cannot call Route360° service!'); 
+
+        var cfg = { 
+            sources : [], targets : [],
+            pathSerializer : _.has(travelOptions, 'pathSerializer') ? travelOptions.pathSerializer : r360.config.pathSerializer, 
+            maxRoutingTime : _.has(travelOptions, 'maxRoutingTime') ? travelOptions.pathSerializer : r360.config.maxRoutingTime 
+        };
 
         // configure sources
         _.each(sources, function(source){
 
+            console.log(source);
+
             // set the basic information for this source
             var src = {
-                id  : _.has(source, 'id') ? source.id : source.lat + ";" + source.lon,
-                lat : source.lat,
-                lon : source.lon,
+                id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
+                lat : source.getLatLng().lat,
+                lon : source.getLatLng().lng,
                 tm  : {}
             };
+            src.tm[travelMode.type] = {};
             
             // set special routing parameters depending on the travel mode
             if ( travelMode.type == "transit" ) {
@@ -64,11 +74,11 @@ r360.TimeService = {
         // configure targets for routing
         _.each(targets, function(target){
 
-            cfg.targets.push({
-                id  : _.has(target, 'id') ? target.id : target.lat + ";" + target.lon,
-                lat : target.getLatLng().lat,
-                lon : target.getLatLng().lng
-            });
+            var trg = {};
+            trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
+            trg.lat = target.getLatLng().lat;
+            trg.lon = target.getLatLng().lng;
+            cfg.targets.push(trg);
         });
 
         // execute routing time service and call callback with results

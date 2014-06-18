@@ -7,7 +7,9 @@ header {
     background-size: cover;
 }
 
-#map-example1, #map-addTravelTimeControlExample, #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-addPlaceAutoCompleteControlExample {
+#map-example1, #map-addTravelTimeControlExample, 
+#map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, 
+#map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample {
 
     height: 400px;
     margin-bottom: 15px; 
@@ -27,4 +29,54 @@ section.tutorials {
 hr.star-light:after, hr.star-primary:after {
 
     content: "";
+}
+
+.leaflet-popup-content {
+    color:black;
+}
+
+.bs-callout {
+    color: black;
+  margin: 20px 0;
+  padding: 15px 30px 15px 15px;
+  border-left: 5px solid #eee;
+}
+.bs-callout h4 {
+  margin-top: 0;
+}
+.bs-callout p:last-child {
+  margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+  background-color: #fff;
+}
+ 
+/* Themes for different contexts */
+.bs-callout-danger {
+  background-color: #fcf2f2;
+  border-color: #dFb5b4;
+}
+.bs-callout-warning {
+  background-color: #fefbed;
+  border-color: #f1e7bc;
+}
+.bs-callout-info {
+  background-color: #f0f7fd;
+  border-color: #d0e3f0;
+}
+
+#api .nav-pills>li.active>a, #api .nav-pills>li.active>a:hover, #api .nav-pills>li.active>a:focus {
+    color: white;
+    background-color: #27A382;
+}
+
+#api a, #api a:active, #api a.active {
+    outline: 0;
+    color: white;
+}
+
+#api a:hover, #api a:focus {
+
+    color: #18bc9c;   
 }

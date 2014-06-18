@@ -94,7 +94,11 @@ r360.RadioButtonControl = L.Control.extend({
             var tooltip = '';
 
             // make the button selected (default buttin)
-            if ( button.checked ) input.attr({"checked" : "checked"});
+            if ( button.checked ) {
+
+                that.options.checked = button.key;
+                input.attr({"checked" : "checked"})
+            };
             // add a tooltip if one was provided
             if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
 

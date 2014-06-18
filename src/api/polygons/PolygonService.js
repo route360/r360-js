@@ -70,7 +70,7 @@ r360.PolygonService = {
             // since we don't need special parameters for car for now, it's enough to create
             // this empty travel type object 'car'
             src.tm[travelMode.type] = {};
-                   
+
             // set special routing parameters depending on the travel mode
             if ( travelMode.type == "transit" ) {
                 
