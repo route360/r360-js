@@ -3,6 +3,7 @@ var deps = {
 		src: ['r360.js',
               'r360-defaults.js',
               'util/Util.js',
+              'util/TravelOptions.js',
 		      'api/polygons/PolygonService.js',
 		      'api/routes/RouteService.js',
 		      'api/time/TimeService.js'

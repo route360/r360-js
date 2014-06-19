@@ -62,9 +62,9 @@
                     <li class="page-scroll">
                         <a href="#api">API</a>
                     </li>
-                    <li class="page-scroll">
+                    <!-- <li class="page-scroll">
                         <a href="#contact">Contact</a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -175,14 +175,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <h2>Tutorials</h2>
+                    <h2><a href="#tutorials" style="color:white;">Tutorials</a></h2>
                     <hr class="star-light">
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-2">
                     <ul id="tutorial-menu" class="nav nav-pills nav-stacked">
-                        <li class="active"><a id="travelTimecontrol-nav" href="#travelTimecontrol">Travel time control</a></li>
+                        <li class=""><a id="travelTimecontrol-nav" href="#travelTimecontrol">Travel time control</a></li>
                         <li><a id="traveltypecontrol-nav" href="#traveltypecontrol">Travel type control</a></li>
                         <li><a id="travelstartdatecontrol-nav" href="#travelstartdatecontrol">Travel date and time of day control</a></li>
                         <li><a id="geocodingcontrol-nav" href="#geocodingcontrol">Route360° geocoding service</a></li>
@@ -191,14 +191,15 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     </ul>
                 </div>
                 <div class="col-lg-10">
-                    <div class="tab-pane active" id="tutorial-content"></div>
+                    <div class="tab-pane active" id="tutorial-content">
+                        <p>In this tutorial section we will demonstrate the basic usage of the Route360° JavaScript API. We will cover all services such as <code>PolygonService</code>, <code>RouteService</code> and <code>TimeService</code> as well as showing the predefined map controls. If you are looking for more detailed information about the services, how to configure them correctly or information on the utility classes, please have a look at the <a href="#api">API section</a>.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-
-    <section class="success" id="api">
+    <section class="success api" id="api">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -207,42 +208,65 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                 </div>
             </div>
             <div class="row">
-                <div class="container api">
-                    <div class="col-lg-2">
-                        <ul class="nav nav-pills nav-stacked">
-                            <li class="active"><a href="#polygonservice" data-toggle="tab">PolygonService</a></li>
-                            <li class=""><a href="#routeservice" data-toggle="tab">RouteService</a></li>
-                            <li class=""><a href="#timeservice" data-toggle="tab">TimeService</a></li>
-                        </ul>
+                <div class="col-lg-2">
+                    <ul id="api-menu" class="nav nav-pills nav-stacked">
+                        <li class="active"><a href="#polygonservice" id="polygonservice-nav">PolygonService</a></li>
+                        <li class=""><a href="#routeservice" id="routeservice-nav">RouteService</a></li>
+                        <li class=""><a href="#timeservice" id="timeservice-nav">TimeService</a></li>
+                        <li class=""><a href="#controls" id="controls-nav">Controls</a></li>
+                        <li class=""><a href="#polygons" id="polygons-nav">(Multi)Polygons</a></li>
+                        <li class=""><a href="#routes" id="routes-nav">Route(Segment)</a></li>
+                        <li class=""><a href="#polygonlayer" id="polygonlayer-nav">PolygonLayer</a></li>
+                        <li class=""><a href="#util" id="util-nav">Util</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-10">
+                    <div class="tab-pane active" id="api-content">
+                        <p>
+                            Here should be some text
+                        </p>
                     </div>
-                    <div class="col-lg-10">
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="polygonservice">
-                            </div>
-                            <div class="tab-pane" id="routeservice">
-                                <div class="bs-callout bs-callout-info">
-                                    <h4>compact</h4>
-                                    <p></p>
-                                </div>
-                                <div class="bs-callout bs-callout-info">
-                                    <h4>detailed</h4>
-                                    <p></p>
-                                </div>
-                                <div class="bs-callout bs-callout-info">
-                                    <h4>travelTime</h4>
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="timeservice">
-                            </div>
-                        </div>
+                    <div id="polygonservice-api" style="display:none;">
+                        <h3>Walk</h3>
+                        <p>asd</p>
+                        <h3>Bike</h3>
+                        <p>asd</p>
+                        <h3>Car</h3>
+                        <p>asd</p>
+                        <h3>Transit</h3>
+                        <p>asd</p>
+                    </div>
+                    <div id="routeservice-api" style="display:none;">
+                        <h3>TravelTime</h3>
+                        <p>asd</p>
+                        <h3>Detailed</h3>
+                        <p>asd</p>
+                        <h3>Compact</h3>
+                        <p>asd</p>
+                    </div>
+                    <div id="timeservice-api" style="display:none;">
+                        <h3>TimeService</h3>
+                    </div>
+                    <div id="controls-api" style="display:none;">
+                        <h3>Route360° Map Controls</h3>
+                    </div>
+                    <div id="polygons-api" style="display:none;">
+                        <h3>Polygons and Mulitpolygons</h3>
+                    </div>
+                    <div id="routes-api" style="display:none;">
+                        <h3>Route and RouteSegments</h3>
+                    </div>
+                    <div id="polygonlayer-api" style="display:none;">
+                        <h3>Route360°PolygonLayer</h3>
+                    </div>
+                    <div id="util-api" style="display:none;">
+                        <h3>Util</h3>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <section id="contact">
+    <!-- <section id="contact">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -281,36 +305,30 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <footer class="text-center">
         <div class="footer-above">
             <div class="container">
                 <div class="row">
+                    <div class="footer-col col-md-2"></div>
                     <div class="footer-col col-md-4">
                         <h3>Location</h3>
-                        <p>3481 Melrose Place
-                            <br>Beverly Hills, CA 90210</p>
+                        <p>Motion Intelligence GmbH <br>   
+                            August-Bebel-Str. 26-53 <br>
+                            D-14482 Potsdam
+                        </p>
                     </div>
                     <div class="footer-col col-md-4">
-                        <h3>Around the Web</h3>
+                        <h3>Contact us at</h3>
                         <ul class="list-inline">
-                            <li><a href="#" class="btn-social btn-outline"><i class="fa fa-fw fa-facebook"></i></a>
-                            </li>
-                            <li><a href="#" class="btn-social btn-outline"><i class="fa fa-fw fa-google-plus"></i></a>
-                            </li>
-                            <li><a href="#" class="btn-social btn-outline"><i class="fa fa-fw fa-twitter"></i></a>
-                            </li>
-                            <li><a href="#" class="btn-social btn-outline"><i class="fa fa-fw fa-linkedin"></i></a>
-                            </li>
-                            <li><a href="#" class="btn-social btn-outline"><i class="fa fa-fw fa-dribbble"></i></a>
-                            </li>
+                            <li>Tel: +49(0)30 - 920383 5420</li>
+                            <li>Fax: +49(0)30 - 920383 4521</li>
+                            <li><a href="www.motionintelligence.net">www.motionintelligence.net</a></li>
+                            <li><a href="mailto:mail@motionintelligence.net">mail@motionintelligence.net</a></li>
                         </ul>
                     </div>
-                    <div class="footer-col col-md-4">
-                        <h3>About Freelance</h3>
-                        <p>Freelance is a free to use, open source Bootstrap theme created by <a href="http://startbootstrap.com">Start Bootstrap</a>.</p>
-                    </div>
+                    <div class="footer-col col-md-2"></div>
                 </div>
             </div>
         </div>
@@ -318,7 +336,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        Copyright &copy; 2014 - Your Name
+                        Copyright &copy; 2014 - Motion Intelligence GmbH
                     </div>
                 </div>
             </div>
@@ -359,8 +377,10 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-             // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            // initialising the base map. To change the base map just change following
+            // lines as described by cloudmade, mapbox etc..
+            // note that mapbox is a paided service
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
                     maxZoom: 18,
                     attribution: attribution
             }).addTo(map);
@@ -371,7 +391,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
             // set the service url, note that this is a development/testing endpoint only
             // we do not guarantuee service uptime at any point
-            r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+            // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();
@@ -380,21 +400,20 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials
-            var travelOptions = {
-                // we only have one source which is the marker we just added
-                sources : [marker],
-                // we want to have polygons for 10 minutes and 20 minutes
-                travelTimes : [1200,2400]
-            };
+            var travelOptions = r360.travelOptions();
+            // we only have one source which is the marker we just added
+            travelOptions.setSources([marker]);
+            // we want to have polygons for 10 minutes and 20 minutes
+            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
-                    // add the returned polygons to the polygon layer 
-                    cpl.addLayer(polygons);
-                    
-                    // zoom the map to fit the polygons perfectly
-                    map.fitBounds(cpl.getBoundingBox());
+                // add the returned polygons to the polygon layer 
+                cpl.addLayer(polygons);
+                
+                // zoom the map to fit the polygons perfectly
+                map.fitBounds(cpl.getBoundingBox());
             });
         });
     </script>
@@ -403,6 +422,53 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
     <script type="text/javascript">
         $(document).ready(function(){
 
+            $('#polygonservice-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygonservice-nav').parent().addClass('active');
+                $('#api-content').html($('#polygonservice-api').html());
+            });
+            $('#routeservice-nav').click(function(){
+
+                $('#api-menu > li').removeClass('active');
+                $('#routeservice-nav').parent().addClass('active');
+                $('#api-content').html($('#routeservice-api').html());
+            });
+            $('#timeservice-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#timeservice-nav').parent().addClass('active');
+                $('#api-content').html($('#timeservice-api').html());
+            });
+            $('#controls-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#controls-nav').parent().addClass('active');
+                $('#api-content').html($('#controls-api').html());
+            });
+            $('#polygons-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygons-nav').parent().addClass('active');
+                $('#api-content').html($('#polygons-api').html());
+            });
+            $('#routes-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#routes-nav').parent().addClass('active');
+                $('#api-content').html($('#routes-api').html());
+            });
+            $('#polygonlayer-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygonlayer-nav').parent().addClass('active');
+                $('#api-content').html($('#polygonlayer-api').html());
+            });
+            $('#util-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#util-nav').parent().addClass('active');
+                $('#api-content').html($('#util-api').html());
+            });
+
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+
             $('#travelTimecontrol-nav').click(function(){
 
                 $('#tutorial-menu > li').removeClass('active');
@@ -410,13 +476,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Adding a travel time control</h3> \
-                        <p>In this tutorial, we will show you how to add a <code>TravelTimeControl</code> to the map and add behaviour to it, so that users can select different travel times and the map is automatically updated with larger or smaller (timely speaking) polygons. This tutorial builds up on the getting started section, so if you haven\'t done this already, go ahead and show some polygons! In any case, enjoy!</p> \
+                        <p class="text-justify lead">In this tutorial, we will show you how to add a <code>TravelTimeControl</code> to the map and add behaviour to it, so that users can select different travel times and the map is automatically updated with larger or smaller (timely speaking) polygons. This tutorial builds up on the getting started section, so if you haven\'t done this already, go ahead and show some polygons! In any case, enjoy!</p> \
                         <div id="map-addTravelTimeControlExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="addTravelTimeControlExample"></pre>');
 
                 addTravelTimeControl();
                 $('#addTravelTimeControlExample').text(addTravelTimeControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
             $('#traveltypecontrol-nav').click(function(){
@@ -426,13 +493,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Adding a travel type control</h3> \
-                        <p>In this tutorial, we will show you how to add a <code>RadioButtonControl</code> to the map and add behaviour to it, so that users can select different travel type, like bike, car or walk, and the map is automatically updated with the calculated polygons. You can use this <code>RadioButtonControl</code> for anything you want, e.g. select different travel speeds for fast or slow bikers.</p> \
+                        <p class="text-justify lead">In this tutorial, we will show you how to add a <code>RadioButtonControl</code> to the map and add behaviour to it, so that users can select different travel type, like bike, car or walk, and the map is automatically updated with the calculated polygons. You can use this <code>RadioButtonControl</code> for anything you want, e.g. select different travel speeds for fast or slow bikers.</p> \
                         <div id="map-addTravelTypeControlExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="addTravelTypeControlExample"></pre>');
 
                 addTravelTypeControl();
                 $('#addTravelTypeControlExample').text(addTravelTypeControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
             $('#travelstartdatecontrol-nav').click(function(){
@@ -442,13 +510,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Adding a travel start date and time control for public transportation</h3> \
-                        <p>I this tutorial, we will examplify how to display polygons for public transportation. Since public transportation is time and date dependent, it follows a given schedule, we need a way to select the time and date the user wants to travel. There are two controls, the  <code>TravelStartTimeControl</code> and <code>TravelStartDateControl</code> which are able to do just that. Since those polygon request, especially for routing times close to 2 hours, might take some time, we also add a <code>WaitControl</code> to the map. So here is the result of this tutorial: </p> \
+                        <p class="text-justify lead">I this tutorial, we will examplify how to display polygons for public transportation. Since public transportation is time and date dependent, it follows a given schedule, we need a way to select the time and date the user wants to travel. There are two controls, the  <code>TravelStartTimeControl</code> and <code>TravelStartDateControl</code> which are able to do just that. Since those polygon request, especially for routing times close to 2 hours, might take some time, we also add a <code>WaitControl</code> to the map. So here is the result of this tutorial: </p> \
                         <div id="map-addTravelStartDateControlExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="addTravelStartDateControlExample"></pre>');
 
                 addTravelStartDateControl();
                 $('#addTravelStartDateControlExample').text(addTravelStartDateControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
             $('#geocodingcontrol-nav').click(function(){
@@ -458,13 +527,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Adding place autocompletion for variable source points</h3> \
-                        <p>In this tutorial we will show you how to use the Route360° geocoding service to be able to let users enter for example there home address. We will add a <code>PlaceAutoCompleteControl</code> to the map and bind an action to add or move the marker as well as clearing already shown polygons. The <code>PlaceAutoCompleteControl</code> also offers the ability to add to buttons to it. One button is used to delete already made user inputs and the other should be used to switch source and target for a routing request. Both of these examples will be covered in another tutorial.</p> \
+                        <p class="text-justify lead">In this tutorial we will show you how to use the Route360° geocoding service to be able to let users enter for example there home address. We will add a <code>PlaceAutoCompleteControl</code> to the map and bind an action to add or move the marker as well as clearing already shown polygons. The <code>PlaceAutoCompleteControl</code> also offers the ability to add to buttons to it. One button is used to delete already made user inputs and the other should be used to switch source and target for a routing request. Both of these examples will be covered in another tutorial.</p> \
                         <div id="map-addPlaceAutoCompleteControlExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="addPlaceAutoCompleteControlExample"></pre>');
 
                 addPlaceAutoCompleteControl();
                 $('#addPlaceAutoCompleteControlExample').text(addPlaceAutoCompleteControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
             $('#routing-nav').click(function(){
@@ -474,13 +544,14 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Routing to targets</h3> \
-                        <p>In this tutorial we will show you how you can use the <code>RouteService</code> to get routing information for a specific target. You can even specify a list of targets and the service will return you travel information for all of them. Please note that you can specify different routing result granularity levels (see API documentation). We will use the default level in this example. To summerize, we will add a source and two target markers and use public transportation to get from A to B. We will also add a little circle if people have to switch rides on their travel.</p> \
+                        <p class="text-justify lead">In this tutorial we will show you how you can use the <code>RouteService</code> to get routing information for a specific target. You can even specify a list of targets and the service will return you travel information for all of them. Please note that you can specify different routing result granularity levels (see API documentation). We will use the default level in this example. To summerize, we will add a source and two target markers and use public transportation to get from A to B. We will also add a little circle if people have to switch rides on their travel.</p> \
                         <div id="map-routingExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="routingExample"></pre>');
 
                 routingExample();
                 $('#routingExample').text(routingExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
             $('#filter-nav').click(function(){
@@ -490,31 +561,41 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 $('#tutorial-content').html(' \
                         <h3>Filter points of interest by travel time</h3> \
-                        <p>In this tutorial we will show you how you can use the <code>TimeService</code> to filter a list of your entities by travel time, starting from a source location. In our case we will use all museums from OpenStreetMaps which have a none empty <i>name</i> and <i>website</i>. The marker for these museums will be scaled with respect to the travel time from the source. With this feature users can instantly see which points of interest are closest to them, with respect to the actual travel time and not just beeline. Note that this would not be possible with traditional routing services like Google Maps, since you would have to make one request per place of interest.</p> \
+                        <p class="text-justify lead">In this tutorial we will show you how you can use the <code>TimeService</code> to filter a list of your entities by travel time, starting from a source location. In our case we will use all museums from OpenStreetMaps which have a none empty <i>name</i> and <i>website</i>. The marker for these museums will be scaled with respect to the travel time from the source. With this feature users can instantly see which points of interest are closest to them, with respect to the actual travel time and not just beeline. Note that this would not be possible with traditional routing services like Google Maps, since you would have to make one request per place of interest.</p> \
                         <div id="map-filterExample"></div> \
-                        <p>And the code with explanations:</p> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="filterExample"></pre>');
 
                 filterExample();
                 $('#filterExample').text(filterExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+
             var url = $(window.location).attr("href");
+            // some link on the page was clicked
             if ( url.lastIndexOf('#') > 0 ) {
 
+                // get the link
                 var segment = url.substring(url.lastIndexOf('#') + 1);
 
-                if ( _.contains(['polygonservice', 'routeservice', 'timeservice'], segment) ) $('#travelTimecontrol-nav').trigger( "click" );
+                // api section
+                if ( _.contains(['polygonservice', 'routeservice', 'timeservice', 'util', 'polygonlayer', 'routes', 'polygons', 'controls'], segment) ) {
+                    
+                    $('#'+segment+'-nav').trigger( "click" );
+                    $('html, body').animate({ scrollTop: $('#api').offset().top }, 1000);
+                }
+                // tutorial section
                 else {
 
                     $('#'+segment+'-nav').trigger( "click" );
                     $('html, body').animate({ scrollTop: $('#tutorials').offset().top }, 1000);
                 }
             } 
-            else {
-
-                $('#travelTimecontrol-nav').trigger( "click" );
-            }
 
             !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
 
@@ -531,8 +612,10 @@ function addTravelTimeControl(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-     // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -543,7 +626,7 @@ function addTravelTimeControl(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -555,13 +638,16 @@ function addTravelTimeControl(){
     // travel times are defined in seconds the initial values in minutes... Also the label may be altered here
     var travelTimeControl       = r360.travelTimeControl({
         travelTimes     : [
-            { time : 1200 , color : "#006837"},
-            { time : 2400 , color : "#39B54A"},
-            { time : 3600 , color : "#8CC63F"}
+            { time : 300  , color : "#006837"},
+            { time : 600  , color : "#39B54A"},
+            { time : 900  , color : "#8CC63F"},
+            { time : 1200 , color : "#F7931E"},
+            { time : 1500 , color : "#F15A24"},
+            { time : 1800 , color : "#C1272D"}
         ],
         position : 'topright', // this is the position in the map
         label: 'Travel time: ', // the label, customize for i18n
-        initValue: 40 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
+        initValue: 30 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
     });
 
     //  bind the action to the travel time control
@@ -609,8 +695,10 @@ function addTravelTypeControl(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-     // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -621,7 +709,7 @@ function addTravelTypeControl(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -659,8 +747,8 @@ function addTravelTypeControl(){
         var travelOptions = {
             // we only have one source which is the marker we just added
             sources : [marker],
-            // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : [1200,2400,3600],
+            // we want to have polygons for 5, 10, 15, 20, 25 and 30 minutes
+            travelTimes : [300, 600,900, 1200, 1500, 1800],
             // get the selected travel type from the control
             travelMode  : { type : travelTypeButtons.getValue() }
         };
@@ -688,8 +776,10 @@ function addTravelStartDateControl(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-     // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -700,7 +790,7 @@ function addTravelStartDateControl(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -734,7 +824,7 @@ function addTravelStartDateControl(){
             // we only have one source which is the marker we just added
             sources : [marker],
             // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : [1200, 2400],
+            travelTimes : [300, 600,900, 1200, 1500, 1800],
             // we hardcode transit travel type here
             travelMode  : { type : 'transit' },
             // and get the date and time from the controls
@@ -768,8 +858,10 @@ function addPlaceAutoCompleteControl(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-     // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -779,7 +871,7 @@ function addPlaceAutoCompleteControl(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -812,7 +904,7 @@ function addPlaceAutoCompleteControl(){
             // we only have one source which is the marker we just added
             sources : [marker],
             // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : [1200, 2400],
+            travelTimes : [300, 600, 900, 1200, 1500, 1800],
         };
 
         // call the service
@@ -838,9 +930,10 @@ function routingExample(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-    // initialising the base map. To change the base map just change 
-    // following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -856,7 +949,7 @@ function routingExample(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // add a layer in which we will paint the route
     var routeLayer = L.featureGroup().addTo(map);
@@ -911,9 +1004,10 @@ function filterExample(){
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
-    // initialising the base map. To change the base map just change 
-    // following lines as described by cloudmade, mapbox etc..
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -934,7 +1028,7 @@ function filterExample(){
 
     // set the service url, note that this is a development/testing endpoint only
     // we do not guarantuee service uptime at any point
-    r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
+    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
 
     // you need to define some options for the routing service
     // for more travel options check out the other tutorials
@@ -983,28 +1077,28 @@ function filterExample(){
                 var percentPerSecond = frame / maxTravelTime;
 
                 // 5) scale factor for the marker
-                var percentForThisMarker = minPercent + (maxTravelTime - museum.travelTime) * percentPerSecond;
+                var scale = minPercent + (maxTravelTime - museum.travelTime) * percentPerSecond;
 
                 // lower bound
-                if ( percentForThisMarker < minPercent ) percentForThisMarker = minPercent;
+                if ( scale < minPercent ) scale = minPercent;
 
                 // create the icon with the calculated scaled width and height
                 var iconSize = { width : 25, height : 41 };
                 var poiSymbol = L.marker([museum.lat, museum.lon], {icon : L.icon({ 
                     iconUrl :       "lib/leaflet/images/marker-icon-red-2x.png", 
                     shadowUrl:      "lib/leaflet/images/marker-shadow.png", 
-                    iconAnchor:     [iconSize.width * percentForThisMarker,   iconSize.height * percentForThisMarker], 
-                    shadowAnchor:   [iconSize.width * percentForThisMarker,   iconSize.height * percentForThisMarker], 
-                    iconSize:       [iconSize.width * percentForThisMarker,   iconSize.height * percentForThisMarker],
-                    shadowSize:     [iconSize.height * percentForThisMarker,  iconSize.height * percentForThisMarker],
-                    popupAnchor:    [-15,  - iconSize.height * percentForThisMarker + 5]})});
+                    iconAnchor:     [iconSize.width * scale,   iconSize.height * scale], 
+                    shadowAnchor:   [iconSize.width * scale,   iconSize.height * scale], 
+                    iconSize:       [iconSize.width * scale,   iconSize.height * scale],
+                    shadowSize:     [iconSize.height * scale,  iconSize.height * scale],
+                    popupAnchor:    [-15,  - iconSize.height * scale + 5]})});
             }
 
             // add the museum to the map, and add a popup
             poiSymbol.bindPopup("<h2><a href='"+museum.url+"'>" + museum.name + "</a></h2>\
-                <p>" + r360.config.i18n.get('travelTime') + ": " + r360.Util.secondsToHoursAndMinutes(museum.travelTime) + "</p>");
+                <p>" + r360.config.i18n.get('travelTime') + ": " + 
+                r360.Util.secondsToHoursAndMinutes(museum.travelTime) + "</p>");
             poiSymbol.addTo(map);
-
         });
     });
 }

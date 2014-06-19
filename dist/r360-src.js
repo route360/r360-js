@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (8671da4), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (41fd519), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -73,16 +73,16 @@ r360.config = {
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
-            { time : 600  , color : "#006837"},
-            { time : 1200 , color : "#39B54A"},
-            { time : 1800 , color : "#8CC63F"},
-            { time : 2400 , color : "#F7931E"},
-            { time : 3000 , color : "#F15A24"},
-            { time : 3600 , color : "#C1272D"}
+            { time : 300  , color : "#006837"},
+            { time : 600  , color : "#39B54A"},
+            { time : 900  , color : "#8CC63F"},
+            { time : 1200 , color : "#F7931E"},
+            { time : 1500 , color : "#F15A24"},
+            { time : 1800 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
-        initValue: 1800
+        initValue: 30
     },
 
     routeTypes  : [
@@ -127,8 +127,8 @@ r360.config = {
 
     // configuration for the Route360PolygonLayer
     defaultPolygonLayerOptions:{
-        opacity : 0.8,
-        strokeWidth: 5
+        opacity : 0.4,
+        strokeWidth: 15
     },
 
     i18n : {
@@ -431,6 +431,363 @@ r360.Util = {
     }
 };
 
+/*
+ *
+ */
+r360.TravelOptions = function(){
+
+    var sources;
+    var targets;
+    var service;
+
+    var bikeSpeed       = 15;
+    var bikeUphill      = 20;
+    var bikeDownhill    = -10;
+    var walkSpeed       = 5;
+    var walkUphill      = 10;
+    var walkDownhill    = 0;
+
+    var travelTimes     = [300, 600, 900, 1200, 1500, 1800];
+    var travelMode      = "walk";
+
+    var time            = r360.Util.getTimeInSeconds();
+    var date            = r360.Util.getCurrentDate();
+    var errors          = [];
+    var waitControl;
+
+    this.valid = function(){
+
+        // check if sources are of type array
+        if ( Object.prototype.toString.call(this.getSources()) === '[object Array]' ) {
+
+            if ( this.getSources().length == 0 ) this.getErrors().push('Sources do not contain any points!');
+            else {
+
+                // validate each source
+                _.each(this.getSources, function(source){
+
+                    if ( source.getLatLng().lat === 'undefined' ) this.getErrors().push('Sources contains source with undefined latitude!');
+                    if ( source.getLatLng().lng === 'undefined' ) this.getErrors().push('Sources contains source with undefined longitude!');
+                });
+            }
+        }
+        else this.getErrors().push('Sources are not of type array!');
+
+        // check if sources are of type array
+        if ( Object.prototype.toString.call(this.getTargets()) === '[object Array]' ) {
+
+            if ( this.getTargets().length == 0 ) this.getErrors().push('Sources do not contain any points!');
+            else {
+
+                // validate each source
+                _.each(this.getTargets, function(target){
+
+                    if ( target.getLatLng().lat === 'undefined' ) this.getErrors().push('Targets contains target with undefined latitude!');
+                    if ( target.getLatLng().lng === 'undefined' ) this.getErrors().push('Targets contains target with undefined longitude!');
+                });
+            }
+        }
+        else this.getErrors().push('Sources are not of type array!');
+
+        return false;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getErrors = function(){
+
+        return errors;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getSources = function(){
+
+        return sources;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getTargets = function(){
+
+        return targets;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getBikeSpeed = function(){
+
+        return bikeSpeed;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getBikeUphill = function(){
+
+        return bikeUphill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getBikeDownhill = function(){
+
+        return bikeDownhill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getWalkSpeed = function(){
+
+        return walkSpeed;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getWalkUphill = function(){
+
+        return walkUphill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getWalkDownhill = function(){
+
+        return walkDownhill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getTravelTimes = function(){
+
+        return travelTimes;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getTravelMode = function(){
+
+        return travelMode;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getTime = function(){
+
+        return time;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getDate = function(){
+
+        return date;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.getWaitControl = function(){
+
+        return waitControl;
+    }
+
+
+    /*
+     *
+     *
+     *
+     */
+    this.getService = function(){
+
+        return service;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setService = function(service){
+
+        this.service = service;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setSources = function(sources){
+
+        this.sources = sources;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setTargets = function(targets){
+
+        this.targets = targets;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setBikeSpeed = function(bikeSpeed){
+
+        this.bikeSpeed = bikeSpeed;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setBikeUphill = function(bikeUphill){
+
+        this.bikeUphill = bikeUphill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setBikeDownhill = function(bikeDownhill){
+
+        this.bikeDownhill = bikeDownhill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setWalkSpeed = function(walkSpeed){
+
+        this.walkSpeed = walkSpeed;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setWalkUphill = function(walkUphill){
+
+        this.walkUphill = walkUphill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setWalkDownhill = function(walkDownhill){
+
+        this.walkDownhill = walkDownhill;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setTravelTimes = function(travelTimes){
+
+        this.travelTimes = travelTimes;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setTravelMode = function(travelMode){
+
+        this.travelMode = travelMode;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setTime = function(time){
+
+        this.time = time;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setDate = function(date){
+
+        this.date = date;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setWaitControl = function(waitControl){
+
+        this.waitControl = waitControl;
+    }
+};
+
+r360.travelOptions = function () { 
+    return new r360.TravelOptions();
+};
+
 
 r360.PolygonService = {
 
@@ -442,9 +799,12 @@ r360.PolygonService = {
         var sources;
         var travelTimes;
         var travelMode;
-        var speed = 15;
-        var uphill = 20;
-        var downhill = -10;
+        var bikeSpeed        = 15;
+        var bikeUphill      = 20;
+        var bikeDownhill    = -10;
+        var walkSpeed       = 5;
+        var walkUphill      = 10;
+        var walkDownhill    = 0;
 
         var time = r360.Util.getTimeInSeconds();
         var date = r360.Util.getCurrentDate();
@@ -462,28 +822,47 @@ r360.PolygonService = {
             if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
             else travelMode = r360.config.defaultTravelMode;
 
-            if ( _.has(travelOptions, "speed") ) { 
+            if ( _.has(travelOptions, "bikeSpeed") ) { 
                 
-                if ( travelOptions.speed < 1) alert("Speed needs to larger then 0.");
-                else speed = travelOptions.speed;
+                if ( travelOptions.bikeSpeed < 1) alert("Bike speed needs to larger then 0.");
+                else bikeSpeed = travelOptions.bikeSpeed;
             }
 
-            if ( typeof travelOptions.uphill   != 'undefined') uphill = travelOptions.uphill;
-            if ( typeof travelOptions.downhill != 'undefined') downhill = travelOptions.downhill;
+             if ( _.has(travelOptions, "walkSpeed") ) { 
+                
+                if ( travelOptions.walkSpeed < 1) alert("Walk speed needs to larger then 0.");
+                else walkSpeed = travelOptions.walkSpeed;
+            }
 
+            if ( bikeUphill < 0 || bikeDownhill > 0 || bikeUphill < -(bikeDownhill) )  
+                alert("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
+                    Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
 
-            if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
-                alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
-                    Absolute value of downhill speed needs to be smaller then uphill speed.");
+            if ( walkDownhill < 0 || walkDownhill > 0 || walkDownhill < -(walkDownhill) )  
+                alert("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
+                    Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
 
-            if ( _.has(travelOptions, "uphill") )   uphill   = travelOptions.uphill;
-            if ( _.has(travelOptions, "downhill") ) downhill = travelOptions.downhill;
-            if ( _.has(travelOptions, "time") )     time     = travelOptions.time;
-            if ( _.has(travelOptions, "date") )     date     = travelOptions.date;
+            if ( _.has(travelOptions, "uphill") )       bikeUphill   = travelOptions.bikeUphill;
+            if ( _.has(travelOptions, "downhill") )     bikeDownhill = travelOptions.bikeDownhill;
+            if ( _.has(travelOptions, "walkUphill") )   walkUphill   = travelOptions.walkUphill;
+            if ( _.has(travelOptions, "walkDownhill") ) walkDownhill = travelOptions.walkDownhill;
 
+            if ( _.has(travelOptions, "time") ) time = travelOptions.time;
+            if ( _.has(travelOptions, "date") ) date = travelOptions.date;
             if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
         }
         else alert('define travel options');
+
+        // // we need to define this before we can call valid()
+
+        // if ( travelOptions.isValidPolygonServiceOptions() ) {
+
+        // }
+        // else {
+
+        //     alert("Travel options are not valid!")
+        //     console.log(travelOptions);
+        // }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {
@@ -504,8 +883,6 @@ r360.PolygonService = {
             // this empty travel type object 'car'
             src.tm[travelMode.type] = {};
 
-            console.log(src);
-                   
             // set special routing parameters depending on the travel mode
             if ( travelMode.type == "transit" ) {
                 
@@ -517,23 +894,23 @@ r360.PolygonService = {
             if ( travelMode.type == "bike" ) {
                 
                 src.tm.bike = {
-                    speed       : speed,
-                    uphill      : uphill,
-                    downhill    : downhill
+                    speed       : bikeSpeed,
+                    uphill      : bikeUphill,
+                    downhill    : bikeDownhill
                 };
             }
             if ( travelMode.type == "walk") {
                 
                 src.tm.walk = {
-                    speed       : speed,
-                    uphill      : uphill,
-                    downhill    : downhill
+                    speed       : walkSpeed,
+                    uphill      : walkUphill,
+                    downhill    : walkDownhill
                 };
             }
 
             cfg.sources.push(src);
         });
-            
+
         // make the request to the Route360° backend 
         $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
             encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){

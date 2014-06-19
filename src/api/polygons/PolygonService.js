@@ -9,9 +9,12 @@ r360.PolygonService = {
         var sources;
         var travelTimes;
         var travelMode;
-        var speed = 15;
-        var uphill = 20;
-        var downhill = -10;
+        var bikeSpeed        = 15;
+        var bikeUphill      = 20;
+        var bikeDownhill    = -10;
+        var walkSpeed       = 5;
+        var walkUphill      = 10;
+        var walkDownhill    = 0;
 
         var time = r360.Util.getTimeInSeconds();
         var date = r360.Util.getCurrentDate();
@@ -29,28 +32,47 @@ r360.PolygonService = {
             if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
             else travelMode = r360.config.defaultTravelMode;
 
-            if ( _.has(travelOptions, "speed") ) { 
+            if ( _.has(travelOptions, "bikeSpeed") ) { 
                 
-                if ( travelOptions.speed < 1) alert("Speed needs to larger then 0.");
-                else speed = travelOptions.speed;
+                if ( travelOptions.bikeSpeed < 1) alert("Bike speed needs to larger then 0.");
+                else bikeSpeed = travelOptions.bikeSpeed;
             }
 
-            if ( typeof travelOptions.uphill   != 'undefined') uphill = travelOptions.uphill;
-            if ( typeof travelOptions.downhill != 'undefined') downhill = travelOptions.downhill;
+             if ( _.has(travelOptions, "walkSpeed") ) { 
+                
+                if ( travelOptions.walkSpeed < 1) alert("Walk speed needs to larger then 0.");
+                else walkSpeed = travelOptions.walkSpeed;
+            }
 
+            if ( bikeUphill < 0 || bikeDownhill > 0 || bikeUphill < -(bikeDownhill) )  
+                alert("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
+                    Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
 
-            if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
-                alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
-                    Absolute value of downhill speed needs to be smaller then uphill speed.");
+            if ( walkDownhill < 0 || walkDownhill > 0 || walkDownhill < -(walkDownhill) )  
+                alert("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
+                    Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
 
-            if ( _.has(travelOptions, "uphill") )   uphill   = travelOptions.uphill;
-            if ( _.has(travelOptions, "downhill") ) downhill = travelOptions.downhill;
-            if ( _.has(travelOptions, "time") )     time     = travelOptions.time;
-            if ( _.has(travelOptions, "date") )     date     = travelOptions.date;
+            if ( _.has(travelOptions, "uphill") )       bikeUphill   = travelOptions.bikeUphill;
+            if ( _.has(travelOptions, "downhill") )     bikeDownhill = travelOptions.bikeDownhill;
+            if ( _.has(travelOptions, "walkUphill") )   walkUphill   = travelOptions.walkUphill;
+            if ( _.has(travelOptions, "walkDownhill") ) walkDownhill = travelOptions.walkDownhill;
 
+            if ( _.has(travelOptions, "time") ) time = travelOptions.time;
+            if ( _.has(travelOptions, "date") ) date = travelOptions.date;
             if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
         }
         else alert('define travel options');
+
+        // // we need to define this before we can call valid()
+
+        // if ( travelOptions.isValidPolygonServiceOptions() ) {
+
+        // }
+        // else {
+
+        //     alert("Travel options are not valid!")
+        //     console.log(travelOptions);
+        // }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {
@@ -82,23 +104,23 @@ r360.PolygonService = {
             if ( travelMode.type == "bike" ) {
                 
                 src.tm.bike = {
-                    speed       : speed,
-                    uphill      : uphill,
-                    downhill    : downhill
+                    speed       : bikeSpeed,
+                    uphill      : bikeUphill,
+                    downhill    : bikeDownhill
                 };
             }
             if ( travelMode.type == "walk") {
                 
                 src.tm.walk = {
-                    speed       : speed,
-                    uphill      : uphill,
-                    downhill    : downhill
+                    speed       : walkSpeed,
+                    uphill      : walkUphill,
+                    downhill    : walkDownhill
                 };
             }
 
             cfg.sources.push(src);
         });
-            
+
         // make the request to the Route360° backend 
         $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
             encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){

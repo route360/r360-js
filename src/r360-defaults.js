@@ -15,16 +15,16 @@ r360.config = {
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
-            { time : 600  , color : "#006837"},
-            { time : 1200 , color : "#39B54A"},
-            { time : 1800 , color : "#8CC63F"},
-            { time : 2400 , color : "#F7931E"},
-            { time : 3000 , color : "#F15A24"},
-            { time : 3600 , color : "#C1272D"}
+            { time : 300  , color : "#006837"},
+            { time : 600  , color : "#39B54A"},
+            { time : 900  , color : "#8CC63F"},
+            { time : 1200 , color : "#F7931E"},
+            { time : 1500 , color : "#F15A24"},
+            { time : 1800 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
-        initValue: 1800
+        initValue: 30
     },
 
     routeTypes  : [
@@ -69,8 +69,8 @@ r360.config = {
 
     // configuration for the Route360PolygonLayer
     defaultPolygonLayerOptions:{
-        opacity : 0.8,
-        strokeWidth: 5
+        opacity : 0.4,
+        strokeWidth: 15
     },
 
     i18n : {
