@@ -222,17 +222,40 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         </p>
                     </div>
                     <div id="polygonservice-api" style="display:none;">
-
-                        Sources need to provide a method getLatLng() which return a leaflet LatLng object
-
-                        <h3>Walk</h3>
-                        <p>asd</p>
-                        <h3>Bike</h3>
-                        <p>asd</p>
-                        <h3>Car</h3>
-                        <p>asd</p>
-                        <h3>Transit</h3>
-                        <p>asd</p>
+                        <h3>PolygonService</h3>
+                        <p class="text-justify lead">
+                            The <code>PolygonService</code> is used to query the Route360° Service to get travel time polygons starting from a specified source point. The service has only one method <code>getTravelTimePolygons</code> which takes a <code>TravelOptions</code> and a callback function as arguments. The service will only be executed if the travel options are configured properly, otherwise it will throw an error. <b>Mandatory</b> arguments for the travel options are:
+                        </p>
+                        <dl class="dl-horizontal" style="font-size: 20px;">
+                            <dt>Sources</dt>
+                            <dd>
+                                This has to be an array of objects. All objects have to have a <code>getLatLng</code> method which returns a Leaflet <strong>LatLng</strong> object. You can use the <code>TravelOptions.addSource(source)</code> or <code>TravelOptions.setSources(sources)</code> method to set all source points. The current server side implementation limits this to one source only. This will change in future releases. There will also be several methods to intersect polygons from multiple sources. Please contact us if you want to have a specific intersection method like <a href="http://en.wikipedia.org/wiki/Kriging">Kriging</a> or <a href="http://en.wikipedia.org/wiki/Metaballs">Metaball</a>.
+                            </dd>
+                            <dt>Travel times</dt>
+                            <dd>
+                                This is an array of travel times for which you want to have polygons. This array has to only contain numbers. The values are represented in seconds. An example which requests polygons for 5 to 30 minutes in 5 minutes steps would be: <strong>[300, 600, 900, 1200, 1500, 1800]</strong>. You have to make sure that <code>r360.config.defaultTravelTimeControlOptions.travelTimes</code> contains a color for each entry.
+                            </dd>
+                        </dl>
+                        <p class="text-justify lead">The defaults for this service are <i>walking</i> with polygons for 5 to 30 minutes in 5 minutes steps. In case you want to change this to something else you can use the following optional settings. You can set the travel type with <code>TravelOptions.setTravelType('type')</code>, where 'type' is one of the following four: </p>
+                        <dl class="dl-horizontal" style="font-size: 20px;">
+                            <dt style="text-transform: lowercase;">walk</dt>
+                            <dd>
+                                This returns polygons which mark the area which are only reachable by foot. The default travel speed is 5 km/h. You can change the travel speed by <code>TravelOptions.setWalkSpeed(number)</code> which has to a non-negative integer. If you want to punish uphill trave
+                            </dd>
+                            <dt style="text-transform: lowercase;">Bike</dt>
+                            <dd>
+                                asd
+                            </dd>
+                            <dt style="text-transform: lowercase;">Car</dt>
+                            <dd>
+                                asd
+                            </dd>
+                            <dt style="text-transform: lowercase;">Transit</dt>
+                            <dd>
+                                asd
+                            </dd>
+                        </dl>
+                        <p class="text-justify lead">Please note that these polygons can get, espacially for many and high travel times, pretty large in file size. We gzip them on the server side, but you have to make sure that you don't download 2MB polygons to your users smartphones over GPRS.</p>
                     </div>
                     <div id="routeservice-api" style="display:none;">
                         <h3>TravelTime</h3>

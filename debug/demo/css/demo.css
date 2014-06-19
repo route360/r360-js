@@ -31,6 +31,10 @@ hr.star-light:after, hr.star-primary:after {
     content: "";
 }
 
+/*.dl-horizontal {
+ font-size: 15px;   
+}*/
+
 .leaflet-popup-content {
     color:black;
 }
