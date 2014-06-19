@@ -95,7 +95,7 @@
             </div>
             <p style="text-align:justify;">The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. <br> The API is free of charge and can be altered and forked as you wish. Since this API makes requests to the Route360° Webservice you need to contact us to get your application key. We provide a development version of the Route360° Webservice, which can be used for development purposes only, but we do not guarantee service uptime at any point.</p>
             <h3>Lets add some polygons</h3>
-            <p>This basic example shows you how to add a marker to the map and display reachability polygons from this location. Note that we do not set a travel mode, this defaults to 'bike' for now.</p>
+            <p>This basic example shows you how to add a marker to the map and display reachability polygons from this location. Note that we do not set a travel mode, this defaults to 'walk' for now.</p>
             <p>First we need to import all the necessary javascript and css files. You should download the Route360° JS API from the <a href="https://bitbucket.org/Yojimbo/motion_intelligence.r360_js">repository</a>. For jQuery and jQuery UI we strongly advise you to use the <a href="http://jquery-ui-bootstrap.github.io/jquery-ui-bootstrap/">jQuery UI Bootstrap</a> library. Leaflet can be found <a href="http://leafletjs.com/">here</a>, Rapheal.js can be found <a href="http://raphaeljs.com/">here</a>.</p>
             <p>In the future, we plan to release the Route360° JavaScript API as a bower component. Please be patient. :)</p>
 <pre class="prettyprint">
@@ -125,8 +125,8 @@ var attribution ="&lt;a href='https://www.mapbox.com/about/maps/' target='_blank
 
  // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: attribution
+    maxZoom: 18,
+    attribution: attribution
 }).addTo(map);
 
 // create a marker and add it to the map (make sure to fix the icon urls)
@@ -135,10 +135,6 @@ marker.addTo(map);
 </pre>
             <p>No we add a layer for the reachability polygons, call the Route360° Webservice and render the resulting polygons on the map:</p>
 <pre class="prettyprint">
-// set the service url, note that this is a development/testing endpoint only
-// we do not guarantuee service uptime at any point
-r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
 // create the layer to add the polygons
 var cpl = r360.route360PolygonLayer();
 // add it to the map
@@ -146,21 +142,20 @@ map.addLayer(cpl);
 
 // you need to define some options for the polygon service
 // for more travel options check out the other tutorials
-var travelOptions = {
-    // we only have one source which is the marker we just added
-    sources : [marker],
-    // we want to have polygons for 10 minutes and 20 minutes
-    travelTimes : [600,1200]
-};
+var travelOptions = r360.travelOptions();
+// we only have one source which is the marker we just added
+travelOptions.addSource(marker);
+// we want to have polygons for 10 minutes and 20 minutes
+travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
 // call the service
 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
         
-        // add the returned polygons to the polygon layer 
-        cpl.addLayer(polygons);
-        
-        // zoom the map to fit the polygons perfectly
-        map.fitBounds(cpl.getBoundingBox());
+    // add the returned polygons to the polygon layer 
+    cpl.addLayer(polygons);
+    
+    // zoom the map to fit the polygons perfectly
+    map.fitBounds(cpl.getBoundingBox());
 }); 
 </pre>
             <p>Easy, right? You should see something like this:
@@ -210,7 +205,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             <div class="row">
                 <div class="col-lg-2">
                     <ul id="api-menu" class="nav nav-pills nav-stacked">
-                        <li class="active"><a href="#polygonservice" id="polygonservice-nav">PolygonService</a></li>
+                        <li class=""><a href="#polygonservice" id="polygonservice-nav">PolygonService</a></li>
                         <li class=""><a href="#routeservice" id="routeservice-nav">RouteService</a></li>
                         <li class=""><a href="#timeservice" id="timeservice-nav">TimeService</a></li>
                         <li class=""><a href="#controls" id="controls-nav">Controls</a></li>
@@ -227,6 +222,9 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         </p>
                     </div>
                     <div id="polygonservice-api" style="display:none;">
+
+                        Sources need to provide a method getLatLng() which return a leaflet LatLng object
+
                         <h3>Walk</h3>
                         <p>asd</p>
                         <h3>Bike</h3>
@@ -389,10 +387,6 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             var marker = L.marker([52.51, 13.37]);
             marker.addTo(map);
 
-            // set the service url, note that this is a development/testing endpoint only
-            // we do not guarantuee service uptime at any point
-            // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();
             // add it to the map
@@ -402,8 +396,8 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // for more travel options check out the other tutorials
             var travelOptions = r360.travelOptions();
             // we only have one source which is the marker we just added
-            travelOptions.setSources([marker]);
-            // we want to have polygons for 10 minutes and 20 minutes
+            travelOptions.addSource(marker);
+            // we want to have polygons for 5 to 30 minutes
             travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
             // call the service
@@ -624,10 +618,6 @@ function addTravelTimeControl(){
     var marker = L.marker([52.51, 13.37]);
     marker.addTo(map);
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
     // add it to the map
@@ -664,12 +654,11 @@ function addTravelTimeControl(){
 
         // you need to define some options for the polygon service
         // for more travel options check out the other tutorials
-        var travelOptions = {
-            // we only have one source which is the marker we just added
-            sources : [marker],
-            // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : travelTimeControl.getValues()
-        };
+        var travelOptions = r360.travelOptions();
+        // we only have one source which is the marker we just added
+        travelOptions.addSource(marker);
+        // we want to have polygons for whatever the user selects 
+        travelOptions.setTravelTimes(travelTimeControl.getValues());
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -707,10 +696,6 @@ function addTravelTypeControl(){
     var marker = L.marker([52.51, 13.37]);
     marker.addTo(map);
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
     // add it to the map
@@ -744,14 +729,13 @@ function addTravelTypeControl(){
 
         // you need to define some options for the polygon service
         // for more travel options check out the other tutorials
-        var travelOptions = {
-            // we only have one source which is the marker we just added
-            sources : [marker],
-            // we want to have polygons for 5, 10, 15, 20, 25 and 30 minutes
-            travelTimes : [300, 600,900, 1200, 1500, 1800],
-            // get the selected travel type from the control
-            travelMode  : { type : travelTypeButtons.getValue() }
-        };
+        var travelOptions = r360.travelOptions();
+        // we only have one source which is the marker we just added
+        travelOptions.addSource(marker);
+        // we want to have polygons for 5 to 30 minutes
+        travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+        // get the selected travel type from the control
+        travelOptions.setTravelType(travelTypeButtons.getValue());
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -788,10 +772,6 @@ function addTravelStartDateControl(){
     var marker = L.marker([52.51, 13.37]);
     marker.addTo(map);
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
     // add it to the map
@@ -820,20 +800,19 @@ function addTravelStartDateControl(){
 
         // you need to define some options for the polygon service
         // for more travel options check out the other tutorials
-        var travelOptions = {
-            // we only have one source which is the marker we just added
-            sources : [marker],
-            // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : [300, 600,900, 1200, 1500, 1800],
-            // we hardcode transit travel type here
-            travelMode  : { type : 'transit' },
-            // and get the date and time from the controls
-            date : travelStartDateControl.getValue(),
-            time : travelStartTimeControl.getValue(),
-            // give the wait control to let the api display a waiting sign if
-            // request take long time, might happen for transit with long travel times
-            wait : waitControl
-        };
+        var travelOptions = r360.travelOptions();
+        // we only have one source which is the marker we just added
+        travelOptions.addSource(marker);
+        // we want to have polygons for 5 to 30 minutes
+        travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+        // get the selected travel type from the control
+        travelOptions.setTravelType('transit');
+        // and get the date and time from the controls
+        travelOptions.setDate(travelStartDateControl.getValue());
+        travelOptions.setTime(travelStartTimeControl.getValue());
+        // give the wait control to let the api display a waiting sign if
+        // request take long time, might happen for transit with long travel times
+        travelOptions.setWaitControl(waitControl);
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -869,10 +848,6 @@ function addPlaceAutoCompleteControl(){
     // create a marker and but dont add it to the map yet
     var marker;
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
     // add it to the map
@@ -900,12 +875,11 @@ function addPlaceAutoCompleteControl(){
 
         // you need to define some options for the polygon service
         // for more travel options check out the other tutorials
-        var travelOptions = {
-            // we only have one source which is the marker we just added
-            sources : [marker],
-            // we want to have polygons for 10 minutes and 20 minutes
-            travelTimes : [300, 600, 900, 1200, 1500, 1800],
-        };
+        var travelOptions = r360.travelOptions();
+        // we only have one source which is the marker we just added
+        travelOptions.addSource(marker);
+        // we want to have polygons for 5 to 30 minutes
+        travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -947,21 +921,19 @@ function routingExample(){
     var targetMarker1 = L.marker([52.52562, 13.30195], {icon:redIcon}).addTo(map);
     var targetMarker2 = L.marker([52.51998, 13.41714], {icon:redIcon}).addTo(map);
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
     // add a layer in which we will paint the route
     var routeLayer = L.featureGroup().addTo(map);
 
-    // you need to define some options for the routing service
+    // you need to define some options for the polygon service
     // for more travel options check out the other tutorials
-    var travelOptions = {
-        // give the source and target markers
-        sources     : [sourceMarker],
-        targets     : [targetMarker1, targetMarker2],
-        travelMode  : { type : 'transit' },
-    };
+    var travelOptions = r360.travelOptions();
+    // we only have one source which is the marker we just added
+    travelOptions.addSource(sourceMarker);
+    // add two targets to the options
+    travelOptions.addTarget(targetMarker1);
+    travelOptions.addTarget(targetMarker2);
+    // set the travel type to transit
+    travelOptions.setTravelType('transit');
     
     // start the service
     r360.RouteService.getRoutes(travelOptions, function(routes){
@@ -1026,21 +998,18 @@ function filterExample(){
         targets.push(marker);
     });
 
-    // set the service url, note that this is a development/testing endpoint only
-    // we do not guarantuee service uptime at any point
-    // r360.config.serviceUrl = 'http://144.76.246.52:8080/api/';
-
-    // you need to define some options for the routing service
+    // you need to define some options for the polygon service
     // for more travel options check out the other tutorials
-    var travelOptions = {
-        // give the source and target markers
-        sources         : [sourceMarker],
-        targets         : targets,
-        travelMode      : { type : 'transit' },
-        // for all museums which are not reachable within <maxRoutingTime>
-        // no routing time will be returned
-        maxRoutingTime  : 1200
-    };
+    var travelOptions = r360.travelOptions();
+    // we only have one source which is the marker we just added
+    travelOptions.addSource(sourceMarker);
+    // add all the museums to the options
+    travelOptions.setTargets(targets);
+    // set the travel type to transit
+    travelOptions.setTravelType('transit');
+    // for all museums which are not reachable within <maxRoutingTime>
+    // no routing time will be returned 
+    travelOptions.setMaxRoutingTime(1200);
 
     // call the service
     r360.TimeService.getRouteTime(travelOptions, function(sources){

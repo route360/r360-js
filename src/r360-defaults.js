@@ -1,16 +1,18 @@
 r360.config = {
 
-    nominatimUrl        : 'http://geocode.route360.net/',  
-
-    serviceUrl          : 'http://localhost:8080/api/',
-    // serviceUrl          : 'http://144.76.246.52:8080/api/',
-    serviceVersion      : 'v1',
-
-    pathSerializer      : 'compact',
-    maxRoutingTime      : 3600,
-    //serviceUrl          : 'http://api.route360.net:8080/api/',
-    //serviceUrl          : 'http://144.76.246.53:8080/api_bb/',
-    //serviceUrl          : 'http://141.89.192.241:8080/api/',
+    serviceUrl      : 'http://localhost:8080/api/',
+    serviceUrl      : 'http://144.76.246.52:8080/api/',
+    serviceVersion  : 'v1',
+    pathSerializer  : 'compact',
+    maxRoutingTime  : 3600,
+    bikeSpeed       : 15,
+    bikeUphill      : 20,
+    bikeDownhill    : -10,
+    walkSpeed       : 5,
+    walkUphill      : 10,
+    walkDownhill    : 0,
+    travelTimes     : [300, 600, 900, 1200, 1500, 1800],
+    travelType      : "walk",
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -52,19 +54,6 @@ r360.config = {
 
     defaultRadioOptions: {
        position : 'topright',
-       icon: "../img/bike.png"
-    },
-
-    defaultButtonOptions : {
-        position : 'topright',
-        icon     : 'ui-icon-info'
-    },
-
-    defaultTravelMode: {
-        type : 'bike',
-        speed : 15,
-        uphill : 20,
-        downhill : -10
     },
 
     // configuration for the Route360PolygonLayer

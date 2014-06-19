@@ -6,57 +6,12 @@ r360.RouteService = {
      */
     getRoutes : function(travelOptions, callback) {
 
-        var sources;
-        var targets;
-        var speed           = 15;
-        var uphill          = 20;
-        var downhill        = -10;
-        var time            = r360.Util.getTimeInSeconds();
-        var date            = r360.Util.getCurrentDate();
-        var pathSerializer  = 'compact';
+        // only make the request if we have a valid configuration
+        if ( travelOptions.isValidRouteServiceOptions() ) {
 
-        if ( typeof callback       == 'undefined') alert('callback needs to be defined');
-        if ( typeof travelOptions !== 'undefined') {
-
-            if ( _.has(travelOptions, "pathSerializer") ) pathSerializer = travelOptions.pathSerializer;
-
-            if ( _.has(travelOptions, "sources") ) sources = travelOptions.sources;
-            else alert("No sources for routing given!");
-
-            if ( _.has(travelOptions, "targets") ) targets = travelOptions.targets;
-            else alert("No targets for routing given!");
-
-            if ( _.has(travelOptions, "travelTimes") ) travelTimes = travelOptions.travelTimes;
-            else travelTimes = r360.config.defaultTravelTimeControlOptions.travelTimes;
+            var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
             
-            if ( _.has(travelOptions, "travelMode") ) travelMode = travelOptions.travelMode;
-            else travelMode = r360.config.defaultTravelMode;
- 
-            if ( _.has(travelOptions, "speed") ) { 
-                
-                if ( travelOptions.speed < 1) alert("Speed needs to larger then 0.");
-                else speed = travelOptions.speed;
-            }
-
-            if ( _.has(travelOptions, "uphill") )   uphill   = travelOptions.uphill;
-            if ( _.has(travelOptions, "downhill") ) downhill = travelOptions.downhill;
-            if ( _.has(travelOptions, "time") )     time     = travelOptions.time;
-            if ( _.has(travelOptions, "date") )     date     = travelOptions.date;
-
-            if ( uphill < 0 || downhill > 0 || uphill < -(downhill) )  
-                alert("Uphill speed has to be larger then 0. Downhill speed has to be smaller then 0. \
-                    Absolute value of downhill speed needs to be smaller then uphill speed.");
-
-            if ( _.has(travelOptions, 'wait') ) travelOptions.wait.show();
-        }
-        else alert('Travel options not defined! Cannot call Route360° service!');   
-
-        // if there are no target points available, no routing is possible! 
-        if ( sources.length != 0 && targets.length != 0 ) {
-
-            var cfg = { sources : [], targets : [], pathSerializer : pathSerializer };
-            
-            _.each(sources, function(source){
+            _.each(travelOptions.getSources(), function(source){
 
                 // set the basic information for this source
                 var src = {
@@ -65,30 +20,30 @@ r360.RouteService = {
                     lon : source.getLatLng().lng,
                     tm  : {}
                 };
-                src.tm[travelMode.type] = {};
+                src.tm[travelOptions.getTravelType()] = {};
 
                 // set special routing parameters depending on the travel mode
-                if ( travelMode.type == "transit" ) {
+                if ( travelOptions.getTravelType() == "transit" ) {
                     
                     src.tm.transit.frame = {
-                        time : time,
-                        date : date
+                        time : travelOptions.getTime(),
+                        date : travelOptions.getDate()
                     };
                 }
-                if ( travelMode.type == "bike" ) {
+                if ( travelOptions.getTravelType() == "bike" ) {
                     
                     src.tm.bike = {
-                        speed       : speed,
-                        uphill      : uphill,
-                        downhill    : downhill
+                        speed       : travelOptions.getBikeSpeed(),
+                        uphill      : travelOptions.getBikeUphill(),
+                        downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelMode.type == "walk") {
+                if ( travelOptions.getTravelType() == "walk") {
                     
                     src.tm.walk = {
-                        speed       : speed,
-                        uphill      : uphill,
-                        downhill    : downhill
+                        speed       : travelOptions.getWalkSpeed(),
+                        uphill      : travelOptions.getWalkUphill(),
+                        downhill    : travelOptions.getWalkDownhill()
                     };
                 }
 
@@ -97,7 +52,7 @@ r360.RouteService = {
             });
 
             cfg.targets = [];
-            _.each(targets, function(target){
+            _.each(travelOptions.getTargets(), function(target){
 
                 var trg = {};
                 trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
@@ -114,6 +69,11 @@ r360.RouteService = {
                     // call callback with returned results
                     callback(r360.Util.parseRoutes(result)); 
             });
+        }
+        else {
+
+            alert("Travel options are not valid!")
+            console.log(travelOptions.getErrors());
         }
     }
 };

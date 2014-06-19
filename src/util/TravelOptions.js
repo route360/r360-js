@@ -3,26 +3,32 @@
  */
 r360.TravelOptions = function(){
 
-    var sources;
-    var targets;
-    var service;
+    this.sources         = [];
+    this.targets         = [];
+    this.service;
 
-    var bikeSpeed       = 15;
-    var bikeUphill      = 20;
-    var bikeDownhill    = -10;
-    var walkSpeed       = 5;
-    var walkUphill      = 10;
-    var walkDownhill    = 0;
+    this.bikeSpeed       = 15;
+    this.bikeUphill      = 20;
+    this.bikeDownhill    = -10;
+    this.walkSpeed       = 5;
+    this.walkUphill      = 10;
+    this.walkDownhill    = 0;
 
-    var travelTimes     = [300, 600, 900, 1200, 1500, 1800];
-    var travelMode      = "walk";
+    this.travelTimes     = [300, 600, 900, 1200, 1500, 1800];
+    this.travelType      = "walk";
 
-    var time            = r360.Util.getTimeInSeconds();
-    var date            = r360.Util.getCurrentDate();
-    var errors          = [];
-    var waitControl;
+    this.time            = r360.Util.getTimeInSeconds();
+    this.date            = r360.Util.getCurrentDate();
+    this.errors          = [];
 
-    this.valid = function(){
+    this.pathSerializer  = 'compact';
+    this.maxRoutingTime  = 3600;
+    this.waitControl;
+
+    this.isValidPolygonServiceOptions = function(){
+
+        // reset errors
+        this.errors = [];
 
         // check if sources are of type array
         if ( Object.prototype.toString.call(this.getSources()) === '[object Array]' ) {
@@ -31,7 +37,7 @@ r360.TravelOptions = function(){
             else {
 
                 // validate each source
-                _.each(this.getSources, function(source){
+                _.each(this.getSources(), function(source){
 
                     if ( source.getLatLng().lat === 'undefined' ) this.getErrors().push('Sources contains source with undefined latitude!');
                     if ( source.getLatLng().lng === 'undefined' ) this.getErrors().push('Sources contains source with undefined longitude!');
@@ -40,23 +46,101 @@ r360.TravelOptions = function(){
         }
         else this.getErrors().push('Sources are not of type array!');
 
-        // check if sources are of type array
+        // is the given travel type supported
+        if ( !_.contains(['bike', 'transit', 'walk', 'car'], this.getTravelType() ) )
+            this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
+        else {
+
+            if ( this.getTravelType() == 'car' ) ; // nothing to do
+            else if ( this.getTravelType() == 'bike' ) {
+
+                // validate downhill/uphill penalties
+                if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
+                    this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
+                        Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
+
+                // we need to have a positiv speeds
+                if ( this.getBikeSpeed() <= 0 ) this.getErrors().push("Bike speed needs to be larger then 0.");
+            }
+            else if ( this.getTravelType() == 'walk' ) {
+
+                // validate downhill/uphill penalties
+                if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
+                    this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
+                        Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
+
+                // we need to have a positiv speeds
+                if ( this.getWalkSpeed() <= 0 ) this.getErrors().push("Walk speed needs to be larger then 0.");
+            }
+            else if ( this.getTravelType() == 'transit' ) {
+
+                if ( this.getTime() < 0 ) this.getErrors().push("Start time for transit routing needs to larger than 0: " + this.getTime());
+                if ( this.getDate().length != 8 ) this.getErrors().push("Date has to have format YYYYMMDD: " + this.getDate());
+            }
+        }
+
+        // travel times needs to be an array
+        if ( Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
+            this.getErrors().push('Travel times have to be an array!');
+        }
+        else {
+
+            if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
+                this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
+        }
+
+        // false if we found errors
+        return this.errors.length == 0;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.isValidRouteServiceOptions = function(){
+
+        this.isValidPolygonServiceOptions();
+
+        // check if targets are of type array
         if ( Object.prototype.toString.call(this.getTargets()) === '[object Array]' ) {
 
             if ( this.getTargets().length == 0 ) this.getErrors().push('Sources do not contain any points!');
             else {
 
                 // validate each source
-                _.each(this.getTargets, function(target){
+                _.each(this.getTargets(), function(target){
 
                     if ( target.getLatLng().lat === 'undefined' ) this.getErrors().push('Targets contains target with undefined latitude!');
                     if ( target.getLatLng().lng === 'undefined' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }
-        else this.getErrors().push('Sources are not of type array!');
+        else this.getErrors().push('Targets are not of type array!');
 
-        return false;
+        // is the given path serializer supported
+        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+            this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
+
+        // false if we found errors
+        return this.errors.length == 0;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.isValidTimeServiceOptions = function(){
+
+        this.isValidRouteServiceOptions();
+
+        // is the given path serializer supported
+        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+            this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
+
+        // false if we found errors
+        return this.errors.length == 0;
     }
 
     /*
@@ -66,7 +150,7 @@ r360.TravelOptions = function(){
      */
     this.getErrors = function(){
 
-        return errors;
+        return this.errors;
     }
 
     /*
@@ -76,7 +160,27 @@ r360.TravelOptions = function(){
      */
     this.getSources = function(){
 
-        return sources;
+        return this.sources;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.addSource = function(source){
+
+        this.sources.push(source);
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.addTarget = function(target){
+
+        this.targets.push(target);
     }
 
     /*
@@ -86,7 +190,7 @@ r360.TravelOptions = function(){
      */
     this.getTargets = function(){
 
-        return targets;
+        return this.targets;
     }
 
     /*
@@ -96,7 +200,7 @@ r360.TravelOptions = function(){
      */
     this.getBikeSpeed = function(){
 
-        return bikeSpeed;
+        return this.bikeSpeed;
     }
     
     /*
@@ -106,7 +210,7 @@ r360.TravelOptions = function(){
      */
     this.getBikeUphill = function(){
 
-        return bikeUphill;
+        return this.bikeUphill;
     }
     
     /*
@@ -116,7 +220,7 @@ r360.TravelOptions = function(){
      */
     this.getBikeDownhill = function(){
 
-        return bikeDownhill;
+        return this.bikeDownhill;
     }
     
     /*
@@ -126,7 +230,7 @@ r360.TravelOptions = function(){
      */
     this.getWalkSpeed = function(){
 
-        return walkSpeed;
+        return this.walkSpeed;
     }
     
     /*
@@ -136,7 +240,7 @@ r360.TravelOptions = function(){
      */
     this.getWalkUphill = function(){
 
-        return walkUphill;
+        return this.walkUphill;
     }
     
     /*
@@ -146,7 +250,7 @@ r360.TravelOptions = function(){
      */
     this.getWalkDownhill = function(){
 
-        return walkDownhill;
+        return this.walkDownhill;
     }
     
     /*
@@ -156,7 +260,7 @@ r360.TravelOptions = function(){
      */
     this.getTravelTimes = function(){
 
-        return travelTimes;
+        return this.travelTimes;
     }
     
     /*
@@ -164,9 +268,9 @@ r360.TravelOptions = function(){
      *
      *
      */
-    this.getTravelMode = function(){
+    this.getTravelType = function(){
 
-        return travelMode;
+        return this.travelType;
     }
     
     /*
@@ -176,7 +280,7 @@ r360.TravelOptions = function(){
      */
     this.getTime = function(){
 
-        return time;
+        return this.time;
     }
     
     /*
@@ -186,7 +290,7 @@ r360.TravelOptions = function(){
      */
     this.getDate = function(){
 
-        return date;
+        return this.date;
     }
     
     /*
@@ -196,7 +300,7 @@ r360.TravelOptions = function(){
      */
     this.getWaitControl = function(){
 
-        return waitControl;
+        return this.waitControl;
     }
 
 
@@ -207,8 +311,49 @@ r360.TravelOptions = function(){
      */
     this.getService = function(){
 
-        return service;
+        return this.service;
     }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getPathSerializer = function(){
+
+        return this.pathSerializer;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getMaxRoutingTime = function(){
+
+        return this.maxRoutingTime;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setMaxRoutingTime = function(maxRoutingTime){
+
+        this.maxRoutingTime = maxRoutingTime;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setPathSerializer = function(pathSerializer){
+
+        this.pathSerializer = pathSerializer;
+    }
+
     
     /*
      *
@@ -315,9 +460,9 @@ r360.TravelOptions = function(){
      *
      *
      */
-    this.setTravelMode = function(travelMode){
+    this.setTravelType = function(travelType){
 
-        this.travelMode = travelMode;
+        this.travelType = travelType;
     }
     
     /*

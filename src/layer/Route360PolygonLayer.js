@@ -26,8 +26,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
 
-            if(typeof options.opacity != 'undefined')     this.opacity      = options.opacity;
-            if(typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
+            if ( typeof options.opacity     != 'undefined') this.opacity      = options.opacity;
+            if ( typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
         }
 
         this._multiPolygons = new Array(); 
