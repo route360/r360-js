@@ -1061,7 +1061,7 @@ function filterExample(){
 
             // the travel time to these museums is shorter then the maximum travel width
             // all other museum will remain with the circle marker
-            if ( museum.travelTime > 0 && museum.travelTime <= travelOptions.maxRoutingTime ) {
+            if ( museum.travelTime > 0 && museum.travelTime <= travelOptions.getMaxRoutingTime() ) {
 
                 // only a rule of three
 

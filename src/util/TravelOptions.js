@@ -21,8 +21,8 @@ r360.TravelOptions = function(){
     this.date            = r360.Util.getCurrentDate();
     this.errors          = [];
 
-    this.pathSerializer  = 'compact';
-    this.maxRoutingTime  = 3600;
+    this.pathSerializer  = r360.config.pathSerializer;
+    this.maxRoutingTime  = r360.config.maxRoutingTime;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(){
