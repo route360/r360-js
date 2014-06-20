@@ -8,7 +8,7 @@
     "description": "Route360° JavaScript API",
     "main": [
         "dist/r360.js",
-        "dist/r360.css",
+        "dist/r360.css"
     ],
     "keywords": [
         "r360",
@@ -24,9 +24,8 @@
         "underscore"    : "1.6.0",
         "font-awesome"  : "4.1.0",
         "raphael"       : "2.1.2",
-        "jquery-ui"     : "1.10.4",
+        "jquery-ui"     : "1.10.4"
     },
-    "license": "MIT",
     "homepage": "http://route360.net/",
     "ignore": [
         "**/.*",
