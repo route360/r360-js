@@ -5,7 +5,8 @@ r360.TravelStartDateControl = L.Control.extend({
     
     options: {
         position: 'topright',
-        dateFormat: "yy-mm-dd"
+        dateFormat: "yy-mm-dd",
+        minDate: 0
     },
 
     initialize: function (options) {

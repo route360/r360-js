@@ -20,6 +20,10 @@ header {
     padding-top: 100px;
 }
 
+.api code {
+    color : black;
+}
+
 section.tutorials {
     color: #fff;
     background: #212E3E;

@@ -1,0 +1,18 @@
+{
+  "name": "r360-demo",
+  "version": "0.0.0",
+  "description": "Tutorials and API Documentation for the Route°360 JavaScript API",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies":{
+    "matchdep": "~0.1.1",
+    "grunt": "~0.4.5",
+    "grunt-regarde": "~0.1.1",
+    "grunt-contrib-connect":  "0.1.2",
+    "grunt-contrib-livereload": "0.1.1"
+  }
+}

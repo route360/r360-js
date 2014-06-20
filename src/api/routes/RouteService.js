@@ -9,6 +9,9 @@ r360.RouteService = {
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidRouteServiceOptions() ) {
 
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+
             var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
             
             _.each(travelOptions.getSources(), function(source){
@@ -64,10 +67,10 @@ r360.RouteService = {
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
 
-                    // hide the please wait control
-                    if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
-                    // call callback with returned results
-                    callback(r360.Util.parseRoutes(result)); 
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parseRoutes(result)); 
             });
         }
         else {

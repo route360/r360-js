@@ -9,6 +9,9 @@ r360.PolygonService = {
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidPolygonServiceOptions() ) {
 
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
                 polygon : { values : travelOptions.getTravelTimes() },
@@ -59,7 +62,7 @@ r360.PolygonService = {
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
 
                 // hide the please wait control
-                if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                 // call callback with returned results
                 callback(r360.Util.parsePolygons(result));
             });

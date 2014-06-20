@@ -5,6 +5,9 @@ r360.TimeService = {
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidTimeServiceOptions() ) {
 
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+
             var cfg = { 
                 sources : [], targets : [],
                 pathSerializer : travelOptions.getPathSerializer(), 
@@ -71,6 +74,9 @@ r360.TimeService = {
                 dataType:    "json",
                 success: function (result) {
 
+                    // hide the please wait control
+                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                    // return the results
                     callback(result);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {

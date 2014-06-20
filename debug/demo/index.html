@@ -224,8 +224,9 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     <div id="polygonservice-api" style="display:none;">
                         <h3>PolygonService</h3>
                         <p class="text-justify lead">
-                            The <code>PolygonService</code> is used to query the Route360° Service to get travel time polygons starting from a specified source point. The service has only one method <code>getTravelTimePolygons</code> which takes a <code>TravelOptions</code> and a callback function as arguments. The service will only be executed if the travel options are configured properly, otherwise it will throw an error. <b>Mandatory</b> arguments for the travel options are:
+                            The <code>PolygonService</code> is used to query the Route360° Service to get travel time polygons starting from a specified source point. The service has only one method <code>getTravelTimePolygons</code> which takes a <code>TravelOptions</code> and a callback function as arguments. The service will only be executed if the travel options are configured properly, otherwise it will throw an error.
                         </p>
+                        <h4>Mandatory arguments:</h4>
                         <dl class="dl-horizontal" style="font-size: 20px;">
                             <dt>Sources</dt>
                             <dd>
@@ -233,14 +234,17 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                             </dd>
                             <dt>Travel times</dt>
                             <dd>
-                                This is an array of travel times for which you want to have polygons. This array has to only contain numbers. The values are represented in seconds. An example which requests polygons for 5 to 30 minutes in 5 minutes steps would be: <strong>[300, 600, 900, 1200, 1500, 1800]</strong>. You have to make sure that <code>r360.config.defaultTravelTimeControlOptions.travelTimes</code> contains a color for each entry.
+                                This is an array of travel times for which you want to have polygons. This array has to only contain numbers. The values are represented in seconds. An example which requests polygons for 5 to 30 minutes in 5 minutes steps would be: <strong>[300, 600, 900, 1200, 1500, 1800]</strong>. You have to make sure that <code>r360.config.defaultTravelTimeControlOptions.travelTimes</code> contains a color for each entry. The defaults for this service are <i>walking</i> with polygons for 5 to 30 minutes in 5 minutes steps. 
                             </dd>
                         </dl>
-                        <p class="text-justify lead">The defaults for this service are <i>walking</i> with polygons for 5 to 30 minutes in 5 minutes steps. In case you want to change this to something else you can use the following optional settings. You can set the travel type with <code>TravelOptions.setTravelType('type')</code>, where 'type' is one of the following four: </p>
+                        <h4>Optional arguments:</h4>
+                        <p>
+                            You can set the travel type with <code>TravelOptions.setTravelType('type')</code>, where 'type' is one of the following four:
+                        </p>
                         <dl class="dl-horizontal" style="font-size: 20px;">
                             <dt style="text-transform: lowercase;">walk</dt>
                             <dd>
-                                This returns polygons which mark the area which are only reachable by foot. The default travel speed is 5 km/h. You can change the travel speed by <code>TravelOptions.setWalkSpeed(number)</code> which has to a non-negative integer. If you want to punish uphill trave
+                                This returns polygons which mark the area which are only reachable by foot. The default travel speed is 5 km/h. You can change the travel speed by <code>TravelOptions.setWalkSpeed(number)</code> which has to a non-negative integer. If you want to punish uphill travel, you can
                             </dd>
                             <dt style="text-transform: lowercase;">Bike</dt>
                             <dd>
@@ -255,7 +259,12 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                                 asd
                             </dd>
                         </dl>
-                        <p class="text-justify lead">Please note that these polygons can get, espacially for many and high travel times, pretty large in file size. We gzip them on the server side, but you have to make sure that you don't download 2MB polygons to your users smartphones over GPRS.</p>
+
+                    <div class="bs-callout bs-callout-warning">
+                        <h4>Warning</h4>
+                        <p>Please note that these polygons can get, especially for many and high travel times, pretty large in file size. We gzip them on the server side, but you have to make sure that you don't download 2MB polygons to your users smartphones over GPRS.</p>
+                    </div>
+                        <p class="text-justify lead"></p>
                     </div>
                     <div id="routeservice-api" style="display:none;">
                         <h3>TravelTime</h3>
@@ -385,9 +394,10 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
     <script src="js/g.raphael-min.js"></script>
     <script src="js/g.line-min.js"></script>
     <script src="js/museums_bb.js"></script>
+    <!-- // <script src="js/r360.js"></script> -->
 
     <script type="text/javascript" src="../../build/deps.js"></script>
-    <script src="../r360-include.js"></script>
+    <script type="text/javascript" src="../r360-include.js"></script>
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
