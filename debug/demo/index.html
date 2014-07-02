@@ -411,7 +411,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
                     maxZoom: 18,
                     attribution: attribution
             }).addTo(map);
@@ -642,7 +642,7 @@ function addTravelTimeControl(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -720,7 +720,7 @@ function addTravelTypeControl(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -796,7 +796,7 @@ function addTravelStartDateControl(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -837,7 +837,7 @@ function addTravelStartDateControl(){
         // we only have one source which is the marker we just added
         travelOptions.addSource(marker);
         // we want to have polygons for 5 to 30 minutes
-        travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+        travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
         // get the selected travel type from the control
         travelOptions.setTravelType('transit');
         // and get the date and time from the controls
@@ -849,13 +849,13 @@ function addTravelStartDateControl(){
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-            
+
             // in case there are already polygons on the map/layer
             cpl.clearLayers();
 
             // add the returned polygons to the polygon layer 
             cpl.addLayer(polygons);
-            
+
             // zoom the map to fit the polygons perfectly
             map.fitBounds(cpl.getBoundingBox());
         });
@@ -873,7 +873,7 @@ function addPlaceAutoCompleteControl(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -940,7 +940,7 @@ function routingExample(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -1012,7 +1012,7 @@ function filterExample(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.idl0m80i/{z}/{x}/{y}.png', {
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
