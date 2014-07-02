@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (ca20ef6), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (33e8559), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -443,8 +443,8 @@ r360.TravelOptions = function(){
     this.date            = r360.Util.getCurrentDate();
     this.errors          = [];
 
-    this.pathSerializer  = 'compact';
-    this.maxRoutingTime  = 3600;
+    this.pathSerializer  = r360.config.pathSerializer;
+    this.maxRoutingTime  = r360.config.maxRoutingTime;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(){
@@ -933,6 +933,9 @@ r360.PolygonService = {
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidPolygonServiceOptions() ) {
 
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
                 polygon : { values : travelOptions.getTravelTimes() },
@@ -983,7 +986,7 @@ r360.PolygonService = {
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
 
                 // hide the please wait control
-                if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                 // call callback with returned results
                 callback(r360.Util.parsePolygons(result));
             });
@@ -1006,6 +1009,9 @@ r360.RouteService = {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidRouteServiceOptions() ) {
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
 
             var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
             
@@ -1062,10 +1068,10 @@ r360.RouteService = {
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
 
-                    // hide the please wait control
-                    if ( _.has(travelOptions, 'wait') ) travelOptions.wait.hide();
-                    // call callback with returned results
-                    callback(r360.Util.parseRoutes(result)); 
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parseRoutes(result)); 
             });
         }
         else {
@@ -1082,6 +1088,9 @@ r360.TimeService = {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidTimeServiceOptions() ) {
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
 
             var cfg = { 
                 sources : [], targets : [],
@@ -1149,6 +1158,9 @@ r360.TimeService = {
                 dataType:    "json",
                 success: function (result) {
 
+                    // hide the please wait control
+                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                    // return the results
                     callback(result);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
@@ -1410,7 +1422,8 @@ r360.TravelStartDateControl = L.Control.extend({
     
     options: {
         position: 'topright',
-        dateFormat: "yy-mm-dd"
+        dateFormat: "yy-mm-dd",
+        minDate: 0
     },
 
     initialize: function (options) {
@@ -2331,15 +2344,18 @@ r360.Route360PolygonLayer = L.Class.extend({
         var that = this;
         that._resetBoundingBox();
         that._multiPolygons = new Array();
-        
-        _.each(polygons, function(polygon){
+
+        _.each(polygons, function(polygon, index){
 
             that._updateBoundingBox(polygon.outerBoundary);
             that._addPolygonToMultiPolygon(polygon);
         });
 
+        console.log("_multiPolygons: " + that._multiPolygons.length);
+
         that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
         that._reset();
+
     },
 
     /*
@@ -2347,19 +2363,18 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _addPolygonToMultiPolygon: function(polygon){
 
-        _.each(this._multiPolygons, function(multiPolygon){
+        var multiPolygons = _.filter(this._multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
 
-            if ( multiPolygon.getTravelTime() == polygon.travelTime ){
-                multiPolygon.addPolygon(polygon);
-                return;
-            }
-        });
+        // multipolygon with polygon's travetime already there
+        if ( multiPolygons.length > 0 ) multiPolygons[0].addPolygon(polygon);
+        else {
 
-        var mp = new r360.multiPolygon();
-        mp.setTravelTime(polygon.travelTime);
-        mp.addPolygon(polygon);
-        mp.setColor(polygon.getColor());
-        this._multiPolygons.push(mp);
+            var mp = new r360.multiPolygon();
+            mp.setTravelTime(polygon.travelTime);
+            mp.addPolygon(polygon);
+            mp.setColor(polygon.getColor());
+            this._multiPolygons.push(mp);
+        }
     },
 
     /*
@@ -2470,31 +2485,35 @@ r360.Route360PolygonLayer = L.Class.extend({
             var svgData = "";
             var mp, poly;
             var svgDataArray = new Array();
+
+
+            var start = Date.now();
+
             for(var i = 0; i < this._multiPolygons.length; i++){
                 mp = this._multiPolygons[i];
                 
                 svgData = "";
 
-                for(var j = 0; j < mp.polygons.length; j++){
-                        poly = mp.polygons[j];
-                        svgData += this._createSVGData(poly.outerBoundary);
-                        for(var k = 0; k < poly.innerBoundaries.length; k++){
-                            svgData += this._createSVGData(poly.innerBoundaries[k]);
-                        }
-                        var pointTopRight = this._map.latLngToLayerPoint(poly.topRight);
-                        var pointBottomLeft = this._map.latLngToLayerPoint(poly.bottomLeft);
-                    }
-                    // ie8 (vml) gets the holes from smaller polygons
-                    if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                        if(i < this._multiPolygons.length-1){
-                            for(var l = 0; l < this._multiPolygons[i+1].polygons.length; l++){
-                                var poly2 = this._multiPolygons[i+1].polygons[l];
-                                svgData += this._createSVGData(poly2.outerBoundary);
-                            }
-                        
-                    }
+                for ( var j = 0; j < mp.polygons.length; j++) {
+
+                    poly = mp.polygons[j];
+                    svgData += this._createSVGData(poly.outerBoundary);
+                    for(var k = 0; k < poly.innerBoundaries.length; k++) svgData += this._createSVGData(poly.innerBoundaries[k]);
+
+                    var pointTopRight = this._map.latLngToLayerPoint(poly.topRight);
+                    var pointBottomLeft = this._map.latLngToLayerPoint(poly.bottomLeft);
                 }
 
+                // ie8 (vml) gets the holes from smaller polygons
+                if(navigator.appVersion.indexOf("MSIE 8.") != -1){
+
+                    if (i < this._multiPolygons.length-1 ) {
+                        for ( var l = 0; l < this._multiPolygons[i+1].polygons.length; l++ ) {
+                            var poly2 = this._multiPolygons[i+1].polygons[l];
+                            svgData += this._createSVGData(poly2.outerBoundary);
+                        }
+                    }
+                }
 
                 var color = mp.getColor();
                 var path = paper.path(svgData).attr({fill: color, stroke: color, "stroke-width": that.strokeWidth, "stroke-linejoin":"round","stroke-linecap":"round","fill-rule":"evenodd"})
@@ -2502,6 +2521,7 @@ r360.Route360PolygonLayer = L.Class.extend({
                             path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));
                 st.push(path);
             }
+            console.log("LOOP: "+ ( Date.now()-start));
 
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
                 $('shape').each(function() {
