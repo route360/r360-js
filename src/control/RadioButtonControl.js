@@ -90,9 +90,6 @@ r360.RadioButtonControl = L.Control.extend({
                 "text" : button.label
             });
 
-            var checked = '';
-            var tooltip = '';
-
             // make the button selected (default buttin)
             if ( button.checked ) {
 

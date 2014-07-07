@@ -115,7 +115,7 @@ r360.Util = {
         var id       = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        _.each(_.range(length ? length : 10), function(i){
+        _.each(_.range(length ? length : 10), function(){
             id += possible.charAt(Math.floor(Math.random() * possible.length));
         })
 
@@ -144,6 +144,8 @@ r360.Util = {
         var polylines = [];
 
         _.each(route.getSegments(), function(segment, index){
+
+            if ( segment.getType() == "TRANSFER" ) return;
 
             var polylineOptions       = {};
             polylineOptions.color     = segment.getColor();
@@ -220,26 +222,35 @@ r360.Util = {
      */
     parsePolygons : function(polygonsJson) {
                
-        var polygons = new Array();
-
         if ( polygonsJson.error ) return errorMessage;
 
-        _.each(polygonsJson["polygons"], function (polygonJson) {
+        var polygonList = Array();
 
-            var polygon = r360.polygon();
-            polygon.setTravelTime(polygonJson.travelTime);
-            polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
-            polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-            polygon.setBoundingBox();
+        _.each(polygonsJson, function(source){
 
-            _.each(polygonJson.innerBoundary, function (innerBoundary) {
-                polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
-            });
+            var sourcePolygons = { id : source.id , polygons : [] };
+
+            _.each(source.polygons, function (polygonJson) {
+
+                var polygon = r360.polygon();
+                polygon.setTravelTime(polygonJson.travelTime);
+                polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
+                polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
+                polygon.setBoundingBox();
+
+                _.each(polygonJson.innerBoundary, function (innerBoundary) {
+                    polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
+                });
             
-            polygons.push(polygon);
+                sourcePolygons.polygons.push(polygon);
+            });
+
+            polygonList.push(sourcePolygons);
         });
 
-        return polygons;
+        console.log(polygonList);
+
+        return polygonList;
     },
 
     /*

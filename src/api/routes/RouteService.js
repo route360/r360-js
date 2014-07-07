@@ -65,13 +65,14 @@ r360.RouteService = {
             });
 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                    function(result){
 
-                // hide the please wait control
-                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                // call callback with returned results
-                callback(r360.Util.parseRoutes(result)); 
-            });
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // call callback with returned results
+                        callback(r360.Util.parseRoutes(result)); 
+                    });
         }
         else {
 

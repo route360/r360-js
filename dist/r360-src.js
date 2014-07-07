@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (33e8559), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (a2e52af), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -80,7 +80,9 @@ r360.config = {
             { time : 900  , color : "#8CC63F"},
             { time : 1200 , color : "#F7931E"},
             { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"}
+            { time : 1800 , color : "#C1272D"},
+            { time : 5400 , color : "#C1272D"},
+            { time : 7200 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
@@ -269,7 +271,7 @@ r360.Util = {
         var id       = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        _.each(_.range(length ? length : 10), function(i){
+        _.each(_.range(length ? length : 10), function(){
             id += possible.charAt(Math.floor(Math.random() * possible.length));
         })
 
@@ -1261,7 +1263,6 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 var numbers = new Array();
                 var requestString = "";
                 var numberString = "";
-                var places = [];
                     
                 for(var i = 0; i < requestElements.length; i++){
                     
@@ -1345,11 +1346,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             select: function( event, ui ) {
                 that.options.value = ui.item;
                 that.options.onSelect(ui.item);
-            },
-
-            open: function(e,ui) {},
-            close: function() {},
-            create: function() {}
+            }
         })
         .data("ui-autocomplete")._renderItem = function( ul, item ) {
 
@@ -1375,14 +1372,14 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     onReset: function(onReset){
         var that = this;   
 
-        $(this.options.resetButton).click(onReset);
-        $(this.options.resetButton).click(function(){
+        $(that.options.resetButton).click(onReset);
+        $(that.options.resetButton).click(function(){
             $(that.options.input).val("");
         });
     },
 
     onReverse: function(onReverse){
-       var that = this;  
+       
        $(this.options.reverseButton).click(onReverse);
     },
 
@@ -1446,7 +1443,7 @@ r360.TravelStartDateControl = L.Control.extend({
 
         var options = {
 
-            onSelect: function(e, ui){ that.options.onChange(that.getValue()); },
+            onSelect: function() { that.options.onChange(that.getValue()); },
             firstDay: 1
         }
 
@@ -1543,8 +1540,6 @@ r360.TravelStartTimeControl = L.Control.extend({
         that.startTimeInfo = $('<div/>');
         that.label = $('<span/>');
         that.slider = $('<div/>');
-
-        43200
 
         $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
 
@@ -1930,9 +1925,6 @@ r360.RadioButtonControl = L.Control.extend({
                 "for"  : 'r360_' + id, 
                 "text" : button.label
             });
-
-            var checked = '';
-            var tooltip = '';
 
             // make the button selected (default buttin)
             if ( button.checked ) {
@@ -2345,13 +2337,11 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._resetBoundingBox();
         that._multiPolygons = new Array();
 
-        _.each(polygons, function(polygon, index){
+        _.each(polygons, function(polygon){
 
             that._updateBoundingBox(polygon.outerBoundary);
             that._addPolygonToMultiPolygon(polygon);
         });
-
-        console.log("_multiPolygons: " + that._multiPolygons.length);
 
         that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
         that._reset();
@@ -2484,10 +2474,6 @@ r360.Route360PolygonLayer = L.Class.extend({
             var st = paper.set();
             var svgData = "";
             var mp, poly;
-            var svgDataArray = new Array();
-
-
-            var start = Date.now();
 
             for(var i = 0; i < this._multiPolygons.length; i++){
                 mp = this._multiPolygons[i];
@@ -2499,9 +2485,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                     poly = mp.polygons[j];
                     svgData += this._createSVGData(poly.outerBoundary);
                     for(var k = 0; k < poly.innerBoundaries.length; k++) svgData += this._createSVGData(poly.innerBoundaries[k]);
-
-                    var pointTopRight = this._map.latLngToLayerPoint(poly.topRight);
-                    var pointBottomLeft = this._map.latLngToLayerPoint(poly.bottomLeft);
                 }
 
                 // ie8 (vml) gets the holes from smaller polygons
@@ -2521,7 +2504,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                             path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));
                 st.push(path);
             }
-            console.log("LOOP: "+ ( Date.now()-start));
 
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
                 $('shape').each(function() {

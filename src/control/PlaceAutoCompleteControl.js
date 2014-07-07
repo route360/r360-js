@@ -81,7 +81,6 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 var numbers = new Array();
                 var requestString = "";
                 var numberString = "";
-                var places = [];
                     
                 for(var i = 0; i < requestElements.length; i++){
                     
@@ -165,11 +164,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             select: function( event, ui ) {
                 that.options.value = ui.item;
                 that.options.onSelect(ui.item);
-            },
-
-            open: function(e,ui) {},
-            close: function() {},
-            create: function() {}
+            }
         })
         .data("ui-autocomplete")._renderItem = function( ul, item ) {
 
@@ -195,14 +190,14 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     onReset: function(onReset){
         var that = this;   
 
-        $(this.options.resetButton).click(onReset);
-        $(this.options.resetButton).click(function(){
+        $(that.options.resetButton).click(onReset);
+        $(that.options.resetButton).click(function(){
             $(that.options.input).val("");
         });
     },
 
     onReverse: function(onReverse){
-       var that = this;  
+       
        $(this.options.reverseButton).click(onReverse);
     },
 

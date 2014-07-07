@@ -94,6 +94,8 @@
                 <hr class="star-primary">
             </div>
             <p style="text-align:justify;">The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. <br> The API is free of charge and can be altered and forked as you wish. Since this API makes requests to the Route360° Webservice you need to contact us to get your application key. We provide a development version of the Route360° Webservice, which can be used for development purposes only, but we do not guarantee service uptime at any point.</p>
+            <h3>Download and Installation</h3>
+            <p>You can install the libray using bower, just enter <code>bower install route360 --save</code>. You can also download releases from <a href="https://github.com/route360/r360-js/releases/tag/v0.0.5">github</a>.</p>
             <h3>Lets add some polygons</h3>
             <p>This basic example shows you how to add a marker to the map and display reachability polygons from this location. Note that we do not set a travel mode, this defaults to 'walk' for now.</p>
             <p>First we need to import all the necessary javascript and css files. You should download the Route360° JS API from the <a href="https://bitbucket.org/Yojimbo/motion_intelligence.r360_js">repository</a>. For jQuery and jQuery UI we strongly advise you to use the <a href="http://jquery-ui-bootstrap.github.io/jquery-ui-bootstrap/">jQuery UI Bootstrap</a> library. Leaflet can be found <a href="http://leafletjs.com/">here</a>, Rapheal.js can be found <a href="http://raphaeljs.com/">here</a>.</p>
@@ -183,6 +185,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         <li><a id="geocodingcontrol-nav" href="#geocodingcontrol">Route360° geocoding service</a></li>
                         <li><a id="routing-nav" href="#routing">Routing in public transportation</a></li>
                         <li><a id="filter-nav" href="#filter">Filter by travel time</a></li>
+                        <li><a id="multiple-nav" href="#multiple">Multiple travel time polygons</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-10">
@@ -416,6 +419,9 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     attribution: attribution
             }).addTo(map);
 
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
+            r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
+
             // create a marker and add it to the map
             var marker = L.marker([52.51, 13.37]);
             marker.addTo(map);
@@ -425,27 +431,26 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // add it to the map
             map.addLayer(cpl);
 
-            // you need to define some options for the polygon service
-            // for more travel options check out the other tutorials
-            var travelOptions = r360.travelOptions();
-            // we only have one source which is the marker we just added
-            travelOptions.addSource(marker);
-            // we want to have polygons for 5 to 30 minutes
-            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            // // you need to define some options for the polygon service
+            // // for more travel options check out the other tutorials
+            // var travelOptions = r360.travelOptions();
+            // // we only have one source which is the marker we just added
+            // travelOptions.addSource(marker);
+            // // we want to have polygons for 5 to 30 minutes
+            // travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+            // // call the service
+            // r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
-                // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
+            //     // add the returned polygons to the polygon layer 
+            //     cpl.addLayer(polygons);
                 
-                // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
-            });
+            //     // zoom the map to fit the polygons perfectly
+            //     map.fitBounds(cpl.getBoundingBox());
+            // });
         });
     </script>
 
-    <!-- Code for example 2 -->
     <script type="text/javascript">
         $(document).ready(function(){
 
@@ -595,6 +600,23 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
                 filterExample();
                 $('#filterExample').text(filterExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#multiple-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#multiple-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Multiple travel time polygons</h3> \
+                        <p class="text-justify lead"></p> \
+                        <div id="map-multipleExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="multipleExample"></pre>');
+
+                multipleExample();
+                $('#multiple').text(multipleExample.toString());
                 !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
@@ -969,36 +991,37 @@ function routingExample(){
     travelOptions.setTravelType('transit');
     
     // start the service
-    r360.RouteService.getRoutes(travelOptions, function(routes){
+    // r360.RouteService.getRoutes(travelOptions, function(routes){
 
-        // one route for each source and target combination
-        _.each(routes, function(route){
+    //     // one route for each source and target combination
+    //     _.each(routes, function(route){
 
-            // create one polyline for the route and a polyline for the polyline's halo
-            _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
+    //         // console.log(route);
 
-                // add halo and line
-                _.each(polylineSegment, function(polylines){ polylines.addTo(routeLayer); });
-            });
+    //         // create one polyline for the route and a polyline for the polyline's halo
+    //         _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
 
-            // add marker if the route segment changes, indicates transfers
-            _.each(route.getSegments(), function(segment, index) {
+    //             // add halo and line
+    //             _.each(polylineSegment, function(polylines){ polylines.addTo(routeLayer); });
+    //         });
+
+    //         // add marker if the route segment changes, indicates transfers
+    //         _.each(route.getSegments(), function(segment, index) {
                 
-                // only add changing markers for öpnv switches 
-                if ( index > 0 && index < route.getSegments().length - 2 ) {
+    //             // only add changing markers for öpnv switches 
+    //             if ( segment.getType() == "TRANSFER" ) {
 
-                    // create a small circlular marker to indicate the users have to switch trips
-                    var marker = L.circleMarker(_.last(segment.points), { color: "white", 
-                        fillColor: '#EF832F', fillOpacity: 1.0, 
-                        stroke : true, radius : 7 }).addTo(routeLayer);
-                }
-            });
-        });
+    //                 // create a small circlular marker to indicate the users have to switch trips
+    //                 var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { color: "white", 
+    //                     fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, radius : 7 }).addTo(routeLayer);
+    //             }
+    //         });
+    //     });
 
-        // fit the map perfectly or show an error message
-        if ( routes.length > 0) { map.fitBounds(routeLayer.getBounds(), {padding : [25,25]}) }
-        else alert(r360.config.i18n.noRouteFound[r360.config.i18n.language]);
-    });
+    //     // fit the map perfectly or show an error message
+    //     if ( routes.length > 0) { map.fitBounds(routeLayer.getBounds(), {padding : [25,25]}) }
+    //     else alert(r360.config.i18n.noRouteFound[r360.config.i18n.language]);
+    // });
 }
 
 function filterExample(){
@@ -1104,6 +1127,68 @@ function filterExample(){
         });
     });
 }
+
+function multipleExample(){
+
+    // add the map and set the initial center to berlin
+    var map = L.map('map-multipleExample').setView([52.51, 13.37], 13);
+
+    // attribution to give credit to OSM map data and VBB for public transportation 
+    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+    // initialising the base map. To change the base map just change following
+    // lines as described by cloudmade, mapbox etc..
+    // note that mapbox is a paided service
+    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: attribution
+    }).addTo(map);
+
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
+
+    // create the layer to add the polygons
+    var cpl = r360.route360PolygonLayer();
+    // add it to the map
+    map.addLayer(cpl);
+
+    // create a target marker icon to be able to distingush source and targets
+    var redIcon = L.icon({iconUrl: 'lib/leaflet/images/marker-icon-red.png', 
+        shadowUrl: 'lib/leaflet/images/marker-shadow.png', iconAnchor: [12,45], popupAnchor:  [0, -35] });
+
+    // create a source and a two target markers and add them to the map
+    var sourceMarker1 = L.marker([52.50086, 13.36581]).addTo(map);
+    var sourceMarker2 = L.marker([52.50086, 13.38581]).addTo(map);
+    
+    // you need to define some options for the polygon service
+    // for more travel options check out the other tutorials
+    var travelOptions = r360.travelOptions();
+    // we only have one source which is the marker we just added
+    travelOptions.addSource(sourceMarker2);
+    travelOptions.addSource(sourceMarker1);
+    
+    // we want to walk from all source points
+    travelOptions.setTravelType('walk');
+    // show 6 different travel time polygons for 5 to 30 minutes in
+    // 5 minute steps
+    travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
+
+    // call the service
+    r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+        
+        // in case there are already polygons on the map/layer
+        cpl.clearLayers();
+
+        // add the returned polygons to the polygon layer 
+        cpl.addLayer(polygons);
+        
+        // zoom the map to fit the polygons perfectly
+        map.fitBounds(cpl.getBoundingBox());
+    });
+}
+
+
 
         });
     </script>

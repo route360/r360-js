@@ -29,7 +29,7 @@ r360.TravelStartDateControl = L.Control.extend({
 
         var options = {
 
-            onSelect: function(e, ui){ that.options.onChange(that.getValue()); },
+            onSelect: function() { that.options.onChange(that.getValue()); },
             firstDay: 1
         }
 

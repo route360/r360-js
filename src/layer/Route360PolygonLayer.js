@@ -58,25 +58,29 @@ r360.Route360PolygonLayer = L.Class.extend({
     },
     
     /*
-     *
+    *
      */
-    addLayer:function(polygons){        
+    addLayer:function(sourceToPolygons){        
         
         var that = this;
         that._resetBoundingBox();
         that._multiPolygons = new Array();
 
-        _.each(polygons, function(polygon, index){
+        _.each(sourceToPolygons, function(source){
 
-            that._updateBoundingBox(polygon.outerBoundary);
-            that._addPolygonToMultiPolygon(polygon);
-        });
+            console.log(source);
 
-        console.log("_multiPolygons: " + that._multiPolygons.length);
+            _.each(source.polygons, function(polygon){
 
-        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-        that._reset();
+                that._updateBoundingBox(polygon.outerBoundary);
+                that._addPolygonToMultiPolygon(polygon);
+            });
 
+            console.log(that._multiPolygons);
+
+            that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
+            that._reset();
+        })
     },
 
     /*
@@ -205,10 +209,6 @@ r360.Route360PolygonLayer = L.Class.extend({
             var st = paper.set();
             var svgData = "";
             var mp, poly;
-            var svgDataArray = new Array();
-
-
-            var start = Date.now();
 
             for(var i = 0; i < this._multiPolygons.length; i++){
                 mp = this._multiPolygons[i];
@@ -220,9 +220,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                     poly = mp.polygons[j];
                     svgData += this._createSVGData(poly.outerBoundary);
                     for(var k = 0; k < poly.innerBoundaries.length; k++) svgData += this._createSVGData(poly.innerBoundaries[k]);
-
-                    var pointTopRight = this._map.latLngToLayerPoint(poly.topRight);
-                    var pointBottomLeft = this._map.latLngToLayerPoint(poly.bottomLeft);
                 }
 
                 // ie8 (vml) gets the holes from smaller polygons
@@ -242,7 +239,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                             path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));
                 st.push(path);
             }
-            console.log("LOOP: "+ ( Date.now()-start));
 
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
                 $('shape').each(function() {

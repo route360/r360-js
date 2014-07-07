@@ -63,8 +63,6 @@ r360.TravelStartTimeControl = L.Control.extend({
         that.label = $('<span/>');
         that.slider = $('<div/>');
 
-        43200
-
         $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
 
         $(that.label).text(r360.config.i18n.get('departure') + ': '+ 

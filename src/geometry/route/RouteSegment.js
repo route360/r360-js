@@ -7,6 +7,7 @@ r360.RouteSegment = function(segment){
     that.polyLine        = L.polyline([]);
     that.color           = '#07456b';
     that.points          = segment.points;
+    that.type            = segment.type;
     that.routeType       = segment.routeType;
     that.travelTime      = segment.travelTime;
     that.length          = segment.length;    
@@ -38,6 +39,10 @@ r360.RouteSegment = function(segment){
 
     that.getPoints = function(){
         return that.points;
+    }
+
+    that.getType = function(){
+        return that.type;
     }
 
     that.getColor = function(){

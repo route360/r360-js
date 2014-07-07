@@ -59,13 +59,14 @@ r360.PolygonService = {
 
             // make the request to the Route360° backend 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                    function(result){
 
-                // hide the please wait control
-                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                // call callback with returned results
-                callback(r360.Util.parsePolygons(result));
-            });
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // call callback with returned results
+                        callback(r360.Util.parsePolygons(result));
+                    });
         }
         else {
 
