@@ -2,7 +2,7 @@
 ===
 
 The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. 
-It's core features are:
+# Features
 
 * Generate polygons which represent the area which is reachable from a given source point
 * Supported for **walk**, **car**, **bike** and **transit** routing
