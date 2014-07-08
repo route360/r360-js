@@ -1,5 +1,4 @@
 #r360-js
-===
 
 The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. 
 # Features
