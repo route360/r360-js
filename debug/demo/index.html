@@ -419,8 +419,9 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     attribution: attribution
             }).addTo(map);
 
-            r360.config.serviceUrl = 'http://localhost:8080/api/';
-            r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
+            // set the service key, this is a demo key
+            // please contact us and request your own key
+            r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
             // create a marker and add it to the map
             var marker = L.marker([52.51, 13.37]);
@@ -431,15 +432,15 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // add it to the map
             map.addLayer(cpl);
 
-            // // you need to define some options for the polygon service
-            // // for more travel options check out the other tutorials
-            // var travelOptions = r360.travelOptions();
-            // // we only have one source which is the marker we just added
-            // travelOptions.addSource(marker);
-            // // we want to have polygons for 5 to 30 minutes
-            // travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            // you need to define some options for the polygon service
+            // for more travel options check out the other tutorials
+            var travelOptions = r360.travelOptions();
+            // we only have one source which is the marker we just added
+            travelOptions.addSource(marker);
+            // we want to have polygons for 5 to 30 minutes
+            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
-            // // call the service
+            // call the service
             // r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
             //     // add the returned polygons to the polygon layer 
@@ -669,6 +670,10 @@ function addTravelTimeControl(){
             attribution: attribution
     }).addTo(map);
 
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+
     // create a marker and add it to the map
     var marker = L.marker([52.51, 13.37]);
     marker.addTo(map);
@@ -747,6 +752,10 @@ function addTravelTypeControl(){
             attribution: attribution
     }).addTo(map);
 
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+
     // create a marker and add it to the map
     var marker = L.marker([52.51, 13.37]);
     marker.addTo(map);
@@ -822,6 +831,10 @@ function addTravelStartDateControl(){
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
+
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create a marker and add it to the map
     var marker = L.marker([52.51, 13.37]);
@@ -900,6 +913,10 @@ function addPlaceAutoCompleteControl(){
             attribution: attribution
     }).addTo(map);
 
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+
     // create a marker and but dont add it to the map yet
     var marker;
 
@@ -967,6 +984,10 @@ function routingExample(){
             attribution: attribution
     }).addTo(map);
 
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+
     // create a target marker icon to be able to distingush source and targets
     var redIcon = L.icon({iconUrl: 'lib/leaflet/images/marker-icon-red.png', 
         shadowUrl: 'lib/leaflet/images/marker-shadow.png', iconAnchor: [12,45], popupAnchor:  [0, -35] });
@@ -991,37 +1012,37 @@ function routingExample(){
     travelOptions.setTravelType('transit');
     
     // start the service
-    // r360.RouteService.getRoutes(travelOptions, function(routes){
+    r360.RouteService.getRoutes(travelOptions, function(routes){
 
-    //     // one route for each source and target combination
-    //     _.each(routes, function(route){
+        // one route for each source and target combination
+        _.each(routes, function(route){
 
-    //         // console.log(route);
+            // console.log(route);
 
-    //         // create one polyline for the route and a polyline for the polyline's halo
-    //         _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
+            // create one polyline for the route and a polyline for the polyline's halo
+            _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
 
-    //             // add halo and line
-    //             _.each(polylineSegment, function(polylines){ polylines.addTo(routeLayer); });
-    //         });
+                // add halo and line
+                _.each(polylineSegment, function(polylines){ polylines.addTo(routeLayer); });
+            });
 
-    //         // add marker if the route segment changes, indicates transfers
-    //         _.each(route.getSegments(), function(segment, index) {
+            // add marker if the route segment changes, indicates transfers
+            _.each(route.getSegments(), function(segment, index) {
                 
-    //             // only add changing markers for öpnv switches 
-    //             if ( segment.getType() == "TRANSFER" ) {
+                // only add changing markers for öpnv switches 
+                if ( segment.getType() == "TRANSFER" ) {
 
-    //                 // create a small circlular marker to indicate the users have to switch trips
-    //                 var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { color: "white", 
-    //                     fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, radius : 7 }).addTo(routeLayer);
-    //             }
-    //         });
-    //     });
+                    // create a small circlular marker to indicate the users have to switch trips
+                    var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { color: "white", 
+                        fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, radius : 7 }).addTo(routeLayer);
+                }
+            });
+        });
 
-    //     // fit the map perfectly or show an error message
-    //     if ( routes.length > 0) { map.fitBounds(routeLayer.getBounds(), {padding : [25,25]}) }
-    //     else alert(r360.config.i18n.noRouteFound[r360.config.i18n.language]);
-    // });
+        // fit the map perfectly or show an error message
+        if ( routes.length > 0) { map.fitBounds(routeLayer.getBounds(), {padding : [25,25]}) }
+        else alert(r360.config.i18n.noRouteFound[r360.config.i18n.language]);
+    });
 }
 
 function filterExample(){
@@ -1043,6 +1064,10 @@ function filterExample(){
     // create a target marker icon to be able to distingush source and targets
     var redIcon = L.icon({iconUrl: 'lib/leaflet/images/marker-icon-red.png', 
         shadowUrl: 'lib/leaflet/images/marker-shadow.png', iconAnchor: [12,45], popupAnchor:  [0, -35] });
+
+    // set the service key, this is a demo key
+    // please contact us and request your own key
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create a source and a two target markers and add them to the map
     var sourceMarker = L.marker([52.50086, 13.36581]).addTo(map);
@@ -1066,6 +1091,17 @@ function filterExample(){
     // for all museums which are not reachable within <maxRoutingTime>
     // no routing time will be returned 
     travelOptions.setMaxRoutingTime(1200);
+
+    // create the layer to add the polygons
+    var cpl = r360.route360PolygonLayer();
+    // add it to the map
+    map.addLayer(cpl);
+
+    r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                    
+        // add the returned polygons to the polygon layer 
+        cpl.addLayer(polygons);
+    });
 
     // call the service
     r360.TimeService.getRouteTime(travelOptions, function(sources){
@@ -1146,7 +1182,7 @@ function multipleExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();

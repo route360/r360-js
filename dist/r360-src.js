@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (a2e52af), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (49b0305), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -301,6 +301,8 @@ r360.Util = {
 
         _.each(route.getSegments(), function(segment, index){
 
+            if ( segment.getType() == "TRANSFER" ) return;
+
             var polylineOptions       = {};
             polylineOptions.color     = segment.getColor();
 
@@ -376,26 +378,33 @@ r360.Util = {
      */
     parsePolygons : function(polygonsJson) {
                
-        var polygons = new Array();
-
         if ( polygonsJson.error ) return errorMessage;
 
-        _.each(polygonsJson["polygons"], function (polygonJson) {
+        var polygonList = Array();
 
-            var polygon = r360.polygon();
-            polygon.setTravelTime(polygonJson.travelTime);
-            polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
-            polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-            polygon.setBoundingBox();
+        _.each(polygonsJson, function(source){
 
-            _.each(polygonJson.innerBoundary, function (innerBoundary) {
-                polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
-            });
+            var sourcePolygons = { id : source.id , polygons : [] };
+
+            _.each(source.polygons, function (polygonJson) {
+
+                var polygon = r360.polygon();
+                polygon.setTravelTime(polygonJson.travelTime);
+                polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
+                polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
+                polygon.setBoundingBox();
+
+                _.each(polygonJson.innerBoundary, function (innerBoundary) {
+                    polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
+                });
             
-            polygons.push(polygon);
+                sourcePolygons.polygons.push(polygon);
+            });
+
+            polygonList.push(sourcePolygons);
         });
 
-        return polygons;
+        return polygonList;
     },
 
     /*
@@ -985,13 +994,14 @@ r360.PolygonService = {
 
             // make the request to the Route360° backend 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                    function(result){
 
-                // hide the please wait control
-                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                // call callback with returned results
-                callback(r360.Util.parsePolygons(result));
-            });
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // call callback with returned results
+                        callback(r360.Util.parsePolygons(result));
+                    });
         }
         else {
 
@@ -1068,13 +1078,14 @@ r360.RouteService = {
             });
 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?", function(result){
+                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                    function(result){
 
-                // hide the please wait control
-                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                // call callback with returned results
-                callback(r360.Util.parseRoutes(result)); 
-            });
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // call callback with returned results
+                        callback(r360.Util.parseRoutes(result)); 
+                    });
         }
         else {
 
@@ -1097,7 +1108,8 @@ r360.TimeService = {
             var cfg = { 
                 sources : [], targets : [],
                 pathSerializer : travelOptions.getPathSerializer(), 
-                maxRoutingTime : travelOptions.getMaxRoutingTime() 
+                maxRoutingTime : travelOptions.getMaxRoutingTime()
+                // key : r360.config.serviceKey
             };
 
             // configure sources
@@ -1153,9 +1165,9 @@ r360.TimeService = {
 
             // execute routing time service and call callback with results
             $.ajax({
-                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time',
+                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
                 type:        "POST",
-                data:        JSON.stringify(cfg),
+                data:        JSON.stringify(cfg) ,
                 contentType: "application/json",
                 dataType:    "json",
                 success: function (result) {
@@ -2134,6 +2146,7 @@ r360.RouteSegment = function(segment){
     that.polyLine        = L.polyline([]);
     that.color           = '#07456b';
     that.points          = segment.points;
+    that.type            = segment.type;
     that.routeType       = segment.routeType;
     that.travelTime      = segment.travelTime;
     that.length          = segment.length;    
@@ -2165,6 +2178,10 @@ r360.RouteSegment = function(segment){
 
     that.getPoints = function(){
         return that.points;
+    }
+
+    that.getType = function(){
+        return that.type;
     }
 
     that.getColor = function(){
@@ -2329,23 +2346,29 @@ r360.Route360PolygonLayer = L.Class.extend({
     },
     
     /*
-     *
+    *
      */
-    addLayer:function(polygons){        
+    addLayer:function(sourceToPolygons){        
         
         var that = this;
         that._resetBoundingBox();
         that._multiPolygons = new Array();
 
-        _.each(polygons, function(polygon){
+        _.each(sourceToPolygons, function(source){
 
-            that._updateBoundingBox(polygon.outerBoundary);
-            that._addPolygonToMultiPolygon(polygon);
-        });
+            console.log(source);
 
-        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-        that._reset();
+            _.each(source.polygons, function(polygon){
 
+                that._updateBoundingBox(polygon.outerBoundary);
+                that._addPolygonToMultiPolygon(polygon);
+            });
+
+            console.log(that._multiPolygons);
+
+            that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
+            that._reset();
+        })
     },
 
     /*

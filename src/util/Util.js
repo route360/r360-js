@@ -248,8 +248,6 @@ r360.Util = {
             polygonList.push(sourcePolygons);
         });
 
-        console.log(polygonList);
-
         return polygonList;
     },
 

@@ -11,8 +11,8 @@ r360.TimeService = {
             var cfg = { 
                 sources : [], targets : [],
                 pathSerializer : travelOptions.getPathSerializer(), 
-                maxRoutingTime : travelOptions.getMaxRoutingTime(),
-                key : r360.config.serviceKey
+                maxRoutingTime : travelOptions.getMaxRoutingTime()
+                // key : r360.config.serviceKey
             };
 
             // configure sources
@@ -68,9 +68,9 @@ r360.TimeService = {
 
             // execute routing time service and call callback with results
             $.ajax({
-                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time',
+                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
                 type:        "POST",
-                data:        JSON.stringify(cfg),
+                data:        JSON.stringify(cfg) ,
                 contentType: "application/json",
                 dataType:    "json",
                 success: function (result) {
