@@ -11,7 +11,7 @@ It's core features are:
 * Get routing information for hundreds of POIs in a single request in milliseconds
 * Support for elevation data
 
-![image](http://route360.net/project/tutorial/img/background-image-start.png =730x)
+<img src="http://route360.net/project/tutorial/img/background-image-start.png" alt="Route360°" />
 
 # Demonstration and Usage
 A demonstration of the library's features, as well as detailed coding examples can be found [here](http://www.route360.net/project/tutorial)
