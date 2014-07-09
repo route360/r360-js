@@ -1,6 +1,6 @@
 {
     "name": "r360",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "authors": [
         "gerber@motionintelligence.net",
         "hollburg@motionintelligence.net"
@@ -8,7 +8,9 @@
     "description": "Route360° JavaScript API",
     "main": [
         "dist/r360.js",
-        "dist/r360.css"
+        "dist/r360.css",
+        "dist/images/marker-icon-red.png",
+        "dist/images/marker-icon.png",
     ],
     "keywords": [
         "r360",
@@ -26,7 +28,7 @@
         "raphael"       : "2.1.2",
         "jquery-ui"     : "1.10.4"
     },
-    "homepage": "http://route360.net/",
+    "homepage": "http://developers.route360.net/",
     "ignore": [
         "**/.*",
         "node_modules",
