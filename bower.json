@@ -8,6 +8,7 @@
     "description": "Route360° JavaScript API",
     "main": [
         "dist/r360.js",
+        "dist/jquery-ui-1.10.0.custom.css",
         "dist/r360.css",
         "dist/images/marker-icon-red.png",
         "dist/images/marker-icon.png"

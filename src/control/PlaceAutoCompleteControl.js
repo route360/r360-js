@@ -217,11 +217,18 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     },
 
     setFieldValue : function(val){
-         $(this.options.input).val(val);
+
+        var mapId = $(this.options.map._container).attr("id");
+        $("#autocomplete-"+mapId).val(val.firstRow);
+        $(this.options.input).val(val);
     },
 
     getFieldValue : function(){
         return $(this.options.input).val();
+    },
+
+    setValue : function(value){
+        this.options.value = value;
     },
 
     getValue : function(){
