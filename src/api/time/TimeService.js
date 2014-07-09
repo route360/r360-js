@@ -12,7 +12,6 @@ r360.TimeService = {
                 sources : [], targets : [],
                 pathSerializer : travelOptions.getPathSerializer(), 
                 maxRoutingTime : travelOptions.getMaxRoutingTime()
-                // key : r360.config.serviceKey
             };
 
             // configure sources
