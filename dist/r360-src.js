@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API 0.1-dev (49b0305), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API 0.1-dev (23fbb9d), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1109,7 +1109,6 @@ r360.TimeService = {
                 sources : [], targets : [],
                 pathSerializer : travelOptions.getPathSerializer(), 
                 maxRoutingTime : travelOptions.getMaxRoutingTime()
-                // key : r360.config.serviceKey
             };
 
             // configure sources
