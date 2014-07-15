@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API 0.1-dev (23fbb9d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (faa6ccd), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version: '0.1-dev'
+	version: 'v0.0.9'
 };
 
 function expose() {
@@ -58,8 +58,9 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    serviceUrl      : 'http://localhost:8080/api/',
+    // serviceUrl      : 'http://localhost:8080/api/',
     serviceUrl      : 'http://144.76.246.52:8080/api/',
+    nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
     maxRoutingTime  : 3600,
@@ -374,6 +375,51 @@ r360.Util = {
     },
 
     /*
+     * This methods uses the Rotue360° geocoding service to return
+     * a street address for a given latitude/longitude coordinate pair.
+     * This functionality is typically called reverse geocoding.
+     * 
+     * @method getAddressByCoordinates
+     * @param {Object} [latlon] The coordinate
+     * @param {Number} [latlon.lat] The latitude of the coordinate.
+     * @param {Number} [latlon.lng] The longitude of the coordinate.
+     * @param {String} [language] The country code, 'nb' for norway, 'de' for germany. 
+     * @param {Function} [callback] The callback methods which processes the returned data.
+     */
+    getAddressByCoordinates : function(latlng, language, callback){
+
+        $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
+    },
+
+    /* 
+     * This method takes a result from the nominatim reverse geocoder and formats
+     * it to a readable and displayable string. It builds up an address like this:
+     *      'STREETNAME STREETNUMBER, POSTALCODE, CITY'
+     * In case any of these values are undefined, they get removed from returned string.
+     * In case all values are undefined, the 'display_name' property of the returned 
+     * json (from nominatim) is used to generate the output value.
+     * @return {String} a string representing the geocoordinates in human readable form
+     */
+    formatReverseGeocoding : function(json) {
+
+        var streetAdress = [];
+        if ( _.has(json.address, 'road') )          streetAdress.push(json.address.road);
+        if ( _.has(json.address, 'house_number') )  streetAdress.push(json.address.house_number);
+
+        var city = [];
+        if ( _.has(json.address, 'postcode') )      city.push(json.address.postcode);
+        if ( _.has(json.address, 'city') )          city.push(json.address.city);
+
+        var address = [];
+        if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
+        if ( city.length > 0)           address.push(city.join(', '));
+
+        if ( streetAdress.length == 0 && city.length == 0 ) address.push(json.display_name);
+
+        return address.join(', ');
+    },
+
+    /*
      *
      */
     parsePolygons : function(polygonsJson) {
@@ -428,6 +474,33 @@ r360.Util = {
         });
 
         return routes;
+    },
+
+    /*
+     * Convenients method to generate a Leaflet marker with the 
+     * specified marker color. For available colors look at 'dist/images'
+     * 
+     * @method getMarker
+     * @param {Object} [latlon] The coordinate
+     * @param {Number} [latlon.lat] The latitude of the coordinate.
+     * @param {Number} [latlon.lng] The longitude of the coordinate.
+     * @param {Object} [options] The options for the marker
+     * @param {Number} [options.color] The color for the marker icon.
+     */
+    getMarker : function(latlng, options){
+
+        var color = _.has(options, 'color') ? '-' + options.color : '-blue';
+
+        options.icon = L.icon({
+            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
+            iconSize     : [25, 41], // size of the icon
+            shadowSize   : [41, 41], // size of the shadow
+            iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
+            shadowAnchor : [22, 22], // the same for the shadow
+            popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
+        });
+
+        return L.marker(latlng, options);
     }
 };
 
@@ -1211,60 +1284,70 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+            if ( _.has(options, 'image'))       this.options.image       = options.image;
         }
     },
 
     onAdd: function(map){
         
         var that = this;
+        var i18n            = r360.config.i18n;   
         var countrySelector =  "";
+        var nameContainer   = L.DomUtil.create('div', that._container);
+        that.options.map    = map;
+        that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
 
-        var nameContainer = L.DomUtil.create('div', this._container);
-
-        that.options.map = map;
-        var mapId = $(map._container).attr("id");
-        map.on("resize", this.onResize.bind(this));          
-
-        var i18n = r360.config.i18n;   
+        map.on("resize", that.onResize.bind(that));          
 
         // calculate the width in dependency to the number of buttons attached to the field
-        var width = this.options.width;
+        var width = that.options.width;
         if ( that.options.reset ) width += 44;
         if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
         that.options.input = 
             '<div class="input-group autocomplete" '+style+'> \
-                <input id="autocomplete-'+mapId+'" style="color: black;width:'+width+'" \
-                type="text" class="form-control" placeholder="' + this.options.placeholder + '" onclick="this.select()">';
+                <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
+                type="text" class="form-control" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
+
+        if ( that.options.image ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
+                    <img style="height:25px;" src="'+that.options.image+'"> \
+                 </span>';
+        }
 
         // add a reset button to the input field
         if ( that.options.reset ) {
 
             that.options.input += 
-                '<span class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" onclick="this.onReset()" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
-                </span>'
+                '<span id="'+that.options.id+'-reset" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                </span>';
         }
         if ( that.options.reverse ) {
 
-            this.options.input += 
-                '<span class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" onclick="this.onReverse()" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
-                </span>'
+            that.options.input += 
+                '<span id="'+that.options.id+'-reverse" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
+                </span>';
         }
 
         that.options.input += '</div>';
 
         // add the control to the map
-        $(nameContainer).append(that.options.input);        
-        
+        $(nameContainer).append(that.options.input);
+
+        $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
+        $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
+
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
 
         if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
-        $(nameContainer).find("#autocomplete-"+mapId).autocomplete({
+        $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
 
             source: function( request, response ) {
 
@@ -1371,56 +1454,61 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
 
-            return $( "<li>" )
-                .append(html)
-                .appendTo( ul );
-            };
-            this.onResize();     
+            return $( "<li>" ).append(html).appendTo(ul);
+        };
+        
+        this.onResize();     
 
         return nameContainer;
     },
 
-    onReset: function(onReset){
-        var that = this;   
+    onSelect: function(onSelect){
 
-        $(that.options.resetButton).click(onReset);
-        $(that.options.resetButton).click(function(){
-            $(that.options.input).val("");
-        });
+        this.options.onSelect = onSelect;
+    },
+
+    onReset: function(onReset){
+
+        this.options.onReset = onReset;
     },
 
     onReverse: function(onReverse){
        
-       $(this.options.reverseButton).click(onReverse);
+       this.options.onReverse = onReverse;
     },
 
-    onResize: function(){
-        var that = this;
-        if(this.options.map.getSize().x < 550){
-            $(that.options.input).css({'width':'45px'});
-        }else{
-            $(that.options.input).css({'width':''});
-        }
+    reset : function(){
+
+        this.options.value = {};
+        this.setFieldValue("");
     },
 
-    onSelect: function(onSelect){
+    setFieldValue : function(value){
 
         var that = this;
-        that.options.onSelect = onSelect;       
-    },
-
-    setFieldValue : function(val){
-         $(this.options.input).val(val);
+        $("#autocomplete-" + that.options.id).val(value);
     },
 
     getFieldValue : function(){
-        return $(this.options.input).val();
+
+        var that = this;
+        return $("#autocomplete-" + that.options.id).val();
+    },
+
+    setValue : function(value){
+        this.options.value = value;
     },
 
     getValue : function(){
         return this.options.value;
-    }
+    },
 
+    onResize: function(){
+        
+        var that = this;
+        if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
+        else $(that.options.input).css({'width':''});
+    }
 })
 
 /*
@@ -1842,6 +1930,49 @@ L.Control.WaitControl = L.Control.extend({
     hide : function(){
         
         $('#wait-control-'+this.options.mapId).hide();  
+    }
+});
+
+r360.htmlControl = function (options) {
+    return new L.Control.HtmlControl(options);
+};
+
+L.Control.HtmlControl = L.Control.extend({
+    
+    options: {
+        position: 'topleft',
+    },
+
+    initialize: function (options) {
+        L.Util.setOptions(this, options);
+    },
+
+    onAdd: function (map) {
+
+        // in case of multiple maps per page
+        this.options.id  = $(map._container).attr("id") + r360.Util.generateId();
+       
+        var htmlContainer = L.DomUtil.create('div', 'leaflet-control-html');
+        $(htmlContainer).append('<div id="html-control-'+this.options.id+'" class="html-control '+ this.options.classes +'"></div>');
+
+        $(htmlContainer).on('mouseover', function(){ map.scrollWheelZoom.disable(); });
+        $(htmlContainer).on('mouseout' , function(){ map.scrollWheelZoom.enable(); });      
+
+        return htmlContainer;
+    },
+
+    setHtml : function(html) {
+        $('#html-control-'+this.options.id).html(html);        
+    },
+
+    show : function(){
+
+        $('#html-control-'+this.options.id).show();
+    },
+
+    hide : function(){
+        
+        $('#html-control-'+this.options.id).hide();  
     }
 });
 
@@ -2355,15 +2486,11 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         _.each(sourceToPolygons, function(source){
 
-            console.log(source);
-
             _.each(source.polygons, function(polygon){
 
                 that._updateBoundingBox(polygon.outerBoundary);
                 that._addPolygonToMultiPolygon(polygon);
             });
-
-            console.log(that._multiPolygons);
 
             that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
             that._reset();

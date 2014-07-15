@@ -17,6 +17,7 @@ var deps = {
               'control/TravelStartTimeControl.js',
               'control/TravelTimeControl.js',
               'control/WaitControl.js',
+              'control/HtmlControl.js',
               'control/RadioButtonControl.js'
              ],
 		desc: '',

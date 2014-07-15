@@ -1,6 +1,6 @@
 
 var r360 = {
-	version: '0.1-dev'
+	version: 'v0.0.9'
 };
 
 function expose() {

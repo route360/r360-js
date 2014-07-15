@@ -12,6 +12,12 @@ html, body, #map {
 .mi-box {    
     position: static;
     background-color: white;
+    
+background-color: #E6E6E6;
+background-color: rgb(230, 230, 230);
+background-image: linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255) 25%, rgb(230, 230, 230));
+background-repeat: no-repeat;
+
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
@@ -20,6 +26,16 @@ html, body, #map {
     padding: 7px;
     z-index:2000;
     color: black;
+
+font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+font-size: 14px;
+font-style: normal;
+font-variant: normal;
+font-weight: bold;
+height: 17px;
+line-height: normal;
+text-shadow: rgba(255, 255, 255, 0.74902) 0px 1px 1px;
+
 }
 
 .form-control:focus {
@@ -57,11 +73,19 @@ html, body, #map {
     font-size: 16px;
 }
 
+.btn-autocomplete-marker {
+
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: white;
+}
+
 .btn-autocomplete {
     
     color: #333;
     background-color: #fff;
     border-color: #DADADA;
+    /*padding: 0px;*/
 }
 
 .btn-autocomplete:hover, .btn-autocomplete:focus, .btn-autocomplete:active, .btn-autocomplete.active {

@@ -218,6 +218,51 @@ r360.Util = {
     },
 
     /*
+     * This methods uses the Rotue360° geocoding service to return
+     * a street address for a given latitude/longitude coordinate pair.
+     * This functionality is typically called reverse geocoding.
+     * 
+     * @method getAddressByCoordinates
+     * @param {Object} [latlon] The coordinate
+     * @param {Number} [latlon.lat] The latitude of the coordinate.
+     * @param {Number} [latlon.lng] The longitude of the coordinate.
+     * @param {String} [language] The country code, 'nb' for norway, 'de' for germany. 
+     * @param {Function} [callback] The callback methods which processes the returned data.
+     */
+    getAddressByCoordinates : function(latlng, language, callback){
+
+        $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
+    },
+
+    /* 
+     * This method takes a result from the nominatim reverse geocoder and formats
+     * it to a readable and displayable string. It builds up an address like this:
+     *      'STREETNAME STREETNUMBER, POSTALCODE, CITY'
+     * In case any of these values are undefined, they get removed from returned string.
+     * In case all values are undefined, the 'display_name' property of the returned 
+     * json (from nominatim) is used to generate the output value.
+     * @return {String} a string representing the geocoordinates in human readable form
+     */
+    formatReverseGeocoding : function(json) {
+
+        var streetAdress = [];
+        if ( _.has(json.address, 'road') )          streetAdress.push(json.address.road);
+        if ( _.has(json.address, 'house_number') )  streetAdress.push(json.address.house_number);
+
+        var city = [];
+        if ( _.has(json.address, 'postcode') )      city.push(json.address.postcode);
+        if ( _.has(json.address, 'city') )          city.push(json.address.city);
+
+        var address = [];
+        if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
+        if ( city.length > 0)           address.push(city.join(', '));
+
+        if ( streetAdress.length == 0 && city.length == 0 ) address.push(json.display_name);
+
+        return address.join(', ');
+    },
+
+    /*
      *
      */
     parsePolygons : function(polygonsJson) {
@@ -272,5 +317,32 @@ r360.Util = {
         });
 
         return routes;
+    },
+
+    /*
+     * Convenients method to generate a Leaflet marker with the 
+     * specified marker color. For available colors look at 'dist/images'
+     * 
+     * @method getMarker
+     * @param {Object} [latlon] The coordinate
+     * @param {Number} [latlon.lat] The latitude of the coordinate.
+     * @param {Number} [latlon.lng] The longitude of the coordinate.
+     * @param {Object} [options] The options for the marker
+     * @param {Number} [options.color] The color for the marker icon.
+     */
+    getMarker : function(latlng, options){
+
+        var color = _.has(options, 'color') ? '-' + options.color : '-blue';
+
+        options.icon = L.icon({
+            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
+            iconSize     : [25, 41], // size of the icon
+            shadowSize   : [41, 41], // size of the shadow
+            iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
+            shadowAnchor : [22, 22], // the same for the shadow
+            popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
+        });
+
+        return L.marker(latlng, options);
     }
 };

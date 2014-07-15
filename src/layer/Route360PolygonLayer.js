@@ -68,15 +68,11 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         _.each(sourceToPolygons, function(source){
 
-            console.log(source);
-
             _.each(source.polygons, function(polygon){
 
                 that._updateBoundingBox(polygon.outerBoundary);
                 that._addPolygonToMultiPolygon(polygon);
             });
-
-            console.log(that._multiPolygons);
 
             that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
             that._reset();

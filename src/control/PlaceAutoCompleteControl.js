@@ -18,60 +18,70 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+            if ( _.has(options, 'image'))       this.options.image       = options.image;
         }
     },
 
     onAdd: function(map){
         
         var that = this;
+        var i18n            = r360.config.i18n;   
         var countrySelector =  "";
+        var nameContainer   = L.DomUtil.create('div', that._container);
+        that.options.map    = map;
+        that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
 
-        var nameContainer = L.DomUtil.create('div', this._container);
-
-        that.options.map = map;
-        var mapId = $(map._container).attr("id");
-        map.on("resize", this.onResize.bind(this));          
-
-        var i18n = r360.config.i18n;   
+        map.on("resize", that.onResize.bind(that));          
 
         // calculate the width in dependency to the number of buttons attached to the field
-        var width = this.options.width;
+        var width = that.options.width;
         if ( that.options.reset ) width += 44;
         if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
         that.options.input = 
             '<div class="input-group autocomplete" '+style+'> \
-                <input id="autocomplete-'+mapId+'" style="color: black;width:'+width+'" \
-                type="text" class="form-control" placeholder="' + this.options.placeholder + '" onclick="this.select()">';
+                <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
+                type="text" class="form-control" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
+
+        if ( that.options.image ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
+                    <img style="height:25px;" src="'+that.options.image+'"> \
+                 </span>';
+        }
 
         // add a reset button to the input field
         if ( that.options.reset ) {
 
             that.options.input += 
-                '<span class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" onclick="this.onReset()" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
-                </span>'
+                '<span id="'+that.options.id+'-reset" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                </span>';
         }
         if ( that.options.reverse ) {
 
-            this.options.input += 
-                '<span class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" onclick="this.onReverse()" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
-                </span>'
+            that.options.input += 
+                '<span id="'+that.options.id+'-reverse" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
+                </span>';
         }
 
         that.options.input += '</div>';
 
         // add the control to the map
-        $(nameContainer).append(that.options.input);        
-        
+        $(nameContainer).append(that.options.input);
+
+        $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
+        $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
+
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
 
         if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
-        $(nameContainer).find("#autocomplete-"+mapId).autocomplete({
+        $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
 
             source: function( request, response ) {
 
@@ -178,53 +188,45 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
 
-            return $( "<li>" )
-                .append(html)
-                .appendTo( ul );
-            };
-            this.onResize();     
+            return $( "<li>" ).append(html).appendTo(ul);
+        };
+        
+        this.onResize();     
 
         return nameContainer;
     },
 
-    onReset: function(onReset){
-        var that = this;   
+    onSelect: function(onSelect){
 
-        $(that.options.resetButton).click(onReset);
-        $(that.options.resetButton).click(function(){
-            $(that.options.input).val("");
-        });
+        this.options.onSelect = onSelect;
+    },
+
+    onReset: function(onReset){
+
+        this.options.onReset = onReset;
     },
 
     onReverse: function(onReverse){
        
-       $(this.options.reverseButton).click(onReverse);
+       this.options.onReverse = onReverse;
     },
 
-    onResize: function(){
-        var that = this;
-        if(this.options.map.getSize().x < 550){
-            $(that.options.input).css({'width':'45px'});
-        }else{
-            $(that.options.input).css({'width':''});
-        }
+    reset : function(){
+
+        this.options.value = {};
+        this.setFieldValue("");
     },
 
-    onSelect: function(onSelect){
+    setFieldValue : function(value){
 
         var that = this;
-        that.options.onSelect = onSelect;       
-    },
-
-    setFieldValue : function(val){
-
-        var mapId = $(this.options.map._container).attr("id");
-        $("#autocomplete-"+mapId).val(val.firstRow);
-        $(this.options.input).val(val);
+        $("#autocomplete-" + that.options.id).val(value);
     },
 
     getFieldValue : function(){
-        return $(this.options.input).val();
+
+        var that = this;
+        return $("#autocomplete-" + that.options.id).val();
     },
 
     setValue : function(value){
@@ -233,6 +235,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
     getValue : function(){
         return this.options.value;
-    }
+    },
 
+    onResize: function(){
+        
+        var that = this;
+        if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
+        else $(that.options.input).css({'width':''});
+    }
 })
