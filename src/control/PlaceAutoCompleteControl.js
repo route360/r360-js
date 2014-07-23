@@ -217,6 +217,17 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         this.setFieldValue("");
     },
 
+    update : function(latLng, fieldValue) {
+
+        this.setLatLng(latLng);
+        this.setFieldValue(fieldValue);
+    },
+
+    setLatLng : function(latLng) {
+
+        this.options.value.latlng = latLng
+    },
+
     setFieldValue : function(value){
 
         var that = this;

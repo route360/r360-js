@@ -167,11 +167,21 @@ r360.TravelTimeControl = L.Control.extend({
         var options = this.options;
         var travelTimes = new Array()
 
-        // console.log($(this.options.travelTimeSlider).slider("value"));
         for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
             travelTimes.push(options.travelTimes[i/options.step].time);
             
         return travelTimes;
+    },
+
+    /**
+     * [getMaxValue Returns the maximum selected value in seconds, 
+     *              internally it used the getValues method and returns the maximum.]
+     *              
+     * @return {[Number]}
+     */ 
+    getMaxValue : function() {
+
+        return _.max(this.getValues());
     }
 });
 

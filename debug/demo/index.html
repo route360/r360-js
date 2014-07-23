@@ -17,7 +17,7 @@
 
     <!-- Fonts -->
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 
     <!-- IE8 support for HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -342,11 +342,32 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
         </a>
     </div>
 
+    <!-- Piwik -->
+    <script type="text/javascript">
+      var _paq = _paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u=(("https:" == document.location.protocol) ? "https" :  
+    "http") + "://www.route360.net/analytics/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 7]);
+        var d=document, g=d.createElement('script'),  
+    s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
+        g.defer=true; g.async=true; g.src=u+'piwik.js';  
+    s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <noscript><p><img  
+    src="http://www.route360.net/analytics/piwik.php?idsite=7"  
+    style="border:0;" alt="" /></p></noscript>
+    <!-- End Piwik Code -->
+
     <script src="lib/jquery/jquery-1.10.2.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
     
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="js/classie.js"></script>
     <script src="js/cbpAnimatedHeader.js"></script>
     <script src="js/freelancer.js"></script>
@@ -386,7 +407,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+            L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
                     maxZoom: 18,
                     attribution: attribution
             }).addTo(map);

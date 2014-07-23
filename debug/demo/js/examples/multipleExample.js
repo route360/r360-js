@@ -9,7 +9,7 @@ function multipleExample(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);
@@ -37,6 +37,10 @@ function multipleExample(){
     // we only have one source which is the marker we just added
     travelOptions.addSource(sourceMarker2);
     travelOptions.addSource(sourceMarker1);
+
+    // intersection means that areas are marker in a certain color
+    // if they are reach from both locations in the same time
+    travelOptions.setIntersectionMode('intersection');
     
     // we want to walk from all source points
     travelOptions.setTravelType('walk');

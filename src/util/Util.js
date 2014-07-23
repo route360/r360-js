@@ -147,69 +147,18 @@ r360.Util = {
 
             if ( segment.getType() == "TRANSFER" ) return;
 
-            var polylineOptions       = {};
-            polylineOptions.color     = segment.getColor();
+            var polylineOptions         = {};
+            polylineOptions.color       = _.has(options, 'color') ? options.color : segment.getColor();
 
-            var polylineHaloOptions = {};
-            polylineHaloOptions.weight = 7;
-            polylineHaloOptions.color     = "white";
+            var polylineHaloOptions     = {};
+            polylineHaloOptions.weight  = 7;
+            polylineHaloOptions.color   = "white";
             
             // the first and the last segment is walking so we need to dotted lines
             if ( index == 0 || index == (route.getLength() - 1) ) polylineOptions.dashArray = "1, 8";
 
             var halo = L.polyline(segment.getPoints(), polylineHaloOptions);
             var line = L.polyline(segment.getPoints(), polylineOptions);
-
-            var i18n = r360.config.i18n;
-            var lang = i18n.language;
-
-            var warningHtml = "";
-            if ( typeof segment.getWarning() !== "undefined") 
-                warningHtml = "<tr><td colspan='3'><b>" + segment.getWarning() + "</b></td></tr>";
-
-            var popup = L.popup({autoPan : false});
-
-            if ( !segment.isTransit() ) {
-                
-                popup.setContent(
-                    "<table style='width:400px; color:#07456b'> \
-                        <tr> \
-                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
-                            <td>" + i18n.distance[lang]   + ": <b>" + segment.getLength() + "km</b></td> \
-                            <td>" + i18n.elevation[lang]  + ": <b>" + segment.getElevationGain() + "m</b></td></tr> \
-                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime()) + "</b></td> \
-                        </tr> \
-                        " + warningHtml  + " \
-                    </table> \
-                    <div id='chart' style='width:250px; height:100px'></div>");   
-            }
-            else {
-
-                popup.setContent(
-                    "<table style='width:400px; color:#07456b'> \
-                        <tr> \
-                            <td>" + i18n.line[lang]     + ": <b>" + segment.routeShortName + "</b></td> \
-                            <td>" + i18n.from[lang]     + ": <b>" + segment.getStartName() + "</b></td> \
-                            <td>" + i18n.departure[lang]+ ": <b>" + r360.Util.secondsToTimeOfDay(segment.getDepartureTime()) + "</b></td> \
-                            <td>" + i18n.to[lang]       + ": <b>" + segment.getEndName() + "</b></td> \
-                        </tr> \
-                        <tr> \
-                            <td>" + i18n.arrival[lang]    + ": <b>" + r360.Util.secondsToTimeOfDay(segment.getArrivalTime())      + "</b></td> \
-                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
-                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime())   + "</b></td> \
-                        </tr> \
-                        <div id='chart' style='width:250px; height:100px'></div> \
-                        " + warningHtml  + " \
-                    </table>");  
-            }
-            
-            if ( options.addPopup ) {
-
-                var newPopup = _.has(options, 'popup') ? options.popup : popup;
-
-                line.bindPopup(newPopup);
-                halo.bindPopup(newPopup);
-            }
 
             polylines.push([halo, line]);
         });

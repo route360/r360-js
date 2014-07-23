@@ -9,7 +9,7 @@ function routingExample(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: attribution
     }).addTo(map);

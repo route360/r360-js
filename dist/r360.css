@@ -38,6 +38,20 @@ text-shadow: rgba(255, 255, 255, 0.74902) 0px 1px 1px;
 
 }
 
+.autocomplete-clear {
+
+    text-indent: -1000em;
+    width: 16px;
+    height: 16px;
+    /*display: inline-block;*/
+    background-image: url(http://p.yusukekamiyamane.com/icons/search/fugue/icons/cross.png);
+    background-repeat: no-repeat;
+    position: relative;
+    left: -20px;
+    top: 3px;
+    z-index: 1000;
+}
+
 .form-control:focus {
     outline: 0;
     border: none;

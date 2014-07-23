@@ -8,7 +8,6 @@ r360.RouteSegment = function(segment){
     that.color           = '#07456b';
     that.points          = segment.points;
     that.type            = segment.type;
-    that.routeType       = segment.routeType;
     that.travelTime      = segment.travelTime;
     that.length          = segment.length;    
     that.warning         = segment.warning;    
@@ -29,6 +28,7 @@ r360.RouteSegment = function(segment){
 
         that.color          = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).color;
         that.transitSegment = true;
+        that.routeType      = segment.routeType;
         that.routeShortName = segment.routeShortName;
         that.startname      = segment.startname;
         that.endname        = segment.endname;
@@ -55,6 +55,10 @@ r360.RouteSegment = function(segment){
 
     that.getLength = function(){
         return that.length;
+    }
+
+    that.getRouteType = function(){
+        return that.routeType;
     }
 
     that.getRouteShortName = function(){

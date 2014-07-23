@@ -3,26 +3,27 @@
  */
 r360.TravelOptions = function(){
 
-    this.sources         = [];
-    this.targets         = [];
+    this.sources          = [];
+    this.targets          = [];
     this.service;
 
-    this.bikeSpeed       = 15;
-    this.bikeUphill      = 20;
-    this.bikeDownhill    = -10;
-    this.walkSpeed       = 5;
-    this.walkUphill      = 10;
-    this.walkDownhill    = 0;
+    this.bikeSpeed        = 15;
+    this.bikeUphill       = 20;
+    this.bikeDownhill     = -10;
+    this.walkSpeed        = 5;
+    this.walkUphill       = 10;
+    this.walkDownhill     = 0;
 
-    this.travelTimes     = [300, 600, 900, 1200, 1500, 1800];
-    this.travelType      = "walk";
+    this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
+    this.travelType       = "walk";
 
-    this.time            = r360.Util.getTimeInSeconds();
-    this.date            = r360.Util.getCurrentDate();
-    this.errors          = [];
+    this.time             = r360.Util.getTimeInSeconds();
+    this.date             = r360.Util.getCurrentDate();
+    this.errors           = [];
 
-    this.pathSerializer  = r360.config.pathSerializer;
-    this.maxRoutingTime  = r360.config.maxRoutingTime;
+    this.intersectionMode = 'union';
+    this.pathSerializer   = r360.config.pathSerializer;
+    this.maxRoutingTime   = r360.config.maxRoutingTime;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(){
@@ -88,6 +89,10 @@ r360.TravelOptions = function(){
             if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
                 this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
         }
+
+        // only let valid intersections mode pass
+        if ( !_.contains(['union', 'average', 'intersection', 'none'], this.getIntersectionMode() ) )
+            this.getErrors().push('Not supported intersection mode given: ' + this.getIntersectionMode() );
 
         // false if we found errors
         return this.errors.length == 0;
@@ -332,6 +337,26 @@ r360.TravelOptions = function(){
     this.getMaxRoutingTime = function(){
 
         return this.maxRoutingTime;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getIntersectionMode = function(){
+
+        return this.intersectionMode;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setIntersectionMode = function(intersectionMode){
+
+        this.intersectionMode = intersectionMode;
     }
     
     /*

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (faa6ccd), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (19d303a), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -59,7 +59,7 @@ if (!Function.prototype.bind) {
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
-    serviceUrl      : 'http://144.76.246.52:8080/api/',
+    serviceUrl      : 'http://144.76.246.52/api/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
@@ -304,69 +304,18 @@ r360.Util = {
 
             if ( segment.getType() == "TRANSFER" ) return;
 
-            var polylineOptions       = {};
-            polylineOptions.color     = segment.getColor();
+            var polylineOptions         = {};
+            polylineOptions.color       = _.has(options, 'color') ? options.color : segment.getColor();
 
-            var polylineHaloOptions = {};
-            polylineHaloOptions.weight = 7;
-            polylineHaloOptions.color     = "white";
+            var polylineHaloOptions     = {};
+            polylineHaloOptions.weight  = 7;
+            polylineHaloOptions.color   = "white";
             
             // the first and the last segment is walking so we need to dotted lines
             if ( index == 0 || index == (route.getLength() - 1) ) polylineOptions.dashArray = "1, 8";
 
             var halo = L.polyline(segment.getPoints(), polylineHaloOptions);
             var line = L.polyline(segment.getPoints(), polylineOptions);
-
-            var i18n = r360.config.i18n;
-            var lang = i18n.language;
-
-            var warningHtml = "";
-            if ( typeof segment.getWarning() !== "undefined") 
-                warningHtml = "<tr><td colspan='3'><b>" + segment.getWarning() + "</b></td></tr>";
-
-            var popup = L.popup({autoPan : false});
-
-            if ( !segment.isTransit() ) {
-                
-                popup.setContent(
-                    "<table style='width:400px; color:#07456b'> \
-                        <tr> \
-                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
-                            <td>" + i18n.distance[lang]   + ": <b>" + segment.getLength() + "km</b></td> \
-                            <td>" + i18n.elevation[lang]  + ": <b>" + segment.getElevationGain() + "m</b></td></tr> \
-                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime()) + "</b></td> \
-                        </tr> \
-                        " + warningHtml  + " \
-                    </table> \
-                    <div id='chart' style='width:250px; height:100px'></div>");   
-            }
-            else {
-
-                popup.setContent(
-                    "<table style='width:400px; color:#07456b'> \
-                        <tr> \
-                            <td>" + i18n.line[lang]     + ": <b>" + segment.routeShortName + "</b></td> \
-                            <td>" + i18n.from[lang]     + ": <b>" + segment.getStartName() + "</b></td> \
-                            <td>" + i18n.departure[lang]+ ": <b>" + r360.Util.secondsToTimeOfDay(segment.getDepartureTime()) + "</b></td> \
-                            <td>" + i18n.to[lang]       + ": <b>" + segment.getEndName() + "</b></td> \
-                        </tr> \
-                        <tr> \
-                            <td>" + i18n.arrival[lang]    + ": <b>" + r360.Util.secondsToTimeOfDay(segment.getArrivalTime())      + "</b></td> \
-                            <td>" + i18n.travelTime[lang] + ": <b>" + r360.Util.secondsToHoursAndMinutes(segment.getTravelTime()) + "</b></td> \
-                            <td>" + i18n.totalTime[lang]  + ": <b>" + r360.Util.secondsToHoursAndMinutes(route.getTravelTime())   + "</b></td> \
-                        </tr> \
-                        <div id='chart' style='width:250px; height:100px'></div> \
-                        " + warningHtml  + " \
-                    </table>");  
-            }
-            
-            if ( options.addPopup ) {
-
-                var newPopup = _.has(options, 'popup') ? options.popup : popup;
-
-                line.bindPopup(newPopup);
-                halo.bindPopup(newPopup);
-            }
 
             polylines.push([halo, line]);
         });
@@ -509,26 +458,27 @@ r360.Util = {
  */
 r360.TravelOptions = function(){
 
-    this.sources         = [];
-    this.targets         = [];
+    this.sources          = [];
+    this.targets          = [];
     this.service;
 
-    this.bikeSpeed       = 15;
-    this.bikeUphill      = 20;
-    this.bikeDownhill    = -10;
-    this.walkSpeed       = 5;
-    this.walkUphill      = 10;
-    this.walkDownhill    = 0;
+    this.bikeSpeed        = 15;
+    this.bikeUphill       = 20;
+    this.bikeDownhill     = -10;
+    this.walkSpeed        = 5;
+    this.walkUphill       = 10;
+    this.walkDownhill     = 0;
 
-    this.travelTimes     = [300, 600, 900, 1200, 1500, 1800];
-    this.travelType      = "walk";
+    this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
+    this.travelType       = "walk";
 
-    this.time            = r360.Util.getTimeInSeconds();
-    this.date            = r360.Util.getCurrentDate();
-    this.errors          = [];
+    this.time             = r360.Util.getTimeInSeconds();
+    this.date             = r360.Util.getCurrentDate();
+    this.errors           = [];
 
-    this.pathSerializer  = r360.config.pathSerializer;
-    this.maxRoutingTime  = r360.config.maxRoutingTime;
+    this.intersectionMode = 'union';
+    this.pathSerializer   = r360.config.pathSerializer;
+    this.maxRoutingTime   = r360.config.maxRoutingTime;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(){
@@ -594,6 +544,10 @@ r360.TravelOptions = function(){
             if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
                 this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
         }
+
+        // only let valid intersections mode pass
+        if ( !_.contains(['union', 'average', 'intersection', 'none'], this.getIntersectionMode() ) )
+            this.getErrors().push('Not supported intersection mode given: ' + this.getIntersectionMode() );
 
         // false if we found errors
         return this.errors.length == 0;
@@ -839,6 +793,26 @@ r360.TravelOptions = function(){
 
         return this.maxRoutingTime;
     }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getIntersectionMode = function(){
+
+        return this.intersectionMode;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setIntersectionMode = function(intersectionMode){
+
+        this.intersectionMode = intersectionMode;
+    }
     
     /*
      *
@@ -1022,8 +996,11 @@ r360.PolygonService = {
 
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
-                polygon : { values : travelOptions.getTravelTimes() },
-                sources : []
+                polygon          : { 
+                    values : travelOptions.getTravelTimes(), 
+                    intersectionMode : travelOptions.getIntersectionMode() 
+                },
+                sources          : []
             };
 
             // add each source point and it's travel configuration to the cfg
@@ -1483,6 +1460,17 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         this.setFieldValue("");
     },
 
+    update : function(latLng, fieldValue) {
+
+        this.setLatLng(latLng);
+        this.setFieldValue(fieldValue);
+    },
+
+    setLatLng : function(latLng) {
+
+        this.options.value.latlng = latLng
+    },
+
     setFieldValue : function(value){
 
         var that = this;
@@ -1882,11 +1870,21 @@ r360.TravelTimeControl = L.Control.extend({
         var options = this.options;
         var travelTimes = new Array()
 
-        // console.log($(this.options.travelTimeSlider).slider("value"));
         for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
             travelTimes.push(options.travelTimes[i/options.step].time);
             
         return travelTimes;
+    },
+
+    /**
+     * [getMaxValue Returns the maximum selected value in seconds, 
+     *              internally it used the getValues method and returns the maximum.]
+     *              
+     * @return {[Number]}
+     */ 
+    getMaxValue : function() {
+
+        return _.max(this.getValues());
     }
 });
 
@@ -2277,7 +2275,6 @@ r360.RouteSegment = function(segment){
     that.color           = '#07456b';
     that.points          = segment.points;
     that.type            = segment.type;
-    that.routeType       = segment.routeType;
     that.travelTime      = segment.travelTime;
     that.length          = segment.length;    
     that.warning         = segment.warning;    
@@ -2298,6 +2295,7 @@ r360.RouteSegment = function(segment){
 
         that.color          = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).color;
         that.transitSegment = true;
+        that.routeType      = segment.routeType;
         that.routeShortName = segment.routeShortName;
         that.startname      = segment.startname;
         that.endname        = segment.endname;
@@ -2324,6 +2322,10 @@ r360.RouteSegment = function(segment){
 
     that.getLength = function(){
         return that.length;
+    }
+
+    that.getRouteType = function(){
+        return that.routeType;
     }
 
     that.getRouteShortName = function(){

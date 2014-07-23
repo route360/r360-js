@@ -1,7 +1,7 @@
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
-    serviceUrl      : 'http://144.76.246.52:8080/api/',
+    serviceUrl      : 'http://144.76.246.52/api/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
