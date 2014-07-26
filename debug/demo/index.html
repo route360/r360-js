@@ -419,6 +419,8 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             // create a marker and add it to the map
             var marker = L.marker([52.51, 13.37]);
             marker.addTo(map);
+            marker.lat = 52.51;
+            marker.lon = 13.37;
 
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();

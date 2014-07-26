@@ -151,11 +151,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
                             // if same looking object is in list already: return 
-                            _.each(places, function(pastPlace){
-                                if ( pastPlace == "" + firstRow.join() + secondRow.join() ) return;
-                            })
-
-                            places.push("" + firstRow.join()+secondRow.join());
+                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            else places.push(firstRow.join() + secondRow.join());
 
                             return {
                                 label       : firstRow.join(", "),
@@ -184,9 +181,13 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
             }
 
-            var matchItem = "<a><span class='address-row1'>"+ item.firstRow + "</span><br/><span class='address-row2'>  " + item.secondRow + "</span></a>";
+            var highlightedFirstRow = 
+                item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
 
-            var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
+            var highlightedSecondRow = 
+                item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
+
+            var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
 
             return $( "<li>" ).append(html).appendTo(ul);
         };

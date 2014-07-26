@@ -160,6 +160,16 @@ r360.TravelTimeControl = L.Control.extend({
         options.onSlideStop = onSlideStop;  
     },
 
+    /**
+     * [setValue description]
+     * @param {[type]} value [description]
+     */
+    setValue: function(value) {
+
+        $(this.options.travelTimeSlider).slider('value', value);
+        $(this.options.travelTimeSpan).text(value);
+    },
+
     /*
      *
      */

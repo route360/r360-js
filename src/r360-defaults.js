@@ -46,7 +46,7 @@ r360.config = {
     ],
 
     defaultPlaceAutoCompleteOptions : {
-        serviceUrl : "http://geocode.route360.net:8983/solr/select?",
+        serviceUrl : "http://geocode.route360.net/solr/select?",
         position : 'topleft',
         reset : false,
         reverse : false,

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (19d303a), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (0af1024), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -104,7 +104,7 @@ r360.config = {
     ],
 
     defaultPlaceAutoCompleteOptions : {
-        serviceUrl : "http://geocode.route360.net:8983/solr/select?",
+        serviceUrl : "http://geocode.route360.net/solr/select?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -495,8 +495,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getSources(), function(source){
 
-                    if ( source.getLatLng().lat === 'undefined' ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( source.getLatLng().lng === 'undefined' ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !_.has(source, 'lat') ) this.getErrors().push('Sources contains source with undefined latitude!');
+                    if ( !_.has(source, 'lon') ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -571,8 +571,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getTargets(), function(target){
 
-                    if ( target.getLatLng().lat === 'undefined' ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( target.getLatLng().lng === 'undefined' ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !_.has(target, 'lat') ) this.getErrors().push('Targets contains target with undefined latitude!');
+                    if ( !_.has(target, 'lon') ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }
@@ -997,7 +997,7 @@ r360.PolygonService = {
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
                 polygon          : { 
-                    values : travelOptions.getTravelTimes(), 
+                    values           : travelOptions.getTravelTimes(), 
                     intersectionMode : travelOptions.getIntersectionMode() 
                 },
                 sources          : []
@@ -1007,22 +1007,22 @@ r360.PolygonService = {
             _.each(travelOptions.getSources(), function(source){
                 
                 var src = {
-                    id  :  _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
-                    lat : source.getLatLng().lat,
-                    lon : source.getLatLng().lng,
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
                 src.tm[travelOptions.getTravelType()] = {};
 
                 // set special routing parameters depending on the travel type
-                if ( travelOptions.getTravelType() == "transit" ) {
+                if ( travelOptions.getTravelType() == 'transit' ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == "bike" ) {
+                if ( travelOptions.getTravelType() == 'bike' ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -1030,7 +1030,7 @@ r360.PolygonService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == "walk") {
+                if ( travelOptions.getTravelType() == 'walk') {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -1044,7 +1044,7 @@ r360.PolygonService = {
 
             // make the request to the Route360° backend 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
                     function(result){
 
                         // hide the please wait control
@@ -1055,7 +1055,7 @@ r360.PolygonService = {
         }
         else {
 
-            alert("Travel options are not valid!")
+            alert('Travel options are not valid!')
             console.log(travelOptions.getErrors());
         }
     }
@@ -1081,9 +1081,9 @@ r360.RouteService = {
 
                 // set the basic information for this source
                 var src = {
-                    id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
-                    lat : source.getLatLng().lat,
-                    lon : source.getLatLng().lng,
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
                 src.tm[travelOptions.getTravelType()] = {};
@@ -1120,11 +1120,12 @@ r360.RouteService = {
             cfg.targets = [];
             _.each(travelOptions.getTargets(), function(target){
 
-                var trg = {};
-                trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
-                trg.lat = target.getLatLng().lat;
-                trg.lon = target.getLatLng().lng;
-                cfg.targets.push(trg);
+                 cfg.targets.push({
+
+                    lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
+                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                });
             });
 
             $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
@@ -1166,9 +1167,9 @@ r360.TimeService = {
 
                 // set the basic information for this source
                 var src = {
-                    id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
-                    lat : source.getLatLng().lat,
-                    lon : source.getLatLng().lng,
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
                 src.tm[travelOptions.getTravelType()] = {};
@@ -1205,11 +1206,12 @@ r360.TimeService = {
             // configure targets for routing
             _.each(travelOptions.getTargets(), function(target){
 
-                var trg = {};
-                trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
-                trg.lat = target.getLatLng().lat;
-                trg.lon = target.getLatLng().lng;
-                cfg.targets.push(trg);
+                cfg.targets.push({
+
+                    lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
+                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                });
             });
 
             // execute routing time service and call callback with results
@@ -1394,11 +1396,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
                             // if same looking object is in list already: return 
-                            _.each(places, function(pastPlace){
-                                if ( pastPlace == "" + firstRow.join() + secondRow.join() ) return;
-                            })
-
-                            places.push("" + firstRow.join()+secondRow.join());
+                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            else places.push(firstRow.join() + secondRow.join());
 
                             return {
                                 label       : firstRow.join(", "),
@@ -1427,9 +1426,13 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
             }
 
-            var matchItem = "<a><span class='address-row1'>"+ item.firstRow + "</span><br/><span class='address-row2'>  " + item.secondRow + "</span></a>";
+            var highlightedFirstRow = 
+                item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
 
-            var html = item.term ? ('' + matchItem).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : matchItem;
+            var highlightedSecondRow = 
+                item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
+
+            var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
 
             return $( "<li>" ).append(html).appendTo(ul);
         };
@@ -1861,6 +1864,16 @@ r360.TravelTimeControl = L.Control.extend({
     onSlideStop: function (onSlideStop) {
         var options = this.options;
         options.onSlideStop = onSlideStop;  
+    },
+
+    /**
+     * [setValue description]
+     * @param {[type]} value [description]
+     */
+    setValue: function(value) {
+
+        $(this.options.travelTimeSlider).slider('value', value);
+        $(this.options.travelTimeSpan).text(value);
     },
 
     /*

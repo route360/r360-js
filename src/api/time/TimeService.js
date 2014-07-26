@@ -19,9 +19,9 @@ r360.TimeService = {
 
                 // set the basic information for this source
                 var src = {
-                    id  : _.has(source, "id") ? source.id : source.getLatLng().lat + ";" + source.getLatLng().lng,
-                    lat : source.getLatLng().lat,
-                    lon : source.getLatLng().lng,
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
                 src.tm[travelOptions.getTravelType()] = {};
@@ -58,11 +58,12 @@ r360.TimeService = {
             // configure targets for routing
             _.each(travelOptions.getTargets(), function(target){
 
-                var trg = {};
-                trg.id  = _.has(target, "id") ? target.id : target.getLatLng().lat + ";" + target.getLatLng().lng;
-                trg.lat = target.getLatLng().lat;
-                trg.lon = target.getLatLng().lng;
-                cfg.targets.push(trg);
+                cfg.targets.push({
+
+                    lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
+                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                });
             });
 
             // execute routing time service and call callback with results
