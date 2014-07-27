@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (0af1024), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (ddcce8c), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1264,7 +1264,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
+            if ( _.has(options, 'options'))     this.options.options     = options.options;
         }
+
+        this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
     },
 
     onAdd: function(map){
@@ -1313,13 +1316,46 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 </span>';
         }
 
+        var optionsHtml = [];
+        if ( that.options.options ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
+                </span>';
+
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
+            optionsHtml.push('  <div class="btn-group text-center">');
+            if (that.options.options.walk )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span>Walk</button>');
+            if (that.options.options.bike )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> Bike</button>');
+            if (that.options.options.transit )  optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span>Transit</button>');
+            if (that.options.options.car )      optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="car"><span class="fa fa-car"></span> Car</button>');
+            optionsHtml.push('  </div>');
+            optionsHtml.push('</div>');
+        }
+
         that.options.input += '</div>';
+        if ( that.options.options ) that.options.input += optionsHtml.join('');
 
         // add the control to the map
         $(nameContainer).append(that.options.input);
 
         $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
         $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
+        $(nameContainer).find('#' + that.options.id + '-options-button').click(
+            function(){ 
+                // slide in or out on the click of the options button
+                $('#' + that.options.id + '-options').slideToggle();
+            });
+
+        $(nameContainer).find('.travel-type-button').click(function(){
+            setTimeout(function() {
+                  $('#' + that.options.id + '-options').slideToggle();
+            }, 300);
+
+            that.options.travelType = $(this).attr('travel-type');
+            that.options.onTravelTypeChange();
+        });
 
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
@@ -1457,6 +1493,11 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
        this.options.onReverse = onReverse;
     },
 
+    onTravelTypeChange: function(onTravelTypeChange){
+
+        this.options.onTravelTypeChange = onTravelTypeChange;
+    },
+
     reset : function(){
 
         this.options.value = {};
@@ -1484,6 +1525,11 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         var that = this;
         return $("#autocomplete-" + that.options.id).val();
+    },
+
+    getTravelType : function(){
+
+        return this.options.travelType;
     },
 
     setValue : function(value){

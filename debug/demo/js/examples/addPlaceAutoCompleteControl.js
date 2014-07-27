@@ -26,10 +26,13 @@ function addPlaceAutoCompleteControl(){
     // add it to the map
     map.addLayer(polygonLayer);
 
+    // define which options the user is going to have
+    var options = { car : true, bike : true, walk : true, transit : true, init : 'transit' };
+
     // create an auto complete control and set it to return only german cities, streets etc. 
     // add an image which will be displayed next to the users input to know which markers
     // belong to which auto complete & and add a reset button to delete user inputs
-    var placeAutoComplete = r360.placeAutoCompleteControl({country : "Deutschland", placeholder : 'Select start!', reset : true , image : 'lib/leaflet/images/marker-icon-red.png'});
+    var placeAutoComplete = r360.placeAutoCompleteControl({country : "Deutschland", placeholder : 'Select start!', reset : true , image : 'lib/leaflet/images/marker-icon-red.png', options : options});
     // add the controls to the map
     map.addControl(placeAutoComplete);
     map.addControl(L.control.zoom({ position : 'topright' }));
@@ -45,12 +48,20 @@ function addPlaceAutoCompleteControl(){
             // add a marker to the map
             marker = r360.Util.getMarker(item.latlng, 
                 { color : 'red', iconPath: 'lib/leaflet/images/', draggable : true }).addTo(map);
-            
+    
+            // set lat/lon            
+            marker.lat = marker.getLatLng().lat;
+            marker.lon = marker.getLatLng().lng;
+
             // we need to update some stuff on the 'dragend' action of the marker
             marker.on('dragend', function(){
 
+                // update lat/lon
+                marker.lat = marker.getLatLng().lat;
+                marker.lon = marker.getLatLng().lng;
+
                 // redraw the polygons
-                showPolygons();
+                showPolygons(placeAutoComplete.getTravelType());
                 // update the street in the autocomplete
                 r360.Util.getAddressByCoordinates(marker.getLatLng(), 'de', function(json){
                     
@@ -63,7 +74,7 @@ function addPlaceAutoCompleteControl(){
 
         // and show the polygons for the new source
         marker.bindPopup(item.firstRow);
-        showPolygons();
+        showPolygons(placeAutoComplete.getTravelType());
     });
 
     // define what happens if someone clicks the reset button
@@ -76,8 +87,18 @@ function addPlaceAutoCompleteControl(){
         placeAutoComplete.reset();
     });
 
+    placeAutoComplete.onTravelTypeChange(function(){
+
+        console.log(placeAutoComplete.getTravelType());
+
+        // we can only show polygons if a place was already defined
+        if ( typeof placeAutoComplete.getValue() !== 'undefined' &&
+                Object.keys(placeAutoComplete.getValue()).length !== 0 )
+            showPolygons(placeAutoComplete.getTravelType());
+    });
+
     // helper function to encapsulate the show polygon action
-    function showPolygons(){
+    function showPolygons(travelType){
 
         // you need to define some options for the polygon service
         // for more travel options check out the other tutorials
@@ -86,6 +107,14 @@ function addPlaceAutoCompleteControl(){
         travelOptions.addSource(marker);
         // we want to have polygons for 5 to 30 minutes
         travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+        // set the travel type if defined
+        if ( typeof travelType !== 'undefined') {
+
+
+            travelOptions.setTravelType(travelType)
+        };
+
+        travelOptions.getTravelType();
 
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
