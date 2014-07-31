@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (d3ca907), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (e5cc91d), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1319,10 +1319,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
-            if ( _.has(options, 'options'))     this.options.options     = options.options;
-        }
+            if ( _.has(options, 'options')) {
 
-        this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+                 this.options.options    = options.options;
+                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+            }   
+        }
     },
 
     onAdd: function(map){
@@ -2106,6 +2108,11 @@ L.Control.HtmlControl = L.Control.extend({
     hide : function(){
         
         $('#html-control-'+this.options.id).hide();  
+    },
+
+    toggle : function(){
+        
+        $('#html-control-'+this.options.id).toggle();  
     }
 });
 
@@ -2198,7 +2205,7 @@ r360.RadioButtonControl = L.Control.extend({
 
             var label = $('<label/>', { 
                 "for"  : 'r360_' + id, 
-                "text" : button.label
+                "html" : button.label
             });
 
             // make the button selected (default buttin)
