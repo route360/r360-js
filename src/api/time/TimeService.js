@@ -1,5 +1,7 @@
 r360.TimeService = {
 
+    cache : {},
+
     getRouteTime : function(travelOptions, callback) {
 
         // only make the request if we have a valid configuration
@@ -17,6 +19,8 @@ r360.TimeService = {
             // configure sources
             _.each(travelOptions.getSources(), function(source){
 
+                console.log(source);
+
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
@@ -24,17 +28,20 @@ r360.TimeService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel mode
-                if ( travelOptions.getTravelType() == "transit" ) {
+                if ( travelType == "transit" ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == "bike" ) {
+                if ( travelType == "bike" ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -42,7 +49,7 @@ r360.TimeService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == "walk") {
+                if ( travelType == "walk") {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -66,26 +73,37 @@ r360.TimeService = {
                 });
             });
 
-            // execute routing time service and call callback with results
-            $.ajax({
-                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
-                type:        "POST",
-                data:        JSON.stringify(cfg) ,
-                contentType: "application/json",
-                dataType:    "json",
-                success: function (result) {
+            if ( !_.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    // return the results
-                    callback(result);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                }
-            });
+                // execute routing time service and call callback with results
+                $.ajax({
+                    url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
+                    type:        "POST",
+                    data:        JSON.stringify(cfg) ,
+                    contentType: "application/json",
+                    dataType:    "json",
+                    success: function (result) {
+                        // cache the request
+                        r360.TimeService.cache[JSON.stringify(cfg)] = result;
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // return the results
+                        callback(result);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+                });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.TimeService.cache[JSON.stringify(cfg)]); 
+            }
         }
         else {
 

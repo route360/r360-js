@@ -284,11 +284,14 @@ r360.Util = {
         var color = _.has(options, 'color') ? '-' + options.color : '-blue';
 
         options.icon = L.icon({
-            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconSize     : [25, 41], // size of the icon
-            shadowSize   : [41, 41], // size of the shadow
+            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
-            shadowAnchor : [22, 22], // the same for the shadow
+            
+            shadowSize   : [41, 41], // size of the shadow
+            shadowUrl    : options.iconPath + 'marker-shadow.png',
+            shadowAnchor : [41 / 3, 41], // point of the shadow which will correspond to marker's location
+            
             popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
         });
 

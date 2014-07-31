@@ -100,9 +100,20 @@ hr.star-light:after, hr.star-primary:after {
 #api a, #api a:active, #api a.active {
     outline: 0;
     color: white;
+    text-decoration: underline;
 }
 
 #api a:hover, #api a:focus {
 
-    color: #18bc9c;   
+    color: white;   
+}
+
+.navbar a {
+
+    color : white;
+}
+
+.navbar a:hover, .navbar a:focus, .navbar a:active, .navbar a.active  {
+            
+    color: #46A24F !important;
 }

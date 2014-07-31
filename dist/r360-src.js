@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (ddcce8c), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (d3ca907), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -441,11 +441,14 @@ r360.Util = {
         var color = _.has(options, 'color') ? '-' + options.color : '-blue';
 
         options.icon = L.icon({
-            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconSize     : [25, 41], // size of the icon
-            shadowSize   : [41, 41], // size of the shadow
+            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
-            shadowAnchor : [22, 22], // the same for the shadow
+            
+            shadowSize   : [41, 41], // size of the shadow
+            shadowUrl    : options.iconPath + 'marker-shadow.png',
+            shadowAnchor : [41 / 3, 41], // point of the shadow which will correspond to marker's location
+            
             popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
         });
 
@@ -983,6 +986,8 @@ r360.travelOptions = function () {
 
 r360.PolygonService = {
 
+    cache : {},
+
     /*
      *
      */
@@ -1012,17 +1017,20 @@ r360.PolygonService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel type
-                if ( travelOptions.getTravelType() == 'transit' ) {
+                if ( travelType == 'transit' ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == 'bike' ) {
+                if ( travelType == 'bike' ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -1030,7 +1038,7 @@ r360.PolygonService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == 'walk') {
+                if ( travelType == 'walk') {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -1042,16 +1050,28 @@ r360.PolygonService = {
                 cfg.sources.push(src);
             });
 
-            // make the request to the Route360° backend 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
-                encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
-                    function(result){
+            if ( !_.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
-                        // hide the please wait control
-                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                        // call callback with returned results
-                        callback(r360.Util.parsePolygons(result));
-                    });
+                // make the request to the Route360° backend 
+                $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
+                    encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
+                        function(result){
+
+                            // cache the result
+                            r360.PolygonService.cache[JSON.stringify(cfg)] = result;
+                            // hide the please wait control
+                            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                            // call callback with returned results
+                            callback(r360.Util.parsePolygons(result));
+                        });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+            }
         }
         else {
 
@@ -1063,6 +1083,8 @@ r360.PolygonService = {
 
 
 r360.RouteService = {
+
+    cache : {},
 
     /*
      *
@@ -1086,17 +1108,20 @@ r360.RouteService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+                
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel mode
-                if ( travelOptions.getTravelType() == "transit" ) {
+                if ( travelType == "transit" ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == "bike" ) {
+                if ( travelType == "bike" ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -1104,7 +1129,7 @@ r360.RouteService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == "walk") {
+                if ( travelType == "walk") {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -1128,15 +1153,27 @@ r360.RouteService = {
                 });
             });
 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
+            if ( !_.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
+
+                $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
                     function(result){
 
+                        // cache the result
+                        r360.RouteService.cache[JSON.stringify(cfg)] = result;
                         // hide the please wait control
                         if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                         // call callback with returned results
                         callback(r360.Util.parseRoutes(result)); 
                     });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
+            }
         }
         else {
 
@@ -1147,6 +1184,8 @@ r360.RouteService = {
 };
 
 r360.TimeService = {
+
+    cache : {},
 
     getRouteTime : function(travelOptions, callback) {
 
@@ -1165,6 +1204,8 @@ r360.TimeService = {
             // configure sources
             _.each(travelOptions.getSources(), function(source){
 
+                console.log(source);
+
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
@@ -1172,17 +1213,20 @@ r360.TimeService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel mode
-                if ( travelOptions.getTravelType() == "transit" ) {
+                if ( travelType == "transit" ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == "bike" ) {
+                if ( travelType == "bike" ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -1190,7 +1234,7 @@ r360.TimeService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == "walk") {
+                if ( travelType == "walk") {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -1214,26 +1258,37 @@ r360.TimeService = {
                 });
             });
 
-            // execute routing time service and call callback with results
-            $.ajax({
-                url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
-                type:        "POST",
-                data:        JSON.stringify(cfg) ,
-                contentType: "application/json",
-                dataType:    "json",
-                success: function (result) {
+            if ( !_.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    // return the results
-                    callback(result);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    
-                    console.log(xhr.status);
-                    console.log(thrownError);
-                }
-            });
+                // execute routing time service and call callback with results
+                $.ajax({
+                    url:         r360.config.serviceUrl + r360.config.serviceVersion + '/time?key=' +r360.config.serviceKey,
+                    type:        "POST",
+                    data:        JSON.stringify(cfg) ,
+                    contentType: "application/json",
+                    dataType:    "json",
+                    success: function (result) {
+                        // cache the request
+                        r360.TimeService.cache[JSON.stringify(cfg)] = result;
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // return the results
+                        callback(result);
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        
+                        console.log(xhr.status);
+                        console.log(thrownError);
+                    }
+                });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.TimeService.cache[JSON.stringify(cfg)]); 
+            }
         }
         else {
 
@@ -1290,7 +1345,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         that.options.input = 
             '<div class="input-group autocomplete" '+style+'> \
                 <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
-                type="text" class="form-control" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
+                type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
 
@@ -1298,6 +1353,41 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
                     <img style="height:25px;" src="'+that.options.image+'"> \
                  </span>';
+        }
+
+        var optionsHtml = [];
+        if ( that.options.options ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
+                </span>';
+
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
+            optionsHtml.push('  <div class="btn-group text-center">');
+
+            if (that.options.options.walk ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
+                    + (this.options.travelType == 'walk' ? 'active' : '') + 
+                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+            
+            if (that.options.options.bike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+            
+            if (that.options.options.transit ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'transit' ? 'active' : '') + 
+                    '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+            
+            if (that.options.options.car ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'car' ? 'active' : '') + 
+                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
+            
+            optionsHtml.push('  </div>');
+            optionsHtml.push('</div>');
         }
 
         // add a reset button to the input field
@@ -1316,24 +1406,6 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 </span>';
         }
 
-        var optionsHtml = [];
-        if ( that.options.options ) {
-
-            that.options.input += 
-                '<span id="'+that.options.id+'-options-button" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
-                </span>';
-
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
-            optionsHtml.push('  <div class="btn-group text-center">');
-            if (that.options.options.walk )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span>Walk</button>');
-            if (that.options.options.bike )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> Bike</button>');
-            if (that.options.options.transit )  optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span>Transit</button>');
-            if (that.options.options.car )      optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="car"><span class="fa fa-car"></span> Car</button>');
-            optionsHtml.push('  </div>');
-            optionsHtml.push('</div>');
-        }
-
         that.options.input += '</div>';
         if ( that.options.options ) that.options.input += optionsHtml.join('');
 
@@ -1349,6 +1421,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             });
 
         $(nameContainer).find('.travel-type-button').click(function(){
+
+            $(nameContainer).find('.travel-type-button').removeClass('active');
+            $(this).addClass('active');
+
             setTimeout(function() {
                   $('#' + that.options.id + '-options').slideToggle();
             }, 300);
@@ -1837,7 +1913,7 @@ r360.TravelTimeControl = L.Control.extend({
         this.options.travelTimeInfo = $('<div/>');
         this.options.travelTimeSlider = $('<div/>', {"class" : "no-border"}).append(sliderColors);
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
-        this.options.labelSpan = $('<span/>', {"text" : this.options.label + " "});
+        this.options.labelSpan = '<span lang="en">Traveltime</span><span lang="de">Reisezeit</span>: ';
 
         if ( this.options.icon != 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 

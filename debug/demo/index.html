@@ -47,7 +47,9 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#page-top">Route360° JavaScript API</a>
+                <a class="navbar-brand" href="#page-top">
+                    <img class="img-responsive" src="img/logo.png" style='float:left;width:50px;margin-top:-15px;margin-right:5px;' alt=""><span>
+                    Route360° JavaScript API</span></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -64,6 +66,9 @@
                     </li>
                     <li class="page-scroll">
                         <a href="#api">API</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#faq">FAQ</a>
                     </li>
                     <!-- <li class="page-scroll">
                         <a href="#contact">Contact</a>
@@ -103,71 +108,28 @@
             <p>This basic example shows you how to add a marker to the map and display reachability polygons from this location. Note that we do not set a travel mode, this defaults to 'walk' for now.</p>
             <p>First we need to import all the necessary javascript and css files. You should download the Route360° JS API from the <a href="https://bitbucket.org/Yojimbo/motion_intelligence.r360_js">repository</a>. For jQuery and jQuery UI we strongly advise you to use the <a href="http://jquery-ui-bootstrap.github.io/jquery-ui-bootstrap/">jQuery UI Bootstrap</a> library. Leaflet can be found <a href="http://leafletjs.com/">here</a>, Rapheal.js can be found <a href="http://raphaeljs.com/">here</a>.</p>
 <pre class="prettyprint">
-// all the css stuff
-&lt;link rel=&quot;stylesheet&quot; href=&quot;css/r360.css&quot;/&gt;
+&lt;!--all the css stuff --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;lib/leaflet/leaflet.css&quot;/&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;lib/jquery/jquery-ui-1.9.2.custom.css&quot;/&gt;
-// we need jquery and jquery ui
+&lt;link rel=&quot;stylesheet&quot; href=&quot;css/r360.css&quot;/&gt;
+&lt;!--  we need jquery and jquery ui (bootstrap version) --&gt;
 &lt;script src=&quot;lib/jquery/jquery-1.8.3.min.js&quot;&gt;&lt;/script&gt;
 &lt;script src=&quot;lib/jquery/jquery-ui-1.9.2.custom.min.js&quot;&gt;&lt;/script&gt;
-// leaflet is used as the base map technology
+&lt;!--  leaflet is used as the base map technology --&gt;
 &lt;script src=&quot;lib/leaflet/leaflet.js&quot;&gt;&lt;/script&gt;
-// our favourite utility belt
+&lt;!--  our favourite utility belt --&gt;
 &lt;script src=&quot;js/underscore.js&quot;&gt;&lt;/script&gt;
-// used to create transparent polygon layers
+&lt;!-- used to create transparent polygon layers  --&gt;
 &lt;script src=&quot;js/raphael-min.js&quot;&gt;&lt;/script&gt;
-// last but not least, our library
+&lt;!-- last but not least, our library --&gt;
 &lt;script src=&quot;r360.js&quot;&gt;&lt;/script&gt;
 </pre>
-
-            <p>Secondly we are initializing the Leaflet map, set a tile layer and add a marker, which could be an appartment, a hotel or your store etc.:</p>
-<pre class="prettyprint">
-// add the map and set the initial center to berlin
-var map = L.map('map').setView([52.516389, 13.377778], 13);
-// attribution to give credit to OSM map data and VBB for public transportation 
-var attribution ="&lt;a href='https://www.mapbox.com/about/maps/' target='_blank'&gt;&copy; Mapbox &copy; OpenStreetMap&lt;/a&gt; | &Ouml;PNV Daten &copy; &lt;a href='http://www.vbb.de/de/index.html' target='_blank'&gt;VBB&lt;/a&gt; | developed by &lt;a href='http://www.route360.net/de/' target='_blank'&gt;Route360&deg;&lt;/a&gt;";
-
- // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: attribution
-}).addTo(map);
-
-// create a marker and add it to the map (make sure to fix the icon urls)
-var marker = L.marker([52.51, 13.37], {icon : L.icon({iconUrl: 'img/marker-icon.png', shadowUrl: 'img/marker-shadow.png', iconAnchor: [12,45]})});
-marker.addTo(map);
-</pre>
-            <p>No we add a layer for the reachability polygons, call the Route360° Webservice and render the resulting polygons on the map:</p>
-<pre class="prettyprint">
-// create the layer to add the polygons
-var cpl = r360.route360PolygonLayer();
-// add it to the map
-map.addLayer(cpl);
-
-// you need to define some options for the polygon service
-// for more travel options check out the other tutorials
-var travelOptions = r360.travelOptions();
-// we only have one source which is the marker we just added
-travelOptions.addSource(marker);
-// we want to have polygons for 10 minutes and 20 minutes
-travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
-
-// call the service
-r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-        
-    // add the returned polygons to the polygon layer 
-    cpl.addLayer(polygons);
-    
-    // zoom the map to fit the polygons perfectly
-    map.fitBounds(cpl.getBoundingBox());
-}); 
-</pre>
+            <pre class="prettyprint" id='gettingstarted-code'>
+            </pre>
             <p>Easy, right? You should see something like this:
                 <div id="map-example1"></div>
             </p>
             <p>You can have a look at the complete example <a href="basic.html" target="_blank">here</a>.</p>
-            
-
         </div>
     </section>
 
@@ -188,7 +150,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         <li><a id="geocodingcontrol-nav" href="#geocodingcontrol">Route360° geocoding service</a></li>
                         <li><a id="routing-nav" href="#routing">Routing in public transportation</a></li>
                         <li><a id="filter-nav" href="#filter">Filter by travel time</a></li>
-                        <li><a id="multiple-nav" href="#multiple">Multiple travel time polygons</a></li>
+                        <li><a id="multiple-nav" href="#multiple">Intersection of polygons</a></li>
                         <li><a id="htmlControl-nav" href="#htmlControl">Using a custom Html control</a></li>
                     </ul>
                 </div>
@@ -220,57 +182,78 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                         <li class=""><a href="#routes" id="routes-nav">Route(Segment)</a></li>
                         <li class=""><a href="#polygonlayer" id="polygonlayer-nav">PolygonLayer</a></li>
                         <li class=""><a href="#util" id="util-nav">Util</a></li>
+                        <li class=""><a href="#i18n" id="i18n-nav">Localization</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-10">
                     <div class="tab-pane active" id="api-content">
                         <p>
-                            Here should be some text
+                            This sections gives an overview about the services, <code>PolygonService</code>, <code>RouteService</code> and <code>TimeService</code> currently offered by the Route360° JavaScript API. We discuss all the necessary and optional parameters. Hopefully this guide will help to port this JavaScript library to other programming languages. We present the internal data structure of the model, show the controls which can be used to configure API requests and show you how to localize your Route360-based application.
                         </p>
                     </div>
                     <div id="polygonservice-api" style="display:none;">
                         <h3>PolygonService</h3>
                         <p class="text-justify lead">
-                            The <code>PolygonService</code> is used to query the Route360° Service to get travel time polygons starting from a specified source point. The service has only one method <code>getTravelTimePolygons</code> which takes a <code>TravelOptions</code> and a callback function as arguments. The service will only be executed if the travel options are configured properly, otherwise it will throw an error.
+                            The <code>PolygonService</code> is used to query the Route360° Service to get travel time polygons starting from a specified source point or a list of source points. The service has only one method <code>getTravelTimePolygons</code> which takes a <code>TravelOptions</code> and a callback function as arguments. The service will only be executed if the travel options are configured properly, otherwise it will throw an error.
                         </p>
                         <h4>Mandatory arguments:</h4>
-                        <dl class="dl-horizontal" style="font-size: 20px;">
-                            <dt>Sources</dt>
-                            <dd>
-                                This has to be an array of objects. All objects have to have a <code>getLatLng</code> method which returns a Leaflet <strong>LatLng</strong> object. You can use the <code>TravelOptions.addSource(source)</code> or <code>TravelOptions.setSources(sources)</code> method to set all source points. The current server side implementation limits this to one source only. This will change in future releases. There will also be several methods to intersect polygons from multiple sources. Please contact us if you want to have a specific intersection method like <a href="http://en.wikipedia.org/wiki/Kriging">Kriging</a> or <a href="http://en.wikipedia.org/wiki/Metaballs">Metaball</a>.
-                            </dd>
-                            <dt>Travel times</dt>
-                            <dd>
-                                This is an array of travel times for which you want to have polygons. This array has to only contain numbers. The values are represented in seconds. An example which requests polygons for 5 to 30 minutes in 5 minutes steps would be: <strong>[300, 600, 900, 1200, 1500, 1800]</strong>. You have to make sure that <code>r360.config.defaultTravelTimeControlOptions.travelTimes</code> contains a color for each entry. The defaults for this service are <i>walking</i> with polygons for 5 to 30 minutes in 5 minutes steps. 
-                            </dd>
-                        </dl>
-                        <h4>Optional arguments:</h4>
-                        <p>
+                        <h4>Sources</h4>
+                        <p class="text-justify lead">
+                            This has to be an array of objects. All objects have to have a <code>lat</code> and <code>lon</code> attribute, additionally you can supply an <code>id</code> attribute as well, to later find your source again. You can use the <code>TravelOptions.addSource(src)</code> to add one or <code>TravelOptions.setSources(src)</code> method to set all source points. If you set multiple source points you have to decide which polygon intersection mode you want to use. Furthermore you can set the travelType for each source point individually by setting a <code>travelType</code> to each source. The default intersection mode is average. The API supports three different modes:
+                            <h4>union</h4>
+                            <p class="text-justify lead">The <b>union</b> option basically means that no intersection of the polygons is performed. We merge the polygons generated on the server side to reduce file size. So each marker has its independet travel time polygons.</p>
+                            <img class='img-responsive img-thumbnail' src="img/union.png">
+                            <hr>
+                            <h4>intersection</h4>
+                            <p class="text-justify lead">The <b>intersection</b> option generates an intersection of the polygons generated for all source points. This means that no independent polygons exist anymore, e.g. the polygon representing the 10 minute area (as shown in the image below) is the area that is reachable from <u><i><b>both</b></i></u> source points in 10 minutes.</p>
+                            <img class='img-responsive img-thumbnail' src="img/intersection_annotated.png">
+                            <hr>
+                            <h4>average</h4>
+                            <p class="text-justify lead">The <b>average</b> options generates polygons based the average travel time for all source points. This means that an individual travel time can be higher than the travel time boundary, as shown in the picture below, as long as the average total travel time for all source points to a specific target (the marker with the <b>!</b>) is lower than the travel time boundary.</p>
+                            <img class='img-responsive img-thumbnail' src="img/average_annotated.png">
+                            <hr>
+                            <p class="text-justify lead">
+                                Please contact us if you want to have a specific intersection method like <a href="http://en.wikipedia.org/wiki/Kriging">Kriging</a> or <a href="http://en.wikipedia.org/wiki/Metaballs">Metaball</a> or <a href="http://en.wikipedia.org/wiki/Kernel_density_estimation">kernel density estimation</a>.
+                            </p>
+                        </p>
+                        <h4>Travel times</h4>
+                        <p class="text-justify lead">
+                            This is an array of travel times for which you want to have polygons. This array has to only contain numbers. The values are represented in seconds. An example which requests polygons for 5 to 30 minutes in 5 minutes steps would be: <strong>[300, 600, 900, 1200, 1500, 1800]</strong>. You have to make sure that <code>r360.config.defaultTravelTimeControlOptions.travelTimes</code> contains a color for each entry. The defaults for this service are <i>walking</i> with polygons for 5 to 30 minutes in 5 minutes steps. 
+                        </p>
+                        <h4>Additional arguments:</h4>
+                        <p class="text-justify lead">
                             You can set the travel type with <code>TravelOptions.setTravelType('type')</code>, where 'type' is one of the following four:
                         </p>
                         <dl class="dl-horizontal" style="font-size: 20px;">
                             <dt style="text-transform: lowercase;">walk</dt>
                             <dd>
-                                This returns polygons which mark the area which are only reachable by foot. The default travel speed is 5 km/h. You can change the travel speed by <code>TravelOptions.setWalkSpeed(number)</code> which has to a non-negative integer. If you want to punish uphill travel, you can
+                                This returns polygons which mark the area which are only reachable by foot. The default travel speed is 5 km/h. You can change the travel speed by <code>TravelOptions.setWalkSpeed(number)</code> which has to be a non-negative integer. If you want to punish uphill travel, you can set <code>TravelOptions.setWalkUphill(penalty)</code> to a high value (default is 10), or if you want to reward downhill travel you can set <code>TravelOptions.setDownhill(award)</code> with a positive value (the default is 0, so no award). Of course you can be extremely funny and switch the values so that you walk faster uphill then downhill, but please keep in mind that this only works if the server side has enabled elevation for your selected area.
                             </dd>
                             <dt style="text-transform: lowercase;">Bike</dt>
                             <dd>
-                                asd
+                                This returns polygons which mark the area which are only reachable by bike. The default travel speed is 15 km/h. You can change the travel speed by <code>TravelOptions.setBikeSpeed(number)</code> which has to be a non-negative integer. If you want to punish uphill travel, you can set <code>TravelOptions.setBikeUphill(penalty)</code> to a high value (default is 20), or if you want to reward downhill travel you can set <code>TravelOptions.setDownhill(award)</code> with a positive value (the default is -10). Please keep in mind that this only works if the server side has enabled elevation for your selected area.
                             </dd>
                             <dt style="text-transform: lowercase;">Car</dt>
                             <dd>
-                                asd
+                                This returns polygons which mark the area which are only reachable by bike. The default travel speed is determined by the speed limit tagged to a certain street in OpenStreetMaps. This option also considers one-way streets and traffic lights and other turning restrictions.
                             </dd>
                             <dt style="text-transform: lowercase;">Transit</dt>
                             <dd>
-                                asd
+                                This returns polygons which mark the area which are reachable by transit. We perform a 'walk'-routing step from the starting point to the first transit station and from the last transit station to the target point. The connections are determined by the GTFS data supplied by the travel agencies of the given area. You can additionally set these parameters:
+                                <dl class="dl-horizontal" style="font-size: 20px;">
+                                    <dt style="text-transform: lowercase;">time</dt>
+                                    <dd>
+                                        This represents the time from when on a transit connection should be found. The time is represented by the difference, measured in seconds, between the current time and midnight, of today. For 2:45pm this would be ((45 * 60) + (14 * 60 * 60)) = 53100. This defaults to the current time and can be set by <code>TravelOptions.setTime(seconds)</code>. You can also use the <code>r360.Util.getHoursAndMinutesInSeconds()</code> method to get the current time.
+                                    </dd>
+                                    <dt style="text-transform: lowercase;">date</dt>
+                                    <dd>This represents the date on which a transit connection should be found. The format of the date is YYYYMMDD, e.g.: 20140731 for the 31st of July in 2014. This defaults to the current date. You can also use the <code>r360.Util.getCurrentDate()</code> method to obtain a valid date for the service.</dd>
+                                </dl> 
                             </dd>
                         </dl>
-
-                    <div class="bs-callout bs-callout-warning">
-                        <h4>Warning</h4>
-                        <p>Please note that these polygons can get, especially for many and high travel times, pretty large in file size. We gzip them on the server side, but you have to make sure that you don't download 2MB polygons to your users smartphones over GPRS.</p>
-                    </div>
+                        <div class="bs-callout bs-callout-warning">
+                            <h4>Warning</h4>
+                            <p>Please note that these polygons can get, especially for many and high travel times, pretty large in file size. We gzip them on the server side, but you have to make sure that you don't download 2MB polygons to your users smartphones over GPRS.</p>
+                        </div>
                         <p class="text-justify lead"></p>
                     </div>
                     <div id="routeservice-api" style="display:none;">
@@ -303,6 +286,22 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             </div>
         </div>
     </section>
+
+    <section id="faq">
+        <div class="container">
+            <div class="col-lg-12 text-center">
+                <h2>Frequently asked questions</h2>
+                <hr class="star-primary">
+            </div>
+            <div class="container">
+                <h3 style='align:left;'>1. How can I set the travel type for each source individually?</h3>
+                <p class="text-justify lead">Each source which is added to the travel options needs to have an attribute called travelType. This filed may contain one of the following values: <b>walk</b>, <b>bike</b>, <b>transit</b> or <b>car</b>.</p>
+                <h3 style='align:left;'>2. Where do I get my API key?</h3>
+                <p class="text-justify lead">At the moment there is no automated service to register yourself for our service. Please send us an email to <a href="mailto:developers@motionintelligence.net">developers@motionintelligence.net</a>. We will send you one ASAP.</p>
+            </div>
+        </div>
+    </section>
+
     <footer class="text-center">
         <div class="footer-above">
             <div class="container">
@@ -321,7 +320,7 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                             <li>Tel: +49(0)30 - 920383 5420</li>
                             <li>Fax: +49(0)30 - 920383 4521</li>
                             <li><a href="www.motionintelligence.net">www.motionintelligence.net</a></li>
-                            <li><a href="mailto:mail@motionintelligence.net">mail@motionintelligence.net</a></li>
+                            <li><a href="mailto:developers@motionintelligence.net">developers@motionintelligence.net</a></li>
                         </ul>
                     </div>
                     <div class="footer-col col-md-2"></div>
@@ -382,7 +381,12 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
     <script src="js/g.line-min.js"></script>
     <script src="js/museums_bb.js"></script>
 
-    <!-- Import Examples -->
+    <!-- // <script src="js/r360.js"></script> -->
+
+    <script type="text/javascript" src="../../build/deps.js"></script>
+    <script type="text/javascript" src="../r360-include.js"></script>
+
+     <!-- Import Examples -->
 
     <script src="js/examples/addPlaceAutoCompleteControl.js"></script>
     <script src="js/examples/addTravelStartDateControl.js"></script>
@@ -392,61 +396,15 @@ r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
     <script src="js/examples/multipleExample.js"></script>
     <script src="js/examples/routingExample.js"></script>
     <script src="js/examples/htmlControlExample.js"></script>
-
-    <!-- // <script src="js/r360.js"></script> -->
-
-    <script type="text/javascript" src="../../build/deps.js"></script>
-    <script type="text/javascript" src="../r360-include.js"></script>
+    <script src="js/examples/gettingStartedExample.js"></script>
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
         $(document).ready(function(){
 
-            // add the map and set the initial center to berlin
-            var map = L.map('map-example1').setView([52.51, 13.37], 13);
-            // attribution to give credit to OSM map data and VBB for public transportation 
-            var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
-
-            // initialising the base map. To change the base map just change following
-            // lines as described by cloudmade, mapbox etc..
-            // note that mapbox is a paided service
-            L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: attribution
-            }).addTo(map);
-
-            // set the service key, this is a demo key
-            // please contact us and request your own key
-            r360.config.serviceKey = 'C6UAZQHErAfbv2sqqUJP';
-
-            // create a marker and add it to the map
-            var marker = L.marker([52.51, 13.37]);
-            marker.addTo(map);
-            marker.lat = 52.51;
-            marker.lon = 13.37;
-
-            // create the layer to add the polygons
-            var cpl = r360.route360PolygonLayer();
-            // add it to the map
-            map.addLayer(cpl);
-
-            // you need to define some options for the polygon service
-            // for more travel options check out the other tutorials
-            var travelOptions = r360.travelOptions();
-            // we only have one source which is the marker we just added
-            travelOptions.addSource(marker);
-            // we want to have polygons for 5 to 30 minutes
-            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
-
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-                    
-                // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
-                
-                // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
-            });
+            gettingStartedExample();
+            $('#gettingstarted-code').text(gettingStartedExample.toString());
+            !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
         });
     </script>
 

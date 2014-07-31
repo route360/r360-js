@@ -1,10 +1,13 @@
 function filterExample(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map-filterExample').setView([52.51, 13.37], 13);
+    var latlon = [52.51, 13.37];
+    var map    = L.map('map-filterExample').setView(latlon, 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors \
+    | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed \
+    by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
@@ -22,13 +25,16 @@ function filterExample(){
     // please contact us and request your own key
     r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
-    // create a source and a two target markers and add them to the map
-    var sourceMarker = L.marker([52.50086, 13.36581]).addTo(map);
+    // create a source and collect the targets
+    var sourceMarker = L.marker(latlon).addTo(map);
+    sourceMarker.lat = latlon[0]; sourceMarker.lon = latlon[1];
     var targets = [];
     _.each(museumsBB, function(museum){
 
         var marker = L.marker([museum.lat, museum.lon], {icon:redIcon});
         marker.id = museum.id;
+        marker.lat = museum.lat;
+        marker.lon = museum.lon;
         targets.push(marker);
     });
 
@@ -75,37 +81,34 @@ function filterExample(){
             // all other museum will remain with the circle marker
             if ( museum.travelTime > 0 && museum.travelTime <= travelOptions.getMaxRoutingTime() ) {
 
+                // min and maximal scaling for the marker
+                var minMax = { maxPercent : 1.0 , minPercent : 0.5 };
                 // only a rule of three
+                // 1) calculate the distance
+                var frame = minMax.maxPercent - minMax.minPercent;
 
-                // 1) set min und max percent of the marker
-                var maxPercent = 1.8;
-                var minPercent = 0.7;
+                // 2) how much percent of the frame equal one second
+                var percentPerSecond = frame / travelOptions.getMaxRoutingTime();
 
-                // 2) calculate the distance
-                var frame = maxPercent - minPercent;
-
-                // 3) get maximum travel time
-                var maxTravelTime = travelOptions.maxRoutingTime;
-
-                // 4) how much percent of the frame equal one second
-                var percentPerSecond = frame / maxTravelTime;
-
-                // 5) scale factor for the marker
-                var scale = minPercent + (maxTravelTime - museum.travelTime) * percentPerSecond;
+                // 3) scale factor for the marker
+                var scale = minMax.minPercent + (travelOptions.getMaxRoutingTime() - museum.travelTime) * percentPerSecond;
 
                 // lower bound
-                if ( scale < minPercent ) scale = minPercent;
+                if ( scale < minMax.minPercent ) scale = minPercent;
+
+                var iconSize    = { width : 25 * scale, height : 41 * scale };
+                var shadowSize  = { width : 41 * scale, height : 41 * scale };
 
                 // create the icon with the calculated scaled width and height
-                var iconSize = { width : 25, height : 41 };
                 var poiSymbol = L.marker([museum.lat, museum.lon], {icon : L.icon({ 
+                    iconAnchor:     [iconSize.width / 2,   iconSize.height], 
+                    iconSize:       [iconSize.width,   iconSize.height],
                     iconUrl :       "lib/leaflet/images/marker-icon-red-2x.png", 
                     shadowUrl:      "lib/leaflet/images/marker-shadow.png", 
-                    iconAnchor:     [iconSize.width * scale,   iconSize.height * scale], 
-                    shadowAnchor:   [iconSize.width * scale,   iconSize.height * scale], 
-                    iconSize:       [iconSize.width * scale,   iconSize.height * scale],
-                    shadowSize:     [iconSize.height * scale,  iconSize.height * scale],
-                    popupAnchor:    [-15,  - iconSize.height * scale + 5]})});
+                    shadowAnchor:   [shadowSize.width / 3,   shadowSize.height], 
+                    shadowSize:     [shadowSize.width,       shadowSize.height],
+                    popupAnchor:    [0,  - iconSize.height * scale]
+                })});
             }
 
             // add the museum to the map, and add a popup

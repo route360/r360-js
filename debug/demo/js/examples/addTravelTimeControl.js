@@ -1,7 +1,8 @@
 function addTravelTimeControl(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map-addTravelTimeControlExample').setView([52.51, 13.37], 13);
+    var latlon = [52.51, 13.37];
+    var map = L.map('map-addTravelTimeControlExample').setView(latlon, 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -19,8 +20,11 @@ function addTravelTimeControl(){
     r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create a marker and add it to the map
-    var marker = L.marker([52.51, 13.37]);
+    var marker = L.marker(latlon);
     marker.addTo(map);
+    // set the markers geo-coordinates for r360
+    marker.lat = latlon[0];
+    marker.lon = latlon[1];
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -52,6 +56,9 @@ function addTravelTimeControl(){
 
     // call the helper function to display polygons with initial value
     showPolygons();
+
+    // select language
+    $('span[lang="de"]').hide();
 
     // helper function to encapsulate the show polygon action
     function showPolygons(){

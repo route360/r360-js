@@ -38,5 +38,10 @@ L.Control.HtmlControl = L.Control.extend({
     hide : function(){
         
         $('#html-control-'+this.options.id).hide();  
+    },
+
+    toggle : function(){
+        
+        $('#html-control-'+this.options.id).toggle();  
     }
 });

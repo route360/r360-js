@@ -1,6 +1,8 @@
 
 r360.PolygonService = {
 
+    cache : {},
+
     /*
      *
      */
@@ -30,17 +32,20 @@ r360.PolygonService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel type
-                if ( travelOptions.getTravelType() == 'transit' ) {
+                if ( travelType == 'transit' ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == 'bike' ) {
+                if ( travelType == 'bike' ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -48,7 +53,7 @@ r360.PolygonService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == 'walk') {
+                if ( travelType == 'walk') {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -60,16 +65,28 @@ r360.PolygonService = {
                 cfg.sources.push(src);
             });
 
-            // make the request to the Route360° backend 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
-                encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
-                    function(result){
+            if ( !_.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
-                        // hide the please wait control
-                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                        // call callback with returned results
-                        callback(r360.Util.parsePolygons(result));
-                    });
+                // make the request to the Route360° backend 
+                $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + 
+                    encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
+                        function(result){
+
+                            // cache the result
+                            r360.PolygonService.cache[JSON.stringify(cfg)] = result;
+                            // hide the please wait control
+                            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                            // call callback with returned results
+                            callback(r360.Util.parsePolygons(result));
+                        });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+            }
         }
         else {
 

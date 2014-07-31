@@ -37,6 +37,9 @@ function addPlaceAutoCompleteControl(){
     map.addControl(placeAutoComplete);
     map.addControl(L.control.zoom({ position : 'topright' }));
 
+    // select language
+    $('span[lang="de"]').hide();
+
     // define what happens if someone clicks an item in the autocomplete
     placeAutoComplete.onSelect(function(item){
 
@@ -49,7 +52,7 @@ function addPlaceAutoCompleteControl(){
             marker = r360.Util.getMarker(item.latlng, 
                 { color : 'red', iconPath: 'lib/leaflet/images/', draggable : true }).addTo(map);
     
-            // set lat/lon            
+            // set lat/lon for r360           
             marker.lat = marker.getLatLng().lat;
             marker.lon = marker.getLatLng().lng;
 

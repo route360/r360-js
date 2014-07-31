@@ -1,6 +1,8 @@
 
 r360.RouteService = {
 
+    cache : {},
+
     /*
      *
      */
@@ -23,17 +25,20 @@ r360.RouteService = {
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
-                src.tm[travelOptions.getTravelType()] = {};
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+                
+                src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel mode
-                if ( travelOptions.getTravelType() == "transit" ) {
+                if ( travelType == "transit" ) {
                     
                     src.tm.transit.frame = {
                         time : travelOptions.getTime(),
                         date : travelOptions.getDate()
                     };
                 }
-                if ( travelOptions.getTravelType() == "bike" ) {
+                if ( travelType == "bike" ) {
                     
                     src.tm.bike = {
                         speed       : travelOptions.getBikeSpeed(),
@@ -41,7 +46,7 @@ r360.RouteService = {
                         downhill    : travelOptions.getBikeDownhill()
                     };
                 }
-                if ( travelOptions.getTravelType() == "walk") {
+                if ( travelType == "walk") {
                     
                     src.tm.walk = {
                         speed       : travelOptions.getWalkSpeed(),
@@ -65,15 +70,27 @@ r360.RouteService = {
                 });
             });
 
-            $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
+            if ( !_.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
+
+                $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
                 encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
                     function(result){
 
+                        // cache the result
+                        r360.RouteService.cache[JSON.stringify(cfg)] = result;
                         // hide the please wait control
                         if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                         // call callback with returned results
                         callback(r360.Util.parseRoutes(result)); 
                     });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
+            }
         }
         else {
 

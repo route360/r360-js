@@ -1,7 +1,8 @@
 function addTravelTypeControl(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map-addTravelTypeControlExample').setView([52.51, 13.37], 13);
+    var latlon = [52.51, 13.37];
+    var map = L.map('map-addTravelTypeControlExample').setView(latlon, 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -19,8 +20,11 @@ function addTravelTypeControl(){
     r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create a marker and add it to the map
-    var marker = L.marker([52.51, 13.37]);
+    var marker = L.marker(latlon);
     marker.addTo(map);
+    // set the markers geo-coordinates for r360
+    marker.lat = latlon[0];
+    marker.lon = latlon[1];
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -32,9 +36,18 @@ function addTravelTypeControl(){
         buttons : [
             // each button has a label which is displayed, a key, a tooltip for mouseover events 
             // and a boolean which indicates if the button is selected by default
-            { label: 'Cycling', key: 'bike', tooltip: 'Cycling speed is on average 15km/h',  checked : false },
-            { label: 'Walking', key: 'walk', tooltip: 'Walking speed is on average 5km/h',   checked : true  },
-            { label: 'Car',     key: 'car',  tooltip: 'Car speed is limited by speed limit', checked : false }
+            // labels may contain html
+            { label: '<span class="map-icon-bicycling"></span> Cycling', key: 'bike',     
+              tooltip: 'Cycling speed is on average 15km/h', checked : false },
+
+            { label: '<span class="map-icon-walking"></span> Walking', key: 'walk',     
+              tooltip: 'Walking speed is on average 5km/h', checked : true  },
+
+            { label: '<span class="fa fa-car"></span> Car', key: 'car',      
+              tooltip: 'Car speed is limited by speed limit', checked : false },
+
+            { label: '<span class="map-icon-train-station"></span> Transit', key: 'transit',  
+              tooltip: 'This demo only contains subways', checked : false }
         ]
     };
 

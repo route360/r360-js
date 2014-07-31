@@ -1,10 +1,13 @@
 function addTravelStartDateControl(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map-addTravelStartDateControlExample').setView([52.51, 13.37], 13);
+    var latlon = [52.51, 13.37];
+    var map = L.map('map-addTravelStartDateControlExample').setView(latlon, 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors \
+        | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | \
+        developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
@@ -17,10 +20,13 @@ function addTravelStartDateControl(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.i18n.language = 'en';
 
     // create a marker and add it to the map
-    var marker = L.marker([52.51, 13.37]);
+    var marker = L.marker(latlon);
     marker.addTo(map);
+    marker.lat = latlon[0];
+    marker.lon = latlon[1];
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();

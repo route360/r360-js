@@ -1,10 +1,20 @@
 function routingExample(){
 
+    var latlons = {
+
+        map  : [52.51, 13.37],
+        src1 : [52.50086, 13.36581],
+        trg1 : [52.52562, 13.30195],
+        trg2 : [52.51998, 13.41714]
+    };
+
     // add the map and set the initial center to berlin
-    var map = L.map('map-routingExample').setView([52.51, 13.37], 13);
+    var map = L.map('map-routingExample').setView(latlons.map, 13);
 
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> \
+    contributors | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> \
+    | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
@@ -23,9 +33,14 @@ function routingExample(){
         shadowUrl: 'lib/leaflet/images/marker-shadow.png', iconAnchor: [12,45], popupAnchor:  [0, -35] });
 
     // create a source and a two target markers and add them to the map
-    var sourceMarker = L.marker([52.50086, 13.36581]).addTo(map);
-    var targetMarker1 = L.marker([52.52562, 13.30195], {icon:redIcon}).addTo(map);
-    var targetMarker2 = L.marker([52.51998, 13.41714], {icon:redIcon}).addTo(map);
+    var sourceMarker1 = L.marker(latlons.src1).addTo(map);
+    sourceMarker1.lat = latlons.src1[0]; sourceMarker1.lon = latlons.src1[1];
+    // make lat/lon accessable to r360
+    var targetMarker1 = L.marker(latlons.trg1, {icon:redIcon}).addTo(map);
+    targetMarker1.lat = latlons.trg1[0]; targetMarker1.lon = latlons.trg1[1];
+    // make lat/lon accessable to r360
+    var targetMarker2 = L.marker(latlons.trg2, {icon:redIcon}).addTo(map);
+    targetMarker2.lat = latlons.trg2[0]; targetMarker2.lon = latlons.trg2[1];
 
     // add a layer in which we will paint the route
     var routeLayer = L.featureGroup().addTo(map);
@@ -34,7 +49,7 @@ function routingExample(){
     // for more travel options check out the other tutorials
     var travelOptions = r360.travelOptions();
     // we only have one source which is the marker we just added
-    travelOptions.addSource(sourceMarker);
+    travelOptions.addSource(sourceMarker1);
     // add two targets to the options
     travelOptions.addTarget(targetMarker1);
     travelOptions.addTarget(targetMarker2);
@@ -46,8 +61,6 @@ function routingExample(){
 
         // one route for each source and target combination
         _.each(routes, function(route){
-
-            // console.log(route);
 
             // create one polyline for the route and a polyline for the polyline's halo
             _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
@@ -63,8 +76,9 @@ function routingExample(){
                 if ( segment.getType() == "TRANSFER" ) {
 
                     // create a small circlular marker to indicate the users have to switch trips
-                    var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { color: "white", 
-                        fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, radius : 7 }).addTo(routeLayer);
+                    var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { 
+                        color: "white", fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, 
+                        radius : 7 }).addTo(routeLayer);
                 }
             });
         });

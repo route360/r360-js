@@ -87,7 +87,7 @@ r360.RadioButtonControl = L.Control.extend({
 
             var label = $('<label/>', { 
                 "for"  : 'r360_' + id, 
-                "text" : button.label
+                "html" : button.label
             });
 
             // make the button selected (default buttin)

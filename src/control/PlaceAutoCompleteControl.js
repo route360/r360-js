@@ -19,10 +19,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
-            if ( _.has(options, 'options'))     this.options.options     = options.options;
-        }
+            if ( _.has(options, 'options')) {
 
-        this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+                 this.options.options    = options.options;
+                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+            }   
+        }
     },
 
     onAdd: function(map){
@@ -45,7 +47,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         that.options.input = 
             '<div class="input-group autocomplete" '+style+'> \
                 <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
-                type="text" class="form-control" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
+                type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
 
@@ -53,6 +55,41 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
                     <img style="height:25px;" src="'+that.options.image+'"> \
                  </span>';
+        }
+
+        var optionsHtml = [];
+        if ( that.options.options ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
+                </span>';
+
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
+            optionsHtml.push('  <div class="btn-group text-center">');
+
+            if (that.options.options.walk ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
+                    + (this.options.travelType == 'walk' ? 'active' : '') + 
+                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+            
+            if (that.options.options.bike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+            
+            if (that.options.options.transit ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'transit' ? 'active' : '') + 
+                    '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+            
+            if (that.options.options.car ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'car' ? 'active' : '') + 
+                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
+            
+            optionsHtml.push('  </div>');
+            optionsHtml.push('</div>');
         }
 
         // add a reset button to the input field
@@ -71,24 +108,6 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 </span>';
         }
 
-        var optionsHtml = [];
-        if ( that.options.options ) {
-
-            that.options.input += 
-                '<span id="'+that.options.id+'-options-button" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
-                </span>';
-
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
-            optionsHtml.push('  <div class="btn-group text-center">');
-            if (that.options.options.walk )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span>Walk</button>');
-            if (that.options.options.bike )     optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> Bike</button>');
-            if (that.options.options.transit )  optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span>Transit</button>');
-            if (that.options.options.car )      optionsHtml.push('    <button type="button" class="btn btn-default travel-type-button" travel-type="car"><span class="fa fa-car"></span> Car</button>');
-            optionsHtml.push('  </div>');
-            optionsHtml.push('</div>');
-        }
-
         that.options.input += '</div>';
         if ( that.options.options ) that.options.input += optionsHtml.join('');
 
@@ -104,6 +123,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             });
 
         $(nameContainer).find('.travel-type-button').click(function(){
+
+            $(nameContainer).find('.travel-type-button').removeClass('active');
+            $(this).addClass('active');
+
             setTimeout(function() {
                   $('#' + that.options.id + '-options').slideToggle();
             }, 300);
