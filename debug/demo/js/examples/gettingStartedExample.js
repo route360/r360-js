@@ -19,7 +19,7 @@ function gettingStartedExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'C6UAZQHErAfbv2sqqUJP';
+    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
 
     // create a marker and add it to the map
     var marker = L.marker(latlon);

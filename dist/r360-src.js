@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (e5cc91d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (16b7bad), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -91,16 +91,23 @@ r360.config = {
     },
 
     routeTypes  : [
+
+        // non transit
+        { routeType : 'WALK'     , color : "#558D54"},
+        { routeType : 'BIKE'     , color : "#558D54"},
+        { routeType : 'CAR'      , color : "#558D54"},
+        { routeType : 'TRANSFER' , color : "#558D54"},
+
         // berlin
-        { routeType : 102  , color : "#006837"},
-        { routeType : 400  , color : "#156ab8"},
-        { routeType : 900  , color : "red"},
-        { routeType : 700  , color : "#A3007C"},
-        { routeType : 1000 , color : "blue"},
-        { routeType : 109  , color : "#006F35"},
-        { routeType : 100  , color : "red"},
-        // new york
-        { routeType : 1    , color : "red"}
+        { routeType : 102        , color : "#006837"},
+        { routeType : 400        , color : "#156ab8"},
+        { routeType : 900        , color : "red"},
+        { routeType : 700        , color : "#A3007C"},
+        { routeType : 1000       , color : "blue"},
+        { routeType : 109        , color : "#006F35"},
+        { routeType : 100        , color : "red"},
+        // new york      
+        { routeType : 1          , color : "red"}
     ],
 
     defaultPlaceAutoCompleteOptions : {
@@ -297,6 +304,8 @@ r360.Util = {
      *
      */
     routeToLeafletPolylines : function(route, options) {
+
+        options = typeof options !== 'undefined' ? options : {};
 
         var polylines = [];
 
@@ -2414,7 +2423,6 @@ r360.RouteSegment = function(segment){
 
     var that             = this;
     that.polyLine        = L.polyline([]);
-    that.color           = '#07456b';
     that.points          = segment.points;
     that.type            = segment.type;
     that.travelTime      = segment.travelTime;
@@ -2445,6 +2453,7 @@ r360.RouteSegment = function(segment){
         that.arrivalTime    = segment.arrivalTime;
         that.tripHeadSign   = segment.tripHeadSign;
     }
+    else that.color         = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
 
     that.getPoints = function(){
         return that.points;

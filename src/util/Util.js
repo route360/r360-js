@@ -141,6 +141,8 @@ r360.Util = {
      */
     routeToLeafletPolylines : function(route, options) {
 
+        options = typeof options !== 'undefined' ? options : {};
+
         var polylines = [];
 
         _.each(route.getSegments(), function(segment, index){

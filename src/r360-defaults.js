@@ -33,16 +33,23 @@ r360.config = {
     },
 
     routeTypes  : [
+
+        // non transit
+        { routeType : 'WALK'     , color : "#558D54"},
+        { routeType : 'BIKE'     , color : "#558D54"},
+        { routeType : 'CAR'      , color : "#558D54"},
+        { routeType : 'TRANSFER' , color : "#558D54"},
+
         // berlin
-        { routeType : 102  , color : "#006837"},
-        { routeType : 400  , color : "#156ab8"},
-        { routeType : 900  , color : "red"},
-        { routeType : 700  , color : "#A3007C"},
-        { routeType : 1000 , color : "blue"},
-        { routeType : 109  , color : "#006F35"},
-        { routeType : 100  , color : "red"},
-        // new york
-        { routeType : 1    , color : "red"}
+        { routeType : 102        , color : "#006837"},
+        { routeType : 400        , color : "#156ab8"},
+        { routeType : 900        , color : "red"},
+        { routeType : 700        , color : "#A3007C"},
+        { routeType : 1000       , color : "blue"},
+        { routeType : 109        , color : "#006F35"},
+        { routeType : 100        , color : "red"},
+        // new york      
+        { routeType : 1          , color : "red"}
     ],
 
     defaultPlaceAutoCompleteOptions : {

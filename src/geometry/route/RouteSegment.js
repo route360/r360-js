@@ -5,7 +5,6 @@ r360.RouteSegment = function(segment){
 
     var that             = this;
     that.polyLine        = L.polyline([]);
-    that.color           = '#07456b';
     that.points          = segment.points;
     that.type            = segment.type;
     that.travelTime      = segment.travelTime;
@@ -36,6 +35,7 @@ r360.RouteSegment = function(segment){
         that.arrivalTime    = segment.arrivalTime;
         that.tripHeadSign   = segment.tripHeadSign;
     }
+    else that.color         = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
 
     that.getPoints = function(){
         return that.points;
