@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (16b7bad), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (2ec92ef), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -107,7 +107,14 @@ r360.config = {
         { routeType : 109        , color : "#006F35"},
         { routeType : 100        , color : "red"},
         // new york      
-        { routeType : 1          , color : "red"}
+        { routeType : 1          , color : "red"},
+        { routeType : 2          , color : "blue"},
+        { routeType : 3          , color : "yellow"},
+        { routeType : 0          , color : "green"},
+        { routeType : 4          , color : "orange"},
+        { routeType : 5          , color : "red"},
+        { routeType : 6          , color : "blue"},
+        { routeType : 7          , color : "yellow"}
     ],
 
     defaultPlaceAutoCompleteOptions : {

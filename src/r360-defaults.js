@@ -49,7 +49,14 @@ r360.config = {
         { routeType : 109        , color : "#006F35"},
         { routeType : 100        , color : "red"},
         // new york      
-        { routeType : 1          , color : "red"}
+        { routeType : 1          , color : "red"},
+        { routeType : 2          , color : "blue"},
+        { routeType : 3          , color : "yellow"},
+        { routeType : 0          , color : "green"},
+        { routeType : 4          , color : "orange"},
+        { routeType : 5          , color : "red"},
+        { routeType : 6          , color : "blue"},
+        { routeType : 7          , color : "yellow"}
     ],
 
     defaultPlaceAutoCompleteOptions : {

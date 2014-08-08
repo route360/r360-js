@@ -3,8 +3,8 @@ function multipleExample(){
     var latlons = {
 
         map  : [52.51, 13.37],
-        src1 : [52.50992656168169, 13.38435173034668],
-        src2 : [52.510429355469256, 13.39181900024414]
+        src1 : [52.51042282571668, 13.38984489440918],
+        src2 : [52.50956088985956, 13.377184867858887]
     };
 
     // add the map and set the initial center to berlin
