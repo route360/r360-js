@@ -16,7 +16,21 @@ r360.RouteSegment = function(segment){
 
     // build the geometry
     _.each(segment.points, function(point){
-        that.polyLine.addLatLng(point);
+
+        var utm = true;
+
+        if(utm){
+            proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+            crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633');
+            var p = new L.Point(point[1], point[0]);
+            that.polyLine.addLatLng(L.latLng(crs.projection.unproject(p)));
+
+        }
+        if(!utm){
+            that.polyLine.addLatLng(point);
+        }
+
+        
     });
 
     // in case we have a transit route, we set a color depending

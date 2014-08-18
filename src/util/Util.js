@@ -129,9 +129,26 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        _.each(latlngs, function (latlng) {
-            coordinates.push(L.latLng(latlng[0], latlng[1]));
-        });
+        var utm = true;
+
+        proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+        crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633');
+
+        if(utm){
+         
+            _.each(latlngs, function (latlng) {
+
+                var p = new L.Point(latlng[1], latlng[0]);
+                coordinates.push(L.latLng(crs.projection.unproject(p)));
+            });
+        }
+
+        if(!utm){
+            _.each(latlngs, function (latlng) {
+                coordinates.push(L.latLng(latlng[0], latlng[1]));
+            });
+        }
+        
 
         return coordinates;
     },

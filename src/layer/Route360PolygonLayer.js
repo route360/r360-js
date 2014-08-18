@@ -151,10 +151,26 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _createSVGData: function(polygon){
 
+        var points = new Array();
         var that    = this;
         pathData    = '';
         var point   = this._map.latLngToLayerPoint(polygon[0]);
         pathData    = this._buildString(pathData, point, 'M')
+        points.push(point);
+
+          /*
+        we are only drawing the point if it is different to the last one
+        hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
+        */     
+
+        for(var i = 1; i < polygon.length; i++){
+            point = that._map.latLngToLayerPoint(polygon[i]);
+            if(points[points.length-1].x != point.x && points[points.length-1].y != point.y){
+                points.push(point);
+                pathData = that._buildString(pathData, point, 'L')
+            }
+        }
+
         
         _.each(polygon, function(point){
 
