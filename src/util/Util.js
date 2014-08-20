@@ -131,8 +131,8 @@ r360.Util = {
 
         var utm = true;
 
-        proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
-        crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633');
+        proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+        crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630');
 
         if(utm){
          
