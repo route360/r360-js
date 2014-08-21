@@ -22,6 +22,29 @@ r360.Polygon = function(traveltime, outerBoundary) {
         that.outerBoundary = outerBoundary;
     }
 
+    that.projectOuterBoundary = function(map){
+        that.outerProjectedBoundary = new Array();
+        for(var i = 0; i < that.outerBoundary.length; i++){
+            that.outerProjectedBoundary.push(map.project(that.outerBoundary[i],0))
+        }
+    }
+
+    that.projectInnerBoundaries = function(map){
+        that.innerProjectedBoundaries = new Array();
+        for(var i = 0; i < that.innerBoundaries.length; i++){
+            var innerProjectedBoundary = new Array();
+            that.innerProjectedBoundaries.push(innerProjectedBoundary);
+            for(var j = 0; j < that.innerBoundaries[i].length; j++){
+                innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
+            }
+        }
+    }
+
+    that.project = function(map){
+        that.projectOuterBoundary(map);
+        that.projectInnerBoundaries(map);
+    }
+
     /**
      *
      */  

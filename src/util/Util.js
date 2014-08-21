@@ -128,18 +128,15 @@ r360.Util = {
     parseLatLonArray : function(latlngs) {
 
         var coordinates = new Array();
-
-        var utm = true;
+        var utm = false;
+        var p;
 
         proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
         crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633');
 
-        if(utm){
-         
+        if(utm){         
             _.each(latlngs, function (latlng) {
-
-                var p = new L.Point(latlng[1], latlng[0]);
-                coordinates.push(L.latLng(crs.projection.unproject(p)));
+                coordinates.push(L.latLng(crs.projection.unproject(new L.Point(latlng[1], latlng[0]))));
             });
         }
 
@@ -237,6 +234,8 @@ r360.Util = {
                
         if ( polygonsJson.error ) return errorMessage;
 
+        if(r360.config.logging) var start   = new Date().getTime();
+
         var polygonList = Array();
 
         _.each(polygonsJson, function(source){
@@ -260,6 +259,11 @@ r360.Util = {
 
             polygonList.push(sourcePolygons);
         });
+
+        if(r360.config.logging){
+            var end   = new Date().getTime();
+            console.log("Polygon parsing took: " + (end - start) + "ms");
+        } 
 
         return polygonList;
     },

@@ -17,8 +17,8 @@
 
         #map {
 
-            width: 500px;
-            height: 400px;
+            width: 800px;
+            height: 600px;
         }
     </style>
 
@@ -60,7 +60,7 @@
             var routeLayer = L.featureGroup().addTo(map);
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon);
+            var marker = L.marker(latlon, {draggable: true});
             marker.lat = latlon[0];
             marker.lon = latlon[1];
             marker.addTo(map);
@@ -72,21 +72,27 @@
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials
-            var travelOptions = r360.travelOptions();
-            // we only have one source which is the marker we just added
-            travelOptions.addSource(marker);
-            // we want to have polygons for 5 to 30 minutes
-            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            
+           // travelOptions.setTravelTimes([600, 1200,1800,2400,3000,3600]);
 
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-                    
-                // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
-                
-                // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
+         /*      r360.config.defaultTravelTimeControlOptions.travelTimes = [
+            { time : 600  , color : "#006837"},
+            { time : 1200  , color : "#39B54A"},
+            { time : 1800  , color : "#8CC63F"},
+            { time : 2400 , color : "#F7931E"},
+            { time : 3000 , color : "#F15A24"},
+            { time : 3600 , color : "#C1272D"}
+            ];*/
+
+            addTravelTimePolygons(marker);
+
+
+            marker.on("dragend", function(e){
+                addTravelTimePolygons(marker);
+
             });
+            // call the service
+            
 
 
             map.on("click", function(e){    
@@ -130,7 +136,52 @@
                 });
             });
         });
+
+        function addTravelTimePolygons(marker){
+
+            marker.lat = marker.getLatLng().lat;
+            marker.lon = marker.getLatLng().lng;
+
+            var travelOptions = r360.travelOptions();
+            // we only have one source which is the marker we just added
+            travelOptions.addSource(marker);
+
+            r360.config.logging = "true";
+
+            travelOptions.setTravelType('car');
+
+            // we want to have polygons for 5 to 30 minutes
+            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+
+
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+            { time : 600  , color : "#006837"},
+            { time : 1200  , color : "#39B54A"},
+            { time : 1800  , color : "#8CC63F"},
+            { time : 2400 , color : "#F7931E"},
+            { time : 3000 , color : "#F15A24"},
+            { time : 3600 , color : "#C1272D"}
+            ];
+
+            travelOptions.setTravelTimes([600, 1200,1800,2400,3000,3600]);
+
+          
+
+            // call the service
+            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){       
+                cpl.clearLayers();     
+                // add the returned polygons to the polygon layer 
+                cpl.addLayer(polygons);         
+                // zoom the map to fit the polygons perfectly
+                map.fitBounds(cpl.getBoundingBox());
+            }); 
+        }
+
+    
     });
+
+
     </script>
 
 </head>
