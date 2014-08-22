@@ -1,3 +1,6 @@
+proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
@@ -14,7 +17,9 @@ r360.config = {
     walkDownhill    : 0,
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
-    logging         : "false",
+    logging         : false,
+    utm             : true,
+    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {

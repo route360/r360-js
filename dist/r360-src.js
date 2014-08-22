@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (2ec92ef), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (47f315f), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -56,6 +56,9 @@ if (!Function.prototype.bind) {
   };
 }
 
+proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
@@ -72,6 +75,9 @@ r360.config = {
     walkDownhill    : 0,
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
+    logging         : false,
+    utm             : true,
+    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -300,9 +306,15 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        _.each(latlngs, function (latlng) {
-            coordinates.push(L.latLng(latlng[0], latlng[1]));
-        });
+        if( r360.config.utm)
+            _.each(latlngs, function (latlng) {
+                coordinates.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(latlng[1], latlng[0]))));
+            });
+
+        else
+            _.each(latlngs, function (latlng) {
+                coordinates.push(L.latLng(latlng[0], latlng[1]));
+            });
 
         return coordinates;
     },
@@ -391,6 +403,8 @@ r360.Util = {
                
         if ( polygonsJson.error ) return errorMessage;
 
+        if(r360.config.logging) var start   = new Date().getTime();
+
         var polygonList = Array();
 
         _.each(polygonsJson, function(source){
@@ -414,6 +428,9 @@ r360.Util = {
 
             polygonList.push(sourcePolygons);
         });
+
+        if ( r360.config.logging )
+            console.log("Polygon parsing took: " + (new Date().getTime() - start) + "ms");
 
         return polygonList;
     },
@@ -2269,6 +2286,29 @@ r360.Polygon = function(traveltime, outerBoundary) {
         that.outerBoundary = outerBoundary;
     }
 
+    that.projectOuterBoundary = function(map){
+        that.outerProjectedBoundary = new Array();
+        for(var i = 0; i < that.outerBoundary.length; i++){
+            that.outerProjectedBoundary.push(map.project(that.outerBoundary[i],0))
+        }
+    }
+
+    that.projectInnerBoundaries = function(map){
+        that.innerProjectedBoundaries = new Array();
+        for(var i = 0; i < that.innerBoundaries.length; i++){
+            var innerProjectedBoundary = new Array();
+            that.innerProjectedBoundaries.push(innerProjectedBoundary);
+            for(var j = 0; j < that.innerBoundaries[i].length; j++){
+                innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
+            }
+        }
+    }
+
+    that.project = function(map){
+        that.projectOuterBoundary(map);
+        that.projectInnerBoundaries(map);
+    }
+
     /**
      *
      */  
@@ -2429,8 +2469,7 @@ r360.multiPolygon = function () {
 r360.RouteSegment = function(segment){      
 
     var that             = this;
-    that.polyLine        = L.polyline([]);
-    that.points          = segment.points;
+    that.points          = [];
     that.type            = segment.type;
     that.travelTime      = segment.travelTime;
     that.length          = segment.length;    
@@ -2441,7 +2480,11 @@ r360.RouteSegment = function(segment){
 
     // build the geometry
     _.each(segment.points, function(point){
-        that.polyLine.addLatLng(point);
+
+        if (r360.config.utm) 
+            that.points.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
+        else
+            that.points.push(point);
     });
 
     // in case we have a transit route, we set a color depending
@@ -2631,7 +2674,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         this._map.getPanes().overlayPane.appendChild(this._el);
 
         // add a viewreset event listener for updating layer's position, do the latter
-        this._map.on('viewreset', this._reset, this);
+        this._map.on('moveend', this._reset, this);
         this._reset();
     },
     
@@ -2640,21 +2683,42 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(sourceToPolygons){        
         
-        var that = this;
+        var that    = this;
+
+        if(r360.config.logging) var start   = new Date().getTime();
+
         that._resetBoundingBox();
         that._multiPolygons = new Array();
 
+        if(r360.config.logging) var start_projecting   = new Date().getTime();
+        
+
         _.each(sourceToPolygons, function(source){
-
             _.each(source.polygons, function(polygon){
+                polygon.project(that._map);                
+            });
+        })
 
-                that._updateBoundingBox(polygon.outerBoundary);
+        if(r360.config.logging) var end_projecting   = new Date().getTime();
+        
+
+         _.each(sourceToPolygons, function(source){
+            _.each(source.polygons, function(polygon){             
+                that._updateBoundingBox(polygon.outerBoundary);         
+            });
+        })
+
+         _.each(sourceToPolygons, function(source){
+            _.each(source.polygons, function(polygon){               
                 that._addPolygonToMultiPolygon(polygon);
             });
-
             that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-            that._reset();
         })
+
+        if(r360.config.logging){
+            var end = new Date().getTime();
+            console.log("adding layers took " + (end - start) + "ms; Projecting took: " + (end_projecting - start_projecting) + "ms");
+        }
     },
 
     /*
@@ -2720,7 +2784,13 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _buildString:function(path, point, suffix){
         
-        path += suffix + point.x + ' ' + point.y;
+        var a = new Array();
+
+        a.push(suffix);
+        a.push(Math.round(point.x));
+        a.push(Math.round(point.y));
+        path.push(a)
+        //path += suffix + point.x + ' ' + point.y;
         return path;
     },
     
@@ -2729,26 +2799,107 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _createSVGData: function(polygon){
 
-        var that    = this;
-        pathData    = '';
-        var point   = this._map.latLngToLayerPoint(polygon[0]);
-        pathData    = this._buildString(pathData, point, 'M')
+        // the min amount of pixels for a new point
+        var minDiff = 5;
+
+        var that    = this;        
+        var points  = new Array();
+        var scale   = Math.pow(2,that._map._zoom);
+        var svgM    = "M";
+        var svgL    = "L";        
+        var pathData= new Array();
+        var diffX, diffY, px, py, projectedPoint;
+        var bounds  = that._map.getPixelBounds();
+        var mapSize = that._map.getSize();
+
+
         
-        _.each(polygon, function(point){
 
-            point    = that._map.latLngToLayerPoint(point);
-            pathData = that._buildString(pathData, point, 'L')
-        });
+        /*
+        we are only drawing the point if it is different to the last one
+        hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
+        */   
+        
 
-        pathData += 'z ';
+        // the outer boundary
+        for(var i = 0; i < polygon.outerProjectedBoundary.length; i++){
+
+            projectedPoint = polygon.outerProjectedBoundary[i];
+
+            px    = projectedPoint.x * scale; 
+            py    = projectedPoint.y * scale; 
+            
+
+           
+
+            if(px > bounds.max.x + mapSize.x)
+                px = bounds.max.x + mapSize.x;
+            if(py > bounds.max.y + mapSize.y)
+                py = bounds.max.y + mapSize.y;
+            if(px < bounds.min.x - mapSize.x)
+                px = bounds.min.x - mapSize.x;
+            if(py < bounds.min.y - mapSize.y)
+                py = bounds.min.y - mapSize.y;
+          
+
+            point = new L.Point(px,py);
+            point.x -= that._map.getPixelOrigin().x;
+            point.y -= that._map.getPixelOrigin().y;
+
+            if(i > 0){
+                diffX = points[points.length-1].x - point.x;
+                diffY = points[points.length-1].y - point.y;
+            }
+            else
+                diffX = diffY = minDiff;
+            
+
+            if(diffY >= minDiff || diffX >= minDiff || diffX <= -minDiff || diffY <= -minDiff){
+                points.push(point);
+                if(i > 0)
+                    pathData = that._buildString(pathData, point, svgL)
+                else
+                    pathData = that._buildString(pathData, point, svgM)
+            }
+        }
+        
+        pathData.push(['z']);
+       
+
+        // the inner boundaries
+
+        /*
+        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
+            for(var j = 0; j < polygon.innerProjectedBoundaries[i].length; j++){
+                projectedPoint = polygon.innerProjectedBoundaries[i][j];
+                
+                px    = projectedPoint.x * scale - that._map.getPixelOrigin().x;
+                py    = projectedPoint.y * scale - that._map.getPixelOrigin().y;
+                point = new L.Point(px,py);
+
+                diffX = points[points.length-1].x - point.x;
+                diffY = points[points.length-1].y - point.y; 
+
+
+
+                if(diffY >= minDiff || diffX >= minDiff || diffX <= -minDiff || diffY <= -minDiff){
+                    points.push(point);
+                    if(j != 0)
+                        pathData = that._buildString(pathData, point, svgL)
+                    else
+                        pathData = that._buildString(pathData, point, svgM)
+                }
+            }
+            pathData.push(['z']);
+        }
+        */
         return pathData;
     },
 
     /*
      *
      */
-    clearLayers: function(){
-        
+    clearLayers: function(){        
         $('#canvas'+ $(this._map._container).attr("id")).empty();
         this.initialize();
     },
@@ -2757,61 +2908,71 @@ r360.Route360PolygonLayer = L.Class.extend({
      *
      */
     _reset: function () {
+
         var that = this;
+        
+        //internalSVGOffset is used to have a little space between geometries and svg frame. otherwise buffers won't be displayed at the edges.
+        var internalSVGOffset = 100;
+
+        if(r360.config.logging) var start   = new Date().getTime();
 
         if(this._multiPolygons.length > 0){
-            var pos = this._map.latLngToLayerPoint(this._latlng);
-
-            //internalSVGOffset is used to have a little space between geometries and svg frame. otherwise buffers won't be displayed at the edges...
-            var internalSVGOffset = 100;
+            var pos = this._map.latLngToLayerPoint(this._latlng);         
             pos.x -= internalSVGOffset;
             pos.y -= internalSVGOffset;
             L.DomUtil.setPosition(this._el, pos);
 
-            //ie 8 and 9 
-            if (navigator.appVersion.indexOf("MSIE 9.") != -1 )  {
-                $('#canvas'+ $(this._map._container).attr("id")).css("transform", "translate(" + pos.x + "px, " + pos.y + "px)");
-            }
-            if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                $('#canvas'+ $(this._map._container).attr("id")).css({"position" : "absolute"});
-            }
+            var bounds = that._map.getPixelBounds()
+
+            // console.log("pos: " + pos + " bound max " + bounds.max);
+
+
+            that._ieFixes();
+
             $('#canvas'+ $(this._map._container).attr("id")).empty();         
 
             var bottomLeft = this._map.latLngToLayerPoint(this._bottomLeft);
             var topRight = this._map.latLngToLayerPoint(this._topRight);
             var paper = Raphael('canvas'+ $(this._map._container).attr("id"), (topRight.x - bottomLeft.x) + internalSVGOffset * 2, (bottomLeft.y - topRight.y) + internalSVGOffset * 2);
             var st = paper.set();
-            var svgData = "";
+            var svgData;
             var mp, poly;
 
             for(var i = 0; i < this._multiPolygons.length; i++){
                 mp = this._multiPolygons[i];
                 
-                svgData = "";
+                svgData = new Array();
 
+                if(r360.config.logging) var start_svg   = new Date().getTime();
                 for ( var j = 0; j < mp.polygons.length; j++) {
-
-                    poly = mp.polygons[j];
-                    svgData += this._createSVGData(poly.outerBoundary);
-                    for(var k = 0; k < poly.innerBoundaries.length; k++) svgData += this._createSVGData(poly.innerBoundaries[k]);
+                    var svg = this._createSVGData(mp.polygons[j]);
+                    if(svg.length > 2)
+                        svgData.push(svg);
                 }
-
+                if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                    
+                
+             
                 // ie8 (vml) gets the holes from smaller polygons
                 if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-
                     if (i < this._multiPolygons.length-1 ) {
                         for ( var l = 0; l < this._multiPolygons[i+1].polygons.length; l++ ) {
                             var poly2 = this._multiPolygons[i+1].polygons[l];
-                            svgData += this._createSVGData(poly2.outerBoundary);
+                            svgData.push(this._createSVGData(poly2.outerBoundary));
                         }
                     }
                 }
 
+                //'fill-opacity': 0
+
                 var color = mp.getColor();
+                if(r360.config.logging) var start_raphael  = new Date().getTime();
                 var path = paper.path(svgData).attr({fill: color, stroke: color, "stroke-width": that.strokeWidth, "stroke-linejoin":"round","stroke-linecap":"round","fill-rule":"evenodd"})
-                            .attr({"opacity":"0"}).animate({ "opacity" : "1" }, poly.travelTime/3)
+                            .attr({ "opacity":"1"}).animate({ "opacity" : "1" }, mp.polygons[0].travelTime/3)
                             path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));
                 st.push(path);
+                if(r360.config.logging){
+                    console.log("raphael creation took: " + (new Date().getTime() - start_raphael));                    
+                }
             }
 
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
@@ -2820,7 +2981,24 @@ r360.Route360PolygonLayer = L.Class.extend({
                 });
             }
         }
+
+        if(r360.config.logging){
+            var end   = new Date().getTime();
+            console.log("layer resetting tool: " +  (end - start) + "ms");
+        } 
+    },
+
+    _ieFixes: function(){
+         //ie 8 and 9 
+        if (navigator.appVersion.indexOf("MSIE 9.") != -1 )  {
+            $('#canvas'+ $(this._map._container).attr("id")).css("transform", "translate(" + pos.x + "px, " + pos.y + "px)");
+        }
+        if(navigator.appVersion.indexOf("MSIE 8.") != -1){
+            $('#canvas'+ $(this._map._container).attr("id")).css({"position" : "absolute"});
+        }
     }
+
+
 });
 
 r360.route360PolygonLayer = function () {

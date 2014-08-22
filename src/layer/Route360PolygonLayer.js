@@ -303,7 +303,7 @@ r360.Route360PolygonLayer = L.Class.extend({
 
             var bounds = that._map.getPixelBounds()
 
-            console.log("pos: " + pos + " bound max " + bounds.max);
+            // console.log("pos: " + pos + " bound max " + bounds.max);
 
 
             that._ieFixes();
