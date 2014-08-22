@@ -89,7 +89,9 @@
             // for more travel options check out the other tutorials
             var travelOptions = r360.travelOptions();
             travelOptions.addSource(marker);
-            travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600, 7200]);
+            travelOptions.setTravelType('car');
+            travelOptions.setDate('20140807');
+            travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
