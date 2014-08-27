@@ -23,18 +23,21 @@ function filterExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a source and collect the targets
     var sourceMarker = L.marker(latlon).addTo(map);
-    sourceMarker.lat = latlon[0]; sourceMarker.lon = latlon[1];
+    var projectedCoordinates = r360.config.crs.projection.project(sourceMarker.getLatLng());
+    sourceMarker.lat = projectedCoordinates.y;
+    sourceMarker.lon = projectedCoordinates.x;
     var targets = [];
     _.each(museumsBB, function(museum){
 
+        var projectedCoordinates = r360.config.crs.projection.project(L.latLng(museum.lat, museum.lon));
         var marker = L.marker([museum.lat, museum.lon], {icon:redIcon});
         marker.id = museum.id;
-        marker.lat = museum.lat;
-        marker.lon = museum.lon;
+        marker.lat = projectedCoordinates.y;
+        marker.lon = projectedCoordinates.x;
         targets.push(marker);
     });
 

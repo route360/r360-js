@@ -19,14 +19,14 @@ function addTravelStartDateControl(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
     r360.config.i18n.language = 'en';
 
     // create a marker and add it to the map
-    var marker = L.marker(latlon);
-    marker.addTo(map);
-    marker.lat = latlon[0];
-    marker.lon = latlon[1];
+    var marker = L.marker(latlon).addTo(map);
+    var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
+    marker.lat = projectedCoordinates.y;
+    marker.lon = projectedCoordinates.x;
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();

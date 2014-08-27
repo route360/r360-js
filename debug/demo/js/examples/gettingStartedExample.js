@@ -22,11 +22,11 @@ function gettingStartedExample(){
     r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a marker and add it to the map
-    var marker = L.marker(latlon);
-    marker.addTo(map);
+    var marker = L.marker(latlon).addTo(map);
     // set the markers geo-coordinates for r360
-    marker.lat = latlon[0];
-    marker.lon = latlon[1];
+    var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
+    marker.lat = projectedCoordinates.y;
+    marker.lon = projectedCoordinates.x;
 
     // No we add a layer for the reachability polygons, call the Route360° 
     // web service and render the resulting polygons on the map:

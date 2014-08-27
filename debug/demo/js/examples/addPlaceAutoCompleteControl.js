@@ -16,7 +16,7 @@ function addPlaceAutoCompleteControl(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a marker and but dont add it to the map yet
     var marker;
@@ -53,15 +53,17 @@ function addPlaceAutoCompleteControl(){
                 { color : 'red', iconPath: 'lib/leaflet/images/', draggable : true }).addTo(map);
     
             // set lat/lon for r360           
-            marker.lat = marker.getLatLng().lat;
-            marker.lon = marker.getLatLng().lng;
+            var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
+            marker.lat = projectedCoordinates.y;
+            marker.lon = projectedCoordinates.x;
 
             // we need to update some stuff on the 'dragend' action of the marker
             marker.on('dragend', function(){
 
                 // update lat/lon
-                marker.lat = marker.getLatLng().lat;
-                marker.lon = marker.getLatLng().lng;
+                var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
+                marker.lat = projectedCoordinates.y;
+                marker.lon = projectedCoordinates.x;
 
                 // redraw the polygons
                 showPolygons(placeAutoComplete.getTravelType());
@@ -91,8 +93,6 @@ function addPlaceAutoCompleteControl(){
     });
 
     placeAutoComplete.onTravelTypeChange(function(){
-
-        console.log(placeAutoComplete.getTravelType());
 
         // we can only show polygons if a place was already defined
         if ( typeof placeAutoComplete.getValue() !== 'undefined' &&

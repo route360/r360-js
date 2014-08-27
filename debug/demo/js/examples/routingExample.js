@@ -26,7 +26,7 @@ function routingExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a target marker icon to be able to distingush source and targets
     var redIcon = L.icon({iconUrl: 'lib/leaflet/images/marker-icon-red.png', 
@@ -34,13 +34,21 @@ function routingExample(){
 
     // create a source and a two target markers and add them to the map
     var sourceMarker1 = L.marker(latlons.src1).addTo(map);
-    sourceMarker1.lat = latlons.src1[0]; sourceMarker1.lon = latlons.src1[1];
+    var projectedCoordinates = r360.config.crs.projection.project(sourceMarker1.getLatLng());
+    sourceMarker1.lat = projectedCoordinates.y;
+    sourceMarker1.lon = projectedCoordinates.x;
+
     // make lat/lon accessable to r360
     var targetMarker1 = L.marker(latlons.trg1, {icon:redIcon}).addTo(map);
-    targetMarker1.lat = latlons.trg1[0]; targetMarker1.lon = latlons.trg1[1];
+    var projectedCoordinates = r360.config.crs.projection.project(targetMarker1.getLatLng());
+    targetMarker1.lat = projectedCoordinates.y;
+    targetMarker1.lon = projectedCoordinates.x;
+    
     // make lat/lon accessable to r360
     var targetMarker2 = L.marker(latlons.trg2, {icon:redIcon}).addTo(map);
-    targetMarker2.lat = latlons.trg2[0]; targetMarker2.lon = latlons.trg2[1];
+    var projectedCoordinates = r360.config.crs.projection.project(targetMarker2.getLatLng());
+    targetMarker2.lat = projectedCoordinates.y;
+    targetMarker2.lon = projectedCoordinates.x;
 
     // add a layer in which we will paint the route
     var routeLayer = L.featureGroup().addTo(map);

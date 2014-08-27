@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (47f315f), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (a85e904), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -77,7 +77,7 @@ r360.config = {
     travelType      : "walk",
     logging         : false,
     utm             : true,
-    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
+    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633'),
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
