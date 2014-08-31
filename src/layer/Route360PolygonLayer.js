@@ -54,7 +54,7 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         // add a viewreset event listener for updating layer's position, do the latter
         this._map.on('moveend', this._reset, this);
-        this._reset();
+        this._reset(true);
     },
     
     /*
@@ -63,6 +63,7 @@ r360.Route360PolygonLayer = L.Class.extend({
     addLayer:function(sourceToPolygons){        
         
         var that    = this;
+        that.redrawCount = 0;
 
         if(r360.config.logging) var start   = new Date().getTime();
 
@@ -161,16 +162,119 @@ r360.Route360PolygonLayer = L.Class.extend({
     /*
      *
      */
-    _buildString:function(path, point, suffix){
+    _buildPath:function(point, suffix){
         
         var a = new Array();
 
         a.push(suffix);
         a.push(Math.round(point.x));
         a.push(Math.round(point.y));
-        path.push(a)
-        //path += suffix + point.x + ' ' + point.y;
-        return path;
+        
+        return a;
+    },
+
+    _clipToBounds: function(point, bounds){
+
+        if(point.x > bounds.max.x)
+            point.x = bounds.max.x;
+        if(point.y > bounds.max.y)
+            point.y = bounds.max.y;
+        if(point.x < bounds.min.x)
+            point.x = bounds.min.x;
+        if(point.y < bounds.min.y)
+            point.y = bounds.min.y;
+    },
+
+    _scale: function(point, scale){
+        point.x *= scale;
+        point.y *= scale;
+        return point;
+    },
+
+    _subtract: function(point, x, y){
+        point.x -= x;
+        point.y -= y;
+        return y;
+    },
+
+    _getMaxDiff: function(svgArray, point){
+        var diffX = Math.abs(svgArray[1] - point.x);
+        var diffY = Math.abs(svgArray[2] - point.y);
+        if(diffX >= diffY)
+            return diffX;
+        else
+            return diffY;
+
+    },
+
+    _splicePath: function(pathData){
+        if(pathData.length >= 3){
+            if(pathData[pathData.length-1][1] == pathData[pathData.length-2][1] && pathData[pathData.length-2][1] == pathData[pathData.length-3][1]){
+                pathData.splice(pathData.length-2,1)
+            } else if(pathData[pathData.length-1][2] == pathData[pathData.length-2][2] && pathData[pathData.length-2][2] == pathData[pathData.length-3][2]){
+                pathData.splice(pathData.length-2,1)
+            }
+        }
+    },
+
+    /*
+    TODO possible imrovement. Check weather polygons are in bounds or not. Especially inner polygons. Best: define bounds in polygon.js
+    */
+
+    _buildSVGPolygon: function(pathData, coordinateArray){
+
+        var that = this;
+        var svgM    = "M";
+        var svgL    = "L";  
+        var svgz    = "z";  
+        var maxDiff;
+        var scale   = Math.pow(2,that._map._zoom);
+        var bounds  = that._map.getPixelBounds();
+        var mapSize = that._map.getSize();
+        var extendX = mapSize.x /3;
+        var extendY = mapSize.y /3;
+        var projectedPoint;
+       
+
+        bounds.max.x += extendX;
+        bounds.min.x -= extendX;
+
+        bounds.max.y += extendY;
+        bounds.min.y -= extendY;
+
+         // the min amount of pixels for a new point
+        var minDiff = 5;
+
+        for(var i = 0; i < coordinateArray.length; i++){
+
+            projectedPoint = coordinateArray[i];
+            point = new L.Point(projectedPoint.x, projectedPoint.y);
+
+            // scale coordinates depending on zoom level
+            that._scale(point, scale);
+
+            // level all points outside defined area
+            that._clipToBounds(point,bounds);
+
+            // adjust coordinates to map origin
+            that._subtract(point, that._map.getPixelOrigin().x, that._map.getPixelOrigin().y) 
+            
+            // getting the max difference of the latest to points in eiter x or y direction
+            if(i > 0) maxDiff = that._getMaxDiff(pathData[pathData.length-1], point); else maxDiff = minDiff;
+
+            /*
+            we are only drawing the point if it is different to the last one
+            hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
+            */           
+            if(maxDiff >= minDiff){
+                if(i > 0)   pathData.push(that._buildPath(point, svgL));
+                else        pathData.push(that._buildPath(point, svgM));
+            }
+            // checking weather last three points are building one (even x or y) line. If so remove the middle one
+            that._splicePath(pathData);
+        }
+        pathData.push([svgz]);
+        return pathData;
     },
     
     /*
@@ -178,100 +282,13 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _createSVGData: function(polygon){
 
-        // the min amount of pixels for a new point
-        var minDiff = 5;
-
+        var pathData = new Array();
         var that    = this;        
-        var points  = new Array();
-        var scale   = Math.pow(2,that._map._zoom);
-        var svgM    = "M";
-        var svgL    = "L";        
-        var pathData= new Array();
-        var diffX, diffY, px, py, projectedPoint;
-        var bounds  = that._map.getPixelBounds();
-        var mapSize = that._map.getSize();
-
-
-        
-
-        /*
-        we are only drawing the point if it is different to the last one
-        hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
-        */   
-        
-
-        // the outer boundary
-        for(var i = 0; i < polygon.outerProjectedBoundary.length; i++){
-
-            projectedPoint = polygon.outerProjectedBoundary[i];
-
-            px    = projectedPoint.x * scale; 
-            py    = projectedPoint.y * scale; 
-            
-
-           
-
-            if(px > bounds.max.x + mapSize.x)
-                px = bounds.max.x + mapSize.x;
-            if(py > bounds.max.y + mapSize.y)
-                py = bounds.max.y + mapSize.y;
-            if(px < bounds.min.x - mapSize.x)
-                px = bounds.min.x - mapSize.x;
-            if(py < bounds.min.y - mapSize.y)
-                py = bounds.min.y - mapSize.y;
-          
-
-            point = new L.Point(px,py);
-            point.x -= that._map.getPixelOrigin().x;
-            point.y -= that._map.getPixelOrigin().y;
-
-            if(i > 0){
-                diffX = points[points.length-1].x - point.x;
-                diffY = points[points.length-1].y - point.y;
-            }
-            else
-                diffX = diffY = minDiff;
-            
-
-            if(diffY >= minDiff || diffX >= minDiff || diffX <= -minDiff || diffY <= -minDiff){
-                points.push(point);
-                if(i > 0)
-                    pathData = that._buildString(pathData, point, svgL)
-                else
-                    pathData = that._buildString(pathData, point, svgM)
-            }
-        }
-        
-        pathData.push(['z']);
-       
-
+        // the outer boundary       
+        that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary);
         // the inner boundaries
-
-        /*
-        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
-            for(var j = 0; j < polygon.innerProjectedBoundaries[i].length; j++){
-                projectedPoint = polygon.innerProjectedBoundaries[i][j];
-                
-                px    = projectedPoint.x * scale - that._map.getPixelOrigin().x;
-                py    = projectedPoint.y * scale - that._map.getPixelOrigin().y;
-                point = new L.Point(px,py);
-
-                diffX = points[points.length-1].x - point.x;
-                diffY = points[points.length-1].y - point.y; 
-
-
-
-                if(diffY >= minDiff || diffX >= minDiff || diffX <= -minDiff || diffY <= -minDiff){
-                    points.push(point);
-                    if(j != 0)
-                        pathData = that._buildString(pathData, point, svgL)
-                    else
-                        pathData = that._buildString(pathData, point, svgM)
-                }
-            }
-            pathData.push(['z']);
-        }
-        */
+        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++)
+           that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i]);
         return pathData;
     },
 
@@ -289,49 +306,50 @@ r360.Route360PolygonLayer = L.Class.extend({
     _reset: function () {
 
         var that = this;
-        
+
+        // count the drawings in order to animate only the initial one
+        that.redrawCount++;
+ 
         //internalSVGOffset is used to have a little space between geometries and svg frame. otherwise buffers won't be displayed at the edges.
         var internalSVGOffset = 100;
 
-        if(r360.config.logging) var start   = new Date().getTime();
+                                    if(r360.config.logging) var start   = new Date().getTime();
 
         if(this._multiPolygons.length > 0){
-            var pos = this._map.latLngToLayerPoint(this._latlng);         
-            pos.x -= internalSVGOffset;
-            pos.y -= internalSVGOffset;
+            var pos         = this._map.latLngToLayerPoint(this._latlng); 
+            var bounds      = that._map.getPixelBounds();
+            var bottomLeft  = this._map.latLngToLayerPoint(this._bottomLeft);
+            var topRight    = this._map.latLngToLayerPoint(this._topRight); 
+            var svgData, mp, poly;  
+
+            pos.x       -= internalSVGOffset;
+            pos.y       -= internalSVGOffset;
             L.DomUtil.setPosition(this._el, pos);
+           
+            // do some fixing for various ie versions
+            that._ieFixes(pos);
 
-            var bounds = that._map.getPixelBounds()
-
-            // console.log("pos: " + pos + " bound max " + bounds.max);
-
-
-            that._ieFixes();
-
-            $('#canvas'+ $(this._map._container).attr("id")).empty();         
-
-            var bottomLeft = this._map.latLngToLayerPoint(this._bottomLeft);
-            var topRight = this._map.latLngToLayerPoint(this._topRight);
+            $('#canvas'+ $(this._map._container).attr("id")).empty();             
             var paper = Raphael('canvas'+ $(this._map._container).attr("id"), (topRight.x - bottomLeft.x) + internalSVGOffset * 2, (bottomLeft.y - topRight.y) + internalSVGOffset * 2);
             var st = paper.set();
-            var svgData;
-            var mp, poly;
+            
 
             for(var i = 0; i < this._multiPolygons.length; i++){
-                mp = this._multiPolygons[i];
-                
+                mp      = this._multiPolygons[i];                
                 svgData = new Array();
 
-                if(r360.config.logging) var start_svg   = new Date().getTime();
+                                            if(r360.config.logging) var start_svg   = new Date().getTime();
+
                 for ( var j = 0; j < mp.polygons.length; j++) {
                     var svg = this._createSVGData(mp.polygons[j]);
-                    if(svg.length > 2)
-                        svgData.push(svg);
+                    // TODO a few too many tiny polygons are created. Needs to be investigated
+                    //if(svg.length > 2)
+                    svgData.push(svg);
                 }
-                if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                    
+
+                                            if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                    
                 
-             
-                // ie8 (vml) gets the holes from smaller polygons
+                // ie8 (vml) gets the holes from smaller polygons. Dirty IE8 hack
                 if(navigator.appVersion.indexOf("MSIE 8.") != -1){
                     if (i < this._multiPolygons.length-1 ) {
                         for ( var l = 0; l < this._multiPolygons[i+1].polygons.length; l++ ) {
@@ -343,17 +361,24 @@ r360.Route360PolygonLayer = L.Class.extend({
 
                 //'fill-opacity': 0
 
-                var color = mp.getColor();
-                if(r360.config.logging) var start_raphael  = new Date().getTime();
-                var path = paper.path(svgData).attr({fill: color, stroke: color, "stroke-width": that.strokeWidth, "stroke-linejoin":"round","stroke-linecap":"round","fill-rule":"evenodd"})
-                            .attr({ "opacity":"1"}).animate({ "opacity" : "1" }, mp.polygons[0].travelTime/3)
-                            path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));
+                if(svgData.length != 0){
+                    var color = mp.getColor();
+                                            if(r360.config.logging) var start_raphael  = new Date().getTime();
+
+                if(that.redrawCount <= 1){
+                    var path = paper.path(svgData).attr({fill: color, stroke: color, "stroke-width": that.strokeWidth, "stroke-linejoin":"round","stroke-linecap":"round","fill-rule":"evenodd"})
+                            .attr({ "opacity":"0"}).animate({ "opacity" : "1" }, mp.polygons[0].travelTime/3);
+                }else{
+                    var path = paper.path(svgData).attr({fill: color, stroke: color, "stroke-width": that.strokeWidth, "stroke-linejoin":"round","stroke-linecap":"round","fill-rule":"evenodd"})
+                            .attr({ "opacity":"1"});//.animate({ "opacity" : "1" }, mp.polygons[0].travelTime/3)     
+                }
+                path.translate((bottomLeft.x - internalSVGOffset) *-1,((topRight.y - internalSVGOffset)*-1));                
                 st.push(path);
-                if(r360.config.logging){
-                    console.log("raphael creation took: " + (new Date().getTime() - start_raphael));                    
+                                            if(r360.config.logging)     console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
                 }
             }
 
+            // Another shabby IE8 hack
             if(navigator.appVersion.indexOf("MSIE 8.") != -1){
                 $('shape').each(function() {
                     $( this ).css( {"filter": "alpha(opacity=" + that.opacity * 100 + ")"} );
@@ -361,13 +386,13 @@ r360.Route360PolygonLayer = L.Class.extend({
             }
         }
 
-        if(r360.config.logging){
-            var end   = new Date().getTime();
-            console.log("layer resetting tool: " +  (end - start) + "ms");
-        } 
+                                            if(r360.config.logging){
+                                                var end   = new Date().getTime();
+                                                console.log("layer resetting tool: " +  (end - start) + "ms");
+                                            } 
     },
 
-    _ieFixes: function(){
+    _ieFixes: function(pos){
          //ie 8 and 9 
         if (navigator.appVersion.indexOf("MSIE 9.") != -1 )  {
             $('#canvas'+ $(this._map._container).attr("id")).css("transform", "translate(" + pos.x + "px, " + pos.y + "px)");

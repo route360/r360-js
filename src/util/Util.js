@@ -130,8 +130,8 @@ r360.Util = {
         var coordinates = new Array();
 
         if( r360.config.utm)
-            _.each(latlngs, function (latlng) {
-                coordinates.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(latlng[1], latlng[0]))));
+            _.each(latlngs, function (point) {
+                coordinates.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
             });
 
         else
@@ -143,7 +143,7 @@ r360.Util = {
     },
 
     /*
-     *
+     * deprecated
      */
     routeToLeafletPolylines : function(route, options) {
 

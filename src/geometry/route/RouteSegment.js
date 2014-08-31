@@ -7,7 +7,13 @@ r360.RouteSegment = function(segment){
     that.points          = [];
     that.type            = segment.type;
     that.travelTime      = segment.travelTime;
-    that.length          = segment.length;    
+
+    /*
+    * TODO don't call it length! in route length refers to the array length.
+    * Call it distance instead
+    */
+
+    that.distance          = segment.length;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
@@ -19,7 +25,7 @@ r360.RouteSegment = function(segment){
         if (r360.config.utm) 
             that.points.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
         else
-            that.points.push(point);
+            that.points.push(L.latLng(point[0],point[1]));
     });
 
     // in case we have a transit route, we set a color depending
@@ -56,8 +62,8 @@ r360.RouteSegment = function(segment){
         return that.travelTime;
     }
 
-    that.getLength = function(){
-        return that.length;
+    that.getDistance = function(){
+        return that.distance;
     }
 
     that.getRouteType = function(){
