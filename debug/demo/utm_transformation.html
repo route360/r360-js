@@ -80,7 +80,7 @@
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();
             // add it to the map
-            map.addLayer(cpl);
+            cpl.addTo(map);
 
 
             var routeLayer = L.featureGroup().addTo(map);

@@ -128,6 +128,11 @@ r360.Route360PolygonLayer = L.Class.extend({
         this._topRight = new L.latLng(-90,-180);
         this._bottomLeft = new L.latLng(90, 180);
     },
+
+    addTo: function (map) {
+        map.addLayer(this);
+        return this;
+    },
     
     /*
      *
