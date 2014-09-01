@@ -19,7 +19,7 @@ r360.config = {
     travelType      : "walk",
     logging         : false,
     utm             : true,
-    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633'),
+    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -30,8 +30,6 @@ r360.config = {
             { time : 1200 , color : "#F7931E"},
             { time : 1500 , color : "#F15A24"},
             { time : 1800 , color : "#C1272D"},
-            { time : 5400 , color : "#C1272D"},
-            { time : 7200 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
