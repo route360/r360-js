@@ -44,8 +44,8 @@ r360.Polygon = function(traveltime, outerBoundary) {
             that.innerProjectedBoundaries.push(innerProjectedBoundary);
             for(var j = 0; j < that.innerBoundaries[i].length; j++){
                 //innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
-                var proj = r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]);
-                that.outerProjectedBoundary.push(proj);
+                //var proj = r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]);
+                //that.outerProjectedBoundary.push(proj);
             }
         }
     }

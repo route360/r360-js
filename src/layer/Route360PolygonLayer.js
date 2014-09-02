@@ -139,15 +139,13 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     _updateBoundingBox:function(polygon){
 
-        var that = this;
+        var that = this;        
 
-        
-
-        if ( polygon.topRight.lat > that._topRight.lat )    that._topRight.lat   = polygon.topRight.lat;                
-        else if( polygon.bottomLeft.lat < that._bottomLeft.lat )    that._bottomLeft.lat = polygon.bottomLeft.lat;
+        if (polygon.topRight.lat    > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
+        if (polygon.bottomLeft.lat  < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
             
         if ( polygon.topRight.lng > that._topRight.lng )     that._topRight.lng   = polygon.topRight.lng;
-        else if( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
+        if ( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
     
         
         if ( that._latlng.lat < that._topRight.lat)     that._latlng.lat = that._topRight.lat;
@@ -236,8 +234,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         var scale   = Math.pow(2,that._map._zoom) * 256;
         var bounds  = that._map.getPixelBounds();
         var mapSize = that._map.getSize();
-        var extendX = mapSize.x /3;
-        var extendY = mapSize.y /3;
+        var extendX = 500; //mapSize.x;
+        var extendY = 500; //mapSize.y;
         var projectedPoint;
        
 
