@@ -24,16 +24,8 @@ r360.Polygon = function(traveltime, outerBoundary) {
 
     that.projectOuterBoundary = function(map){
         that.outerProjectedBoundary = new Array();
-        for(var i = 0; i < that.outerBoundary.length; i++){
-
-
-            //use for normal latlng conversion
-            //var proj = map.project(that.outerBoundary[i],0);
-
-            var proj = r360.Util.webMercatorToLeaflet(that.outerBoundary[i]);
-          
-         
-            that.outerProjectedBoundary.push(proj);
+        for(var i = 0; i < that.outerBoundary.length; i++){     
+            that.outerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.outerBoundary[i]));
         }
     }
 
@@ -43,16 +35,14 @@ r360.Polygon = function(traveltime, outerBoundary) {
             var innerProjectedBoundary = new Array();
             that.innerProjectedBoundaries.push(innerProjectedBoundary);
             for(var j = 0; j < that.innerBoundaries[i].length; j++){
-                //innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
-                //var proj = r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]);
-                //that.outerProjectedBoundary.push(proj);
+                innerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]));
             }
         }
     }
 
     that.project = function(map){
         that.projectOuterBoundary(map);
-        //that.projectInnerBoundaries(map);
+        that.projectInnerBoundaries(map);
     }
 
     /**
@@ -77,18 +67,22 @@ r360.Polygon = function(traveltime, outerBoundary) {
      */
     that.setBoundingBox = function() { 
 
+        var bottomLeft  = new L.Point(20026377, 20048967);
+        var topRight    = new L.Point(-20026377, -20048967);
+
         // calculate the bounding box
-        _.each(this.outerBoundary, function(point){
 
-            var pToTransform = new L.Point(point.x, point.y);
+        for(var i = this.outerBoundary.length - 1; i >= 0; i--){
+            if(this.outerBoundary[i].x > topRight.x)      topRight.x      = this.outerBoundary[i].x;
+            if(this.outerBoundary[i].x < bottomLeft.x)    bottomLeft.x    = this.outerBoundary[i].x;
 
-            var coordinate = r360.Util.webMercatorToLatLng(pToTransform);
+            if(this.outerBoundary[i].y > topRight.y)      topRight.y      = this.outerBoundary[i].y;
+            if(this.outerBoundary[i].y < bottomLeft.y)    bottomLeft.y    = this.outerBoundary[i].y;
+        }
 
-            if ( coordinate.lat > that.topRight.lat )   that.topRight.lat   = coordinate.lat;
-            if ( coordinate.lat < that.bottomLeft.lat ) that.bottomLeft.lat = coordinate.lat;
-            if ( coordinate.lng > that.topRight.lng )   that.topRight.lng   = coordinate.lng;
-            if ( coordinate.lng < that.bottomLeft.lng ) that.bottomLeft.lng = coordinate.lng;
-        });
+
+        that.topRight   = r360.Util.webMercatorToLatLng(topRight);
+        that.bottomLeft = r360.Util.webMercatorToLatLng(bottomLeft);
 
         // precompute the polygons center
         that.centerPoint.lat = that.topRight.lat - that.bottomLeft.lat;

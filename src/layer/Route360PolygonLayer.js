@@ -71,33 +71,20 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._multiPolygons = new Array();
 
         if(r360.config.logging) var start_projecting   = new Date().getTime();
+
+        for(var i = 0; i < sourceToPolygons.length; i++){
+            for(var j = 0; j < sourceToPolygons[i].polygons.length; j++){
+                 sourceToPolygons[i].polygons[j].project(); 
+                 that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
+                 that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
+            }
+        }
         
-
-        _.each(sourceToPolygons, function(source){
-            _.each(source.polygons, function(polygon){
-                polygon.project(that._map);                
-            });
-        })
-
-        if(r360.config.logging) var end_projecting   = new Date().getTime();
-        
-
-         _.each(sourceToPolygons, function(source){
-            _.each(source.polygons, function(polygon){             
-                that._updateBoundingBox(polygon);         
-            });
-        })
-
-         _.each(sourceToPolygons, function(source){
-            _.each(source.polygons, function(polygon){               
-                that._addPolygonToMultiPolygon(polygon);
-            });
-            that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-        })
+        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
 
         if(r360.config.logging){
             var end = new Date().getTime();
-            console.log("adding layers took " + (end - start) + "ms; Projecting took: " + (end_projecting - start_projecting) + "ms");
+            console.log("adding layers took " + (end - start));
         }
     },
 
@@ -144,7 +131,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         if (polygon.topRight.lat    > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
         if (polygon.bottomLeft.lat  < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
             
-        if ( polygon.topRight.lng > that._topRight.lng )     that._topRight.lng   = polygon.topRight.lng;
+        if ( polygon.topRight.lng   > that._topRight.lng )      that._topRight.lng   = polygon.topRight.lng;
         if ( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
     
         
@@ -180,11 +167,13 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         if(point.x > bounds.max.x)
             point.x = bounds.max.x;
-        if(point.y > bounds.max.y)
-            point.y = bounds.max.y;
-        if(point.x < bounds.min.x)
+        else if(point.x < bounds.min.x)
             point.x = bounds.min.x;
-        if(point.y < bounds.min.y)
+
+
+        if(point.y > bounds.max.y)
+            point.y = bounds.max.y;        
+        else if(point.y < bounds.min.y)
             point.y = bounds.min.y;
     },
 
@@ -234,8 +223,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         var scale   = Math.pow(2,that._map._zoom) * 256;
         var bounds  = that._map.getPixelBounds();
         var mapSize = that._map.getSize();
-        var extendX = 500; //mapSize.x;
-        var extendY = 500; //mapSize.y;
+        var extendX = mapSize.x / 3;
+        var extendY = mapSize.y / 3;
         var projectedPoint;
        
 
@@ -290,8 +279,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         // the outer boundary       
         that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary);
         // the inner boundaries
-        //for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++)
-         //  that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i]);
+        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++)
+           that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i]);
         return pathData;
     },
 

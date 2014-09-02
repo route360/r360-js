@@ -129,19 +129,9 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        if( r360.config.utm)
-            _.each(latlngs, function (point) {
-                coordinates.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
-            });
-
-        else
-            for(var i = 0; i < latlngs.length; i++){
-                coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-            }
-
-            /*_.each(latlngs, function (latlng) {
-                coordinates.push(L.latLng(latlng[0], latlng[1]));
-            });*/
+        for(var i = 0; i < latlngs.length; i++){
+            coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
+        }
 
         return coordinates;
     },

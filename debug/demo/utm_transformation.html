@@ -92,7 +92,7 @@
             addTravelTimePolygons(marker);
 
             r360.config.defaultTravelTimeControlOptions.travelTimes = [
-                { time : 300  , color : "#006837"},
+                { time : 600  , color : "#006837"},
                 { time : 1200 , color : "#39B54A"},
                 { time : 1800 , color : "#8CC63F"},
                 { time : 2400 , color : "#F7931E"},
@@ -133,11 +133,11 @@
 
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(marker);
-                travelOptions.setTravelType('walk');
+                travelOptions.setTravelType('car');
                 travelOptions.setDate('20140825');
 
                 // we want to have polygons for 5 to 30 minutes
-                travelOptions.setTravelTimes([300]);//, 1200, 1800, 2400, 3000, 3600]);
+                travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){   
