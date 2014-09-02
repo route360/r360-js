@@ -84,7 +84,7 @@ r360.Route360PolygonLayer = L.Class.extend({
 
          _.each(sourceToPolygons, function(source){
             _.each(source.polygons, function(polygon){             
-                that._updateBoundingBox(polygon.outerBoundary);         
+                that._updateBoundingBox(polygon);         
             });
         })
 
@@ -137,18 +137,18 @@ r360.Route360PolygonLayer = L.Class.extend({
     /*
      *
      */
-    _updateBoundingBox:function(coordinates){
+    _updateBoundingBox:function(polygon){
 
         var that = this;
 
-        _.each(coordinates, function(coordinate){
+        
 
-            if ( coordinate.lat > that._topRight.lat )          that._topRight.lat   = coordinate.lat;                
-            else if( coordinate.lat < that._bottomLeft.lat )    that._bottomLeft.lat = coordinate.lat;
+        if ( polygon.topRight.lat > that._topRight.lat )    that._topRight.lat   = polygon.topRight.lat;                
+        else if( polygon.bottomLeft.lat < that._bottomLeft.lat )    that._bottomLeft.lat = polygon.bottomLeft.lat;
             
-            if ( coordinate.lng > that._topRight.lng )          that._topRight.lng   = coordinate.lng;
-            else if( coordinate.lng < that._bottomLeft.lng )    that._bottomLeft.lng = coordinate.lng;
-        })
+        if ( polygon.topRight.lng > that._topRight.lng )     that._topRight.lng   = polygon.topRight.lng;
+        else if( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
+    
         
         if ( that._latlng.lat < that._topRight.lat)     that._latlng.lat = that._topRight.lat;
         if ( that._latlng.lng > that._bottomLeft.lng)   that._latlng.lng = that._bottomLeft.lng;
@@ -233,7 +233,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgL    = "L";  
         var svgz    = "z";  
         var maxDiff;
-        var scale   = Math.pow(2,that._map._zoom);
+        var scale   = Math.pow(2,that._map._zoom) * 256;
         var bounds  = that._map.getPixelBounds();
         var mapSize = that._map.getSize();
         var extendX = mapSize.x /3;
@@ -292,8 +292,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         // the outer boundary       
         that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary);
         // the inner boundaries
-        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++)
-           that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i]);
+        //for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++)
+         //  that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i]);
         return pathData;
     },
 

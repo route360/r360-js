@@ -20,6 +20,23 @@
             width: 800px;
             height: 600px;
         }
+
+        .leaflet-marker-icon{
+            opacity: 0.7;
+            filter: alpha(opacity=70);
+             width: 40px;
+            height: 40px;
+        }
+
+        .leaflet-marker-icon:hover{
+            -webkit-transform: scale(1.5,1.5);
+            -moz-transform:scale(1.5,1.5);
+            opacity: 1;
+            filter: alpha(opacity=100);
+             width: 100px;
+            height: 100px;
+
+        }
     </style>
 
     <!-- scripts -->
@@ -37,20 +54,36 @@
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [52.51, 13.37];
+            var latlon = [52.37226057058505, 13.166393967499985];
 
 
-            var point = new L.Point([.9966698411,.097740637]);
+            //var point = new L.Point([.9966698411,.097740637]);
 
-            var ll = L.latLng(r360.config.crs.projection.unproject(new L.Point(699254, 5710049)));
+            //var ll = L.latLng(r360.config.crs.projection.unproject(new L.Point(699254, 5710049)));
 
-            console.log(ll);
+            //console.log(ll);
 
+
+            //"POINT(1484214.64442389 6892300.28047555)"  == "POINT(13.332927 52.506882)"
+
+            var myIcon = L.icon({
+                iconUrl: "C:/MI/r360-js_new/dist/images/marker-icon-green.png",
+            });
+
+
+            var ll = new L.latLng(52.506882, 13.332927)
 
             // add the map and set the initial center to berlin
-            map = L.map('map').setView(latlon, 13);        
+            map = L.map('map').setView(ll,13); 
 
-            console.log("web mercator: " + map.project(ll, 14));
+
+
+
+
+
+           
+
+           
 
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -65,17 +98,19 @@
 
             // set the service key, this is a demo key
             // please contact us and 
-            r360.config.serviceUrl = "http://api.route360.net/api_bb/";
+            r360.config.serviceUrl = "http://localhost:8080/api/";
             r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
             r360.config.utm = false;
 
             var routeLayer = L.featureGroup().addTo(map);
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon, {draggable: true});
+            var marker = L.marker(ll, {draggable: true});
             marker.lat = latlon[0];
             marker.lon = latlon[1];
             marker.addTo(map);
+
+
 
             // create the layer to add the polygons
             var cpl = r360.route360PolygonLayer();
@@ -110,6 +145,13 @@
 
             });
             // call the service
+
+
+            marker.on('click', function(e) {
+                e.target.setIcon(myIcon);
+                alert("halölo");
+                //document.getElementById('someDiv').innerHTML = points[e.target.options.id][2];
+            }); 
             
 
 
@@ -132,11 +174,14 @@
 
                 travelOptions.setTargets(targets);
 
-                routeLayer.clearLayers();
+              
 
                 r360.RouteService.getRoutes(travelOptions, function(routes){
 
                     for(var i = 0; i < routes.length; i++){
+
+                        routeLayer.clearLayers();
+
                         routes[i].fadeIn(routeLayer, 500, "travelDistance");
                     }
             });
@@ -181,7 +226,7 @@
             { time : 3600 , color : "#C1272D"}
             ];
 
-            travelOptions.setTravelTimes([600, 1200,1800,2400,3000,3600]);
+            travelOptions.setTravelTimes([1800]);
 
           
 

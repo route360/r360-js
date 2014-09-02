@@ -25,7 +25,15 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.projectOuterBoundary = function(map){
         that.outerProjectedBoundary = new Array();
         for(var i = 0; i < that.outerBoundary.length; i++){
-            that.outerProjectedBoundary.push(map.project(that.outerBoundary[i],0))
+
+
+            //use for normal latlng conversion
+            //var proj = map.project(that.outerBoundary[i],0);
+
+            var proj = r360.Util.webMercatorToLeaflet(that.outerBoundary[i]);
+          
+         
+            that.outerProjectedBoundary.push(proj);
         }
     }
 
@@ -35,14 +43,16 @@ r360.Polygon = function(traveltime, outerBoundary) {
             var innerProjectedBoundary = new Array();
             that.innerProjectedBoundaries.push(innerProjectedBoundary);
             for(var j = 0; j < that.innerBoundaries[i].length; j++){
-                innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
+                //innerProjectedBoundary.push(map.project(that.innerBoundaries[i][j], 0))
+                var proj = r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]);
+                that.outerProjectedBoundary.push(proj);
             }
         }
     }
 
     that.project = function(map){
         that.projectOuterBoundary(map);
-        that.projectInnerBoundaries(map);
+        //that.projectInnerBoundaries(map);
     }
 
     /**
@@ -68,7 +78,11 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.setBoundingBox = function() { 
 
         // calculate the bounding box
-        _.each(this.outerBoundary, function(coordinate){
+        _.each(this.outerBoundary, function(point){
+
+            var pToTransform = new L.Point(point.x, point.y);
+
+            var coordinate = r360.Util.webMercatorToLatLng(pToTransform);
 
             if ( coordinate.lat > that.topRight.lat )   that.topRight.lat   = coordinate.lat;
             if ( coordinate.lat < that.bottomLeft.lat ) that.bottomLeft.lat = coordinate.lat;

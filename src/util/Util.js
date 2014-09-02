@@ -135,9 +135,13 @@ r360.Util = {
             });
 
         else
-            _.each(latlngs, function (latlng) {
+            for(var i = 0; i < latlngs.length; i++){
+                coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
+            }
+
+            /*_.each(latlngs, function (latlng) {
                 coordinates.push(L.latLng(latlng[0], latlng[1]));
-            });
+            });*/
 
         return coordinates;
     },
@@ -309,5 +313,18 @@ r360.Util = {
         });
 
         return L.marker(latlng, options);
+    },
+
+    webMercatorToLeaflet : function(point){
+        point.x /= 6378137;
+        point.y /= 6378137;
+        L.CRS.EPSG3857.transformation._transform(point);
+        return point;
+    },
+
+    webMercatorToLatLng : function(point){
+        point.x /= 6378137;
+        point.y /= 6378137;
+        return L.CRS.EPSG3857.projection.unproject(point);
     }
 };
