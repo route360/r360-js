@@ -4,7 +4,7 @@ proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m 
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
-    serviceUrl      : 'http://144.76.246.52/api/',
+    serviceUrl      : 'http://api.route360.net/api/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
@@ -65,6 +65,7 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
+        serviceUrl : "http://148.251.160.52/api?",
         position : 'topleft',
         reset : false,
         reverse : false,

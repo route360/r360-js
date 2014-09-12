@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>master examples</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link rel="stylesheet" href="../../dist/r360.css"/>
+    <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+    <link rel="stylesheet" href="lib/jquery/jquery-ui-1.10.0.custom.css"/>
+    
+    <script src="lib/jquery/jquery-1.10.2.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
+    
+    <script src="lib/leaflet/leaflet-src.js"></script>
+    <script src="js/underscore.js"></script>
+    <script src="js/raphael-min.js"></script>
+    <script src="lib/proj4/proj4-compressed.js"></script>
+    <script src="lib/proj4/proj4leaflet.js"></script>
+
+    <!-- // <script src="js/r360.js"></script> -->
+
+    <script type="text/javascript" src="../../build/deps.js"></script>
+    <script type="text/javascript" src="../r360-include.js"></script>
+
+    <script>
+    $(document).ready(function(){
+
+        var latlon = [51.328070, 12.376541];
+
+        // add the map and set the initial center to berlin
+        var map = L.map('map').setView(latlon, 15);
+        // attribution to give credit to OSM map data and VBB for public transportation 
+        var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+         // initialising the base map. To change the base map just change following lines as described by cloudmade, mapbox etc..
+        L.tileLayer('http://a.tiles.mapbox.com/v3/mi.i65jib2f/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: attribution
+        }).addTo(map);
+
+        var routeLayer = L.featureGroup().addTo(map);
+
+        // create a marker and add it to the map (make sure to fix the icon urls)
+        var flagIcon = L.icon({iconUrl: 'lib/leaflet/images/checkered-flag-icon.png', iconAnchor: [8,45], popupAnchor:  [0, -35] }); 
+        var marker = L.marker(latlon, {draggable: true,icon : L.icon({iconUrl: 'lib/leaflet/images/marker-icon.png', shadowUrl: 'lib/leaflet/images/marker-shadow.png', iconAnchor: [12,45]})});
+        marker.addTo(routeLayer);
+
+        marker.lat = marker.getLatLng().lat;
+        marker.lon = marker.getLatLng().lng;
+
+        // create the layer to add the polygons
+        var polygonLayer = r360.route360PolygonLayer();
+
+        r360.config.serviceUrl = "http://dev.route360.net/api_sf/";
+        r360.config.serviceUrl = "http://localhost:8080/api/";
+        r360.config.serviceKey = "uhWrWpUhyZQy8rPfiC7X";
+
+        var buttonOptions = {
+            buttons : [
+                // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                // and a boolean which indicates if the button is selected by default
+                // labels may contain html
+                { label: '<span class="map-icon-bicycling"></span> Cycling', key: 'bike',     
+                  tooltip: 'Cycling speed is on average 15km/h', checked : false },
+
+                { label: '<span class="map-icon-walking"></span> Walking', key: 'walk',     
+                  tooltip: 'Walking speed is on average 5km/h', checked : false  },
+
+                { label: '<span class="fa fa-car"></span> Car', key: 'car',      
+                  tooltip: 'Car speed is limited by speed limit', checked : true },
+            ]
+        };
+
+        // create a new readio button control with the given options
+        var travelTypeButtons = r360.radioButtonControl(buttonOptions);
+
+        // add the newly created control to the map
+        map.addControl(travelTypeButtons);
+
+        // bind the action to the change event of the radio travel mode element
+        travelTypeButtons.onChange(function(value){ addTravelTimePolygons(); });
+
+        r360.config.defaultTravelTimeControlOptions.travelTimes = [
+            { time : 300  , color : "#006837"},
+            { time : 600 , color : "#39B54A"},
+            { time : 900 , color : "#8CC63F"},
+            { time : 2400 , color : "#F7931E"},
+            { time : 3000 , color : "#F15A24"},
+            { time : 3600 , color : "#C1272D"}
+        ];
+
+        polygonLayer.opacity = 0.6;
+    
+        // add it to the map
+        map.addLayer(polygonLayer);
+
+        // addTravelTimePolygons();
+        paintRoute({latlng : L.latLng([51.315183, 12.386261])});
+        
+        marker.on("dragend", function(e){
+
+            marker.lat = marker.getLatLng().lat;
+            marker.lon = marker.getLatLng().lng;
+            addTravelTimePolygons();
+        });
+
+        map.on("click", function(e){    
+
+            paintRoute(e);
+        });
+
+        function paintRoute(e) {
+
+            routeLayer.clearLayers();
+             marker.addTo(routeLayer);
+
+            var target = L.marker(e.latlng, { icon : flagIcon }).addTo(routeLayer);
+            // var target = L.marker(, { icon : flagIcon }).addTo(routeLayer);
+            target.lat = target.getLatLng().lat;
+            target.lon = target.getLatLng().lng;
+
+            var travelOptions = r360.travelOptions();
+            travelOptions.addSource(marker);
+            travelOptions.addTarget(target);
+            travelOptions.setTravelType(travelTypeButtons.getValue());
+            
+            r360.RouteService.getRoutes(travelOptions, function(routes){
+
+                for ( var i = 0 ; i < routes.length ; i++ ) {
+
+                    routes[i].fadeIn(routeLayer, 500, "travelDistance");
+                    target.bindPopup('Travel time: ' + (routes[i].travelTime / 60 ).toFixed(1) + 'm').openPopup();
+                }
+            });
+
+            map.fitBounds(routeLayer.getBounds(), { padding : [25,25]});
+        }
+
+        function addTravelTimePolygons(){
+
+            // you need to define some options for the polygon service
+            // for more travel options check out the other tutorials
+            var travelOptions = r360.travelOptions();
+            travelOptions.addSource(marker);
+            travelOptions.setTravelTimes([300, 600, 900]);
+            travelOptions.setTravelType(travelTypeButtons.getValue());
+
+            // call the service
+            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+
+                polygonLayer.clearLayers();    
+                routeLayer.clearLayers(); 
+                // add the returned polygons to the polygon layer 
+                polygonLayer.addLayer(polygons);            
+                // zoom the map to fit the polygons perfectly
+                map.fitBounds(polygonLayer.getBoundingBox());
+            }); 
+        }
+    })
+    </script>
+    </head>
+<body>
+    <div id="map"></div>
+</body>
+</html>

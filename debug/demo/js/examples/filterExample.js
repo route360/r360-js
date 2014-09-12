@@ -27,17 +27,15 @@ function filterExample(){
 
     // create a source and collect the targets
     var sourceMarker = L.marker(latlon).addTo(map);
-    var projectedCoordinates = r360.config.crs.projection.project(sourceMarker.getLatLng());
-    sourceMarker.lat = projectedCoordinates.y;
-    sourceMarker.lon = projectedCoordinates.x;
+    sourceMarker.lat = sourceMarker.getLatLng().lat;
+    sourceMarker.lon = sourceMarker.getLatLng().lng;
     var targets = [];
     _.each(museumsBB, function(museum){
 
-        var projectedCoordinates = r360.config.crs.projection.project(L.latLng(museum.lat, museum.lon));
         var marker = L.marker([museum.lat, museum.lon], {icon:redIcon});
-        marker.id = museum.id;
-        marker.lat = projectedCoordinates.y;
-        marker.lon = projectedCoordinates.x;
+        marker.id  = museum.id;
+        marker.lat = museum.lat;
+        marker.lon = museum.lon
         targets.push(marker);
     });
 

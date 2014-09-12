@@ -22,9 +22,8 @@ function addTravelTypeControl(){
     // create a marker and add it to the map
     var marker = L.marker(latlon).addTo(map);
     // set the markers geo-coordinates for r360
-    var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
-    marker.lat = projectedCoordinates.y;
-    marker.lon = projectedCoordinates.x;
+    marker.lat = marker.getLatLng().lat;
+    marker.lon = marker.getLatLng().lng;
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();

@@ -96,13 +96,15 @@ r360.Route = function(travelTime){
 
             var polylineOptions         = {};
             polylineOptions.color       = segment.getColor();
-            polylineOptions.opacity     = 0.5;
+            polylineOptions.opacity     = 0.8;
+            polylineOptions.weight      = 8;
 
-            if(segment.getType() != "TRANSIT")  polylineOptions.dashArray = "1, 8";
+            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  polylineOptions.dashArray = "1, 12";
 
             var polylineHaloOptions     = {};
-            polylineHaloOptions.weight  = 7;
-            polylineHaloOptions.color   = "white";
+            polylineHaloOptions.weight  = 12;
+            polylineHaloOptions.opacity = 0.9;
+            polylineHaloOptions.color   = '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces = millis / 15;

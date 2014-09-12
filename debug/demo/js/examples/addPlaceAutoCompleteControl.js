@@ -53,17 +53,15 @@ function addPlaceAutoCompleteControl(){
                 { color : 'red', iconPath: 'lib/leaflet/images/', draggable : true }).addTo(map);
     
             // set lat/lon for r360           
-            var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
-            marker.lat = projectedCoordinates.y;
-            marker.lon = projectedCoordinates.x;
+            marker.lat = marker.getLatLng().lat;
+            marker.lon = marker.getLatLng().lng;
 
             // we need to update some stuff on the 'dragend' action of the marker
             marker.on('dragend', function(){
 
                 // update lat/lon
-                var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
-                marker.lat = projectedCoordinates.y;
-                marker.lon = projectedCoordinates.x;
+                marker.lat = marker.getLatLng().lat;
+                marker.lon = marker.getLatLng().lng;
 
                 // redraw the polygons
                 showPolygons(placeAutoComplete.getTravelType());

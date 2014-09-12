@@ -59,14 +59,12 @@ function multipleExample(){
 
     // create a source and a two target markers and add them to the map
     var sourceMarker1 = L.marker(latlons.src1).addTo(map);
-    var projectedCoordinates = r360.config.crs.projection.project(sourceMarker1.getLatLng());
-    sourceMarker1.lat = projectedCoordinates.y;
-    sourceMarker1.lon = projectedCoordinates.x;
+    sourceMarker1.lat = sourceMarker1.getLatLng().lat;
+    sourceMarker1.lon = sourceMarker1.getLatLng().lng;
     // only for r360
     var sourceMarker2 = L.marker(latlons.src2).addTo(map);
-    var projectedCoordinates = r360.config.crs.projection.project(sourceMarker2.getLatLng());
-    sourceMarker2.lat = projectedCoordinates.y;
-    sourceMarker2.lon = projectedCoordinates.x;
+    sourceMarker2.lat = sourceMarker2.getLatLng().lat;
+    sourceMarker2.lon = sourceMarker2.getLatLng().lng;
     
     // bind the action to the change event of the radio travel mode element
     intersectionModeButtons.onChange(function(intersectionMode){ showPolygons(intersectionMode); });

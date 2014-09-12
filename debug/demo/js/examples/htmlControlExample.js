@@ -40,9 +40,8 @@ function htmlControlExample(){
 
     // add marker
     var marker = L.marker(latlng).addTo(map);
-    var projectedCoordinates = r360.config.crs.projection.project(marker.getLatLng());
-    marker.lat = projectedCoordinates.y;
-    marker.lon = projectedCoordinates.x;
+    marker.lat = marker.getLatLng().lat;
+    marker.lon = marker.getLatLng().lng;
     marker.on('click', function(){ htmlControl.toggle(); marker.openPopup(); });
     marker.bindPopup('Click me to toogle (hide/show) the Html control!').openPopup();
 
