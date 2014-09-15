@@ -21,6 +21,8 @@ r360.config = {
     utm             : true,
     crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
 
+   
+
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
@@ -81,7 +83,15 @@ r360.config = {
     // configuration for the Route360PolygonLayer
     defaultPolygonLayerOptions:{
         opacity : 0.4,
-        strokeWidth: 15
+        strokeWidth: 30,
+
+        // background values only matter if inverse = true
+        backgroundColor : 'black',
+        backgroundOpacity : 0.5,
+        inverse : false,
+
+        animate : true,
+        animationDuration : 1
     },
 
     i18n : {

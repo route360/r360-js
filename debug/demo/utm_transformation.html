@@ -92,12 +92,12 @@
             addTravelTimePolygons(marker);
 
             r360.config.defaultTravelTimeControlOptions.travelTimes = [
-                { time : 600  , color : "#006837"},
-                { time : 1200 , color : "#39B54A"},
-                { time : 1800 , color : "#8CC63F"},
-                { time : 2400 , color : "#F7931E"},
-                { time : 3000 , color : "#F15A24"},
-                { time : 3600 , color : "#C1272D"}
+                { time : 600  , color : "#006837", opacity: 1},
+                { time : 1200 , color : "#39B54A", opacity: 0.8},
+                { time : 1800 , color : "#8CC63F", opacity: 0.6},
+                { time : 2400 , color : "#F7931E", opacity: 0.5},
+                { time : 3000 , color : "#F15A24", opacity: 0.4},
+                { time : 3600 , color : "#C1272D", opacity: 1}
             ];
 
             marker.on("dragend", function(e){
@@ -108,7 +108,7 @@
 
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(marker);
-                travelOptions.setTravelType('transit');
+                travelOptions.setTravelType('car');
                 travelOptions.setDate('20140825');
 
                 var targetMarker = L.marker(e.latlng).addTo(map);
@@ -120,8 +120,8 @@
 
                     for ( var i = 0 ; i < routes.length ; i++ ) {
 
-                        routeLayer.clearLayers();
-                        routes[i].fadeIn(routeLayer, 500, "travelDistance");
+                        //routeLayer.clearLayers();
+                        routes[i].fadeIn(routeLayer, 2000, "travelDistance");
                     }
                 });
             });
@@ -137,7 +137,7 @@
                 travelOptions.setDate('20140825');
 
                 // we want to have polygons for 5 to 30 minutes
-                travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
+                travelOptions.setTravelTimes([3600]);
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){   

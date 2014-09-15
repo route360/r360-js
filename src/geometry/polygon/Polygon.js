@@ -15,6 +15,8 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.outerBoundary    = outerBoundary;
     that.innerBoundaries  = new Array();
 
+    that.innerProjectedBoundaries = new Array();
+
     /**
      *
      */
@@ -22,34 +24,61 @@ r360.Polygon = function(traveltime, outerBoundary) {
         that.outerBoundary = outerBoundary;
     }
 
-    that.projectOuterBoundary = function(map){
+    that.projectOuterBoundary = function(){
         that.outerProjectedBoundary = new Array();
         for(var i = 0; i < that.outerBoundary.length; i++){     
             that.outerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.outerBoundary[i]));
         }
     }
 
-    that.projectInnerBoundaries = function(map){
-        that.innerProjectedBoundaries = new Array();
-        for(var i = 0; i < that.innerBoundaries.length; i++){
-            var innerProjectedBoundary = new Array();
-            that.innerProjectedBoundaries.push(innerProjectedBoundary);
-            for(var j = 0; j < that.innerBoundaries[i].length; j++){
-                innerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]));
-            }
-        }
-    }
+ 
 
-    that.project = function(map){
-        that.projectOuterBoundary(map);
-        that.projectInnerBoundaries(map);
+    that.project = function(){
+        that.projectOuterBoundary();
     }
 
     /**
      *
      */  
     that.addInnerBoundary = function(innerBoundary){
-        that.innerBoundaries.push(innerBoundary);
+        var innerProjectedBoundary = {};
+
+        innerProjectedBoundary.projectedBottomLeft  = new L.Point(20026377, 20048967);
+        innerProjectedBoundary.projectedTopRight    = new L.Point(-20026377, -20048967);
+
+        // calculate the bounding box
+
+        for(var i = innerBoundary.length - 1; i >= 0; i--){
+            if(innerBoundary[i].x > innerProjectedBoundary.projectedTopRight.x)      innerProjectedBoundary.projectedTopRight.x      = innerBoundary[i].x;
+            if(innerBoundary[i].x < innerProjectedBoundary.projectedBottomLeft.x)    innerProjectedBoundary.projectedBottomLeft.x    = innerBoundary[i].x;
+
+            if(innerBoundary[i].y > innerProjectedBoundary.projectedTopRight.y)      innerProjectedBoundary.projectedTopRight.y      = innerBoundary[i].y;
+            if(innerBoundary[i].y < innerProjectedBoundary.projectedBottomLeft.y)    innerProjectedBoundary.projectedBottomLeft.y    = innerBoundary[i].y;
+        }
+
+
+        innerProjectedBoundary.topRight   = r360.Util.webMercatorToLatLng(new L.Point(innerProjectedBoundary.projectedTopRight.x, innerProjectedBoundary.projectedTopRight.y));
+        innerProjectedBoundary.bottomLeft = r360.Util.webMercatorToLatLng(new L.Point(innerProjectedBoundary.projectedBottomLeft.x, innerProjectedBoundary.projectedBottomLeft.y));
+
+        innerProjectedBoundary.projectedBottomLeft = r360.Util.webMercatorToLeaflet(innerProjectedBoundary.projectedBottomLeft);
+        innerProjectedBoundary.projectedTopRight   = r360.Util.webMercatorToLeaflet(innerProjectedBoundary.projectedTopRight);
+
+        innerProjectedBoundary.points = new Array();
+        that.innerProjectedBoundaries.push(innerProjectedBoundary);
+        for(var j = 0; j < innerBoundary.length; j++){
+            innerProjectedBoundary.points.push(r360.Util.webMercatorToLeaflet(innerBoundary[j]));
+        }
+
+        innerProjectedBoundary.getProjectedBottomLeft = function(){
+            var that = this;
+            return new L.Point(that.projectedBottomLeft.x, that.projectedBottomLeft.y);
+        }
+
+        innerProjectedBoundary.getProjectedTopRight = function(){
+            var that = this;
+            return new L.Point(that.projectedTopRight.x, that.projectedTopRight.y);
+        }
+
     }
 
     /**
@@ -58,8 +87,15 @@ r360.Polygon = function(traveltime, outerBoundary) {
      * @author Henning Hollburg <henning.hollburg@gmail.com>
      */
     that.getBoundingBox = function(){
-
         return new L.LatLngBounds(this._bottomLeft, this._topRight)
+    }
+
+    that.getProjectedBottomLeft = function(){
+        return new L.Point(that.projectedBottomLeft.x, that.projectedBottomLeft.y);
+    }
+
+    that.getProjectedTopRight = function(){
+        return new L.Point(that.projectedTopRight.x, that.projectedTopRight.y);
     }
 
     /**
@@ -67,22 +103,33 @@ r360.Polygon = function(traveltime, outerBoundary) {
      */
     that.setBoundingBox = function() { 
 
-        var bottomLeft  = new L.Point(20026377, 20048967);
-        var topRight    = new L.Point(-20026377, -20048967);
+        var that = this;
+
+        that.projectedBottomLeft  = new L.Point(20026377, 20048967);
+        that.projectedTopRight    = new L.Point(-20026377, -20048967);
 
         // calculate the bounding box
 
         for(var i = this.outerBoundary.length - 1; i >= 0; i--){
-            if(this.outerBoundary[i].x > topRight.x)      topRight.x      = this.outerBoundary[i].x;
-            if(this.outerBoundary[i].x < bottomLeft.x)    bottomLeft.x    = this.outerBoundary[i].x;
+            if(this.outerBoundary[i].x > that.projectedTopRight.x)      
+                that.projectedTopRight.x      = this.outerBoundary[i].x;
+            if(this.outerBoundary[i].x < that.projectedBottomLeft.x)    
+                that.projectedBottomLeft.x    = this.outerBoundary[i].x;
 
-            if(this.outerBoundary[i].y > topRight.y)      topRight.y      = this.outerBoundary[i].y;
-            if(this.outerBoundary[i].y < bottomLeft.y)    bottomLeft.y    = this.outerBoundary[i].y;
+            if(this.outerBoundary[i].y > that.projectedTopRight.y)      
+                that.projectedTopRight.y      = this.outerBoundary[i].y;
+            if(this.outerBoundary[i].y < that.projectedBottomLeft.y)    
+                that.projectedBottomLeft.y    = this.outerBoundary[i].y;
         }
 
 
-        that.topRight   = r360.Util.webMercatorToLatLng(topRight);
-        that.bottomLeft = r360.Util.webMercatorToLatLng(bottomLeft);
+
+
+        that.topRight   = r360.Util.webMercatorToLatLng(new L.Point(that.projectedTopRight.x, that.projectedTopRight.y));
+        that.bottomLeft = r360.Util.webMercatorToLatLng(new L.Point(that.projectedBottomLeft.x, that.projectedBottomLeft.y));
+
+        that.projectedBottomLeft = r360.Util.webMercatorToLeaflet(that.projectedBottomLeft);
+        that.projectedTopRight   = r360.Util.webMercatorToLeaflet(that.projectedTopRight);
 
         // precompute the polygons center
         that.centerPoint.lat = that.topRight.lat - that.bottomLeft.lat;
@@ -90,7 +137,7 @@ r360.Polygon = function(traveltime, outerBoundary) {
     }
 
     /**
-     * Returns the center for this polygon. More precisly a gps coordinate
+     * Returns the center for this polygon. More precisly a coordinate
      * which is equal to the center of the polygons bounding box.
      * @return {latlng} gps coordinate of the center of the polygon
      * @author Daniel Gerber <daniel.gerber@icloud.com>
@@ -126,6 +173,14 @@ r360.Polygon = function(traveltime, outerBoundary) {
      */
     that.setColor = function(color){
         that.color = color;
+    }
+
+    that.setOpacity = function(opacity){
+        that.opacity = opacity;
+    }
+
+    that.getOpacity =function(){
+        return that.opacity;
     }
 }
 
