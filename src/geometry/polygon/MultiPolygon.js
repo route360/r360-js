@@ -18,6 +18,15 @@ r360.MultiPolygon = function() {
         that.polygons.push(polygon);
     }
 
+
+    that.setOpacity = function(opacity){
+        that.opacity = opacity;
+    }
+
+    that.getOpacity = function(){
+        return that.opacity;
+    }
+
     /*
      *
      */

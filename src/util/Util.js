@@ -233,6 +233,7 @@ r360.Util = {
                 var polygon = r360.polygon();
                 polygon.setTravelTime(polygonJson.travelTime);
                 polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
+                polygon.setOpacity(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).opacity);
                 polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
                 polygon.setBoundingBox();
 
