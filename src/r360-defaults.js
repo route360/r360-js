@@ -1,7 +1,10 @@
+proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
+
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
-    serviceUrl      : 'http://144.76.246.52/api/',
+    serviceUrl      : 'http://api.route360.net/api/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
@@ -14,6 +17,9 @@ r360.config = {
     walkDownhill    : 0,
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
+    logging         : false,
+    utm             : true,
+    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -24,8 +30,6 @@ r360.config = {
             { time : 1200 , color : "#F7931E"},
             { time : 1500 , color : "#F15A24"},
             { time : 1800 , color : "#C1272D"},
-            { time : 5400 , color : "#C1272D"},
-            { time : 7200 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
@@ -61,6 +65,7 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
+        serviceUrl : "http://148.251.160.52/api?",
         position : 'topleft',
         reset : false,
         reverse : false,

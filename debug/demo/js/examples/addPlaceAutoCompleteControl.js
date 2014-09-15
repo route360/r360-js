@@ -16,7 +16,7 @@ function addPlaceAutoCompleteControl(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a marker and but dont add it to the map yet
     var marker;
@@ -91,8 +91,6 @@ function addPlaceAutoCompleteControl(){
     });
 
     placeAutoComplete.onTravelTypeChange(function(){
-
-        console.log(placeAutoComplete.getTravelType());
 
         // we can only show polygons if a place was already defined
         if ( typeof placeAutoComplete.getValue() !== 'undefined' &&

@@ -17,8 +17,25 @@
 
         #map {
 
-            width: 500px;
-            height: 400px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .leaflet-marker-icon{
+            opacity: 0.7;
+            filter: alpha(opacity=70);
+             width: 40px;
+            height: 40px;
+        }
+
+        .leaflet-marker-icon:hover{
+            -webkit-transform: scale(1.5,1.5);
+            -moz-transform:scale(1.5,1.5);
+            opacity: 1;
+            filter: alpha(opacity=100);
+             width: 100px;
+            height: 100px;
+
         }
     </style>
 
@@ -37,99 +54,101 @@
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [52.51, 13.37];
+            var latlon = [52.5167, 13.3833];
+
+            var myIcon = L.icon({ iconUrl: "C:/MI/r360-js_new/dist/images/marker-icon-green.png" });
 
             // add the map and set the initial center to berlin
-            var map = L.map('map').setView(latlon, 13);
+            map = L.map('map').setView(latlon,13); 
+
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: attribution
-            }).addTo(map);
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
 
             // set the service key, this is a demo key
-            // please contact us and request your own key
-            r360.config.serviceUrl = "http://localhost:8080/api/";
-            r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
-
-            var routeLayer = L.featureGroup().addTo(map);
+            // please contact us and 
+            r360.config.serviceUrl  = "http://localhost:8080/api/";
+            r360.config.serviceKey  = "KRXn8oesiA4MNxrzMhJx";
+            r360.config.logging     = true;
+            r360.config.utm         = false;
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon);
+            var marker = L.marker(latlon, {draggable: true});
             marker.lat = latlon[0];
             marker.lon = latlon[1];
             marker.addTo(map);
 
             // create the layer to add the polygons
-            var cpl = r360.route360PolygonLayer();
+            var polygonLayer = r360.route360PolygonLayer();
             // add it to the map
-            map.addLayer(cpl);
+            polygonLayer.addTo(map);
 
-            // you need to define some options for the polygon service
-            // for more travel options check out the other tutorials
-            var travelOptions = r360.travelOptions();
-            // we only have one source which is the marker we just added
-            travelOptions.addSource(marker);
-            // we want to have polygons for 5 to 30 minutes
-            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            var routeLayer = L.featureGroup().addTo(map);
 
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-                    
-                // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
-                
-                // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
+            addTravelTimePolygons(marker);
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                { time : 600  , color : "#006837"},
+                { time : 1200 , color : "#39B54A"},
+                { time : 1800 , color : "#8CC63F"},
+                { time : 2400 , color : "#F7931E"},
+                { time : 3000 , color : "#F15A24"},
+                { time : 3600 , color : "#C1272D"}
+            ];
+
+            marker.on("dragend", function(e){
+                addTravelTimePolygons(marker);
             });
-
 
             map.on("click", function(e){    
 
-                alert("click");
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(marker);
+                travelOptions.setTravelType('transit');
+                travelOptions.setDate('20140825');
 
                 var targetMarker = L.marker(e.latlng).addTo(map);
                 targetMarker.lat = e.latlng.lat;
                 targetMarker.lon = e.latlng.lng;
-                var targets = [targetMarker];
-
-                travelOptions.setTargets(targets);
+                travelOptions.addTarget(targetMarker);
 
                 r360.RouteService.getRoutes(travelOptions, function(routes){
 
-                // one route for each source and target combination
-                // one route for each source and target combination
-                _.each(routes, function(route){
+                    for ( var i = 0 ; i < routes.length ; i++ ) {
 
-                    // create one polyline for the route and a polyline for the polyline's halo
-                    _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
-
-                        // add halo and line
-                        _.each(polylineSegment, function(polylines){ 
-                            polylines.addTo(routeLayer); 
-                        });
-                    });
-
-                    // add marker if the route segment changes, indicates transfers
-                    _.each(route.getSegments(), function(segment, index) {
-                        
-                        // only add changing markers for öpnv switches 
-                        if ( segment.getType() == "TRANSFER" ) {
-
-                            // create a small circlular marker to indicate the users have to switch trips
-                            var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { 
-                                color: "white", fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, 
-                                radius : 7 }).addTo(routeLayer);
-                        }
-                    });
+                        routeLayer.clearLayers();
+                        routes[i].fadeIn(routeLayer, 500, "travelDistance");
+                    }
                 });
             });
-        });
+
+            function addTravelTimePolygons(marker){
+
+                marker.lat = marker.getLatLng().lat;
+                marker.lon = marker.getLatLng().lng;
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(marker);
+                travelOptions.setTravelType('car');
+                travelOptions.setDate('20140825');
+
+                // we want to have polygons for 5 to 30 minutes
+                travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
+
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){   
+
+                    polygonLayer.clearLayers();     
+                    // add the returned polygons to the polygon layer 
+                    polygonLayer.addLayer(polygons);         
+                    // zoom the map to fit the polygons perfectly
+                    map.fitBounds(polygonLayer.getBoundingBox());
+                }); 
+            }
     });
     </script>
 

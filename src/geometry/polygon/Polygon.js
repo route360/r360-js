@@ -22,6 +22,29 @@ r360.Polygon = function(traveltime, outerBoundary) {
         that.outerBoundary = outerBoundary;
     }
 
+    that.projectOuterBoundary = function(map){
+        that.outerProjectedBoundary = new Array();
+        for(var i = 0; i < that.outerBoundary.length; i++){     
+            that.outerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.outerBoundary[i]));
+        }
+    }
+
+    that.projectInnerBoundaries = function(map){
+        that.innerProjectedBoundaries = new Array();
+        for(var i = 0; i < that.innerBoundaries.length; i++){
+            var innerProjectedBoundary = new Array();
+            that.innerProjectedBoundaries.push(innerProjectedBoundary);
+            for(var j = 0; j < that.innerBoundaries[i].length; j++){
+                innerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.innerBoundaries[i][j]));
+            }
+        }
+    }
+
+    that.project = function(map){
+        that.projectOuterBoundary(map);
+        that.projectInnerBoundaries(map);
+    }
+
     /**
      *
      */  
@@ -44,14 +67,22 @@ r360.Polygon = function(traveltime, outerBoundary) {
      */
     that.setBoundingBox = function() { 
 
-        // calculate the bounding box
-        _.each(this.outerBoundary, function(coordinate){
+        var bottomLeft  = new L.Point(20026377, 20048967);
+        var topRight    = new L.Point(-20026377, -20048967);
 
-            if ( coordinate.lat > that.topRight.lat )   that.topRight.lat   = coordinate.lat;
-            if ( coordinate.lat < that.bottomLeft.lat ) that.bottomLeft.lat = coordinate.lat;
-            if ( coordinate.lng > that.topRight.lng )   that.topRight.lng   = coordinate.lng;
-            if ( coordinate.lng < that.bottomLeft.lng ) that.bottomLeft.lng = coordinate.lng;
-        });
+        // calculate the bounding box
+
+        for(var i = this.outerBoundary.length - 1; i >= 0; i--){
+            if(this.outerBoundary[i].x > topRight.x)      topRight.x      = this.outerBoundary[i].x;
+            if(this.outerBoundary[i].x < bottomLeft.x)    bottomLeft.x    = this.outerBoundary[i].x;
+
+            if(this.outerBoundary[i].y > topRight.y)      topRight.y      = this.outerBoundary[i].y;
+            if(this.outerBoundary[i].y < bottomLeft.y)    bottomLeft.y    = this.outerBoundary[i].y;
+        }
+
+
+        that.topRight   = r360.Util.webMercatorToLatLng(topRight);
+        that.bottomLeft = r360.Util.webMercatorToLatLng(bottomLeft);
 
         // precompute the polygons center
         that.centerPoint.lat = that.topRight.lat - that.bottomLeft.lat;

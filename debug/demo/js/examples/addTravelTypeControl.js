@@ -17,14 +17,13 @@ function addTravelTypeControl(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a marker and add it to the map
-    var marker = L.marker(latlon);
-    marker.addTo(map);
+    var marker = L.marker(latlon).addTo(map);
     // set the markers geo-coordinates for r360
-    marker.lat = latlon[0];
-    marker.lon = latlon[1];
+    marker.lat = marker.getLatLng().lat;
+    marker.lon = marker.getLatLng().lng;
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();

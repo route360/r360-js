@@ -4,11 +4,16 @@
 r360.RouteSegment = function(segment){      
 
     var that             = this;
-    that.polyLine        = L.polyline([]);
-    that.points          = segment.points;
+    that.points          = [];
     that.type            = segment.type;
     that.travelTime      = segment.travelTime;
-    that.length          = segment.length;    
+
+    /*
+    * TODO don't call it length! in route length refers to the array length.
+    * Call it distance instead
+    */
+
+    that.distance          = segment.length;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
@@ -17,20 +22,14 @@ r360.RouteSegment = function(segment){
     // build the geometry
     _.each(segment.points, function(point){
 
-        var utm = true;
+        var p = r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0]));
 
-        if(utm){
-            proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
-            crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32633');
-            var p = new L.Point(point[1], point[0]);
-            that.polyLine.addLatLng(L.latLng(crs.projection.unproject(p)));
+        that.points.push(p);
 
-        }
-        if(!utm){
-            that.polyLine.addLatLng(point);
-        }
-
-        
+       /* if (r360.config.utm) 
+            that.points.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
+        else
+            that.points.push(L.latLng(point[0],point[1]));*/
     });
 
     // in case we have a transit route, we set a color depending
@@ -67,8 +66,8 @@ r360.RouteSegment = function(segment){
         return that.travelTime;
     }
 
-    that.getLength = function(){
-        return that.length;
+    that.getDistance = function(){
+        return that.distance;
     }
 
     that.getRouteType = function(){

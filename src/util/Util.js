@@ -129,32 +129,15 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        var utm = true;
-
-        proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
-        crs = new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630');
-
-        if(utm){
-         
-            _.each(latlngs, function (latlng) {
-
-                var p = new L.Point(latlng[1], latlng[0]);
-                coordinates.push(L.latLng(crs.projection.unproject(p)));
-            });
+        for(var i = 0; i < latlngs.length; i++){
+            coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
         }
-
-        if(!utm){
-            _.each(latlngs, function (latlng) {
-                coordinates.push(L.latLng(latlng[0], latlng[1]));
-            });
-        }
-        
 
         return coordinates;
     },
 
     /*
-     *
+     * deprecated
      */
     routeToLeafletPolylines : function(route, options) {
 
@@ -237,6 +220,8 @@ r360.Util = {
                
         if ( polygonsJson.error ) return errorMessage;
 
+        if(r360.config.logging) var start   = new Date().getTime();
+
         var polygonList = Array();
 
         _.each(polygonsJson, function(source){
@@ -260,6 +245,9 @@ r360.Util = {
 
             polygonList.push(sourcePolygons);
         });
+
+        if ( r360.config.logging )
+            console.log("Polygon parsing took: " + (new Date().getTime() - start) + "ms");
 
         return polygonList;
     },
@@ -315,5 +303,18 @@ r360.Util = {
         });
 
         return L.marker(latlng, options);
+    },
+
+    webMercatorToLeaflet : function(point){
+        point.x /= 6378137;
+        point.y /= 6378137;
+        L.CRS.EPSG3857.transformation._transform(point);
+        return point;
+    },
+
+    webMercatorToLatLng : function(point){
+        point.x /= 6378137;
+        point.y /= 6378137;
+        return L.CRS.EPSG3857.projection.unproject(point);
     }
 };

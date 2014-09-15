@@ -19,7 +19,7 @@ function htmlControlExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create the layer to add the polygons
     var polygonLayer = r360.route360PolygonLayer();
@@ -40,8 +40,8 @@ function htmlControlExample(){
 
     // add marker
     var marker = L.marker(latlng).addTo(map);
-    marker.lat = latlng[0];
-    marker.lon = latlng[1];
+    marker.lat = marker.getLatLng().lat;
+    marker.lon = marker.getLatLng().lng;
     marker.on('click', function(){ htmlControl.toggle(); marker.openPopup(); });
     marker.bindPopup('Click me to toogle (hide/show) the Html control!').openPopup();
 

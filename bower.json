@@ -1,6 +1,6 @@
 {
     "name": "r360",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "authors": [
         "gerber@motionintelligence.net",
         "hollburg@motionintelligence.net"
@@ -31,7 +31,9 @@
         "underscore"    : "1.6.0",
         "font-awesome"  : "4.1.0",
         "raphael"       : "2.1.2",
-        "jquery-ui"     : "1.10.4"
+        "jquery-ui"     : "1.10.4",
+        "proj4"         : "~2.2.2",
+        "proj4leaflet"  : "~0.7.0"
     },
     "homepage": "http://developers.route360.net/",
     "ignore": [

@@ -26,7 +26,7 @@ function routingExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create a target marker icon to be able to distingush source and targets
     var redIcon = L.icon({iconUrl: 'lib/leaflet/images/marker-icon-red.png', 
@@ -34,13 +34,18 @@ function routingExample(){
 
     // create a source and a two target markers and add them to the map
     var sourceMarker1 = L.marker(latlons.src1).addTo(map);
-    sourceMarker1.lat = latlons.src1[0]; sourceMarker1.lon = latlons.src1[1];
+    sourceMarker1.lat = sourceMarker1.getLatLng().lat;
+    sourceMarker1.lon = sourceMarker1.getLatLng().lng;
+
     // make lat/lon accessable to r360
     var targetMarker1 = L.marker(latlons.trg1, {icon:redIcon}).addTo(map);
-    targetMarker1.lat = latlons.trg1[0]; targetMarker1.lon = latlons.trg1[1];
+    targetMarker1.lat = targetMarker1.getLatLng().lat;
+    targetMarker1.lon = targetMarker1.getLatLng().lng;
+    
     // make lat/lon accessable to r360
     var targetMarker2 = L.marker(latlons.trg2, {icon:redIcon}).addTo(map);
-    targetMarker2.lat = latlons.trg2[0]; targetMarker2.lon = latlons.trg2[1];
+    targetMarker2.lat = targetMarker2.getLatLng().lat;
+    targetMarker2.lon = targetMarker2.getLatLng().lng;
 
     // add a layer in which we will paint the route
     var routeLayer = L.featureGroup().addTo(map);
@@ -62,25 +67,8 @@ function routingExample(){
         // one route for each source and target combination
         _.each(routes, function(route){
 
-            // create one polyline for the route and a polyline for the polyline's halo
-            _.each(r360.Util.routeToLeafletPolylines(route, { addPopup : false }), function(polylineSegment){
-
-                // add halo and line
-                _.each(polylineSegment, function(polylines){ polylines.addTo(routeLayer); });
-            });
-
-            // add marker if the route segment changes, indicates transfers
-            _.each(route.getSegments(), function(segment, index) {
-                
-                // only add changing markers for öpnv switches 
-                if ( segment.getType() == "TRANSFER" ) {
-
-                    // create a small circlular marker to indicate the users have to switch trips
-                    var marker = L.circleMarker(_.last(route.getSegments()[index - 1].getPoints()), { 
-                        color: "white", fillColor: '#EF832F', fillOpacity: 1.0, stroke : true, 
-                        radius : 7 }).addTo(routeLayer);
-                }
-            });
+            routeLayer.clearLayers();
+            route.fadeIn(routeLayer, 500, "travelDistance");
         });
 
         // fit the map perfectly or show an error message

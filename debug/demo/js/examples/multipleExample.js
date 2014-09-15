@@ -23,7 +23,7 @@ function multipleExample(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.serviceKey = 'iWJUcDfMWTzVDL69EWCG';
+    r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
 
     // create the layer to add the polygons
     var cpl = r360.route360PolygonLayer();
@@ -59,10 +59,12 @@ function multipleExample(){
 
     // create a source and a two target markers and add them to the map
     var sourceMarker1 = L.marker(latlons.src1).addTo(map);
-    sourceMarker1.lat = latlons.src1[0]; sourceMarker1.lon = latlons.src1[1];
+    sourceMarker1.lat = sourceMarker1.getLatLng().lat;
+    sourceMarker1.lon = sourceMarker1.getLatLng().lng;
     // only for r360
     var sourceMarker2 = L.marker(latlons.src2).addTo(map);
-    sourceMarker2.lat = latlons.src2[0]; sourceMarker2.lon = latlons.src2[1];
+    sourceMarker2.lat = sourceMarker2.getLatLng().lat;
+    sourceMarker2.lon = sourceMarker2.getLatLng().lng;
     
     // bind the action to the change event of the radio travel mode element
     intersectionModeButtons.onChange(function(intersectionMode){ showPolygons(intersectionMode); });

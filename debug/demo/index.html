@@ -32,9 +32,26 @@
     <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
     <link rel="stylesheet" href="lib/jquery/jquery-ui-1.10.0.custom.css"/>
     <link rel="stylesheet" href="css/r360.css"/>
+
+    <style type="text/css">
+
+        #newversion {
+
+            position: absolute;
+            z-index: 100001;
+            background-color: red;
+            color: white;
+            margin-left: 40%;
+            margin-right: 40%;
+            width: 500px;
+            padding: 10px;
+        }
+    </style>
 </head>
 
 <body id="page-top" class="index">
+
+    <!-- <div id="newversion">Service not temporary not available due to maintenance work.</div> -->
 
     <!-- Navigation -->
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -60,6 +77,9 @@
                     </li>
                     <li class="page-scroll">
                         <a href="#gettingStarted">Getting started</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#demo">Demo</a>
                     </li>
                     <li class="page-scroll">
                         <a href="#tutorials">Tutorials</a>
@@ -132,6 +152,32 @@
             <p>You can have a look at the complete example <a href="basic.html" target="_blank">here</a>.</p>
         </div>
     </section>
+
+     <section class="success demo" id="demo">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2><a href="#demo" style="color:white; text-decoration: none;">Demo</a></h2>
+                    <hr class="star-light">
+                </div>
+            </div>
+            <div class="row">
+                    <p>To showcase our API, we have implemented a demo which allows a user to find apartments in and around Berlin. These apartments are integrated from the <a href="http://www.immobilienscout24.de/">ImmobilienScout 24</a> API. A user can insert up to three points which represent important points (e.g. work, friends, boy/girlfriend, hacklab etc.) in his or her life. Our software is now able to show only these apartments that can be reach from all points in let's say 30 minutes or we can change the marker size according to travel times. You can try out the iframe below or get your hands real dirty with the three different version we are testing:
+                        <ol>
+                            <li><p><a href="http://demo.route360.net/ab-no_unreachable">Only reachable apartments</a> are shown</p></li>
+                            <li><p>Show <a href="http://demo.route360.net/ab-pins">each marker</a> and scale the size according to travel times</p></li>
+                            <li><p>Show all markers but in a <a href="http://demo.route360.net/ab-markercluster">clustered mode</a></p></li>
+                        </ol>
+                    <div class="bs-callout bs-callout-warning">
+                        <h4>How can I help to make this even better?</h4>
+                        <p>It would be absoulty awesome of you, if you could fill out this little <a style="color: #F20017" href="https://docs.google.com/forms/d/1yNdGnp7J_AHYNiPhNsSf85Tmx2qr2d6ocYrthO-_-XM/viewform">form</a>. It's really not that long and it would help us dramatically. Thank you!</p>
+                    </div>
+                 </p>
+                <iframe id="demo-iframe" frameBorder="0" src="http://demo.route360.net/ab-no_unreachable/#/"></iframe>
+            </div>
+        </div>
+    </section>
+
 
     <section class="tutorials" id="tutorials">
         <div class="container">
@@ -388,6 +434,9 @@
     <script src="js/g.line-min.js"></script>
     <script src="js/museums_bb.js"></script>
 
+    <script src="lib/proj4/proj4-compressed.js"></script>    
+    <script src="lib/proj4/proj4leaflet.js"></script>
+    
     <!-- // <script src="js/r360.js"></script> -->
 
     <script type="text/javascript" src="../../build/deps.js"></script>
