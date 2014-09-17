@@ -31,6 +31,22 @@ r360.Route360PolygonLayer = L.Class.extend({
         }
 
         this._multiPolygons = new Array(); 
+
+        navigator.sayswho= (function(){
+            var ua= navigator.userAgent, tem, 
+            M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+            if(/trident/i.test(M[1])){
+                tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+                return 'IE '+(tem[1] || '');
+            }
+            if(M[1]=== 'Chrome'){
+                tem= ua.match(/\bOPR\/(\d+)/)
+                if(tem!= null) return 'Opera '+tem[1];
+            }
+            M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+            if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+            return M.join(' ');
+        })();
     },
 
     /* 
@@ -329,6 +345,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         bounds.max.y += extendY;
         bounds.min.y -= extendY;
 
+
         var scale   = Math.pow(2,that._map._zoom) * 256;
 
         var pathData = new Array();
@@ -407,6 +424,8 @@ r360.Route360PolygonLayer = L.Class.extend({
             var svgPosition    = svgHTML.offset();
             var mapPosition    = $(this._map._container).offset();
 
+            
+
             if(typeof that._offset == 'undefined')
                 that._offset = new L.Point(0,0)
 
@@ -414,14 +433,7 @@ r360.Route360PolygonLayer = L.Class.extend({
                 that._offset.x += (mapPosition.left - svgPosition.left);
                 that._offset.y += (mapPosition.top - svgPosition.top);
             }
-            /*
-            if (navigator.appVersion.indexOf("MSIE 9.") != -1 ){
-                that._offset.x *= -1;
-                that._offset.y *= -1;
-            }
-            */
-            // do some fixing for various ie versions
-            //that._ieFixes(pos);
+
 
             // clear layer from previous drawings
             $('#canvas'+ $(this._map._container).attr("id")).empty();                      
@@ -446,7 +458,8 @@ r360.Route360PolygonLayer = L.Class.extend({
 
                     var animate = false;     
                     if(that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate)
-                        animate = true;
+                        if(that._isAnimated())
+                            animate = true;
 
 
                     if(!r360.config.defaultPolygonLayerOptions.inverse)
@@ -479,7 +492,11 @@ r360.Route360PolygonLayer = L.Class.extend({
     },
 
     _isAnimated: function(){
-        if (navigator.appVersion.indexOf("MSIE") != -1 )
+        if (navigator.sayswho.indexOf("IE") != -1 )
+            return false;
+        if (navigator.sayswho.indexOf("Safari") != -1 )
+            return false;
+        if (navigator.sayswho.indexOf("Firefox") != -1 )
             return false;
         if(r360.config.defaultPolygonLayerOptions.animate)
             return true;
@@ -498,21 +515,25 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     _getTranslation: function(){
         var that = this;
-        if (navigator.appVersion.indexOf("MSIE 9.") != -1 )
-            return "translate("+that._offset.x+"px,"+that._offset.y+"px)";
+        if (navigator.sayswho.indexOf("IE 9") != -1 )
+            return "transform:translate("+that._offset.x+"px,"+that._offset.y+"px)";
+        if  (navigator.sayswho.indexOf("Safari") != -1 ) 
+            return "-webkit-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
+        if  (navigator.sayswho.indexOf("Firefox") != -1 ) 
+            return "-moz-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
         else
-            return "translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
+            return "transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
     },
 
     _getInverseSvgElement: function(gElement){
         var that     = this;
         var svgFrame = this._getFrame(that._svgWidth, that._svgHeight);
 
-        var svgStart = "<svg id=svg_"+ $(this._map._container).attr("id") + 
+        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
                             " height=" + that._svgHeight + 
                             " width="  + that._svgWidth  + 
-                            " style='transform:" + that._getTranslation() + "; fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg>";
+                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
 
         var gees = "";
 
@@ -541,17 +562,17 @@ r360.Route360PolygonLayer = L.Class.extend({
         }
 
         return  "<g id=" + randomId + " style='opacity:" + initialOpacity + "'>"+
-                    "<path style='stroke: " + color + "; fill: " + color + " ; stroke-opacity: 1; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
+                    "<path style='stroke: " + color + "; fill: " + color + " ; stroke-opacity: 1; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
                 "</g><animate xlink:href='#" + randomId + "' attributeName='opacity' begin='0s' dur='" + animationDuration + "s' from=" + initialOpacity + " to=" + opacity + " fill='freeze' />";
     },
 
     _getNormalSvgElement: function(gElement){
         var that = this;
-        var svgStart = "<svg id=svg_"+ $(this._map._container).attr("id") + 
+        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
                             " height=" + that._svgHeight + 
                             " width="  + that._svgWidth  + 
-                            " style='transform:" + that._getTranslation() + "; fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg>";
+                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
 
         var gees = "";
 
