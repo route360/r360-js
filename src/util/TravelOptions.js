@@ -40,8 +40,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getSources(), function(source){
 
-                    if ( !_.has(source, 'lat') ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !_.has(source, 'lon') ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !_.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
+                    if ( !_.has(source, 'lon') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -116,8 +116,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getTargets(), function(target){
 
-                    if ( !_.has(target, 'lat') ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !_.has(target, 'lon') ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !_.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
+                    if ( !_.has(target, 'lon') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }

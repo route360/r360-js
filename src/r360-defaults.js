@@ -1,10 +1,7 @@
-proj4.defs('EPSG:32630', '+proj=utm +zone=30 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
-proj4.defs('EPSG:32633', '+proj=utm +zone=33 +ellps=GRS80 +datum=WGS84 +units=m +no_defs');
-
 r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
-    serviceUrl      : 'http://api.route360.net/api/',
+    serviceUrl      : 'http://api.route360.net/api_dev/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
@@ -19,14 +16,11 @@ r360.config = {
     travelType      : "walk",
     logging         : false,
     utm             : true,
-    crs             : new L.Proj.CRS('urn:ogc:def:crs:EPSG::32630'),
-
-   
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
-            { time : 300  , color : "#006837"},
+            { time : 300  , color : "#006837", opacity : 0.1 },
             { time : 600  , color : "#39B54A"},
             { time : 900  , color : "#8CC63F"},
             { time : 1200 , color : "#F7931E"},
@@ -41,33 +35,33 @@ r360.config = {
     routeTypes  : [
 
         // non transit
-        { routeType : 'WALK'     , color : "#558D54"},
-        { routeType : 'BIKE'     , color : "#558D54"},
-        { routeType : 'CAR'      , color : "#558D54"},
-        { routeType : 'TRANSFER' , color : "#558D54"},
+        { routeType : 'WALK'     , color : "#558D54",   halo : "#558D54"},
+        { routeType : 'BIKE'     , color : "#558D54",   halo : "#558D54"},
+        { routeType : 'CAR'      , color : "#558D54",   halo : "#558D54"},
+        { routeType : 'TRANSFER' , color : "#558D54",   halo : "#558D54"},
 
         // berlin
-        { routeType : 102        , color : "#006837"},
-        { routeType : 400        , color : "#156ab8"},
-        { routeType : 900        , color : "red"},
-        { routeType : 700        , color : "#A3007C"},
-        { routeType : 1000       , color : "blue"},
-        { routeType : 109        , color : "#006F35"},
-        { routeType : 100        , color : "red"},
+        { routeType : 102        , color : "#006837",   halo : "#006837"},
+        { routeType : 400        , color : "#156ab8",   halo : "#156ab8"},
+        { routeType : 900        , color : "red",       halo : "red"},
+        { routeType : 700        , color : "#A3007C",   halo : "#A3007C"},
+        { routeType : 1000       , color : "blue",      halo : "blue"},
+        { routeType : 109        , color : "#006F35",   halo : "#006F35"},
+        { routeType : 100        , color : "red",       halo : "red"},
         // new york      
-        { routeType : 1          , color : "red"},
-        { routeType : 2          , color : "blue"},
-        { routeType : 3          , color : "yellow"},
-        { routeType : 0          , color : "green"},
-        { routeType : 4          , color : "orange"},
-        { routeType : 5          , color : "red"},
-        { routeType : 6          , color : "blue"},
-        { routeType : 7          , color : "yellow"}
+        { routeType : 1          , color : "red",       halo : "red"},
+        { routeType : 2          , color : "blue",      halo : "blue"},
+        { routeType : 3          , color : "yellow",    halo : "yellow"},
+        { routeType : 0          , color : "green",     halo : "green"},
+        { routeType : 4          , color : "orange",    halo : "orange"},
+        { routeType : 5          , color : "red",       halo : "red"},
+        { routeType : 6          , color : "blue",      halo : "blue"},
+        { routeType : 7          , color : "yellow",    halo : "yellow" }
     ],
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
-        serviceUrl : "http://148.251.160.52/api?",
+        // serviceUrl : "http://148.251.160.52/api?",
         position : 'topleft',
         reset : false,
         reverse : false,

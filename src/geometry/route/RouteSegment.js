@@ -21,15 +21,7 @@ r360.RouteSegment = function(segment){
 
     // build the geometry
     _.each(segment.points, function(point){
-
-        var p = r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0]));
-
-        that.points.push(p);
-
-       /* if (r360.config.utm) 
-            that.points.push(L.latLng(r360.config.crs.projection.unproject(new L.Point(point[1], point[0]))));
-        else
-            that.points.push(L.latLng(point[0],point[1]));*/
+        that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0])));
     });
 
     // in case we have a transit route, we set a color depending
@@ -48,7 +40,11 @@ r360.RouteSegment = function(segment){
         that.arrivalTime    = segment.arrivalTime;
         that.tripHeadSign   = segment.tripHeadSign;
     }
-    else that.color         = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
+    else {
+
+        that.color     = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
+        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).halo;
+    }
 
     that.getPoints = function(){
         return that.points;
@@ -56,6 +52,10 @@ r360.RouteSegment = function(segment){
 
     that.getType = function(){
         return that.type;
+    }
+
+    that.getHaloColor = function(){
+        return that.haloColor;
     }
 
     that.getColor = function(){

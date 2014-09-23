@@ -74,7 +74,7 @@ r360.Route = function(travelTime){
                 })(segment, k, timeToDraw);
 
             }else{
-                // create a small circlular marker to indicate the users have to switch trips
+                // create a small circlular marker to indicat   e the users have to switch trips
 
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
@@ -97,14 +97,18 @@ r360.Route = function(travelTime){
             var polylineOptions         = {};
             polylineOptions.color       = segment.getColor();
             polylineOptions.opacity     = 0.8;
-            polylineOptions.weight      = 8;
+            polylineOptions.weight      = 5;
 
-            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  polylineOptions.dashArray = "1, 12";
+            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  {
+
+                polylineOptions.weight    = 7;
+                polylineOptions.dashArray = "1, 10";
+            }
 
             var polylineHaloOptions     = {};
-            polylineHaloOptions.weight  = 12;
-            polylineHaloOptions.opacity = 0.9;
-            polylineHaloOptions.color   = '#9D9D9D';
+            polylineHaloOptions.weight  = 10;
+            polylineHaloOptions.opacity = 0.7;
+            polylineHaloOptions.color   = typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces = millis / 15;

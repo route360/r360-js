@@ -1,6 +1,6 @@
 {
     "name": "r360",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "authors": [
         "gerber@motionintelligence.net",
         "hollburg@motionintelligence.net"
@@ -8,14 +8,15 @@
     "description": "Route360° JavaScript API",
     "main": [
         "dist/r360.js",
-        "dist/jquery-ui-1.10.0.custom.css",
         "dist/r360.css",
+        "dist/jquery-ui-1.10.0.custom.css",
         "dist/images/marker-icon-red.png",
         "dist/images/marker-icon-blue.png",
         "dist/images/marker-icon-purple.png",
         "dist/images/marker-icon-green.png",
         "dist/images/marker-icon-orange.png",
-        "dist/images/marker-icon.png"
+        "dist/images/marker-icon.png",
+        "dist/images/ui-bg_glass_75_ffffff_1x400.png"
     ],
     "keywords": [
         "r360",
@@ -30,10 +31,7 @@
         "jquery"        : "1.10.2",
         "underscore"    : "1.6.0",
         "font-awesome"  : "4.1.0",
-        "raphael"       : "2.1.2",
         "jquery-ui"     : "1.10.4",
-        "proj4"         : "~2.2.2",
-        "proj4leaflet"  : "~0.7.0"
     },
     "homepage": "http://developers.route360.net/",
     "ignore": [
