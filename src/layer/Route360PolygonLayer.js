@@ -247,7 +247,7 @@ r360.Route360PolygonLayer = L.Class.extend({
             return true;
         
         var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-        if(val < 1 && val > -1)
+        if(val < 1 && val > -1 && p1.x != p3.x && p1.y != p3.y)
             return true;
         return false;
     },
@@ -571,7 +571,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
                             " height=" + that._svgHeight + 
                             " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
         var svgEnd   = "</svg></div>";
 
         var gees = "";

@@ -84,7 +84,7 @@ r360.config = {
         backgroundOpacity : 0.5,
         inverse : false,
 
-        animate : true,
+        animate : false,
         animationDuration : 1
     },
 
