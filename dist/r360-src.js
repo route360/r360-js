@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (4f9ae63), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (8488ac8), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -119,7 +119,7 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
-        serviceUrl : "http://148.251.160.52/api?",
+        // serviceUrl : "http://148.251.160.52/api?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -142,7 +142,7 @@ r360.config = {
         backgroundOpacity : 0.5,
         inverse : false,
 
-        animate : true,
+        animate : false,
         animationDuration : 1
     },
 
@@ -542,8 +542,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getSources(), function(source){
 
-                    if ( !_.has(source, 'lat') ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !_.has(source, 'lon') ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !_.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
+                    if ( !_.has(source, 'lon') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -618,8 +618,8 @@ r360.TravelOptions = function(){
                 // validate each source
                 _.each(this.getTargets(), function(target){
 
-                    if ( !_.has(target, 'lat') ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !_.has(target, 'lon') ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !_.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
+                    if ( !_.has(target, 'lon') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }
@@ -3252,7 +3252,7 @@ r360.Route360PolygonLayer = L.Class.extend({
             return true;
         
         var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-        if(val < 1 && val > -1)
+        if(val < 1 && val > -1 && p1.x != p3.x && p1.y != p3.y)
             return true;
         return false;
     },
@@ -3576,7 +3576,7 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
                             " height=" + that._svgHeight + 
                             " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
         var svgEnd   = "</svg></div>";
 
         var gees = "";
