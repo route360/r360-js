@@ -73,9 +73,20 @@ r360.Route360PolygonLayer = L.Class.extend({
         this._reset(true);
 
     },
+
+    /**
+     * [clearAndAddLayers description]
+     * @param  {[type]} sourceToPolygons [description]
+     * @return {[type]}                  [description]
+     */
+    clearAndAddLayers : function(sourceToPolygons){
+
+        this.clearLayers();
+        this.addLayer(sourceToPolygons);
+    },
     
     /*
-    *
+     *
      */
     addLayer:function(sourceToPolygons){        
         
