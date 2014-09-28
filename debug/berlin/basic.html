@@ -41,9 +41,11 @@
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
             r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
-            r360.config.serviceUrl = 'http://localhost:8080/api/';
+            //r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             var routeLayer = L.featureGroup().addTo(map);
+            // create the layer to add the polygons
+            var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
             // create a marker and add it to the map
             var marker = L.marker(latlon, { draggable : true }).addTo(map);
@@ -74,17 +76,13 @@
 
             function paintPolygons(){
 
-                // create the layer to add the polygons
-                var polygonLayer = r360.route360PolygonLayer().addTo(map);
-
                 // you need to define some options for the polygon service
                 // for more travel options check out the other tutorials
                 var travelOptions = r360.travelOptions();
                 // we only have one source which is the marker we just added
                 travelOptions.addSource(marker);
                 travelOptions.setTravelType('transit');
-                travelOptions.setDate('20140825');
-                travelOptions.setTime('39600');
+               
                 // we want to have polygons for 5 to 30 minutes
                 travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
