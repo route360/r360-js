@@ -24,7 +24,7 @@
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [52.5167, 13.3833];
+            var latlon = [43.9289, 2.1464];
 
             // add the map and set the initial center to berlin
             var map = L.map('map').setView(latlon, 13);
@@ -37,14 +37,15 @@
             L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
                 maxZoom: 18, attribution: attribution }).addTo(map);
 
+            // the bounding box for the endpoint
+            var left = 7.2812, bottom = 44.8227, right = 7.9711, top = 45.3059;
+            var latlngs = [[bottom, left], [top, left], [top, right], [bottom, right], [bottom, left]];
+            L.polyline(latlngs, {color: 'red'}).addTo(map);
+
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
-            //r360.config.serviceUrl = 'http://localhost:8080/api/';
-
-            var routeLayer   = L.featureGroup().addTo(map);
-            var polygonLayer = r360.route360PolygonLayer().addTo(map);
+            r360.config.serviceUrl = 'http://api.route360.net/api_albi/';
 
             // create a marker and add it to the map
             var marker = L.marker(latlon, { draggable : true }).addTo(map);
@@ -55,33 +56,17 @@
                 paintPolygons();    
             });
 
-            map.on("click", function(e){    
-
-                routeLayer.clearLayers();
-
-                var travelOptions = r360.travelOptions();
-                travelOptions.addSource(marker);
-                travelOptions.setTravelType('car');
-                travelOptions.addTarget(L.marker(e.latlng).addTo(map));
-
-                r360.RouteService.getRoutes(travelOptions, function(routes) {
-
-                    for ( var i = 0 ; i < routes.length ; i++ ) {
-
-                        routes[i].fadeIn(routeLayer, 2000, "travelDistance");
-                    }
-                });
-            });
-
             function paintPolygons(){
+
+                // create the layer to add the polygons
+                var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
                 // you need to define some options for the polygon service
                 // for more travel options check out the other tutorials
                 var travelOptions = r360.travelOptions();
                 // we only have one source which is the marker we just added
                 travelOptions.addSource(marker);
-                travelOptions.setTravelType('transit');
-               
+                travelOptions.setTravelType('bike');
                 // we want to have polygons for 5 to 30 minutes
                 travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
 
