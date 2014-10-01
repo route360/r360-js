@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <!-- stylesheets -->
     <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.0.custom.css">
     <link rel="stylesheet" href="r360.css"/>
 
     <style>
@@ -17,12 +18,15 @@
 
     <!-- scripts -->
     <script src="jquery-1.10.2.js"></script>
+    <script src="jquery-ui-1.10.4.min.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
     <script src="r360-src.js"></script>
 
      <script type="text/javascript">
         $(document).ready(function(){
+
+            r360.config.defaultPolygonLayerOptions.animate = false;
 
             var latlon = [52.5167, 13.3833];
 
@@ -40,52 +44,133 @@
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
             r360.config.serviceUrl = 'http://localhost:8080/api/';
 
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                { time : 600  , color : "#006837", opacity : 1.0 },
+                { time : 1200  , color : "#39B54A", opacity : 1.0 },
+                { time : 1800  , color : "#8CC63F", opacity : 1.0 },
+                { time : 2400 , color : "#F7931E", opacity : 1.0 },
+                { time : 3000 , color : "#F15A24", opacity : 1.0 },
+                { time : 3600 , color : "#C1272D", opacity : 1.0 }
+            ];
+
+            var travelTimeControl = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 600  , color : "#006837", opacity : 1  },
+                    { time : 1200 , color : "#39B54A", opacity : 0.8},
+                    { time : 1800 , color : "#8CC63F", opacity : 0.6},
+                    { time : 2400 , color : "#F7931E", opacity : 0.4},
+                    { time : 3000 , color : "#F15A24", opacity : 0.2},
+                    { time : 3600 , color : "#C1272D", opacity : 0.1}
+                ], position : 'topright', label: 'Travel time: ', initValue: 30
+            });
+
+            //  bind the action to the travel time control
+            travelTimeControl.onSlideStop(function(){ showPolygons(); });
+
+            // add the newly created control to the map
+            map.addControl(travelTimeControl);
+
+            // add a radio element with all the different transport types
+            var buttonOptions = {
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: '<span class="map-icon-bicycling"></span> Cycling', key: 'bike',     
+                      tooltip: 'Cycling speed is on average 15km/h', checked : false },
+
+                    { label: '<span class="map-icon-walking"></span> Walking', key: 'walk',     
+                      tooltip: 'Walking speed is on average 5km/h', checked : true  },
+
+                    { label: '<span class="fa fa-car"></span> Car', key: 'car',      
+                      tooltip: 'Car speed is limited by speed limit', checked : false },
+
+                    { label: '<span class="map-icon-train-station"></span> Transit', key: 'transit',  
+                      tooltip: 'This demo only contains subways', checked : false }
+                ]
+            };
+
+            // create a new readio button control with the given options
+            var travelTypeButtons = r360.radioButtonControl(buttonOptions);
+
+            // add the newly created control to the map
+            map.addControl(travelTypeButtons);
+
+            // bind the action to the change event of the radio travel mode element
+            travelTypeButtons.onChange(function(value){ showPolygons(); });
+
+            var polyOptions = {
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: 'Color', key: 'normal',     
+                      tooltip: 'Show reachable', checked :  true },
+                    { label: 'Black & White', key: 'inverse',     
+                      tooltip: 'Hide not reachable', checked : false }
+                ],
+                position : 'topright'
+            };
+
+            var polygonOptions    = r360.radioButtonControl(polyOptions);
+            polygonOptions.onChange(function(){ 
+
+                r360.config.defaultPolygonLayerOptions.inverse = !r360.config.defaultPolygonLayerOptions.inverse;
+                showPolygons(); 
+            });
+
+            map.addControl(polygonOptions);
+
+            $('span[lang="de"]').hide();
+
+            // create the layer to add the polygons
             var routeLayer   = L.featureGroup().addTo(map);
+            var markerLayer  = L.featureGroup().addTo(map);
             var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon, { draggable : true }).addTo(map);
-            paintPolygons();
+            var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
+            showPolygons();
 
-            marker.on('dragend', function(){
+            homeMarker.on('dragend', function(){
 
-                paintPolygons();    
+                showPolygons();    
             });
 
             map.on("click", function(e){    
 
                 routeLayer.clearLayers();
+                markerLayer.clearLayers();
 
                 var travelOptions = r360.travelOptions();
-                travelOptions.addSource(marker);
-                travelOptions.setTravelType('car');
-                travelOptions.addTarget(L.marker(e.latlng).addTo(map));
+                travelOptions.addSource(homeMarker);
+                travelOptions.setTravelType(travelTypeButtons.getValue());
+                travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
 
                 r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
 
-                    for ( var i = 0 ; i < routes.length ; i++ ) {
-
-                        routes[i].fadeIn(routeLayer, 2000, "travelDistance");
-                    }
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
                 });
             });
 
-            function paintPolygons(){
+            function showPolygons(){
 
-                // you need to define some options for the polygon service
-                // for more travel options check out the other tutorials
                 var travelOptions = r360.travelOptions();
-                // we only have one source which is the marker we just added
-                travelOptions.addSource(marker);
-                travelOptions.setDate('20140825');
-                travelOptions.setTime('39600');
-                travelOptions.setTravelType('transit');
-               
-                // we want to have polygons for 5 to 30 minutes
-                travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
+                travelOptions.addSource(homeMarker);
+                travelOptions.setTravelType(travelTypeButtons.getValue());
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
+
+                if ( travelTypeButtons.getValue() == 'transit' ) {
+                    travelOptions.setDate('20140825');
+                    travelOptions.setTime('39600');
+                }
+
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
