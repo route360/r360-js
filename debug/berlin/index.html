@@ -39,12 +39,13 @@
 
             // set the service key, this is a demo key
             // please contact us and request your own key
-            r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
+            r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
             r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
             r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             var routeLayer   = L.featureGroup().addTo(map);
             var polygonLayer = r360.route360PolygonLayer().addTo(map);
+
 
             // create a marker and add it to the map
             var marker = L.marker(latlon, { draggable : true }).addTo(map);
@@ -80,10 +81,9 @@
                 var travelOptions = r360.travelOptions();
                 // we only have one source which is the marker we just added
                 travelOptions.addSource(marker);
-                travelOptions.setDate('20140825');
-                travelOptions.setTime('39600');
-                travelOptions.setTravelType('transit');
-               
+
+                travelOptions.setTravelType('car');
+             
                 // we want to have polygons for 5 to 30 minutes
                 travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
 
