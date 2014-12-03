@@ -262,15 +262,7 @@ r360.Util = {
         var routes = new Array();
 
         _.each(json.routes, function(jsonRoute){
-
-            var route = r360.route(jsonRoute.travelTime);
-
-            _.each(jsonRoute.segments, function(segment){                
-
-                route.addRouteSegment(r360.routeSegment(segment));
-            });
-
-            routes.push(route);
+            routes.push(r360.route(jsonRoute.travelTime, jsonRoute.segments));
         });
 
         return routes;
@@ -313,9 +305,15 @@ r360.Util = {
         return point;
     },
 
-    webMercatorToLatLng : function(point){
-        point.x /= 6378137;
-        point.y /= 6378137;
-        return L.CRS.EPSG3857.projection.unproject(point);
+    webMercatorToLatLng : function(point, elevation){
+
+        var latlng = L.CRS.EPSG3857.projection.unproject(new L.Point(point.x /= 6378137, point.y /= 6378137));
+
+        // x,y,z given so we have elevation data
+        if ( typeof elevation !== 'undefined' ) 
+            return L.latLng(latlng.lat, latlng.lng, elevation);
+        // no elevation given, just unproject coordinates to lat/lng
+        else 
+            return latlng;
     }
 };

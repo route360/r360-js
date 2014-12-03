@@ -58,22 +58,22 @@
                 { time : 3600 , color : "#C1272D", opacity : 1.0 }
             ];
 
-            var travelTimeControl = r360.travelTimeControl({
-                travelTimes     : [
-                    { time : 600  , color : "#006837", opacity : 1  },
-                    { time : 1200 , color : "#39B54A", opacity : 0.8},
-                    { time : 1800 , color : "#8CC63F", opacity : 0.6},
-                    { time : 2400 , color : "#F7931E", opacity : 0.4},
-                    { time : 3000 , color : "#F15A24", opacity : 0.2},
-                    { time : 3600 , color : "#C1272D", opacity : 0.1}
-                ], position : 'topright', label: 'Travel time: ', initValue: 30
-            });
+            // var travelTimeControl = r360.travelTimeControl({
+            //     travelTimes     : [
+            //         { time : 600  , color : "#006837", opacity : 1  },
+            //         { time : 1200 , color : "#39B54A", opacity : 0.8},
+            //         { time : 1800 , color : "#8CC63F", opacity : 0.6},
+            //         { time : 2400 , color : "#F7931E", opacity : 0.4},
+            //         { time : 3000 , color : "#F15A24", opacity : 0.2},
+            //         { time : 3600 , color : "#C1272D", opacity : 0.1}
+            //     ], position : 'topright', label: 'Travel time: ', initValue: 30
+            // });
 
             //  bind the action to the travel time control
-            travelTimeControl.onSlideStop(function(){ showPolygons(); });
+            // travelTimeControl.onSlideStop(function(){ showPolygons(); });
 
             // add the newly created control to the map
-            map.addControl(travelTimeControl);
+            // map.addControl(travelTimeControl);
 
             // add a radio element with all the different transport types
             var buttonOptions = {
@@ -167,7 +167,8 @@
 
                 travelOptions.addSource(homeMarker);
                 travelOptions.setTravelType(travelTypeButtons.getValue());
-                travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setTravelTimes([3600]);
+                // travelOptions.setTravelTimes(travelTimeControl.getValues());
 
                 if ( travelTypeButtons.getValue() == 'transit' ) {
                     travelOptions.setDate('20140825');
@@ -175,7 +176,8 @@
                 }
 
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                    travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
+                    travelOptions.setTravelTimes([3600]);
+                    // travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
 
                 // call the service

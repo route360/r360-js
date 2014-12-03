@@ -19,12 +19,13 @@
     <script src="jquery-1.10.2.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
-    <script src="r360-src.js"></script>
+    <script type="text/javascript" src="../../lib/build/deps.js"></script>
+    <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
 
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [43.9289, 2.1464];
+            var latlon = [59.9500, 10.7500];
 
             // add the map and set the initial center to berlin
             var map = L.map('map').setView(latlon, 13);
@@ -38,18 +39,40 @@
                 maxZoom: 18, attribution: attribution }).addTo(map);
 
             // the bounding box for the endpoint
-            var left = 7.2812, bottom = 44.8227, right = 7.9711, top = 45.3059;
-            var latlngs = [[bottom, left], [top, left], [top, right], [bottom, right], [bottom, left]];
-            L.polyline(latlngs, {color: 'red'}).addTo(map);
+            // var left = 7.2812, bottom = 44.8227, right = 7.9711, top = 45.3059;
+            // var latlngs = [[bottom, left], [top, left], [top, right], [bottom, right], [bottom, left]];
+            // L.polyline(latlngs, {color: 'red'}).addTo(map);
+
+            // create the layer to add the polygons
+            var routeLayer   = L.featureGroup().addTo(map);
+            var markerLayer  = L.featureGroup().addTo(map);
+            var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
             // set the service key, this is a demo key
             // please contact us and request your own key
-            r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_albi/';
+            r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
+            r360.config.serviceUrl = 'http://dev.route360.net/api_norway/';
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             // create a marker and add it to the map
             var marker = L.marker(latlon, { draggable : true }).addTo(map);
             paintPolygons();
+
+            map.on('click', function(e){
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(marker);
+                travelOptions.setTravelType('bike');
+                travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
+
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        console.log(route);
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+            })
 
             marker.on('dragend', function(){
 
@@ -57,9 +80,6 @@
             });
 
             function paintPolygons(){
-
-                // create the layer to add the polygons
-                var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
                 // you need to define some options for the polygon service
                 // for more travel options check out the other tutorials

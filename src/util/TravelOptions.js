@@ -16,6 +16,7 @@ r360.TravelOptions = function(){
 
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
+    this.elevationEnabled = true;
 
     this.time             = r360.Util.getTimeInSeconds();
     this.date             = r360.Util.getCurrentDate();
@@ -518,6 +519,29 @@ r360.TravelOptions = function(){
     this.setWaitControl = function(waitControl){
 
         this.waitControl = waitControl;
+    }
+
+    /**
+     * [isElevationEnabled if true the service will return elevation data, if the backend is 
+     * configured with elevation data, if the backend is not configured with elevation data
+     * the z value of all points in routes is 0]
+     * 
+     * @return {[boolean]} [returns true if elevation enabled]
+     */
+    this.isElevationEnabled = function() {
+
+        return this.elevationEnabled;
+    }
+
+    /**
+     * [setElevationEnabled if set to true the service will return elevation data, if the backend is 
+     * configured with elevation data, if the backend is not configured with elevation data
+     * the z value of all points in routes is 0]
+     * @param {[type]} elevationEnabled [set the backend to consider elevation data for polygonizing and routing]
+     */
+    this.setElevationEnabled = function(elevationEnabled){
+
+        this.elevationEnabled = elevationEnabled;
     }
 };
 

@@ -1,11 +1,15 @@
 /*
  *
  */
-r360.Route = function(travelTime){
+r360.Route = function(travelTime, segments){
 
     var that = this;
     that.travelTime = travelTime;
     that.routeSegments = new Array();
+
+    _.each(segments, function(segment){                
+        that.routeSegments.push(r360.routeSegment(segment));
+    });
 
     /*
      *
@@ -216,6 +220,6 @@ r360.Route = function(travelTime){
     };
 };
 
-r360.route = function (travelTime) { 
-    return new r360.Route(travelTime);
+r360.route = function (travelTime, segments) { 
+    return new r360.Route(travelTime, segments);
 };

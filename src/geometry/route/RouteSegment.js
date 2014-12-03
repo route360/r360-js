@@ -21,7 +21,7 @@ r360.RouteSegment = function(segment){
 
     // build the geometry
     _.each(segment.points, function(point){
-        that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0])));
+        that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0]), point[2]));
     });
 
     // in case we have a transit route, we set a color depending

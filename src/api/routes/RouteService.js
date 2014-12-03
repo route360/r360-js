@@ -14,7 +14,9 @@ r360.RouteService = {
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
 
-            var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
+            var cfg = { sources : [], targets : [], 
+                pathSerializer : travelOptions.getPathSerializer(),
+                elevation : travelOptions.isElevationEnabled() };
             
             _.each(travelOptions.getSources(), function(source){
 
@@ -73,16 +75,16 @@ r360.RouteService = {
             if ( !_.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
                 $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
-                    function(result){
+                    encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                        function(result){
 
-                        // cache the result
-                        r360.RouteService.cache[JSON.stringify(cfg)] = result;
-                        // hide the please wait control
-                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                        // call callback with returned results
-                        callback(r360.Util.parseRoutes(result)); 
-                    });
+                            // cache the result
+                            r360.RouteService.cache[JSON.stringify(cfg)] = result;
+                            // hide the please wait control
+                            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                            // call callback with returned results
+                            callback(r360.Util.parseRoutes(result)); 
+                        });
             }
             else { 
 

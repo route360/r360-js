@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (0fe38c7), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (e886e6b), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -83,7 +83,7 @@ r360.config = {
             { time : 900  , color : "#8CC63F"},
             { time : 1200 , color : "#F7931E"},
             { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"},
+            { time : 1800 , color : "#C1272D"}
         ],
         position : 'topright',
         label: 'travel time',
