@@ -315,5 +315,12 @@ r360.Util = {
         // no elevation given, just unproject coordinates to lat/lng
         else 
             return latlng;
+    },
+
+    latLngToWebMercator : function(latlng){
+        var point = L.Projection.SphericalMercator.project(latlng);
+        point.x *= 6378137;
+        point.y *= 6378137;
+        return point;
     }
 };

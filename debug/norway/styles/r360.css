@@ -1,0 +1,184 @@
+body {
+
+    padding: 0;
+    margin: 0;
+}
+
+html, body, #map {
+    height: 100%;
+    height: 100%
+}
+
+.mi-box {    
+    position: static;
+    background-color: white;
+    
+background-color: #E6E6E6;
+background-color: rgb(230, 230, 230);
+background-image: linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255) 25%, rgb(230, 230, 230));
+background-repeat: no-repeat;
+
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    padding: 7px;
+    z-index:2000;
+    color: black;
+
+font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+font-size: 14px;
+font-style: normal;
+font-variant: normal;
+font-weight: bold;
+/*height: 17px;*/
+line-height: normal;
+text-shadow: rgba(255, 255, 255, 0.74902) 0px 1px 1px;
+
+}
+
+.travel-type-options {
+
+    background-color: white;
+    
+background-color: #E6E6E6;
+background-color: rgb(230, 230, 230);
+background-image: linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255) 25%, rgb(230, 230, 230));
+background-repeat: no-repeat;
+
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    padding: 7px;
+    z-index:2000;
+    color: black;
+}
+
+.autocomplete-clear {
+
+    text-indent: -1000em;
+    width: 16px;
+    height: 16px;
+    /*display: inline-block;*/
+    background-image: url(http://p.yusukekamiyamane.com/icons/search/fugue/icons/cross.png);
+    background-repeat: no-repeat;
+    position: relative;
+    left: -20px;
+    top: 3px;
+    z-index: 1000;
+}
+
+.form-control:focus {
+    outline: 0;
+    border: none;
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.8);
+    -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(0, 0, 0, 0.8);
+
+/*    -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);*/
+}
+
+.address-row1 {
+
+    font-size: 1.1em;
+}
+.address-row2 {
+
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.autocomplete {
+
+    position: static;
+}
+
+.ui-autocomplete-term { font-weight: bold; color: blue; }
+
+.ui-autocomplete { position: absolute; cursor: default;z-index:100000 !important;}
+
+.autocomplete input {
+
+    font-size: 16px;
+}
+
+.btn-autocomplete-marker {
+
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: white;
+}
+
+.btn-autocomplete {
+    
+    color: #333;
+    background-color: #fff;
+    border-color: #DADADA;
+    /*padding: 0px;*/
+}
+
+.btn-autocomplete:hover, .btn-autocomplete:focus, .btn-autocomplete:active, .btn-autocomplete.active {
+    
+    color: #333;
+    background-color: #EEEEEE;
+    border-color: #DADADA;
+}
+
+#waitControl {
+
+    display: none;
+}
+
+.leaflet-traveltime-slider-min {
+    width: 100px; 
+    margin-top:6px;
+}
+.leaflet-traveltime-slider-container-min{
+    height: 55px; 
+}
+
+.leaflet-traveltime-slider-max{
+    width: 200px; 
+    float: left;
+    margin: 5px;
+}
+.travel-time-info-max{
+    float:left;
+    color: black;
+}
+.leaflet-traveltime-slider-container-max {
+    height: 35px; 
+}
+
+.no-border{
+     border: none;
+}
+
+.ui-tooltip {
+    font-size: 10pt;
+}
+
+.address-row1 {
+
+    font-size: 1em;
+}
+.address-row2 {
+
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+/*input {
+    color: #07456b;
+    border-color: #bbe6e8;
+    border-width: 1px;
+}*/
+
+ul.ui-autocomplete{
+    z-index:2000;
+}
+

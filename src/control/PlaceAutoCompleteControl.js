@@ -40,8 +40,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         // calculate the width in dependency to the number of buttons attached to the field
         var width = that.options.width;
-        if ( that.options.reset ) width += 44;
-        if ( that.options.reverse ) width += 37;
+        // if ( that.options.reset ) width += 44;
+        // if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
         that.options.input = 
@@ -53,60 +53,60 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             that.options.input += 
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
-                    <img style="height:25px;" src="'+that.options.image+'"> \
+                    <img style="height:22px;" src="'+that.options.image+'"> \
                  </span>';
         }
 
         var optionsHtml = [];
-        if ( that.options.options ) {
+        // if ( that.options.options ) {
 
             that.options.input += 
-                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons"> \
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
                 </span>';
 
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
-            if (that.options.options.walk ) 
+            if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
                     '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
             
-            if (that.options.options.bike ) 
+            if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
                     '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
             
-            if (that.options.options.transit ) 
+            if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
                     '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
             
-            if (that.options.options.car ) 
+            if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'car' ? 'active' : '') + 
                     '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
             
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
-        }
+        // }
 
         // add a reset button to the input field
-        if ( that.options.reset ) {
+        // if ( that.options.reset ) {
 
             that.options.input += 
-                '<span id="'+that.options.id+'-reset" class="input-group-btn"> \
+                '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
                 </span>';
-        }
-        if ( that.options.reverse ) {
+        // }
+        // if ( that.options.reverse ) {
 
             that.options.input += 
-                '<span id="'+that.options.id+'-reverse" class="input-group-btn"> \
+                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
                 </span>';
-        }
+        // }
 
         that.options.input += '</div>';
         if ( that.options.options ) that.options.input += optionsHtml.join('');

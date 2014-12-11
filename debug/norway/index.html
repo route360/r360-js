@@ -4,8 +4,13 @@
     <title>Get polygon example</title>
     <meta charset="UTF-8">
     <!-- stylesheets -->
-    <link rel="stylesheet" href="leaflet.css"/>
-    <link rel="stylesheet" href="r360.css"/>
+    <link rel="stylesheet" href="styles/leaflet.css"/>
+    <link rel="stylesheet" href="styles/r360.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/jquery-ui-1.10.0.custom.css"/>
+    <link rel="stylesheet" href="styles/leaflet.awesome-markers.css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="fonts/map-icons/css/map-icons.css" rel="stylesheet" type="text/css">
 
     <style>
         html, body, #map {
@@ -13,12 +18,27 @@
             width: 100%;
             height: 100%;
         }
+
+        input {
+
+            width: 250px !important;
+        }
+
+        .r360-autocomplete {
+
+            height: 36px;
+        }
     </style>
 
     <!-- scripts -->
     <script src="jquery-1.10.2.js"></script>
+    <script src="jquery-ui-1.10.4.min.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
+    <script type="text/javascript" src="data/rentals.js"></script>
+
+    <script type="text/javascript" src="lib/leaflet.awesome-markers.min.js"></script>
+
     <script type="text/javascript" src="../../lib/build/deps.js"></script>
     <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
 
@@ -28,40 +48,149 @@
             var latlon = [59.9500, 10.7500];
 
             // add the map and set the initial center to berlin
-            var map = L.map('map').setView(latlon, 13);
+            var map = L.map('map', {zoomControl : false}).setView(latlon, 13);
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+            L.tileLayer('https://a.tiles.mapbox.com/v3/mi.94c056dc/{z}/{x}/{y}.png', {
                 maxZoom: 18, attribution: attribution }).addTo(map);
-
-            // the bounding box for the endpoint
-            // var left = 7.2812, bottom = 44.8227, right = 7.9711, top = 45.3059;
-            // var latlngs = [[bottom, left], [top, left], [top, right], [bottom, right], [bottom, left]];
-            // L.polyline(latlngs, {color: 'red'}).addTo(map);
 
             // create the layer to add the polygons
             var routeLayer   = L.featureGroup().addTo(map);
             var markerLayer  = L.featureGroup().addTo(map);
+            var rentalLayer  = L.featureGroup().addTo(map);
             var polygonLayer = r360.route360PolygonLayer().addTo(map);
+
+            _.each(rentals, function(rental){
+
+                var redMarker = L.AwesomeMarkers.icon({
+                    // icon: 'fa fa-bicycle',
+                    icon: 'bicycle',
+                    prefix : 'fa',
+                    markerColor: 'cadetblue'
+                });
+
+                L.marker([rental.lat, rental.lng], {icon: redMarker}).addTo(rentalLayer);
+            });
 
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
-            r360.config.serviceUrl = 'http://dev.route360.net/api_norway/';
-            r360.config.serviceUrl = 'http://localhost:8080/api/';
+            r360.config.serviceUrl = 'http://dev.route360.net/api_norway_dev/';
+            // r360.config.serviceUrl = 'http://localhost:8080/api/';
+            
+            // define which options the user is going to have
+            var options = { bike : true, walk : true, init : 'transit' };
+            var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select start!', reset : true, reverse : true , image : 'images/marker-icon-red.png', options : options});
+
+            var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : false , image : 'images/marker-icon.png'});
+
+            // add the controls to the map
+            map.addControl(sourceAutoComplete);
+            map.addControl(targetAutoComplete);
+            map.addControl(L.control.zoom({ position : 'bottomleft' }));
+
+            var travelTimeControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 300  , color : "#006837"},
+                    { time : 600  , color : "#39B54A"},
+                    { time : 900  , color : "#8CC63F"},
+                    { time : 1200 , color : "#F7931E"},
+                    { time : 1500 , color : "#F15A24"},
+                    { time : 1800 , color : "#C1272D"}
+                ],
+                position : 'topright', // this is the position in the map
+                label: 'Travel time: ', // the label, customize for i18n
+                initValue: 30 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
+            });
+
+            travelTimeControl.onSlideStop(function(){ showPolygons(); });
+
+            // create a new readio button control with the given options
+            var travelTypeButtons = r360.radioButtonControl({
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: '<span class=""></span> slow', key: '12',     
+                      tooltip: 'Cycling speed is on average 12km/h', checked : false },
+
+                    { label: '<span class=""></span> medium', key: '17',     
+                      tooltip: 'Cycling speed is on average 17km/h', checked : true  },
+
+                    { label: '<span class=""></span> fast', key: '27',      
+                      tooltip: 'Cycling speed is on average 27km/h', checked : false }
+                ]
+            });
+
+            travelTypeButtons.onChange(function(){ showPolygons(); });
+            
+            map.addControl(travelTimeControl);
+            map.addControl(travelTypeButtons);
+
+            // define what happens if someone clicks an item in the autocomplete
+            sourceAutoComplete.onSelect(function(item){
+
+                // if the source marker is on the map already, move it to the new position
+                if ( map.hasLayer(marker) ) marker.setLatLng(item.latlng);
+                // otherwise add it and attach the action for marker dragging
+                else {
+                    
+                    // add a marker to the map
+                    marker = r360.Util.getMarker(item.latlng, 
+                        { color : 'red', iconPath: 'images/', draggable : true }).addTo(map);
+            
+                    // we need to update some stuff on the 'dragend' action of the marker
+                    marker.on('dragend', function(){
+
+                        // redraw the polygons
+                        showPolygons(sourceAutoComplete.getTravelType());
+                        // update the street in the autocomplete
+                        r360.Util.getAddressByCoordinates(marker.getLatLng(), 'de', function(json){
+                            
+                            var displayName = r360.Util.formatReverseGeocoding(json);
+                            sourceAutoComplete.setFieldValue(displayName);
+                            marker.bindPopup(displayName);
+                        });
+                    });
+                }
+
+                // and show the polygons for the new source
+                marker.bindPopup(item.firstRow);
+                showPolygons(sourceAutoComplete.getTravelType());
+            });
+
+            // define what happens if someone clicks the reset button
+            sourceAutoComplete.onReset(function(){
+
+                // remove the polygons and the marker
+                polygonLayer.clearLayers();
+                map.removeLayer(marker);
+                // remove the label and value from the autocomplete
+                sourceAutoComplete.reset();
+            });
+
+            sourceAutoComplete.onTravelTypeChange(function(){
+
+                // we can only show polygons if a place was already defined
+                if ( typeof sourceAutoComplete.getValue() !== 'undefined' &&
+                        Object.keys(sourceAutoComplete.getValue()).length !== 0 )
+                    showPolygons(sourceAutoComplete.getTravelType());
+            });
+            
 
             // create a marker and add it to the map
             var marker = L.marker(latlon, { draggable : true }).addTo(map);
-            paintPolygons();
+            showPolygons();
 
             map.on('click', function(e){
 
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(marker);
+                travelOptions.setElevationEnabled(false);
                 travelOptions.setTravelType('bike');
                 travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
 
@@ -76,19 +205,19 @@
 
             marker.on('dragend', function(){
 
-                paintPolygons();    
+                showPolygons();    
             });
 
-            function paintPolygons(){
+            function showPolygons(){
 
-                // you need to define some options for the polygon service
-                // for more travel options check out the other tutorials
+                // select language
+                $('span[lang="de"]').hide();
+
                 var travelOptions = r360.travelOptions();
-                // we only have one source which is the marker we just added
                 travelOptions.addSource(marker);
                 travelOptions.setTravelType('bike');
-                // we want to have polygons for 5 to 30 minutes
-                travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+                travelOptions.setBikeSpeed(travelTypeButtons.getValue());
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
