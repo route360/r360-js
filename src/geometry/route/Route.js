@@ -36,12 +36,30 @@ r360.Route = function(travelTime, segments){
         }
         return distance;
     }
+
+    that.getElevationGain = function(){
+        var distance = 0;
+        for(var i = 0; i < that.routeSegments.length; i++){
+            distance += that.routeSegments[i].getElevationGain();
+        }
+        return distance;
+    }
   
     /*
      *
      */
     that.getSegments = function(){
         return that.routeSegments;
+    }
+
+    that.getPoints = function() {
+
+        var points = [];
+        _.each(that.routeSegments, function(segment){
+            points = points.concat(segment.getPoints());
+        });
+
+        return points;
     }
 
     /*

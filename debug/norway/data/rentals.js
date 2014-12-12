@@ -1,3 +1,7 @@
+// Copy (
+//     SELECT osm_id, tags->'network', tags->'capacity', tags->'description', ST_X(ST_Transform(way, 4326)) as lat, ST_Y(ST_Transform(way, 4326)) as lng FROM osm_norway_point WHERE amenity = 'bicycle_rental'
+//     ) To '/Users/gerb/Development/workspaces/mi/motion_intelligence.r360_js.git/debug/norway/data/rental.csv' With CSV;
+
 var rentals = [
   {
     "id":420189879,

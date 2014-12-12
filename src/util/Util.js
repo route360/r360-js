@@ -129,9 +129,9 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        for(var i = 0; i < latlngs.length; i++){
+        for ( var i = 0 ; i < latlngs.length ; i++ )
             coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-        }
+            // coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
 
         return coordinates;
     },
@@ -311,16 +311,18 @@ r360.Util = {
 
         // x,y,z given so we have elevation data
         if ( typeof elevation !== 'undefined' ) 
-            return L.latLng(latlng.lat, latlng.lng, elevation);
+            return L.latLng([latlng.lat, latlng.lng, elevation]);
         // no elevation given, just unproject coordinates to lat/lng
         else 
             return latlng;
     },
 
     latLngToWebMercator : function(latlng){
+
         var point = L.Projection.SphericalMercator.project(latlng);
         point.x *= 6378137;
         point.y *= 6378137;
+        
         return point;
     }
 };

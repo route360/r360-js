@@ -26,16 +26,10 @@ r360.PolygonService = {
             // add each source point and it's travel configuration to the cfg
             _.each(travelOptions.getSources(), function(source){
 
-                if ( source.getLatLng() instanceof L.LatLng ) 
-                    source = r360.Util.latLngToWebMercator(source.getLatLng());
-
-                else if ( _.has(source, 'lat') && _.has(source, 'lng') ) 
-                    source = r360.Util.latLngToWebMercator(L.latLng(source.lat, source.lng));
-
                 var src = {
-                    x  : parseInt(source.x),
-                    y  : parseInt(source.y),
-                    id : _.has(source, 'id')  ? source.id  : source.x + ';' + source.y,
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    id : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
                     tm : {}
                 };
 
