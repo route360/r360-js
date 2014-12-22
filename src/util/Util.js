@@ -317,5 +317,12 @@ r360.Util = {
         point.x /= 6378137;
         point.y /= 6378137;
         return L.CRS.EPSG3857.projection.unproject(point);
+    },
+
+    latLngToWebMercator : function(latlng){
+        var point = L.Projection.SphericalMercator.project(latlng);
+        point.x *= 6378137;
+        point.y *= 6378137;
+        return point;
     }
 };
