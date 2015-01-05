@@ -29,10 +29,19 @@
 
             r360.config.defaultPolygonLayerOptions.animate = false;
 
-            var latlon = [52.5167, 13.3833];
+            // Berlin latlng = [52.542354,13.343966];
+            // Oslo latlon = [59.913715,10.752019];
+            var latlon = [52.543387,13.361604];
+            var latlon2 = [52.5455,13.3633];
+            var latlon3 = [52.5465,13.3637];
+            var latlon4 = [52.5435,13.3633];
+            var latlon5 = [52.5475,13.3630];
 
-            // add the map and set the initial center to berlin
+            //console.log(r360.Util.latLngToWebMercator(L.latLng(latlon)));
+
+               // add the map and set the initial center to berlin
             var map = L.map('map').setView(latlon, 13);
+           
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
@@ -60,19 +69,22 @@
                 { time : 7200 , color : "#C1272D", opacity : 1.0 }
             ];
 
-            // var travelTimeControl = r360.travelTimeControl({
-            //     travelTimes     : [
-            //         { time : 600  , color : "#006837", opacity : 1  },
-            //         { time : 1200 , color : "#39B54A", opacity : 0.8},
-            //         { time : 1800 , color : "#8CC63F", opacity : 0.6},
-            //         { time : 2400 , color : "#F7931E", opacity : 0.4},
-            //         { time : 3000 , color : "#F15A24", opacity : 0.2},
-            //         { time : 3600 , color : "#C1272D", opacity : 0.1}
-            //     ], position : 'topright', label: 'Travel time: ', initValue: 30
-            // });
+            var travelTimeControl = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 600  , color : "#006837", opacity : 1  },
+                    { time : 1200 , color : "#39B54A", opacity : 0.8},
+                    { time : 1800 , color : "#8CC63F", opacity : 0.6},
+                    { time : 2400 , color : "#F7931E", opacity : 0.4},
+                    { time : 3000 , color : "#F15A24", opacity : 0.2},
+                    { time : 3600 , color : "#C1272D", opacity : 0.1}
+                ], position : 'topright', label: 'Travel time: ', initValue: 10
+            });
 
             //  bind the action to the travel time control
-            // travelTimeControl.onSlideStop(function(){ showPolygons(); });
+            travelTimeControl.onSlideStop(function(){ showPolygons(); });
+
+
+
 
             // add the newly created control to the map
             // map.addControl(travelTimeControl);
@@ -93,9 +105,33 @@
                       tooltip: 'Car speed is limited by speed limit', checked : true },
 
                     { label: '<span class="map-icon-train-station"></span> Transit', key: 'transit',  
-                      tooltip: 'This demo only contains subways', checked : false }
+                      tooltip: 'This demo only contains subways', checked : true }
                 ]
             };
+
+
+            var intersectionbuttonOptions = {
+        buttons : [
+            // each button has a label which is displayed, a key, a tooltip for mouseover events 
+            // and a boolean which indicates if the button is selected by default
+            // labels may contain html
+            { label: 'Union', key: 'union',     
+              tooltip: 'No intersection of polygons', checked : true },
+
+            { label: 'Intersection', key: 'intersection',     
+              tooltip: 'Only intersected area shown.', checked : false  },
+
+            { label: 'Average', key: 'average',      
+              tooltip: 'Average traveltime in polygons', checked : false },
+        ]
+    };
+
+    // create a new readio button control with the given options
+    var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
+
+    // add the newly created control to the map
+    map.addControl(intersectionModeButtons);
+
 
             // create a new readio button control with the given options
             var travelTypeButtons = r360.radioButtonControl(buttonOptions);
@@ -138,11 +174,36 @@
 
             // create a marker and add it to the map
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
+            //var homeMarker2 = L.marker(latlon2, { draggable : true }).addTo(map);
+            /*var homeMarker3 = L.marker(latlon3, { draggable : true }).addTo(map);
+            var homeMarker4 = L.marker(latlon4, { draggable : true }).addTo(map);
+            var homeMarker5 = L.marker(latlon5, { draggable : true }).addTo(map);*/
             showPolygons();
 
             homeMarker.on('dragend', function(){
 
                 showPolygons();    
+            });
+
+         /*   homeMarker2.on('dragend', function(){
+
+                showPolygons();    
+            });*/
+           /*  homeMarker3.on('dragend', function(){
+
+                showPolygons();    
+            });
+              homeMarker4.on('dragend', function(){
+
+                showPolygons();    
+            });
+               homeMarker5.on('dragend', function(){
+
+                showPolygons();    
+            });
+*/
+            intersectionModeButtons.onChange(function(){
+                showPolygons();
             });
 
             map.on("click", function(e){    
@@ -153,7 +214,7 @@
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(homeMarker);
                 travelOptions.setDate('20140825');
-                travelOptions.setTime('40000');
+                travelOptions.setTime('39600');
                 travelOptions.setTravelType(travelTypeButtons.getValue());
                 travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
 
@@ -170,9 +231,16 @@
                 var travelOptions = r360.travelOptions();
 
                 travelOptions.addSource(homeMarker);
+                 //travelOptions.addSource(homeMarker2);
+                 /*travelOptions.addSource(homeMarker3);
+                 travelOptions.addSource(homeMarker4);
+                 travelOptions.addSource(homeMarker5);*/
                 travelOptions.setTravelType(travelTypeButtons.getValue());
                 travelOptions.setTravelTimes([1800, 2400, 3000, 3600, 7200]);
                 // travelOptions.setTravelTimes(travelTimeControl.getValues());
+
+                var intersectionMode = intersectionModeButtons.getValue();
+                travelOptions.setIntersectionMode(intersectionMode);
 
                 if ( travelTypeButtons.getValue() == 'transit' ) {
                     travelOptions.setDate('20140825');
@@ -182,7 +250,6 @@
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
                     travelOptions.setTravelTimes([3600]);
                     // travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
-
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){

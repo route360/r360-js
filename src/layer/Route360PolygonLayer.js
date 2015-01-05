@@ -90,6 +90,8 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(sourceToPolygons){        
         
+
+
         var that    = this;
         that.redrawCount = 0;
 
@@ -102,9 +104,13 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         for(var i = 0; i < sourceToPolygons.length; i++){
             for(var j = 0; j < sourceToPolygons[i].polygons.length; j++){
-                 sourceToPolygons[i].polygons[j].project(); 
+                //if(sourceToPolygons[i].polygons[j].travelTime == 3600){
+
+                    sourceToPolygons[i].polygons[j].project(); 
                  that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
                  that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
+                //}
+                 
             }
         }
         
@@ -199,12 +205,53 @@ r360.Route360PolygonLayer = L.Class.extend({
             point.x = bounds.max.x;
         else if(point.x < bounds.min.x)
             point.x = bounds.min.x;
-
-
         if(point.y > bounds.max.y)
             point.y = bounds.max.y;        
         else if(point.y < bounds.min.y)
             point.y = bounds.min.y;
+    },
+
+    /*
+    clipping like sutherland
+    http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript
+    */
+
+    _clip: function(subjectPolygon, clipPolygon) {
+       var cp1, cp2, s, e;
+            var inside = function (p) {
+                return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+            };
+            var intersection = function () {
+                var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                    dp = [ s[0] - e[0], s[1] - e[1] ],
+                    n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                    n2 = s[0] * e[1] - s[1] * e[0], 
+                    n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+                return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+            };
+            var outputList = subjectPolygon;
+            var cp1 = clipPolygon[clipPolygon.length-1];
+            for (j in clipPolygon) {
+                var cp2 = clipPolygon[j];
+                var inputList = outputList;
+                outputList = [];
+                s = inputList[inputList.length - 1]; //last on the input list
+                for (i in inputList) {
+                    var e = inputList[i];
+                    if (inside(e)) {
+                        if (!inside(s)) {
+                            outputList.push(intersection());
+                        }
+                        outputList.push(e);
+                    }
+                    else if (inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    s = e;
+                }
+                cp1 = cp2;
+            }
+            return outputList
     },
 
     _scale: function(point, scale){
@@ -219,21 +266,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         return y;
     },
 
-    _getMaxDiff: function(svgArray, point){
-        var diffX = svgArray[1] - point.x;
-        var diffY = svgArray[2] - point.y;
-
-        if(diffX < 0)
-            diffX *= -1;
-
-         if(diffY < 0)
-            diffY *= -1;
-
-        if(diffX >= diffY)
-            return diffX;
-        else
-            return diffY;
-
+    _getMaxDiff: function(point1, point2){
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     },
 
     _splicePath: function(pathData){
@@ -252,13 +286,17 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     _isCollinear: function(p1, p2, p3){
 
+        if(p1.x == p3.x && p1.y == p3.y)
+            return false;
         if(p1.x == p2.x && p2.x == p3.x)
             return true;
         if(p1.y == p2.y && p2.y == p3.y)
             return true;
         
         var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-        if(val < 1 && val > -1 && p1.x != p3.x && p1.y != p3.y)
+
+        if(val < r360.config.defaultPolygonLayerOptions.tolerance && val > -r360.config.defaultPolygonLayerOptions.tolerance
+         && p1.x != p3.x && p1.y != p3.y)
             return true;
         return false;
     },
@@ -277,63 +315,59 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgz    = "z";  
         var maxDiff;
       
-        var projectedPoint, point1, point2, pointCount = 0;
+        var projectedPoint, point, point1, point2, isCollinear, pointCount = 0;
        
-         // the min amount of pixels for a new point
-        var minDiff = 5;
+        var boundArray = [[bounds.min.x, bounds.min.y], [bounds.max.x, bounds.min.y], [bounds.max.x, bounds.max.y], [bounds.min.x, bounds.max.y]];
+
+        var arrayToClip = new Array();
 
         for(var i = 0; i < coordinateArray.length; i++){
-
-            projectedPoint = coordinateArray[i];
-            point = new L.Point(projectedPoint.x, projectedPoint.y);
-
-            // scale coordinates depending on zoom level
+            projectedPoint  = coordinateArray[i];
+            point           = new L.Point(projectedPoint.x, projectedPoint.y);
             that._scale(point, scale);
+            that._roundPoint(point);
 
-            // level all points outside defined area
-            that._clipToBounds(point,bounds);
+            if(i > 0) 
+                maxDiff = that._getMaxDiff(point2, point); 
+            else 
+                maxDiff = r360.config.defaultPolygonLayerOptions.tolerance;
 
-            // adjust coordinates to map origin
-            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(maxDiff >= r360.config.defaultPolygonLayerOptions.tolerance){
 
-            point = that._roundPoint(point);
-            
-            // getting the max difference of the latest to points in eiter x or y direction
-            if(i > 0) maxDiff = that._getMaxDiff(pathData[pathData.length-1], point); else maxDiff = minDiff;
-
-            /*
-            we are only drawing the point if it is different to the last one
-            hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
-            */           
-            if(maxDiff >= minDiff){
-
-                var isCollinear = false;
+                isCollinear = false;
 
                 if(pointCount > 2){
                     isCollinear = that._isCollinear(point1, point2, point);
                 }
 
                 if(isCollinear){
-                    pathData[pathData.length-1][1] = point.x;
-                    pathData[pathData.length-1][2] = point.y;
-                    //console.log("iscollinear")
+                    arrayToClip[arrayToClip.length-1][0] = point.x;
+                    arrayToClip[arrayToClip.length-1][1] = point.y;
                 }else{
-                    if(i > 0)   
-                        pathData.push(that._buildPath(point, svgL));
-                    else        
-                        pathData.push(that._buildPath(point, svgM));
-
+                    
+                    arrayToClip.push([point.x, point.y]);
                     point1 = point2;
                     point2 = point;
-
                     pointCount++;
-
                 }
             }
-            // checking weather last three points are building one (even x or y) line. If so remove the middle one
-            //that._splicePath(pathData);
         }
-        pathData.push([svgz]);
+
+        var clippedArray = this._clip(arrayToClip, boundArray);
+        var lastPoint;
+
+        for(var i = 0; i < clippedArray.length; i++){
+            projectedPoint = clippedArray[i];
+            point = new L.Point(projectedPoint[0], projectedPoint[1]);
+            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(i > 0)   
+                pathData.push(that._buildPath(point, svgL));
+            else        
+                pathData.push(that._buildPath(point, svgM));
+            lastPoint = point;
+        }
+        if(pathData.length > 0)
+            pathData.push([svgz]);
         return pathData;
     },
     

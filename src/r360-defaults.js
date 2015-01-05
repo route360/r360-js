@@ -79,6 +79,8 @@ r360.config = {
         opacity : 0.4,
         strokeWidth: 30,
 
+        tolerance: 15,
+
         // background values only matter if inverse = true
         backgroundColor : 'black',
         backgroundOpacity : 0.5,
