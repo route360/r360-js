@@ -15,7 +15,6 @@ L.Control.WaitControl = L.Control.extend({
     onAdd: function (map) {
         this.options.map = map;
         this.options.mapId = $(map._container).attr("id");
-        console.log(this.options.mapId);
        
         var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
         $(waitContainer).append(

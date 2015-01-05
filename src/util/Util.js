@@ -130,8 +130,8 @@ r360.Util = {
         var coordinates = new Array();
 
         for ( var i = 0 ; i < latlngs.length ; i++ )
-            coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-            // coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
+            // coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
+            coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
 
         return coordinates;
     },

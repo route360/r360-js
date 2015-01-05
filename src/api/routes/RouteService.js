@@ -23,8 +23,8 @@ r360.RouteService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
@@ -67,8 +67,8 @@ r360.RouteService = {
                  cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lng,
                 });
             });
 

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (a2e7063), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (1d57b03), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -162,6 +162,7 @@ r360.config = {
         timeFormat          : { en : 'a.m.',            de : 'Uhr' },
         reset               : { en : 'Reset input',     de : 'Eingeben löschen' },
         reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen' },
+        settings            : { en : 'Switch travel type',   de : 'Reisemodus wechseln' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
         monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
         dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },
@@ -551,7 +552,7 @@ r360.TravelOptions = function(){
                 _.each(this.getSources(), function(source){
 
                     if ( !_.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !_.has(source, 'lon') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !_.has(source, 'lon') && !_.has(source, 'lng') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -627,7 +628,7 @@ r360.TravelOptions = function(){
                 _.each(this.getTargets(), function(target){
 
                     if ( !_.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !_.has(target, 'lon') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !_.has(target, 'lon') && !_.has(target, 'lng') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }
@@ -1088,7 +1089,7 @@ r360.PolygonService = {
 
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    lon : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
                     id : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
                     tm : {}
                 };
@@ -1181,7 +1182,7 @@ r360.RouteService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    lon : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
@@ -1225,7 +1226,7 @@ r360.RouteService = {
                  cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    lon : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                     id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
                 });
             });
@@ -1439,7 +1440,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             that.options.input += 
                 '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
@@ -1454,6 +1455,13 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
                     '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+
+            if ( that.options.options && that.options.options.hirebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
+                    '" travel-type="hirebike"> \
+                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                        </button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
@@ -1472,17 +1480,19 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         // add a reset button to the input field
         // if ( that.options.reset ) {
 
+             that.options.input += 
+                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
+                </span>';
+
             that.options.input += 
                 '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
                 </span>';
         // }
         // if ( that.options.reverse ) {
 
-            that.options.input += 
-                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
-                </span>';
+           
         // }
 
         that.options.input += '</div>';
@@ -2123,7 +2133,6 @@ L.Control.WaitControl = L.Control.extend({
     onAdd: function (map) {
         this.options.map = map;
         this.options.mapId = $(map._container).attr("id");
-        console.log(this.options.mapId);
        
         var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
         $(waitContainer).append(
@@ -2853,12 +2862,54 @@ r360.Route = function(travelTime, segments){
         return distance;
     }
 
+    /**
+     * [getElevationGain description]
+     * @return {[type]} [description]
+     */
     that.getElevationGain = function(){
         var distance = 0;
         for(var i = 0; i < that.routeSegments.length; i++){
             distance += that.routeSegments[i].getElevationGain();
         }
         return distance;
+    }
+
+    /**
+     * [getElevations description]
+     * @return {[type]} [description]
+     */
+    that.getElevations = function() {
+
+        var elevations = { x : [] , y : []};
+        for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
+
+            elevations.x.push((i / 1000) + " km" );
+            elevations.y.push(that.getElevationAt(i));
+        }
+
+        return elevations;
+    }
+
+    /**
+     * [getElevationAt description]
+     * @param  {[type]} meter [description]
+     * @return {[type]}       [description]
+     */
+    that.getElevationAt = function(meter) {
+
+        var currentLength = 0;
+        var points = that.getPoints();
+
+        for ( var i = 1 ; i < points.length ; i++ ){
+
+            var previousPoint   =  points[i - 1];
+            var currentPoint    =  points[i];
+            var currentDistance =  previousPoint.distanceTo(currentPoint);
+
+            currentLength += currentDistance;
+
+            if ( currentLength > meter ) return currentPoint.alt;
+        }
     }
   
     /*
@@ -2885,39 +2936,42 @@ r360.Route = function(travelTime, segments){
         return that.travelTime;
     }
 
-    that.fadeIn = function(map, drawingTime, fadingType){
+    that.fadeIn = function(map, drawingTime, fadingType, colors, onClick){
 
         var total, segment, percent, timeToDraw, lastSegement;
         var k = 0;
 
-        if(typeof drawingTime == 'undefined') drawingTime = 0;
-        if(typeof fadingType == 'undefined') fadingType = "travelTime";
+        if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
+        if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-
-
-        for(var j = that.routeSegments.length - 1; j >= 0; j--){
-            segment     = that.routeSegments[j];
-            if(fadingType == "travelTime")
-                percent = segment.getTravelTime() / that.getTravelTime();
-            else if (fadingType == "travelDistance")
-                percent = segment.getDistance() / that.getDistance();
-           
+        for ( var j = that.routeSegments.length - 1 ; j >= 0 ; j-- ) { 
             
-            timeToDraw  = percent * drawingTime;
-            if(segment.getType() != "TRANSFER"){
+            segment = that.routeSegments[j];
+            percent = fadingType == "travelTime" ? segment.getTravelTime() / that.getTravelTime() : segment.getDistance() / that.getDistance();
+           
+            timeToDraw = percent * drawingTime;
+
+            // transfer don't have a linestring, just a point
+            if ( segment.getType() != "TRANSFER" ) {
+                
                 (function(segment, k, timeToDraw) {
-                    setTimeout(function() {
-                        fader(segment, timeToDraw);
-                    }, k);
+                    setTimeout( function() { fader(segment, timeToDraw, colors); }, k);
                 })(segment, k, timeToDraw);
 
-            }else{
-                // create a small circlular marker to indicat   e the users have to switch trips
-
+            }
+            else {
+                
+                // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color: lastSegement.color, fillColor: that.routeSegments[j-1].color, fillOpacity: 0.5, opacity: 0.5, stroke : true, weight: 3, 
-                            radius : 5 });         
+                    color:          lastSegement.color, 
+                    fillColor:      that.routeSegments[j-1].color, 
+                    fillOpacity:    0.5, 
+                    opacity:        0.5, 
+                    stroke:         true, 
+                    weight:         3, 
+                    radius:         5 
+                });         
 
                (function(marker, k) {
                     setTimeout(function() {
@@ -2926,14 +2980,15 @@ r360.Route = function(travelTime, segments){
                     }, k);
                 })(marker, k);
             }
+
             k += timeToDraw;
             lastSegement = segment;
         }
 
-        function fader(segment, millis){
+        function fader(segment, millis, colors){
 
             var polylineOptions         = {};
-            polylineOptions.color       = segment.getColor();
+            polylineOptions.color       = _.has(colors, 'color') ? colors.color : segment.getColor();
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
@@ -2946,13 +3001,18 @@ r360.Route = function(travelTime, segments){
             var polylineHaloOptions     = {};
             polylineHaloOptions.weight  = 10;
             polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.color   = _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
-            var pieces = millis / 15;
+            var pieces      = millis / 15;
             var choppedLine = chopLineString(segment.getPoints().reverse(), pieces);
             var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(map);
             var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(map);
+
+            // add event listener
+            haloLine.on('click', onClick);
+            polyLine.on('click', onClick);
+
             fadeLine(polyLine, haloLine, choppedLine, 1)
         };
 
@@ -2965,20 +3025,18 @@ r360.Route = function(travelTime, segments){
         function fadeLine(polyLine, haloLine, choppedLine, i){
 
             var latlngs = polyLine.getLatLngs();
-            for(var j = 0; j < choppedLine[i].length; j++){
+
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
                 latlngs.push(choppedLine[i][j])
-            }
-            if(latlngs.length != 0){
+            
+            
+            if ( latlngs.length != 0 ) {
                 haloLine.setLatLngs(latlngs);
                 polyLine.setLatLngs(latlngs);
             } 
 
-            i++;
-            if(i < choppedLine.length){
-                setTimeout(function(){               
-                    fadeLine(polyLine, haloLine, choppedLine, i);
-                }, 15);
-            }                 
+            if ( ++i < choppedLine.length ) 
+                setTimeout(function(){ fadeLine(polyLine, haloLine, choppedLine, i); }, 15);
         }
 
         /*

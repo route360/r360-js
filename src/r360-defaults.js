@@ -104,6 +104,7 @@ r360.config = {
         timeFormat          : { en : 'a.m.',            de : 'Uhr' },
         reset               : { en : 'Reset input',     de : 'Eingeben löschen' },
         reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen' },
+        settings            : { en : 'Switch travel type',   de : 'Reisemodus wechseln' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
         monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
         dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },

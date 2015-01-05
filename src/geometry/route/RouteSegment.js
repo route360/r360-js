@@ -13,7 +13,7 @@ r360.RouteSegment = function(segment){
     * Call it distance instead
     */
 
-    that.distance          = segment.length;    
+    that.distance        = segment.length;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   

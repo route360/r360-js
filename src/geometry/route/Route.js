@@ -37,12 +37,54 @@ r360.Route = function(travelTime, segments){
         return distance;
     }
 
+    /**
+     * [getElevationGain description]
+     * @return {[type]} [description]
+     */
     that.getElevationGain = function(){
         var distance = 0;
         for(var i = 0; i < that.routeSegments.length; i++){
             distance += that.routeSegments[i].getElevationGain();
         }
         return distance;
+    }
+
+    /**
+     * [getElevations description]
+     * @return {[type]} [description]
+     */
+    that.getElevations = function() {
+
+        var elevations = { x : [] , y : []};
+        for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
+
+            elevations.x.push((i / 1000) + " km" );
+            elevations.y.push(that.getElevationAt(i));
+        }
+
+        return elevations;
+    }
+
+    /**
+     * [getElevationAt description]
+     * @param  {[type]} meter [description]
+     * @return {[type]}       [description]
+     */
+    that.getElevationAt = function(meter) {
+
+        var currentLength = 0;
+        var points = that.getPoints();
+
+        for ( var i = 1 ; i < points.length ; i++ ){
+
+            var previousPoint   =  points[i - 1];
+            var currentPoint    =  points[i];
+            var currentDistance =  previousPoint.distanceTo(currentPoint);
+
+            currentLength += currentDistance;
+
+            if ( currentLength > meter ) return currentPoint.alt;
+        }
     }
   
     /*
@@ -69,39 +111,42 @@ r360.Route = function(travelTime, segments){
         return that.travelTime;
     }
 
-    that.fadeIn = function(map, drawingTime, fadingType){
+    that.fadeIn = function(map, drawingTime, fadingType, colors, onClick){
 
         var total, segment, percent, timeToDraw, lastSegement;
         var k = 0;
 
-        if(typeof drawingTime == 'undefined') drawingTime = 0;
-        if(typeof fadingType == 'undefined') fadingType = "travelTime";
+        if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
+        if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-
-
-        for(var j = that.routeSegments.length - 1; j >= 0; j--){
-            segment     = that.routeSegments[j];
-            if(fadingType == "travelTime")
-                percent = segment.getTravelTime() / that.getTravelTime();
-            else if (fadingType == "travelDistance")
-                percent = segment.getDistance() / that.getDistance();
-           
+        for ( var j = that.routeSegments.length - 1 ; j >= 0 ; j-- ) { 
             
-            timeToDraw  = percent * drawingTime;
-            if(segment.getType() != "TRANSFER"){
+            segment = that.routeSegments[j];
+            percent = fadingType == "travelTime" ? segment.getTravelTime() / that.getTravelTime() : segment.getDistance() / that.getDistance();
+           
+            timeToDraw = percent * drawingTime;
+
+            // transfer don't have a linestring, just a point
+            if ( segment.getType() != "TRANSFER" ) {
+                
                 (function(segment, k, timeToDraw) {
-                    setTimeout(function() {
-                        fader(segment, timeToDraw);
-                    }, k);
+                    setTimeout( function() { fader(segment, timeToDraw, colors); }, k);
                 })(segment, k, timeToDraw);
 
-            }else{
-                // create a small circlular marker to indicat   e the users have to switch trips
-
+            }
+            else {
+                
+                // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color: lastSegement.color, fillColor: that.routeSegments[j-1].color, fillOpacity: 0.5, opacity: 0.5, stroke : true, weight: 3, 
-                            radius : 5 });         
+                    color:          lastSegement.color, 
+                    fillColor:      that.routeSegments[j-1].color, 
+                    fillOpacity:    0.5, 
+                    opacity:        0.5, 
+                    stroke:         true, 
+                    weight:         3, 
+                    radius:         5 
+                });         
 
                (function(marker, k) {
                     setTimeout(function() {
@@ -110,14 +155,15 @@ r360.Route = function(travelTime, segments){
                     }, k);
                 })(marker, k);
             }
+
             k += timeToDraw;
             lastSegement = segment;
         }
 
-        function fader(segment, millis){
+        function fader(segment, millis, colors){
 
             var polylineOptions         = {};
-            polylineOptions.color       = segment.getColor();
+            polylineOptions.color       = typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor();
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
@@ -130,13 +176,18 @@ r360.Route = function(travelTime, segments){
             var polylineHaloOptions     = {};
             polylineHaloOptions.weight  = 10;
             polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.color   = typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
-            var pieces = millis / 15;
+            var pieces      = millis / 15;
             var choppedLine = chopLineString(segment.getPoints().reverse(), pieces);
             var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(map);
             var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(map);
+
+            // add event listener
+            haloLine.on('click', onClick);
+            polyLine.on('click', onClick);
+
             fadeLine(polyLine, haloLine, choppedLine, 1)
         };
 
@@ -149,20 +200,18 @@ r360.Route = function(travelTime, segments){
         function fadeLine(polyLine, haloLine, choppedLine, i){
 
             var latlngs = polyLine.getLatLngs();
-            for(var j = 0; j < choppedLine[i].length; j++){
+
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
                 latlngs.push(choppedLine[i][j])
-            }
-            if(latlngs.length != 0){
+            
+            
+            if ( latlngs.length != 0 ) {
                 haloLine.setLatLngs(latlngs);
                 polyLine.setLatLngs(latlngs);
             } 
 
-            i++;
-            if(i < choppedLine.length){
-                setTimeout(function(){               
-                    fadeLine(polyLine, haloLine, choppedLine, i);
-                }, 15);
-            }                 
+            if ( ++i < choppedLine.length ) 
+                setTimeout(function(){ fadeLine(polyLine, haloLine, choppedLine, i); }, 15);
         }
 
         /*
