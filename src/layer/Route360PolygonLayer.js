@@ -401,12 +401,12 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._scale(polygonTopRight, scale);
         that._scale(polygonBottomLeft, scale);
 
-        if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-            return pathData;
 
         // the outer boundary       
-        that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-        
+        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
+
+     
         // the inner boundaries
         for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
 
@@ -417,11 +417,12 @@ r360.Route360PolygonLayer = L.Class.extend({
             that._scale(polygonTopRight, scale);
             that._scale(polygonBottomLeft, scale);
 
-            if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-                continue;
+            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //    continue;
 
             that.counter++;
-            that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //
         }
 
        
