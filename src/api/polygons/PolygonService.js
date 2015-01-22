@@ -17,8 +17,9 @@ r360.PolygonService = {
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
                 polygon          : { 
-                    values           : travelOptions.getTravelTimes(), 
-                    intersectionMode : travelOptions.getIntersectionMode() 
+                    minPolygonHoleSize : travelOptions.getMinPolygonHoleSize(), 
+                    values             : travelOptions.getTravelTimes(), 
+                    intersectionMode   : travelOptions.getIntersectionMode() 
                 },
                 sources          : []
             };

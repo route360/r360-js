@@ -232,15 +232,21 @@ r360.Util = {
 
                 var polygon = r360.polygon();
                 polygon.setTravelTime(polygonJson.travelTime);
-                polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
-                polygon.setOpacity(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).opacity);
+                polygon.setArea(polygonJson.area);
+
+                var color = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                polygon.setColor(typeof color !== 'undefined' ? color.color : '#000000');
+                
+                var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
+                polygon.setOpacity(typeof opacity !== 'undefined' ? opacity.opacity : 1);
+                
                 polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
                 polygon.setBoundingBox();
 
                 _.each(polygonJson.innerBoundary, function (innerBoundary) {
                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
                 });
-            
+
                 sourcePolygons.polygons.push(polygon);
             });
 

@@ -14,6 +14,7 @@ r360.TravelOptions = function(){
     this.walkUphill       = 10;
     this.walkDownhill     = 0;
 
+    this.minPolygonHoleSize = 1000000;
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
     this.elevationEnabled = true;
@@ -389,6 +390,24 @@ r360.TravelOptions = function(){
     this.setService = function(service){
 
         this.service = service;
+    }
+
+    /**
+    * [setMinPolygonHoleSize description]
+    * @param {[type]} minPolygonHoleSize [description]
+    */
+    this.setMinPolygonHoleSize = function(minPolygonHoleSize){
+
+        this.minPolygonHoleSize = minPolygonHoleSize;
+    }
+
+    /**
+     * [getMinPolygonHoleSize description]
+     * @return {[type]} [description]
+     */
+    this.getMinPolygonHoleSize = function(){
+
+        return this.minPolygonHoleSize;
     }
     
     /*

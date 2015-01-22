@@ -40,7 +40,7 @@
             //console.log(r360.Util.latLngToWebMercator(L.latLng(latlon)));
 
                // add the map and set the initial center to berlin
-            var map = L.map('map').setView(latlon, 13);
+            var map = L.map('map').setView(latlon, 14);
            
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -57,37 +57,39 @@
             r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
             r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
             r360.config.serviceUrl = 'http://localhost:8080/api/';
+            // r360.config.serviceUrl = 'http://dev.route360.net/api_brandenburg_0.0.2/';
 
             r360.config.defaultTravelTimeControlOptions.travelTimes = [
-                { time : 60  , color : "#006837", opacity : 1.0 },
-                { time : 600  , color : "#006837", opacity : 1.0 },
-                { time : 1200  , color : "#39B54A", opacity : 1.0 },
-                { time : 1800  , color : "#8CC63F", opacity : 1.0 },
-                { time : 2400 , color : "#F7931E", opacity : 1.0 },
-                { time : 3000 , color : "#F15A24", opacity : 1.0 },
-                { time : 3600 , color : "#C1272D", opacity : 1.0 },
-                { time : 7200 , color : "#C1272D", opacity : 1.0 }
+                { time : 600  , color : "#FFFF00", opacity : 1.0 },
+                { time : 1200  , color : "#1CE6FF", opacity : 1.0 },
+                { time : 1800  , color : "#FF34FF", opacity : 1.0 },
+                { time : 2400 , color : "#FF4A46", opacity : 1.0 },
+                { time : 3000 , color : "#008941", opacity : 1.0 },
+                { time : 3600 , color : "#006FA6", opacity : 1.0 }
+                // { time : 4200 , color : "#FFDBE5", opacity : 1.0 },
+                // { time : 4800 , color : "#7A4900", opacity : 1.0 },
+                // { time : 5400 , color : "#0000A6", opacity : 1.0 },
+                // { time : 6000 , color : "#997D87", opacity : 1.0 },
+                // { time : 6600 , color : "#A3C8C9", opacity : 1.0 },
+                // { time : 7200 , color : "#004D43", opacity : 1.0 },
+                // { time : 7800 , color : "#8FB0FF", opacity : 1.0 }
             ];
 
             var travelTimeControl = r360.travelTimeControl({
-                travelTimes     : [
-                    { time : 600  , color : "#006837", opacity : 1  },
-                    { time : 1200 , color : "#39B54A", opacity : 0.8},
-                    { time : 1800 , color : "#8CC63F", opacity : 0.6},
-                    { time : 2400 , color : "#F7931E", opacity : 0.4},
-                    { time : 3000 , color : "#F15A24", opacity : 0.2},
-                    { time : 3600 , color : "#C1272D", opacity : 0.1}
-                ], position : 'topright', label: 'Travel time: ', initValue: 10
+                travelTimes     : r360.config.defaultTravelTimeControlOptions.travelTimes, position : 'topright', label: 'Travel time: ', initValue: 60
             });
 
             //  bind the action to the travel time control
             travelTimeControl.onSlideStop(function(){ showPolygons(); });
 
 
-
-
             // add the newly created control to the map
-            // map.addControl(travelTimeControl);
+            map.addControl(travelTimeControl);
+
+            map.on('dragend', function(){
+
+                console.log(map.getBounds());
+            });
 
             // add a radio element with all the different transport types
             var buttonOptions = {
@@ -99,13 +101,13 @@
                       tooltip: 'Cycling speed is on average 15km/h', checked : false },
 
                     { label: '<span class="map-icon-walking"></span> Walking', key: 'walk',     
-                      tooltip: 'Walking speed is on average 5km/h', checked : false  },
+                      tooltip: 'Walking speed is on average 5km/h', checked : true  },
 
                     { label: '<span class="fa fa-car"></span> Car', key: 'car',      
-                      tooltip: 'Car speed is limited by speed limit', checked : true },
+                      tooltip: 'Car speed is limited by speed limit', checked : false },
 
                     { label: '<span class="map-icon-train-station"></span> Transit', key: 'transit',  
-                      tooltip: 'This demo only contains subways', checked : true }
+                      tooltip: 'This demo only contains subways', checked : false }
                 ]
             };
 
@@ -174,10 +176,6 @@
 
             // create a marker and add it to the map
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
-            //var homeMarker2 = L.marker(latlon2, { draggable : true }).addTo(map);
-            /*var homeMarker3 = L.marker(latlon3, { draggable : true }).addTo(map);
-            var homeMarker4 = L.marker(latlon4, { draggable : true }).addTo(map);
-            var homeMarker5 = L.marker(latlon5, { draggable : true }).addTo(map);*/
             showPolygons();
 
             homeMarker.on('dragend', function(){
@@ -185,23 +183,6 @@
                 showPolygons();    
             });
 
-         /*   homeMarker2.on('dragend', function(){
-
-                showPolygons();    
-            });*/
-           /*  homeMarker3.on('dragend', function(){
-
-                showPolygons();    
-            });
-              homeMarker4.on('dragend', function(){
-
-                showPolygons();    
-            });
-               homeMarker5.on('dragend', function(){
-
-                showPolygons();    
-            });
-*/
             intersectionModeButtons.onChange(function(){
                 showPolygons();
             });
@@ -213,6 +194,8 @@
 
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(homeMarker);
+                travelOptions.setDate('20150125');
+                travelOptions.setTime('35000');
                 travelOptions.setDate('20140825');
                 travelOptions.setTime('39600');
                 travelOptions.setTravelType(travelTypeButtons.getValue());
@@ -236,19 +219,19 @@
                  travelOptions.addSource(homeMarker4);
                  travelOptions.addSource(homeMarker5);*/
                 travelOptions.setTravelType(travelTypeButtons.getValue());
-                travelOptions.setTravelTimes([1800, 2400, 3000, 3600, 7200]);
-                // travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setTravelTimes([7200]);
+                travelOptions.setMinPolygonHoleSize(1000000000000);
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
 
                 var intersectionMode = intersectionModeButtons.getValue();
                 travelOptions.setIntersectionMode(intersectionMode);
-
-                if ( travelTypeButtons.getValue() == 'transit' ) {
-                    travelOptions.setDate('20140825');
-                    travelOptions.setTime('40000');
-                }
+                travelOptions.setDate('20150125');
+                travelOptions.setTime('35000');
+                travelOptions.setDate('20140825');
+                travelOptions.setTime('39600');
 
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                    travelOptions.setTravelTimes([3600]);
+                    travelOptions.setTravelTimes([600]);
                     // travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
                 // call the service
@@ -256,6 +239,54 @@
                     polygonLayer.clearAndAddLayers(polygons);
                 });
             }
+
+            function showRoutes(){
+
+                // visualization of junit test cases
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
+                travelOptions.addTarget({lat : 52.52175701517317, lng : 13.377571105957031});
+                travelOptions.setTravelType('transit');
+                travelOptions.setDate('20150125');
+                travelOptions.setTime('35000');
+
+                // call the service
+                // r360.RouteService.getRoutes(travelOptions, function(routes) {
+                //     _.each(routes, function(route){
+
+                //         route.fadeIn(routeLayer, 500, "travelDistance");
+                //     });
+                // });
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource({lat : 52.514000984723936, lng : 13.368666172027586});
+                travelOptions.addTarget({lat : 52.513282764498854, lng : 13.35813045501709 });
+                travelOptions.setTravelType('bike');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource({lat : 52.51815337333538, lng : 13.372678756713867 });
+                travelOptions.addTarget({lat : 52.5089601366896, lng : 13.371927738189697 });
+                travelOptions.setTravelType('car');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+            }
+
+            // showRoutes();
         });
     </script>
 </head>

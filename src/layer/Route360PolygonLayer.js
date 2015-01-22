@@ -401,7 +401,6 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._scale(polygonTopRight, scale);
         that._scale(polygonBottomLeft, scale);
 
-
         // the outer boundary       
         if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
             that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);

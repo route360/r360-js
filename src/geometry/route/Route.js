@@ -139,13 +139,13 @@ r360.Route = function(travelTime, segments){
                 // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color:          lastSegement.color, 
-                    fillColor:      that.routeSegments[j-1].color, 
-                    fillOpacity:    0.5, 
-                    opacity:        0.5, 
+                    color:          colors.color, 
+                    fillColor:      colors.haloColor, 
+                    fillOpacity:    1, 
+                    opacity:        1, 
                     stroke:         true, 
-                    weight:         3, 
-                    radius:         5 
+                    weight:         4, 
+                    radius:         7 
                 });         
 
                (function(marker, k) {
@@ -167,7 +167,7 @@ r360.Route = function(travelTime, segments){
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
-            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  {
+            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK" || segment.getType() == "BIKE") )  {
 
                 polylineOptions.weight    = 7;
                 polylineOptions.dashArray = "1, 10";

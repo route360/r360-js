@@ -19,6 +19,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
+            if ( _.has(options, 'index'))       this.options.index       = options.index;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -228,6 +229,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                                 firstRow    : firstRow.join(", "),
                                 secondRow   : secondRow.join(" "),
                                 term        : request.term,
+                                index       : that.options.index,
                                 latlng      : new L.LatLng(latlng[0], latlng[1])
                             }
                         }));
@@ -325,6 +327,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
     getValue : function(){
         return this.options.value;
+    },
+
+    getIndex : function(){
+        return this.options.index;
     },
 
     onResize: function(){

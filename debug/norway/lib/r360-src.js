@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (1d57b03), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (767c02d), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -136,6 +136,8 @@ r360.config = {
     defaultPolygonLayerOptions:{
         opacity : 0.4,
         strokeWidth: 30,
+
+        tolerance: 15,
 
         // background values only matter if inverse = true
         backgroundColor : 'black',
@@ -311,8 +313,8 @@ r360.Util = {
         var coordinates = new Array();
 
         for ( var i = 0 ; i < latlngs.length ; i++ )
-            coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-            // coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
+            // coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
+            coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
 
         return coordinates;
     },
@@ -413,14 +415,22 @@ r360.Util = {
 
                 var polygon = r360.polygon();
                 polygon.setTravelTime(polygonJson.travelTime);
-                polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
-                polygon.setOpacity(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).opacity);
+                polygon.setArea(polygonJson.area);
+
+                var color = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                polygon.setColor(typeof color !== 'undefined' ? color.color : '#000000');
+                
+                var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
+                polygon.setOpacity(typeof opacity !== 'undefined' ? opacity.opacity : 1);
+                
                 polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
                 polygon.setBoundingBox();
 
                 _.each(polygonJson.innerBoundary, function (innerBoundary) {
                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
                 });
+
+                console.log(polygon.getArea());
             
                 sourcePolygons.polygons.push(polygon);
             });
@@ -503,7 +513,6 @@ r360.Util = {
         var point = L.Projection.SphericalMercator.project(latlng);
         point.x *= 6378137;
         point.y *= 6378137;
-        
         return point;
     }
 };
@@ -524,6 +533,7 @@ r360.TravelOptions = function(){
     this.walkUphill       = 10;
     this.walkDownhill     = 0;
 
+    this.minPolygonHoleSize = 1000000;
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
     this.elevationEnabled = true;
@@ -900,6 +910,24 @@ r360.TravelOptions = function(){
 
         this.service = service;
     }
+
+    /**
+    * [setMinPolygonHoleSize description]
+    * @param {[type]} minPolygonHoleSize [description]
+    */
+    this.setMinPolygonHoleSize = function(minPolygonHoleSize){
+
+        this.minPolygonHoleSize = minPolygonHoleSize;
+    }
+
+    /**
+     * [getMinPolygonHoleSize description]
+     * @return {[type]} [description]
+     */
+    this.getMinPolygonHoleSize = function(){
+
+        return this.minPolygonHoleSize;
+    }
     
     /*
      *
@@ -1078,8 +1106,9 @@ r360.PolygonService = {
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
                 polygon          : { 
-                    values           : travelOptions.getTravelTimes(), 
-                    intersectionMode : travelOptions.getIntersectionMode() 
+                    minPolygonHoleSize : travelOptions.getMinPolygonHoleSize(), 
+                    values             : travelOptions.getTravelTimes(), 
+                    intersectionMode   : travelOptions.getIntersectionMode() 
                 },
                 sources          : []
             };
@@ -1089,9 +1118,9 @@ r360.PolygonService = {
 
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
-                    tm : {}
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
+                    tm  : {}
                 };
 
                 var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
@@ -1182,8 +1211,8 @@ r360.RouteService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
@@ -1226,8 +1255,8 @@ r360.RouteService = {
                  cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lng,
                 });
             });
 
@@ -2133,7 +2162,6 @@ L.Control.WaitControl = L.Control.extend({
     onAdd: function (map) {
         this.options.map = map;
         this.options.mapId = $(map._container).attr("id");
-        console.log(this.options.mapId);
        
         var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
         $(waitContainer).append(
@@ -2437,7 +2465,7 @@ r360.checkboxButtonControl = function (options) {
 /*
  *
  */
-r360.Polygon = function(traveltime, outerBoundary) {
+r360.Polygon = function(traveltime, area, outerBoundary) {
 
     var that = this;
     
@@ -2447,6 +2475,7 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.centerPoint      = new L.latLng(0,0);
 
     that.travelTime       = traveltime;
+    that.area             = area;
     that.color;
     that.outerBoundary    = outerBoundary;
     that.innerBoundaries  = new Array();
@@ -2618,10 +2647,18 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.getOpacity =function(){
         return that.opacity;
     }
+
+    that.setArea = function(area){
+        that.area = area;
+    }
+
+    that.getArea = function(){
+        return that.area;
+    }
 }
 
-r360.polygon = function (traveltime, outerBoundary) { 
-    return new r360.Polygon(traveltime, outerBoundary);
+r360.polygon = function (traveltime, area, outerBoundary) { 
+    return new r360.Polygon(traveltime, area, outerBoundary);
 };
 
 /*
@@ -2722,7 +2759,7 @@ r360.RouteSegment = function(segment){
     * Call it distance instead
     */
 
-    that.distance          = segment.length;    
+    that.distance        = segment.length;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
@@ -2989,7 +3026,7 @@ r360.Route = function(travelTime, segments){
         function fader(segment, millis, colors){
 
             var polylineOptions         = {};
-            polylineOptions.color       = _.has(colors, 'color') ? colors.color : segment.getColor();
+            polylineOptions.color       = typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor();
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
@@ -3002,7 +3039,7 @@ r360.Route = function(travelTime, segments){
             var polylineHaloOptions     = {};
             polylineHaloOptions.weight  = 10;
             polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.color   = typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces      = millis / 15;
@@ -3209,6 +3246,8 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(sourceToPolygons){        
         
+
+
         var that    = this;
         that.redrawCount = 0;
 
@@ -3221,9 +3260,13 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         for(var i = 0; i < sourceToPolygons.length; i++){
             for(var j = 0; j < sourceToPolygons[i].polygons.length; j++){
-                 sourceToPolygons[i].polygons[j].project(); 
+                //if(sourceToPolygons[i].polygons[j].travelTime == 3600){
+
+                    sourceToPolygons[i].polygons[j].project(); 
                  that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
                  that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
+                //}
+                 
             }
         }
         
@@ -3318,12 +3361,53 @@ r360.Route360PolygonLayer = L.Class.extend({
             point.x = bounds.max.x;
         else if(point.x < bounds.min.x)
             point.x = bounds.min.x;
-
-
         if(point.y > bounds.max.y)
             point.y = bounds.max.y;        
         else if(point.y < bounds.min.y)
             point.y = bounds.min.y;
+    },
+
+    /*
+    clipping like sutherland
+    http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript
+    */
+
+    _clip: function(subjectPolygon, clipPolygon) {
+       var cp1, cp2, s, e;
+            var inside = function (p) {
+                return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+            };
+            var intersection = function () {
+                var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                    dp = [ s[0] - e[0], s[1] - e[1] ],
+                    n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                    n2 = s[0] * e[1] - s[1] * e[0], 
+                    n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+                return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+            };
+            var outputList = subjectPolygon;
+            var cp1 = clipPolygon[clipPolygon.length-1];
+            for (j in clipPolygon) {
+                var cp2 = clipPolygon[j];
+                var inputList = outputList;
+                outputList = [];
+                s = inputList[inputList.length - 1]; //last on the input list
+                for (i in inputList) {
+                    var e = inputList[i];
+                    if (inside(e)) {
+                        if (!inside(s)) {
+                            outputList.push(intersection());
+                        }
+                        outputList.push(e);
+                    }
+                    else if (inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    s = e;
+                }
+                cp1 = cp2;
+            }
+            return outputList
     },
 
     _scale: function(point, scale){
@@ -3338,21 +3422,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         return y;
     },
 
-    _getMaxDiff: function(svgArray, point){
-        var diffX = svgArray[1] - point.x;
-        var diffY = svgArray[2] - point.y;
-
-        if(diffX < 0)
-            diffX *= -1;
-
-         if(diffY < 0)
-            diffY *= -1;
-
-        if(diffX >= diffY)
-            return diffX;
-        else
-            return diffY;
-
+    _getMaxDiff: function(point1, point2){
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     },
 
     _splicePath: function(pathData){
@@ -3371,13 +3442,17 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     _isCollinear: function(p1, p2, p3){
 
+        if(p1.x == p3.x && p1.y == p3.y)
+            return false;
         if(p1.x == p2.x && p2.x == p3.x)
             return true;
         if(p1.y == p2.y && p2.y == p3.y)
             return true;
         
         var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-        if(val < 1 && val > -1 && p1.x != p3.x && p1.y != p3.y)
+
+        if(val < r360.config.defaultPolygonLayerOptions.tolerance && val > -r360.config.defaultPolygonLayerOptions.tolerance
+         && p1.x != p3.x && p1.y != p3.y)
             return true;
         return false;
     },
@@ -3396,63 +3471,59 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgz    = "z";  
         var maxDiff;
       
-        var projectedPoint, point1, point2, pointCount = 0;
+        var projectedPoint, point, point1, point2, isCollinear, pointCount = 0;
        
-         // the min amount of pixels for a new point
-        var minDiff = 5;
+        var boundArray = [[bounds.min.x, bounds.min.y], [bounds.max.x, bounds.min.y], [bounds.max.x, bounds.max.y], [bounds.min.x, bounds.max.y]];
+
+        var arrayToClip = new Array();
 
         for(var i = 0; i < coordinateArray.length; i++){
-
-            projectedPoint = coordinateArray[i];
-            point = new L.Point(projectedPoint.x, projectedPoint.y);
-
-            // scale coordinates depending on zoom level
+            projectedPoint  = coordinateArray[i];
+            point           = new L.Point(projectedPoint.x, projectedPoint.y);
             that._scale(point, scale);
+            that._roundPoint(point);
 
-            // level all points outside defined area
-            that._clipToBounds(point,bounds);
+            if(i > 0) 
+                maxDiff = that._getMaxDiff(point2, point); 
+            else 
+                maxDiff = r360.config.defaultPolygonLayerOptions.tolerance;
 
-            // adjust coordinates to map origin
-            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(maxDiff >= r360.config.defaultPolygonLayerOptions.tolerance){
 
-            point = that._roundPoint(point);
-            
-            // getting the max difference of the latest to points in eiter x or y direction
-            if(i > 0) maxDiff = that._getMaxDiff(pathData[pathData.length-1], point); else maxDiff = minDiff;
-
-            /*
-            we are only drawing the point if it is different to the last one
-            hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
-            */           
-            if(maxDiff >= minDiff){
-
-                var isCollinear = false;
+                isCollinear = false;
 
                 if(pointCount > 2){
                     isCollinear = that._isCollinear(point1, point2, point);
                 }
 
                 if(isCollinear){
-                    pathData[pathData.length-1][1] = point.x;
-                    pathData[pathData.length-1][2] = point.y;
-                    //console.log("iscollinear")
+                    arrayToClip[arrayToClip.length-1][0] = point.x;
+                    arrayToClip[arrayToClip.length-1][1] = point.y;
                 }else{
-                    if(i > 0)   
-                        pathData.push(that._buildPath(point, svgL));
-                    else        
-                        pathData.push(that._buildPath(point, svgM));
-
+                    
+                    arrayToClip.push([point.x, point.y]);
                     point1 = point2;
                     point2 = point;
-
                     pointCount++;
-
                 }
             }
-            // checking weather last three points are building one (even x or y) line. If so remove the middle one
-            //that._splicePath(pathData);
         }
-        pathData.push([svgz]);
+
+        var clippedArray = this._clip(arrayToClip, boundArray);
+        var lastPoint;
+
+        for(var i = 0; i < clippedArray.length; i++){
+            projectedPoint = clippedArray[i];
+            point = new L.Point(projectedPoint[0], projectedPoint[1]);
+            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(i > 0)   
+                pathData.push(that._buildPath(point, svgL));
+            else        
+                pathData.push(that._buildPath(point, svgM));
+            lastPoint = point;
+        }
+        if(pathData.length > 0)
+            pathData.push([svgz]);
         return pathData;
     },
     

@@ -21,11 +21,11 @@ r360.config = {
     defaultTravelTimeControlOptions : {
         travelTimes     : [
             { time : 300  , color : "#006837", opacity : 0.1 },
-            { time : 600  , color : "#39B54A"},
-            { time : 900  , color : "#8CC63F"},
-            { time : 1200 , color : "#F7931E"},
-            { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"}
+            { time : 600  , color : "#39B54A", opacity : 1.0},
+            { time : 900  , color : "#8CC63F", opacity : 1.0},
+            { time : 1200 , color : "#F7931E", opacity : 1.0},
+            { time : 1500 , color : "#F15A24", opacity : 1.0},
+            { time : 1800 , color : "#C1272D", opacity : 1.0}
         ],
         position : 'topright',
         label: 'travel time',
@@ -61,7 +61,16 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
-        // serviceUrl : "http://148.251.160.52/api?",
+        position : 'topleft',
+        reset : false,
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
+    },
+
+    photonPlaceAutoCompleteOptions : {
+        serviceUrl : "https://geocode2.route360.net/photon/api?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -86,7 +95,7 @@ r360.config = {
         backgroundOpacity : 0.5,
         inverse : false,
 
-        animate : false,
+        animate : true,
         animationDuration : 1
     },
 

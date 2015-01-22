@@ -1,7 +1,7 @@
 /*
  *
  */
-r360.Polygon = function(traveltime, outerBoundary) {
+r360.Polygon = function(traveltime, area, outerBoundary) {
 
     var that = this;
     
@@ -11,6 +11,7 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.centerPoint      = new L.latLng(0,0);
 
     that.travelTime       = traveltime;
+    that.area             = area;
     that.color;
     that.outerBoundary    = outerBoundary;
     that.innerBoundaries  = new Array();
@@ -182,8 +183,16 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.getOpacity =function(){
         return that.opacity;
     }
+
+    that.setArea = function(area){
+        that.area = area;
+    }
+
+    that.getArea = function(){
+        return that.area;
+    }
 }
 
-r360.polygon = function (traveltime, outerBoundary) { 
-    return new r360.Polygon(traveltime, outerBoundary);
+r360.polygon = function (traveltime, area, outerBoundary) { 
+    return new r360.Polygon(traveltime, area, outerBoundary);
 };
