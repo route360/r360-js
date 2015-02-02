@@ -15,6 +15,8 @@ r360.TravelOptions = function(){
     this.walkDownhill     = 0;
 
     this.minPolygonHoleSize = 1000000;
+    this.supportWatts     = 0;
+    this.renderWatts      = false;
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
     this.elevationEnabled = true;
@@ -179,6 +181,8 @@ r360.TravelOptions = function(){
 
         this.sources.push(source);
     }
+
+
 
     /*
      *
@@ -561,6 +565,23 @@ r360.TravelOptions = function(){
     this.setElevationEnabled = function(elevationEnabled){
 
         this.elevationEnabled = elevationEnabled;
+    }
+
+    this.setRenderingMode = function(renderingMode){
+        if(renderingMode == "watts")
+            this.renderWatts = true;
+    }
+
+    this.getRenderingMode = function(){
+       return this.renderWatts;
+    }
+
+    this.setSupportWatts = function(supportWatts){
+        this.supportWatts = supportWatts;
+    }
+
+    this.getSupportWatts = function(){
+        return this.supportWatts;
     }
 };
 
