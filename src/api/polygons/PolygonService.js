@@ -16,6 +16,7 @@ r360.PolygonService = {
 
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
+                elevation        : travelOptions.isElevationEnabled(),
                 polygon          : { 
 
                     values           : travelOptions.getTravelTimes(), 
@@ -33,7 +34,7 @@ r360.PolygonService = {
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 

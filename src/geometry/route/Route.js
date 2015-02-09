@@ -139,8 +139,8 @@ r360.Route = function(travelTime, segments){
                 // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color:          colors.color, 
-                    fillColor:      colors.haloColor, 
+                    color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
+                    fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
                     fillOpacity:    1, 
                     opacity:        1, 
                     stroke:         true, 
