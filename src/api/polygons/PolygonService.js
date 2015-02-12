@@ -67,6 +67,23 @@ r360.PolygonService = {
                     };
                 }
 
+                if ( travelType == 'rentBike') {
+                    
+                    src.tm.rentBike = {
+                        speed       : travelOptions.getBikeSpeed(),
+                        uphill      : travelOptions.getBikeUphill(),
+                        downhill    : travelOptions.getBikeDownhill()
+                    };
+                }
+
+                if ( travelType == 'rentAndReturnBike') {
+                    src.tm.rentAndReturnBike = {
+                        speed       : travelOptions.getBikeSpeed(),
+                        uphill      : travelOptions.getBikeUphill(),
+                        downhill    : travelOptions.getBikeDownhill()
+                    };
+                }
+
                 cfg.sources.push(src);
             });
 
