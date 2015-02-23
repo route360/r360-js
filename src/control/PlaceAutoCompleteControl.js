@@ -79,9 +79,9 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
                     '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
 
-            if ( that.options.options && that.options.options.hirebike ) 
+            if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
+                    + (this.options.travelType == 'rentbike' ? 'active' : '') + 
                     '" travel-type="hirebike"> \
                             <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
                         </button>');
