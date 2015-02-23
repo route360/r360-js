@@ -28,6 +28,7 @@ r360.Route360PolygonLayer = L.Class.extend({
 
             if ( typeof options.opacity     != 'undefined') this.opacity      = options.opacity;
             if ( typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
+            if ( typeof options.inverse     != 'undefined') this.inverse      = options.inverse;
         }
 
         this._multiPolygons = new Array(); 
@@ -496,44 +497,30 @@ r360.Route360PolygonLayer = L.Class.extend({
                 }
                                             if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                                    
 
-                if(svgData.length != 0){
+                if ( svgData.length != 0 ) {
+                    
                     var color   = mp.getColor();
                     var opacity = mp.getOpacity();
-                                            if(r360.config.logging) var start_raphael  = new Date().getTime();
+                    
+                    if ( r360.config.logging ) 
+                        var start_raphael  = new Date().getTime();
 
-                    var animate = false;     
-                    if(that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate)
-                        if(that._isAnimated())
-                            animate = true;
+                    var animate = that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate && that._isAnimated() ? true : false;     
 
-
-                    if(!r360.config.defaultPolygonLayerOptions.inverse)
-                        g.push(that._getGElement(svgData, 1, color, animate));
-                    else
-                        g.push(that._getGElement(svgData, opacity, 'black', animate));
+                    g.push(!that.inverse ? that._getGElement(svgData, 1, color, animate) : that._getGElement(svgData, opacity, 'black', animate));
               
-                                            if(r360.config.logging)     console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
+                    if ( r360.config.logging )
+                        console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
                 }
             }
 
-            var svgString;
-            if(!r360.config.defaultPolygonLayerOptions.inverse)
-                svgString = that._getNormalSvgElement(g);
-            else
-                svgString = that._getInverseSvgElement(g);
+            var svgString = !that.inverse ? that._getNormalSvgElement(g) : that._getInverseSvgElement(g);
 
             $('#canvas'+ $(this._map._container).attr("id")).append(svgString);
-               
-
-
-           
         }
 
-                                            if(r360.config.logging){
-                                                var end   = new Date().getTime();
-                                                console.log("layer resetting tool: " +  (end - start) + "ms");
-                                            } 
-
+        if ( r360.config.logging )
+            console.log("layer resetting tool: " +  (new Date().getTime() - start) + "ms");
     },
 
     _isAnimated: function(){
@@ -631,8 +618,8 @@ r360.Route360PolygonLayer = L.Class.extend({
 
 });
 
-r360.route360PolygonLayer = function () {
-    return new r360.Route360PolygonLayer();
+r360.route360PolygonLayer = function (options) {
+    return new r360.Route360PolygonLayer(options);
 };
 
 

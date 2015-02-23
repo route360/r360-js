@@ -23,6 +23,7 @@ r360.TravelTimeControl = L.Control.extend({
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
             if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
+            if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
             if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
             if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
             if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
@@ -85,12 +86,12 @@ r360.TravelTimeControl = L.Control.extend({
         this.options.travelTimeInfo = $('<div/>');
         this.options.travelTimeSlider = $('<div/>', {"class" : "no-border"}).append(sliderColors);
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
-        this.options.labelSpan = '<span lang="en">Traveltime</span><span lang="de">Reisezeit</span>: ';
+        this.options.labelSpan = '<span lang="en">'+this.options.label+'</span>: ';
 
         if ( this.options.icon != 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
-        var unitSpan = $('<span/>', {"text" : "min"});
+        var unitSpan = $('<span/>', {"text" : this.options.unit});
 
         $(this.options.sliderContainer).append(this.options.miBox);
         this.options.miBox.append(this.options.travelTimeInfo);

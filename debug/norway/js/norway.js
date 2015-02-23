@@ -10,30 +10,15 @@ $(document).ready(function(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', {
-        maxZoom: 18, attribution: attribution }).addTo(map);
+    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
 
     var currentRoute;
     var elevationData = [];
 
     var elevationColors = [{
-        label               : "fast",
-        fillColor           : "#006837",
-        fillColorOpacity    : 0.1,
-        strokeColor         : "#006837",
-        strokeColorOpacity  : 0.7
-    },{
-        label               : "short",
-        fillColor           : "#F7931E",
-        fillColorOpacity    : 0.1,
-        strokeColor         : "#F7931E",
-        strokeColorOpacity  : 0.7
-    },{
-        label               : "hilly",
-        fillColor           : "#C1272D",
-        fillColorOpacity    : 0.1,
-        strokeColor         : "#C1272D",
-        strokeColorOpacity  : 0.7
+        label : "fast",  fillColor : "#006837", fillColorOpacity : 0.1, strokeColor : "#006837", strokeColorOpacity  : 0.7 },{
+        label : "short", fillColor : "#F7931E", fillColorOpacity : 0.1, strokeColor : "#F7931E", strokeColorOpacity  : 0.7 },{
+        label : "hilly", fillColor : "#C1272D", fillColorOpacity : 0.1, strokeColor : "#C1272D", strokeColorOpacity  : 0.7
     }];
 
     var sourceMarker = '';
@@ -45,28 +30,15 @@ $(document).ready(function(){
     var targetLayer  = L.featureGroup().addTo(map);
     var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
-    _.each(rentals, function(rental){
-
-        var redMarker = L.AwesomeMarkers.icon({
-            // icon: 'fa fa-bicycle',
-            icon: 'bicycle',
-            prefix : 'fa',
-            markerColor: 'cadetblue'
-        });
-
-        // L.marker([rental.lat, rental.lng], {icon: redMarker}).addTo(rentalLayer);
-    });
-
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.i18n.language   = 'en';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl      = 'http://dev.route360.net/api_norway_dev/';
-    r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.2/';
-    // r360.config.serviceUrl = 'http://localhost:8080/api/';
+    r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
+    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
-    var options = { bike : true, walk : true, hirebike: true, init : 'bike' };
+    var options = { bike : true, walk : true, ebike: true, rentbike: true, init : 'bike' };
     var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select source!', reset : true, reverse : false , image : 'images/source.png', options : options});
     var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : true  , image : 'images/target.png'});
 
@@ -77,46 +49,9 @@ $(document).ready(function(){
     var waitControl = r360.waitControl({ position : 'bottomright' });
     map.addControl(waitControl);
 
-    var travelTimeControl       = r360.travelTimeControl({
-        travelTimes     : [
-            { time : 300  , color : "#006837"},
-            { time : 600  , color : "#39B54A"},
-            { time : 900  , color : "#8CC63F"},
-            { time : 1200 , color : "#F7931E"},
-            { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"}
-        ],
-        position : 'topright', // this is the position in the map
-        label: 'Travel time: ', // the label, customize for i18n
-        initValue: 30 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
-    });
-
-    // create a new readio button control with the given options
-    var travelTypeButtons = r360.radioButtonControl({
-        buttons : [
-            // each button has a label which is displayed, a key, a tooltip for mouseover events 
-            // and a boolean which indicates if the button is selected by default
-            // labels may contain html
-            { label: '<span class=""></span> slow', key: 'slow',     
-              tooltip: 'Cycling speed: 12km/h - Walking speed: 4km/h', checked : false },
-
-            { label: '<span class=""></span> medium', key: 'medium',     
-              tooltip: 'Cycling speed: 17km/h - Walking speed: 5km/h', checked : true  },
-
-            { label: '<span class=""></span> fast', key: 'fast',      
-              tooltip: 'Cycling speed: 27km/h - Walking speed: 6km/h', checked : false }
-        ]
-    });
-
-    // what happens if action is performed
-    travelTypeButtons.onChange(updateSource);
-    travelTimeControl.onSlideStop(updateSource);
-    
-    // add to map
-    map.addControl(travelTimeControl);
-    map.addControl(travelTypeButtons);
-
     $('span[lang="de"]').hide();
+
+    var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
@@ -169,6 +104,8 @@ $(document).ready(function(){
     // if someone changes the travel type for the source
     // we need to get new polygons and new routes
     sourceAutoComplete.onTravelTypeChange(function(){
+
+        addControls();
 
         // we can only show polygons if a place was already defined
         if ( typeof sourceAutoComplete.getValue() !== 'undefined' && Object.keys(sourceAutoComplete.getValue()).length !== 0 )
@@ -273,6 +210,14 @@ $(document).ready(function(){
         });
     }
 
+    // ==================================================================================================================================
+    // ----------------------------------------------------------------------------------------------------------------------------------
+    // 
+    //                                              END OF AUTOCOMPLETE STUFF
+    // 
+    // ----------------------------------------------------------------------------------------------------------------------------------
+    // ==================================================================================================================================
+
     /**
      * [updateSource This method updates the polygons, and performs a reverse geocoding for the update of the
      * autoComplete and get's new routes if a target is defined.]
@@ -328,9 +273,7 @@ $(document).ready(function(){
         travelOptions.setTravelType(sourceAutoComplete.getTravelType());
         travelOptions.setWaitControl(waitControl);
         travelOptions.addTarget(targetMarker);
-        travelOptions.addTarget(L.latLng(59.9242268075892, 10.823593139648438));
-        travelOptions.addTarget(L.latLng(59.954838366826024, 10.759048461914062));
-        setTravelingSpeeds(travelOptions, travelTypeButtons.getValue());
+        setTravelingSpeeds(travelOptions);
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
 
@@ -340,7 +283,6 @@ $(document).ready(function(){
                 '<table class="table table-striped"> \
                     <thead>\
                         <tr>\
-                          <th>Profile</th>\
                           <th>Travel time</th>\
                           <th>Distance</th>\
                           <th>Elevation difference</th>\
@@ -354,10 +296,9 @@ $(document).ready(function(){
 
                 html +=
                     '<tr style="margin-top:5px;">\
-                        <td class="routeModus routeModus'+index+'">'+ elevationColors[index].label +'</td>\
-                        <td>' + r360.Util.secondsToHoursAndMinutes(currentRoute.getTravelTime()) + '</td>\
-                        <td>' + currentRoute.getDistance().toFixed(2) + ' km</td>\
-                        <td>' + currentRoute.getElevationGain().toFixed(0) + ' m</td>\
+                        <td style="vertical-align: middle;">' + r360.Util.secondsToHoursAndMinutes(currentRoute.getTravelTime()) + '</td>\
+                        <td style="vertical-align: middle;">' + currentRoute.getDistance().toFixed(2) + ' km</td>\
+                        <td style="vertical-align: middle;">' + currentRoute.getTotalElevationDifference() + 'm<br> <i class="fa fa-arrow-up" style="color:#C1272D;">' + currentRoute.getUphillElevation() + 'm</i> <i class="fa fa-arrow-down" style="color:#006837;">' + currentRoute.getDownhillElevation() + 'm</i></td>\
                     </tr>'
 
                 var elevations = currentRoute.getElevations();
@@ -379,23 +320,81 @@ $(document).ready(function(){
             targetMarker.bindPopup(html);
             targetMarker.openPopup();
 
-            // setTimeout(function(){
-
-            //     console.log("TIMEOUTE")
-                new Chart(document.getElementById("elevationChart").getContext("2d")).Line({
-                    labels: longestLabel,
-                    datasets: data
-                }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
-            // }, 3000);
+            new Chart(document.getElementById("elevationChart").getContext("2d")).Line({
+                labels: longestLabel,
+                datasets: data
+            }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
 
             $('.routeModus0').css('background-color', "rgba(" + hexToRgb(elevationColors[0].fillColor).join(', ') + ", " +  elevationColors[0].fillColorOpacity + ")");
-            $('.routeModus1').css('background-color', "rgba(" + hexToRgb(elevationColors[1].fillColor).join(', ') + ", " +  elevationColors[1].fillColorOpacity + ")");
-            $('.routeModus2').css('background-color', "rgba(" + hexToRgb(elevationColors[2].fillColor).join(', ') + ", " +  elevationColors[2].fillColorOpacity + ")");
             $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
-            $('.routeModus1').css('border', "1px solid rgba(" + hexToRgb(elevationColors[1].strokeColor).join(', ') + ", " +  elevationColors[1].strokeColorOpacity + ")");
-            $('.routeModus2').css('border', "1px solid rgba(" + hexToRgb(elevationColors[2].strokeColor).join(', ') + ", " +  elevationColors[2].strokeColorOpacity + ")");
         });
     };
+
+    /**
+     * [setTravelingSpeeds This method is a helper method used to set different travel speeds and penalties for the choosen travel speeds.]
+     * @param {[type]} travelOptions [the travel option object used to pass to the webservice]
+     * @param {[type]} travelSpeed   [the travel speed setting, one of: 'slow', 'medium' or 'fast']
+     */
+    function setTravelingSpeeds(travelOptions){
+
+        var travelSpeed;
+        if ( sourceAutoComplete.getTravelType() == 'bike' )     travelSpeed = bikeSpeedButtons.getValue();
+        if ( sourceAutoComplete.getTravelType() == 'rentbike' ) travelSpeed = rentbikeSpeedButtons.getValue();
+        if ( sourceAutoComplete.getTravelType() == 'walk' )     travelSpeed = walkSpeedButtons.getValue();
+
+        console.log(travelSpeed);
+
+        if ( travelSpeed == 'slow' ) {
+
+            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+
+                travelOptions.setBikeUphill(22);
+                travelOptions.setBikeDownhill(-8);
+                travelOptions.setBikeSpeed(12);
+            }
+
+            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
+
+                travelOptions.setWalkSpeed(4);
+                travelOptions.setWalkUphill(12);
+                travelOptions.setWalkDownhill(0);
+            }
+        }
+
+        if ( travelSpeed == 'medium' ) {
+            
+            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+                
+                travelOptions.setBikeSpeed(17);
+                travelOptions.setBikeUphill(20);
+                travelOptions.setBikeDownhill(-10);
+            }
+
+            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
+
+                travelOptions.setWalkSpeed(5);
+                travelOptions.setWalkUphill(10);
+                travelOptions.setWalkDownhill(0);
+            }
+        }
+
+        if ( travelSpeed == 'fast' ) {
+            
+            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+
+                travelOptions.setBikeSpeed(27);
+                travelOptions.setBikeUphill(18);
+                travelOptions.setBikeDownhill(-12);
+            }
+
+            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
+
+                travelOptions.setWalkSpeed(6);
+                travelOptions.setWalkUphill(8);
+                travelOptions.setWalkDownhill(0);
+            }
+        }
+    }
 
     /**
      * [getPolygons This method performs a webservice request to the r360 polygon service for the specified source and travel options.
@@ -407,9 +406,29 @@ $(document).ready(function(){
         var travelOptions = r360.travelOptions();
         travelOptions.addSource(sourceMarker);
         travelOptions.setTravelType(sourceAutoComplete.getTravelType());
-        travelOptions.setTravelTimes(travelTimeControl.getValues());
         travelOptions.setWaitControl(waitControl);
-        setTravelingSpeeds(travelOptions, travelTypeButtons.getValue());
+
+        if ( sourceAutoComplete.getTravelType() == 'bike' ) {
+
+            travelOptions.setTravelTimes(travelTimeControl.getValues());
+            setTravelingSpeeds(travelOptions);    
+        }
+        if ( sourceAutoComplete.getTravelType() == 'walk' ) {
+
+            travelOptions.setTravelTimes(travelTimeControl.getValues());
+            setTravelingSpeeds(travelOptions);    
+        }
+        if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
+
+            travelOptions.setRenderWatts(true);
+            travelOptions.setSupportWatts(supportLevelButtons.getValue());
+            travelOptions.setTravelTimes(travelWattControl.getValues());
+        }
+        if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
+
+            setTravelingSpeeds(travelOptions);    
+            travelOptions.setTravelTimes(travelTimeControl.getValues());
+        }
         
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -417,46 +436,161 @@ $(document).ready(function(){
         });
     }
 
-    /**
-     * [setTravelingSpeeds This method is a helper method used to set different travel speeds and penalties for the choosen travel speeds.]
-     * @param {[type]} travelOptions [the travel option object used to pass to the webservice]
-     * @param {[type]} travelSpeed   [the travel speed setting, one of: 'slow', 'medium' or 'fast']
-     */
-    function setTravelingSpeeds(travelOptions, travelSpeed){
+    function removeControls() {
 
-        if ( travelSpeed == 'slow' ) {
+        if ( typeof travelTimeControl    != 'undefined' ) map.removeControl(travelTimeControl);
+        if ( typeof travelWattControl    != 'undefined' ) map.removeControl(travelWattControl);
+        if ( typeof bikeSpeedButtons     != 'undefined' ) map.removeControl(bikeSpeedButtons);
+        if ( typeof rentbikeSpeedButtons != 'undefined' ) map.removeControl(rentbikeSpeedButtons);
+        if ( typeof walkSpeedButtons     != 'undefined' ) map.removeControl(walkSpeedButtons);
+        if ( typeof supportLevelButtons  != 'undefined' ) map.removeControl(supportLevelButtons);
+    }
 
-            travelOptions.setBikeSpeed(12);
-            travelOptions.setBikeUphill(22);
-            travelOptions.setBikeDownhill(-8);
+    function addControls() {
 
-            travelOptions.setWalkSpeed(4);
-            travelOptions.setWalkUphill(12);
-            travelOptions.setWalkDownhill(0);
-        }
+        removeControls();
 
-        if ( travelSpeed == 'medium' ) {
-         
-            travelOptions.setBikeSpeed(17);
-            travelOptions.setBikeUphill(20);
-            travelOptions.setBikeDownhill(-10);
+        if ( sourceAutoComplete.getTravelType() == 'bike' ) {
 
-            travelOptions.setWalkSpeed(5);
-            travelOptions.setWalkUphill(10);
-            travelOptions.setWalkDownhill(0);
-        }
+            travelTimeControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 300  , color : "#006837"}, 
+                    { time : 600  , color : "#39B54A"},
+                    { time : 900  , color : "#8CC63F"},
+                    { time : 1200 , color : "#F7931E"},
+                    { time : 1500 , color : "#F15A24"},
+                    { time : 1800 , color : "#C1272D"}
+                ],
+                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+            });
 
-        if ( travelSpeed == 'fast' ) {
+            bikeSpeedButtons = r360.radioButtonControl({
+                buttons : [
+                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                ]
+            });
+
+            travelTimeControl.onSlideStop(getPolygons);
+            bikeSpeedButtons.onChange(getPolygons);
+
+            map.addControl(travelTimeControl);
+            map.addControl(bikeSpeedButtons);
             
-            travelOptions.setBikeSpeed(27);
-            travelOptions.setBikeUphill(18);
-            travelOptions.setBikeDownhill(-12);
+            travelWattControl    = undefined;
+            supportLevelButtons  = undefined;
+            walkSpeedButtons     = undefined;
+            rentbikeSpeedButtons = undefined;
+        }
+        else if ( sourceAutoComplete.getTravelType() == 'walk' ) {
 
-            travelOptions.setWalkSpeed(6);
-            travelOptions.setWalkUphill(8);
-            travelOptions.setWalkDownhill(0);
+            travelTimeControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 300  , color : "#006837"}, 
+                    { time : 600  , color : "#39B54A"},
+                    { time : 900  , color : "#8CC63F"},
+                    { time : 1200 , color : "#F7931E"},
+                    { time : 1500 , color : "#F15A24"},
+                    { time : 1800 , color : "#C1272D"}
+                ],
+                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+            });
+
+            walkSpeedButtons = r360.radioButtonControl({
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: '<span class=""></span> Slow', key: 'slow',     
+                      tooltip: 'Walking speed: 4km/h', checked : false },
+
+                    { label: '<span class=""></span> Medium', key: 'medium',     
+                      tooltip: 'Walking speed: 5km/h', checked : true  },
+
+                    { label: '<span class=""></span> Fast', key: 'fast',      
+                      tooltip: 'Walking speed: 6km/h', checked : false }
+                ]
+            });
+
+            travelTimeControl.onSlideStop(getPolygons);
+            walkSpeedButtons.onChange(getPolygons);
+
+            map.addControl(travelTimeControl);
+            map.addControl(walkSpeedButtons);
+            
+            travelWattControl    = undefined;
+            supportLevelButtons  = undefined;
+            bikeSpeedButtons     = undefined;
+            rentbikeSpeedButtons = undefined;
+        }
+        else if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
+
+            travelWattControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 30 , color : "#006837"}, 
+                    { time : 60  , color : "#39B54A"},
+                    { time : 90  , color : "#8CC63F"},
+                    { time : 120 , color : "#F7931E"},
+                    { time : 150 , color : "#F15A24"},
+                    { time : 180 , color : "#C1272D"}
+                ],
+                position : 'topright', label: 'Battery capacity', unit : 'Wh', initValue: 30
+            });
+
+            supportLevelButtons = r360.radioButtonControl({
+                buttons : [
+                    { label: '<span class=""></span> Easy',   key: 0,   tooltip: 'Let the e-bike do the work', checked : false },
+                    { label: '<span class=""></span> Medium', key: 75,  tooltip: 'Do a little bit of work by yourself', checked : true  },
+                    { label: '<span class=""></span> Hard',   key: 150, tooltip: 'Lets save some energy', checked : false }
+                ]});
+
+            travelWattControl.onSlideStop(getPolygons);
+            supportLevelButtons.onChange(getPolygons);
+
+            map.addControl(travelWattControl);
+            map.addControl(supportLevelButtons);
+
+            travelTimeControl    = undefined;
+            bikeSpeedButtons     = undefined;
+            walkSpeedButtons     = undefined;
+            rentbikeSpeedButtons = undefined;
+        }
+        else if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
+
+            travelTimeControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 300  , color : "#006837"}, 
+                    { time : 600  , color : "#39B54A"},
+                    { time : 900  , color : "#8CC63F"},
+                    { time : 1200 , color : "#F7931E"},
+                    { time : 1500 , color : "#F15A24"},
+                    { time : 1800 , color : "#C1272D"}
+                ],
+                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+            });
+
+            rentbikeSpeedButtons = r360.radioButtonControl({
+                buttons : [
+                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                ]});
+
+            travelTimeControl.onSlideStop(getPolygons);
+            rentbikeSpeedButtons.onChange(getPolygons);
+
+            map.addControl(travelTimeControl);
+            map.addControl(rentbikeSpeedButtons);
+
+            bikeSpeedButtons    = undefined;
+            walkSpeedButtons    = undefined;
+            supportLevelButtons = undefined;
+            travelWattControl   = undefined;
         }
     }
+
+    addControls();
 
     /**
      * [hexToRgb This method returns the rgb values of a hex color in form of an array.]

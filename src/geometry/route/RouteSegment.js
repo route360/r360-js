@@ -31,6 +31,7 @@ r360.RouteSegment = function(segment){
     if ( segment.isTransit ) {
 
         that.color          = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).color;
+        that.haloColor      = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).haloColor;
         that.transitSegment = true;
         that.routeType      = segment.routeType;
         that.routeShortName = segment.routeShortName;
@@ -43,7 +44,7 @@ r360.RouteSegment = function(segment){
     else {
 
         that.color     = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
-        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).halo;
+        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).haloColor;
     }
 
     that.getPoints = function(){

@@ -55,15 +55,12 @@
             r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon);
-            marker.lat = latlon[0];
-            marker.lon = latlon[1];
-            marker.addTo(map);
+            var marker = L.marker(latlon).addTo(map);
 
             // create the layer to add the polygons
-            var cpl = r360.route360PolygonLayer();
+            var polygonLayer = r360.route360PolygonLayer();
             // add it to the map
-            map.addLayer(cpl);
+            map.addLayer(polygonLayer);
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials
@@ -72,15 +69,17 @@
             travelOptions.addSource(marker);
             // we want to have polygons for 5 to 30 minutes
             travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            // go by foot
+            travelOptions.setTravelType('walk');
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
                 // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
+                polygonLayer.clearAndAddLayers(polygons);
                 
                 // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
+                map.fitBounds(polygonLayer.getBoundingBox());
             });
         });
     </script>

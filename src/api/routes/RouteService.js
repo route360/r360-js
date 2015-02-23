@@ -32,29 +32,26 @@ r360.RouteService = {
                 
                 src.tm[travelType] = {};
 
-                // set special routing parameters depending on the travel mode
-                if ( travelType == "transit" ) {
+                // set special routing parameters depending on the travel type
+                if ( travelType == 'transit' ) {
                     
-                    src.tm.transit.frame = {
-                        time : travelOptions.getTime(),
-                        date : travelOptions.getDate()
-                    };
+                    src.tm.transit.frame = {};
+                    if ( typeof travelOptions.getTime() != 'undefined' ) src.tm.transit.frame.time = travelOptions.getTime();
+                    if ( typeof travelOptions.getDate() != 'undefined' ) src.tm.transit.frame.date = travelOptions.getDate();
                 }
-                if ( travelType == "bike" ) {
+                if ( travelType == 'bike' ) {
                     
-                    src.tm.bike = {
-                        speed       : travelOptions.getBikeSpeed(),
-                        uphill      : travelOptions.getBikeUphill(),
-                        downhill    : travelOptions.getBikeDownhill()
-                    };
+                    src.tm.bike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.bike.downhill = travelOptions.getBikeDownhill();
                 }
-                if ( travelType == "walk") {
+                if ( travelType == 'walk') {
                     
-                    src.tm.walk = {
-                        speed       : travelOptions.getWalkSpeed(),
-                        uphill      : travelOptions.getWalkUphill(),
-                        downhill    : travelOptions.getWalkDownhill()
-                    };
+                    src.tm.walk = {};
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.walk.downhill = travelOptions.getWalkDownhill();
                 }
 
                 // add it to the list of sources

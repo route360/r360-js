@@ -3,9 +3,13 @@
  */
 r360.Route = function(travelTime, segments){
 
-    var that = this;
-    that.travelTime = travelTime;
-    that.routeSegments = new Array();
+    var that             = this;
+    that.travelTime      = travelTime;
+    that.routeSegments   = new Array();
+    that.uphillMeter     = 0;
+    that.downhillMeter   = 0;
+    that.targetHeight    = undefined;
+    that.sourceHeight    = undefined;
 
     _.each(segments, function(segment){                
         that.routeSegments.push(r360.routeSegment(segment));
@@ -103,6 +107,42 @@ r360.Route = function(travelTime, segments){
 
         return points;
     }
+
+    that.getUphillElevation = function() {
+        return that.uphillMeter;
+    }
+
+    that.getDownhillElevation = function() {
+        return that.downhillMeter;
+    }
+
+    that.getTotalElevationDifference = function(){
+        return Math.abs(that.sourceHeight - that.targetHeight);
+    }
+
+    that.setElevationDifferences = function() {
+
+        var points           = that.getPoints();
+        var previousHeight   = undefined; 
+        var sourceHeight, targetHeight;
+
+        for ( var i = points.length - 1; i >= 0 ; i-- ) {
+
+            if ( i == 0 )                 that.targetHeight = points[i].alt;
+            if ( i == points.length - 1 ) that.sourceHeight = points[i].alt;
+
+            if ( typeof previousHeight != 'undefined' ) {
+
+                // we go down
+                if ( previousHeight > points[i].alt )  
+                    that.downhillMeter += (previousHeight - points[i].alt);
+                else if ( previousHeight < points[i].alt )
+                    that.uphillMeter += (points[i].alt - previousHeight);
+            }
+
+            previousHeight = points[i].alt;
+        }
+    }();
 
     /*
      *

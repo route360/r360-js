@@ -8,11 +8,17 @@ header {
 }
 
 #map-example1, #map-addTravelTimeControlExample, 
-#map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, 
+#map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-inverseExample,
 #map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample, #map-multipleExample, #map-htmlControlExample {
 
     height: 400px;
     margin-bottom: 15px; 
+}
+
+#map-one, #map-two {
+
+    width: 100%;
+    height: 600px;
 }
 
 .html-control {

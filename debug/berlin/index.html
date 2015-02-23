@@ -36,7 +36,8 @@
             // stanstadt latlon = [46.976402,8.339293]
 
             //Wedding latlon = [52.553289320469446,13.337574005126953];
-            var latlon = [59.913715,10.752019];
+            // Wedding latlon = [52.553289320469446,13.337574005126953];
+            var latlon = [52.542354,13.343966];
             var latlon2 = [52.5455,13.3633];
             var latlon3 = [52.5465,13.3637];
             var latlon4 = [52.5435,13.3633];
@@ -84,13 +85,6 @@
 
             ];
 
-            
-
-            map.on('dragend', function(){
-
-                console.log(map.getBounds());
-            });
-
             // add the newly created control to the map
             // map.addControl(travelTimeControl);
 
@@ -123,68 +117,81 @@
 
 
             var intersectionbuttonOptions = {
-        buttons : [
-            // each button has a label which is displayed, a key, a tooltip for mouseover events 
-            // and a boolean which indicates if the button is selected by default
-            // labels may contain html
-            { label: 'Union', key: 'union',     
-              tooltip: 'No intersection of polygons', checked : true },
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: 'Union', key: 'union',     
+                      tooltip: 'No intersection of polygons', checked : true },
 
-            { label: 'Intersection', key: 'intersection',     
-              tooltip: 'Only intersected area shown.', checked : false  },
+                    { label: 'Intersection', key: 'intersection',     
+                      tooltip: 'Only intersected area shown.', checked : false  },
 
-            { label: 'Average', key: 'average',      
-              tooltip: 'Average traveltime in polygons', checked : false },
-        ]
-    };
+                    { label: 'Average', key: 'average',      
+                      tooltip: 'Average traveltime in polygons', checked : false },
+                ]
+            };
 
-    // create a new readio button control with the given options
-    var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
+            // create a new readio button control with the given options
+            var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
 
-    var renderingModeOptions = {
-    buttons : [
-        // each button has a label which is displayed, a key, a tooltip for mouseover events 
-        // and a boolean which indicates if the button is selected by default
-        // labels may contain html
-        { label: 'time', key: 'time',     
-          tooltip: 'rendering time', checked : true },
+            var renderingModeOptions = {
+            buttons : [
+                // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                // and a boolean which indicates if the button is selected by default
+                // labels may contain html
+                { label: 'time', key: false,     
+                  tooltip: 'rendering time', checked : true },
 
-        { label: 'watt', key: 'watts',     
-          tooltip: 'rendering watts', checked : false  }
-        ]
-    };
+                { label: 'watt', key: true,     
+                  tooltip: 'rendering watts', checked : false  }
+                ]
+            };
 
-    // create a new readio button control with the given options
-    var renderingModeButtons = r360.radioButtonControl(renderingModeOptions);
+            // create a new readio button control with the given options
+            var renderingModeButtons = r360.radioButtonControl(renderingModeOptions);
 
-    var supportLevelOptions = {
-        buttons : [
-        // each button has a label which is displayed, a key, a tooltip for mouseover events 
-        // and a boolean which indicates if the button is selected by default
-        // labels may contain html
-        { label: 'none', key: '0',     
-          tooltip: '0 Watts support', checked : true },
+            var supportLevelOptions = {
+                buttons : [
+                // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                // and a boolean which indicates if the button is selected by default
+                // labels may contain html
+                { label: 'none', key: '0',     
+                  tooltip: '0 Watts support', checked : true },
 
-        {label: 'medium', key: '75',     
-          tooltip: '75 Watts support', checked : false },
+                {label: 'medium', key: '75',     
+                  tooltip: '75 Watts support', checked : false },
 
-        { label: 'strong', key: '150',     
-          tooltip: '150 Watts support', checked : false  }
-        ]
-    };
+                { label: 'strong', key: '150',     
+                  tooltip: '150 Watts support', checked : false  }
+                ]
+            };
 
-    // create a new readio button control with the given options
-    var supportLevelButtons = r360.radioButtonControl(supportLevelOptions);
+            // create a new readio button control with the given options
+            var supportLevelButtons = r360.radioButtonControl(supportLevelOptions);
+            var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
+
+            var elevationOptions = {
+                buttons : [
+                { label: 'Elevation yes', key: true,     
+                  tooltip: '0 Watts support', checked : true },
+
+                {label: 'Elevation no', key: false,     
+                  tooltip: '75 Watts support', checked : false }]
+            };
+
+            var elevationButtons = r360.radioButtonControl(elevationOptions);
 
 
-    // add the newly created control to the map
-    map.addControl(supportLevelButtons);
+            // add the newly created control to the map
+            map.addControl(supportLevelButtons);
 
-    // add the newly created control to the map
-    map.addControl(renderingModeButtons);
-    // add the newly created control to the map
-    map.addControl(intersectionModeButtons);
+            // add the newly created control to the map
+            map.addControl(renderingModeButtons);
+            // add the newly created control to the map
+            map.addControl(intersectionModeButtons);
 
+            map.addControl(elevationButtons);
 
             // create a new readio button control with the given options
             var travelTypeButtons = r360.radioButtonControl(buttonOptions);
@@ -224,29 +231,17 @@
             var markerLayer  = L.featureGroup().addTo(map);
             var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
-
             // create a marker and add it to the map
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
             showPolygons();
 
-            homeMarker.on('dragend', function(){
+            homeMarker.on('dragend', function(){         showPolygons(); });
+            intersectionModeButtons.onChange(function(){ showPolygons(); });
+            renderingModeButtons.onChange(function(){    showPolygons(); });
+            supportLevelButtons.onChange(function(){     showPolygons(); });
+            elevationButtons.onChange(function(){        showPolygons(); });
 
-                showPolygons();    
-            });
-
-            intersectionModeButtons.onChange(function(){
-                showPolygons();
-            });
-
-              renderingModeButtons.onChange(function(){
-                showPolygons();
-            });
-
-               supportLevelButtons.onChange(function(){
-                showPolygons();
-            });
-
-            map.on("click", function(e){    
+            map.on("clicka", function(e){    
 
                 routeLayer.clearLayers();
                 markerLayer.clearLayers();
@@ -273,55 +268,32 @@
                 var travelOptions = r360.travelOptions();
 
                 travelOptions.addSource(homeMarker);
-                 //travelOptions.addSource(homeMarker2);
-                 /*travelOptions.addSource(homeMarker3);
-                 travelOptions.addSource(homeMarker4);
-                 travelOptions.addSource(homeMarker5);*/
                 travelOptions.setTravelType(travelTypeButtons.getValue());
-
-            
-
-                var intersectionMode = intersectionModeButtons.getValue();
-                travelOptions.setIntersectionMode(intersectionMode);
+                travelOptions.setIntersectionMode(intersectionModeButtons.getValue());
                 travelOptions.setDate('20150125');
                 travelOptions.setTime('35000');
-                travelOptions.setDate('20140825');
-                travelOptions.setTime('39600');
+                travelOptions.setDate('20150218');
+                travelOptions.setTime('39000');
+                travelOptions.setTravelTimes([600,1200,1800]);
+                travelOptions.setElevationEnabled(elevationButtons.getValue());
+                travelOptions.setRenderWatts(renderingModeButtons.getValue());
 
-                travelOptions.setTravelTimes([300,600,900,1200,1500,1800]);
+                if ( renderingModeButtons.getValue() == "watts" ) {
 
-
-
-                travelOptions.setRenderingMode(renderingModeButtons.getValue());
-
-                if(renderingModeButtons.getValue() == "watts"){
-                    travelOptions.setTravelTimes([30,60,90,120,150,180]);
                     travelOptions.setBikeUphill(5);
                     travelOptions.setBikeDownhill(-2);
-                }else{
+                }
+                else {
+
                     travelOptions.setBikeUphill(20);
                     travelOptions.setBikeDownhill(-10);
                 }
 
-
-                 travelOptions.setSupportWatts(supportLevelButtons.getValue());
-
-
-                // 1200, 1800, 2400, 3000,3600
-                // travelOptions.setTravelTimes(travelTimeControl.getValues());
-
-                var intersectionMode = intersectionModeButtons.getValue();
-                travelOptions.setIntersectionMode(intersectionMode);
-
-                if ( travelTypeButtons.getValue() == 'transit' ) {
-                    travelOptions.setDate('20150115');
-                    travelOptions.setTime('28800');
-                }
-
+                travelOptions.setSupportWatts(supportLevelButtons.getValue());
+                travelOptions.setIntersectionMode(intersectionModeButtons.getValue());
 
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                    travelOptions.setTravelTimes([180]);
-                    // travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
+                    travelOptions.setTravelTimes([600]);
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -339,14 +311,16 @@
                 travelOptions.setTravelType('transit');
                 travelOptions.setDate('20150125');
                 travelOptions.setTime('35000');
+                travelOptions.setDate('20140825');
+                travelOptions.setTime('39600');
 
                 // call the service
-                // r360.RouteService.getRoutes(travelOptions, function(routes) {
-                //     _.each(routes, function(route){
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
 
-                //         route.fadeIn(routeLayer, 500, "travelDistance");
-                //     });
-                // });
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
 
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource({lat : 52.514000984723936, lng : 13.368666172027586});
@@ -375,8 +349,8 @@
                 });
             }
 
-            // showRoutes();
-        });
+            showRoutes();
+});
     </script>
 </head>
 <body>

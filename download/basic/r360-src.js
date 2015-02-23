@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (0fe38c7), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (5250530), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -79,11 +79,11 @@ r360.config = {
     defaultTravelTimeControlOptions : {
         travelTimes     : [
             { time : 300  , color : "#006837", opacity : 0.1 },
-            { time : 600  , color : "#39B54A"},
-            { time : 900  , color : "#8CC63F"},
-            { time : 1200 , color : "#F7931E"},
-            { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"},
+            { time : 600  , color : "#39B54A", opacity : 1.0},
+            { time : 900  , color : "#8CC63F", opacity : 1.0},
+            { time : 1200 , color : "#F7931E", opacity : 1.0},
+            { time : 1500 , color : "#F15A24", opacity : 1.0},
+            { time : 1800 , color : "#C1272D", opacity : 1.0}
         ],
         position : 'topright',
         label: 'travel time',
@@ -119,7 +119,16 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
-        // serviceUrl : "http://148.251.160.52/api?",
+        position : 'topleft',
+        reset : false,
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
+    },
+
+    photonPlaceAutoCompleteOptions : {
+        serviceUrl : "https://geocode2.route360.net/photon/api?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -137,12 +146,14 @@ r360.config = {
         opacity : 0.4,
         strokeWidth: 30,
 
+        tolerance: 15,
+
         // background values only matter if inverse = true
         backgroundColor : 'black',
         backgroundOpacity : 0.5,
         inverse : false,
 
-        animate : false,
+        animate : true,
         animationDuration : 1
     },
 
@@ -162,6 +173,7 @@ r360.config = {
         timeFormat          : { en : 'a.m.',            de : 'Uhr' },
         reset               : { en : 'Reset input',     de : 'Eingeben löschen' },
         reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen' },
+        settings            : { en : 'Switch travel type',   de : 'Reisemodus wechseln' },
         noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
         monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
         dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },
@@ -309,9 +321,9 @@ r360.Util = {
 
         var coordinates = new Array();
 
-        for(var i = 0; i < latlngs.length; i++){
-            coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-        }
+        for ( var i = 0 ; i < latlngs.length ; i++ )
+            // coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
+            coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
 
         return coordinates;
     },
@@ -412,15 +424,21 @@ r360.Util = {
 
                 var polygon = r360.polygon();
                 polygon.setTravelTime(polygonJson.travelTime);
-                polygon.setColor(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).color);
-                polygon.setOpacity(_.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() }).opacity);
+                polygon.setArea(polygonJson.area);
+
+                var color = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                polygon.setColor(typeof color !== 'undefined' ? color.color : '#000000');
+                
+                var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
+                polygon.setOpacity(typeof opacity !== 'undefined' ? opacity.opacity : 1);
+                
                 polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
                 polygon.setBoundingBox();
 
                 _.each(polygonJson.innerBoundary, function (innerBoundary) {
                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
                 });
-            
+
                 sourcePolygons.polygons.push(polygon);
             });
 
@@ -442,15 +460,7 @@ r360.Util = {
         var routes = new Array();
 
         _.each(json.routes, function(jsonRoute){
-
-            var route = r360.route(jsonRoute.travelTime);
-
-            _.each(jsonRoute.segments, function(segment){                
-
-                route.addRouteSegment(r360.routeSegment(segment));
-            });
-
-            routes.push(route);
+            routes.push(r360.route(jsonRoute.travelTime, jsonRoute.segments));
         });
 
         return routes;
@@ -493,10 +503,24 @@ r360.Util = {
         return point;
     },
 
-    webMercatorToLatLng : function(point){
-        point.x /= 6378137;
-        point.y /= 6378137;
-        return L.CRS.EPSG3857.projection.unproject(point);
+    webMercatorToLatLng : function(point, elevation){
+
+        var latlng = L.CRS.EPSG3857.projection.unproject(new L.Point(point.x /= 6378137, point.y /= 6378137));
+
+        // x,y,z given so we have elevation data
+        if ( typeof elevation !== 'undefined' ) 
+            return L.latLng([latlng.lat, latlng.lng, elevation]);
+        // no elevation given, just unproject coordinates to lat/lng
+        else 
+            return latlng;
+    },
+
+    latLngToWebMercator : function(latlng){
+
+        var point = L.Projection.SphericalMercator.project(latlng);
+        point.x *= 6378137;
+        point.y *= 6378137;
+        return point;
     }
 };
 
@@ -516,8 +540,12 @@ r360.TravelOptions = function(){
     this.walkUphill       = 10;
     this.walkDownhill     = 0;
 
+    this.minPolygonHoleSize = 1000000;
+    this.supportWatts     = 0;
+    this.renderWatts      = false;
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
+    this.elevationEnabled = true;
 
     this.time             = r360.Util.getTimeInSeconds();
     this.date             = r360.Util.getCurrentDate();
@@ -543,7 +571,7 @@ r360.TravelOptions = function(){
                 _.each(this.getSources(), function(source){
 
                     if ( !_.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !_.has(source, 'lon') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !_.has(source, 'lon') && !_.has(source, 'lng') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -619,7 +647,7 @@ r360.TravelOptions = function(){
                 _.each(this.getTargets(), function(target){
 
                     if ( !_.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !_.has(target, 'lon') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !_.has(target, 'lon') && !_.has(target, 'lng') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }
@@ -679,6 +707,8 @@ r360.TravelOptions = function(){
 
         this.sources.push(source);
     }
+
+
 
     /*
      *
@@ -891,6 +921,24 @@ r360.TravelOptions = function(){
 
         this.service = service;
     }
+
+    /**
+    * [setMinPolygonHoleSize description]
+    * @param {[type]} minPolygonHoleSize [description]
+    */
+    this.setMinPolygonHoleSize = function(minPolygonHoleSize){
+
+        this.minPolygonHoleSize = minPolygonHoleSize;
+    }
+
+    /**
+     * [getMinPolygonHoleSize description]
+     * @return {[type]} [description]
+     */
+    this.getMinPolygonHoleSize = function(){
+
+        return this.minPolygonHoleSize;
+    }
     
     /*
      *
@@ -1021,6 +1069,46 @@ r360.TravelOptions = function(){
 
         this.waitControl = waitControl;
     }
+
+    /**
+     * [isElevationEnabled if true the service will return elevation data, if the backend is 
+     * configured with elevation data, if the backend is not configured with elevation data
+     * the z value of all points in routes is 0]
+     * 
+     * @return {[boolean]} [returns true if elevation enabled]
+     */
+    this.isElevationEnabled = function() {
+
+        return this.elevationEnabled;
+    }
+
+    /**
+     * [setElevationEnabled if set to true the service will return elevation data, if the backend is 
+     * configured with elevation data, if the backend is not configured with elevation data
+     * the z value of all points in routes is 0]
+     * @param {[type]} elevationEnabled [set the backend to consider elevation data for polygonizing and routing]
+     */
+    this.setElevationEnabled = function(elevationEnabled){
+
+        this.elevationEnabled = elevationEnabled;
+    }
+
+    this.setRenderingMode = function(renderingMode){
+        if(renderingMode == "watts")
+            this.renderWatts = true;
+    }
+
+    this.getRenderingMode = function(){
+       return this.renderWatts;
+    }
+
+    this.setSupportWatts = function(supportWatts){
+        this.supportWatts = supportWatts;
+    }
+
+    this.getSupportWatts = function(){
+        return this.supportWatts;
+    }
 };
 
 r360.travelOptions = function () { 
@@ -1045,20 +1133,25 @@ r360.PolygonService = {
 
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
+                elevation        : travelOptions.isElevationEnabled(),
                 polygon          : { 
+
                     values           : travelOptions.getTravelTimes(), 
-                    intersectionMode : travelOptions.getIntersectionMode() 
+                    intersectionMode : travelOptions.getIntersectionMode(),
+                    renderWatts      : travelOptions.getRenderingMode(),
+                    supportWatts     : travelOptions.getSupportWatts()
+
                 },
                 sources          : []
             };
 
             // add each source point and it's travel configuration to the cfg
             _.each(travelOptions.getSources(), function(source){
-                
+
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
@@ -1141,15 +1234,17 @@ r360.RouteService = {
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
 
-            var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
+            var cfg = { sources : [], targets : [], 
+                pathSerializer : travelOptions.getPathSerializer(),
+                elevation : travelOptions.isElevationEnabled() };
             
             _.each(travelOptions.getSources(), function(source){
 
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
@@ -1192,24 +1287,24 @@ r360.RouteService = {
                  cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
+                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lng,
                 });
             });
 
             if ( !_.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
                 $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' +  
-                encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
-                    function(result){
+                    encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
+                        function(result){
 
-                        // cache the result
-                        r360.RouteService.cache[JSON.stringify(cfg)] = result;
-                        // hide the please wait control
-                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                        // call callback with returned results
-                        callback(r360.Util.parseRoutes(result)); 
-                    });
+                            // cache the result
+                            r360.RouteService.cache[JSON.stringify(cfg)] = result;
+                            // hide the please wait control
+                            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                            // call callback with returned results
+                            callback(r360.Util.parseRoutes(result)); 
+                        });
             }
             else { 
 
@@ -1253,7 +1348,7 @@ r360.TimeService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
@@ -1297,7 +1392,7 @@ r360.TimeService = {
                 cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                     id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
                 });
             });
@@ -1363,6 +1458,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
+            if ( _.has(options, 'index'))       this.options.index       = options.index;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -1384,8 +1480,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         // calculate the width in dependency to the number of buttons attached to the field
         var width = that.options.width;
-        if ( that.options.reset ) width += 44;
-        if ( that.options.reverse ) width += 37;
+        // if ( that.options.reset ) width += 44;
+        // if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
         that.options.input = 
@@ -1397,60 +1493,69 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             that.options.input += 
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
-                    <img style="height:25px;" src="'+that.options.image+'"> \
+                    <img style="height:22px;" src="'+that.options.image+'"> \
                  </span>';
         }
 
         var optionsHtml = [];
-        if ( that.options.options ) {
+        // if ( that.options.options ) {
 
             that.options.input += 
-                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog"></i></button> \
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
-            if (that.options.options.walk ) 
+            if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
                     '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
             
-            if (that.options.options.bike ) 
+            if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
                     '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+
+            if ( that.options.options && that.options.options.hirebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
+                    '" travel-type="hirebike"> \
+                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                        </button>');
             
-            if (that.options.options.transit ) 
+            if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
                     '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
             
-            if (that.options.options.car ) 
+            if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'car' ? 'active' : '') + 
                     '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
             
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
-        }
+        // }
 
         // add a reset button to the input field
-        if ( that.options.reset ) {
+        // if ( that.options.reset ) {
+
+             that.options.input += 
+                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
+                </span>';
 
             that.options.input += 
-                '<span id="'+that.options.id+'-reset" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times"></i></button> \
+                '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
                 </span>';
-        }
-        if ( that.options.reverse ) {
+        // }
+        // if ( that.options.reverse ) {
 
-            that.options.input += 
-                '<span id="'+that.options.id+'-reverse" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v"></i></button> \
-                </span>';
-        }
+           
+        // }
 
         that.options.input += '</div>';
         if ( that.options.options ) that.options.input += optionsHtml.join('');
@@ -1563,6 +1668,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                                 firstRow    : firstRow.join(", "),
                                 secondRow   : secondRow.join(" "),
                                 term        : request.term,
+                                index       : that.options.index,
                                 latlng      : new L.LatLng(latlng[0], latlng[1])
                             }
                         }));
@@ -1660,6 +1766,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
     getValue : function(){
         return this.options.value;
+    },
+
+    getIndex : function(){
+        return this.options.index;
     },
 
     onResize: function(){
@@ -2090,7 +2200,6 @@ L.Control.WaitControl = L.Control.extend({
     onAdd: function (map) {
         this.options.map = map;
         this.options.mapId = $(map._container).attr("id");
-        console.log(this.options.mapId);
        
         var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
         $(waitContainer).append(
@@ -2394,7 +2503,7 @@ r360.checkboxButtonControl = function (options) {
 /*
  *
  */
-r360.Polygon = function(traveltime, outerBoundary) {
+r360.Polygon = function(traveltime, area, outerBoundary) {
 
     var that = this;
     
@@ -2404,6 +2513,7 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.centerPoint      = new L.latLng(0,0);
 
     that.travelTime       = traveltime;
+    that.area             = area;
     that.color;
     that.outerBoundary    = outerBoundary;
     that.innerBoundaries  = new Array();
@@ -2575,10 +2685,18 @@ r360.Polygon = function(traveltime, outerBoundary) {
     that.getOpacity =function(){
         return that.opacity;
     }
+
+    that.setArea = function(area){
+        that.area = area;
+    }
+
+    that.getArea = function(){
+        return that.area;
+    }
 }
 
-r360.polygon = function (traveltime, outerBoundary) { 
-    return new r360.Polygon(traveltime, outerBoundary);
+r360.polygon = function (traveltime, area, outerBoundary) { 
+    return new r360.Polygon(traveltime, area, outerBoundary);
 };
 
 /*
@@ -2679,7 +2797,7 @@ r360.RouteSegment = function(segment){
     * Call it distance instead
     */
 
-    that.distance          = segment.length;    
+    that.distance        = segment.length;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
@@ -2687,7 +2805,7 @@ r360.RouteSegment = function(segment){
 
     // build the geometry
     _.each(segment.points, function(point){
-        that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0])));
+        that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0]), point[2]));
     });
 
     // in case we have a transit route, we set a color depending
@@ -2784,11 +2902,15 @@ r360.routeSegment = function (segment) {
 /*
  *
  */
-r360.Route = function(travelTime){
+r360.Route = function(travelTime, segments){
 
     var that = this;
     that.travelTime = travelTime;
     that.routeSegments = new Array();
+
+    _.each(segments, function(segment){                
+        that.routeSegments.push(r360.routeSegment(segment));
+    });
 
     /*
      *
@@ -2815,12 +2937,72 @@ r360.Route = function(travelTime){
         }
         return distance;
     }
+
+    /**
+     * [getElevationGain description]
+     * @return {[type]} [description]
+     */
+    that.getElevationGain = function(){
+        var distance = 0;
+        for(var i = 0; i < that.routeSegments.length; i++){
+            distance += that.routeSegments[i].getElevationGain();
+        }
+        return distance;
+    }
+
+    /**
+     * [getElevations description]
+     * @return {[type]} [description]
+     */
+    that.getElevations = function() {
+
+        var elevations = { x : [] , y : []};
+        for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
+
+            elevations.x.push((i / 1000) + " km" );
+            elevations.y.push(that.getElevationAt(i));
+        }
+
+        return elevations;
+    }
+
+    /**
+     * [getElevationAt description]
+     * @param  {[type]} meter [description]
+     * @return {[type]}       [description]
+     */
+    that.getElevationAt = function(meter) {
+
+        var currentLength = 0;
+        var points = that.getPoints();
+
+        for ( var i = 1 ; i < points.length ; i++ ){
+
+            var previousPoint   =  points[i - 1];
+            var currentPoint    =  points[i];
+            var currentDistance =  previousPoint.distanceTo(currentPoint);
+
+            currentLength += currentDistance;
+
+            if ( currentLength > meter ) return currentPoint.alt;
+        }
+    }
   
     /*
      *
      */
     that.getSegments = function(){
         return that.routeSegments;
+    }
+
+    that.getPoints = function() {
+
+        var points = [];
+        _.each(that.routeSegments, function(segment){
+            points = points.concat(segment.getPoints());
+        });
+
+        return points;
     }
 
     /*
@@ -2830,39 +3012,42 @@ r360.Route = function(travelTime){
         return that.travelTime;
     }
 
-    that.fadeIn = function(map, drawingTime, fadingType){
+    that.fadeIn = function(map, drawingTime, fadingType, colors, onClick){
 
         var total, segment, percent, timeToDraw, lastSegement;
         var k = 0;
 
-        if(typeof drawingTime == 'undefined') drawingTime = 0;
-        if(typeof fadingType == 'undefined') fadingType = "travelTime";
+        if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
+        if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-
-
-        for(var j = that.routeSegments.length - 1; j >= 0; j--){
-            segment     = that.routeSegments[j];
-            if(fadingType == "travelTime")
-                percent = segment.getTravelTime() / that.getTravelTime();
-            else if (fadingType == "travelDistance")
-                percent = segment.getDistance() / that.getDistance();
-           
+        for ( var j = that.routeSegments.length - 1 ; j >= 0 ; j-- ) { 
             
-            timeToDraw  = percent * drawingTime;
-            if(segment.getType() != "TRANSFER"){
+            segment = that.routeSegments[j];
+            percent = fadingType == "travelTime" ? segment.getTravelTime() / that.getTravelTime() : segment.getDistance() / that.getDistance();
+           
+            timeToDraw = percent * drawingTime;
+
+            // transfer don't have a linestring, just a point
+            if ( segment.getType() != "TRANSFER" ) {
+                
                 (function(segment, k, timeToDraw) {
-                    setTimeout(function() {
-                        fader(segment, timeToDraw);
-                    }, k);
+                    setTimeout( function() { fader(segment, timeToDraw, colors); }, k);
                 })(segment, k, timeToDraw);
 
-            }else{
-                // create a small circlular marker to indicat   e the users have to switch trips
-
+            }
+            else {
+                
+                // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color: lastSegement.color, fillColor: that.routeSegments[j-1].color, fillOpacity: 0.5, opacity: 0.5, stroke : true, weight: 3, 
-                            radius : 5 });         
+                    color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
+                    fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    1, 
+                    opacity:        1, 
+                    stroke:         true, 
+                    weight:         4, 
+                    radius:         7 
+                });         
 
                (function(marker, k) {
                     setTimeout(function() {
@@ -2871,18 +3056,19 @@ r360.Route = function(travelTime){
                     }, k);
                 })(marker, k);
             }
+
             k += timeToDraw;
             lastSegement = segment;
         }
 
-        function fader(segment, millis){
+        function fader(segment, millis, colors){
 
             var polylineOptions         = {};
-            polylineOptions.color       = segment.getColor();
+            polylineOptions.color       = typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor();
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
-            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  {
+            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK" || segment.getType() == "BIKE") )  {
 
                 polylineOptions.weight    = 7;
                 polylineOptions.dashArray = "1, 10";
@@ -2891,13 +3077,18 @@ r360.Route = function(travelTime){
             var polylineHaloOptions     = {};
             polylineHaloOptions.weight  = 10;
             polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.color   = typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
-            var pieces = millis / 15;
+            var pieces      = millis / 15;
             var choppedLine = chopLineString(segment.getPoints().reverse(), pieces);
             var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(map);
             var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(map);
+
+            // add event listener
+            haloLine.on('click', onClick);
+            polyLine.on('click', onClick);
+
             fadeLine(polyLine, haloLine, choppedLine, 1)
         };
 
@@ -2910,20 +3101,18 @@ r360.Route = function(travelTime){
         function fadeLine(polyLine, haloLine, choppedLine, i){
 
             var latlngs = polyLine.getLatLngs();
-            for(var j = 0; j < choppedLine[i].length; j++){
+
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
                 latlngs.push(choppedLine[i][j])
-            }
-            if(latlngs.length != 0){
+            
+            
+            if ( latlngs.length != 0 ) {
                 haloLine.setLatLngs(latlngs);
                 polyLine.setLatLngs(latlngs);
             } 
 
-            i++;
-            if(i < choppedLine.length){
-                setTimeout(function(){               
-                    fadeLine(polyLine, haloLine, choppedLine, i);
-                }, 15);
-            }                 
+            if ( ++i < choppedLine.length ) 
+                setTimeout(function(){ fadeLine(polyLine, haloLine, choppedLine, i); }, 15);
         }
 
         /*
@@ -2999,8 +3188,8 @@ r360.Route = function(travelTime){
     };
 };
 
-r360.route = function (travelTime) { 
-    return new r360.Route(travelTime);
+r360.route = function (travelTime, segments) { 
+    return new r360.Route(travelTime, segments);
 };
 
 /*
@@ -3095,6 +3284,8 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(sourceToPolygons){        
         
+
+
         var that    = this;
         that.redrawCount = 0;
 
@@ -3107,9 +3298,13 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         for(var i = 0; i < sourceToPolygons.length; i++){
             for(var j = 0; j < sourceToPolygons[i].polygons.length; j++){
-                 sourceToPolygons[i].polygons[j].project(); 
+                //if(sourceToPolygons[i].polygons[j].travelTime == 3600){
+
+                    sourceToPolygons[i].polygons[j].project(); 
                  that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
                  that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
+                //}
+                 
             }
         }
         
@@ -3204,12 +3399,53 @@ r360.Route360PolygonLayer = L.Class.extend({
             point.x = bounds.max.x;
         else if(point.x < bounds.min.x)
             point.x = bounds.min.x;
-
-
         if(point.y > bounds.max.y)
             point.y = bounds.max.y;        
         else if(point.y < bounds.min.y)
             point.y = bounds.min.y;
+    },
+
+    /*
+    clipping like sutherland
+    http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript
+    */
+
+    _clip: function(subjectPolygon, clipPolygon) {
+       var cp1, cp2, s, e;
+            var inside = function (p) {
+                return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+            };
+            var intersection = function () {
+                var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                    dp = [ s[0] - e[0], s[1] - e[1] ],
+                    n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                    n2 = s[0] * e[1] - s[1] * e[0], 
+                    n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+                return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+            };
+            var outputList = subjectPolygon;
+            var cp1 = clipPolygon[clipPolygon.length-1];
+            for (j in clipPolygon) {
+                var cp2 = clipPolygon[j];
+                var inputList = outputList;
+                outputList = [];
+                s = inputList[inputList.length - 1]; //last on the input list
+                for (i in inputList) {
+                    var e = inputList[i];
+                    if (inside(e)) {
+                        if (!inside(s)) {
+                            outputList.push(intersection());
+                        }
+                        outputList.push(e);
+                    }
+                    else if (inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    s = e;
+                }
+                cp1 = cp2;
+            }
+            return outputList
     },
 
     _scale: function(point, scale){
@@ -3224,21 +3460,8 @@ r360.Route360PolygonLayer = L.Class.extend({
         return y;
     },
 
-    _getMaxDiff: function(svgArray, point){
-        var diffX = svgArray[1] - point.x;
-        var diffY = svgArray[2] - point.y;
-
-        if(diffX < 0)
-            diffX *= -1;
-
-         if(diffY < 0)
-            diffY *= -1;
-
-        if(diffX >= diffY)
-            return diffX;
-        else
-            return diffY;
-
+    _getMaxDiff: function(point1, point2){
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     },
 
     _splicePath: function(pathData){
@@ -3257,13 +3480,17 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     _isCollinear: function(p1, p2, p3){
 
+        if(p1.x == p3.x && p1.y == p3.y)
+            return false;
         if(p1.x == p2.x && p2.x == p3.x)
             return true;
         if(p1.y == p2.y && p2.y == p3.y)
             return true;
         
         var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-        if(val < 1 && val > -1 && p1.x != p3.x && p1.y != p3.y)
+
+        if(val < r360.config.defaultPolygonLayerOptions.tolerance && val > -r360.config.defaultPolygonLayerOptions.tolerance
+         && p1.x != p3.x && p1.y != p3.y)
             return true;
         return false;
     },
@@ -3282,63 +3509,59 @@ r360.Route360PolygonLayer = L.Class.extend({
         var svgz    = "z";  
         var maxDiff;
       
-        var projectedPoint, point1, point2, pointCount = 0;
+        var projectedPoint, point, point1, point2, isCollinear, pointCount = 0;
        
-         // the min amount of pixels for a new point
-        var minDiff = 5;
+        var boundArray = [[bounds.min.x, bounds.min.y], [bounds.max.x, bounds.min.y], [bounds.max.x, bounds.max.y], [bounds.min.x, bounds.max.y]];
+
+        var arrayToClip = new Array();
 
         for(var i = 0; i < coordinateArray.length; i++){
-
-            projectedPoint = coordinateArray[i];
-            point = new L.Point(projectedPoint.x, projectedPoint.y);
-
-            // scale coordinates depending on zoom level
+            projectedPoint  = coordinateArray[i];
+            point           = new L.Point(projectedPoint.x, projectedPoint.y);
             that._scale(point, scale);
+            that._roundPoint(point);
 
-            // level all points outside defined area
-            that._clipToBounds(point,bounds);
+            if(i > 0) 
+                maxDiff = that._getMaxDiff(point2, point); 
+            else 
+                maxDiff = r360.config.defaultPolygonLayerOptions.tolerance;
 
-            // adjust coordinates to map origin
-            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(maxDiff >= r360.config.defaultPolygonLayerOptions.tolerance){
 
-            point = that._roundPoint(point);
-            
-            // getting the max difference of the latest to points in eiter x or y direction
-            if(i > 0) maxDiff = that._getMaxDiff(pathData[pathData.length-1], point); else maxDiff = minDiff;
-
-            /*
-            we are only drawing the point if it is different to the last one
-            hence, depending on zoom, we can reduce the number of points (SVG size) dramatically
-            */           
-            if(maxDiff >= minDiff){
-
-                var isCollinear = false;
+                isCollinear = false;
 
                 if(pointCount > 2){
                     isCollinear = that._isCollinear(point1, point2, point);
                 }
 
                 if(isCollinear){
-                    pathData[pathData.length-1][1] = point.x;
-                    pathData[pathData.length-1][2] = point.y;
-                    //console.log("iscollinear")
+                    arrayToClip[arrayToClip.length-1][0] = point.x;
+                    arrayToClip[arrayToClip.length-1][1] = point.y;
                 }else{
-                    if(i > 0)   
-                        pathData.push(that._buildPath(point, svgL));
-                    else        
-                        pathData.push(that._buildPath(point, svgM));
-
+                    
+                    arrayToClip.push([point.x, point.y]);
                     point1 = point2;
                     point2 = point;
-
                     pointCount++;
-
                 }
             }
-            // checking weather last three points are building one (even x or y) line. If so remove the middle one
-            //that._splicePath(pathData);
         }
-        pathData.push([svgz]);
+
+        var clippedArray = this._clip(arrayToClip, boundArray);
+        var lastPoint;
+
+        for(var i = 0; i < clippedArray.length; i++){
+            projectedPoint = clippedArray[i];
+            point = new L.Point(projectedPoint[0], projectedPoint[1]);
+            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
+            if(i > 0)   
+                pathData.push(that._buildPath(point, svgL));
+            else        
+                pathData.push(that._buildPath(point, svgM));
+            lastPoint = point;
+        }
+        if(pathData.length > 0)
+            pathData.push([svgz]);
         return pathData;
     },
     
@@ -3372,12 +3595,11 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._scale(polygonTopRight, scale);
         that._scale(polygonBottomLeft, scale);
 
-        if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-            return pathData;
-
         // the outer boundary       
-        that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-        
+        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
+
+     
         // the inner boundaries
         for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
 
@@ -3388,11 +3610,12 @@ r360.Route360PolygonLayer = L.Class.extend({
             that._scale(polygonTopRight, scale);
             that._scale(polygonBottomLeft, scale);
 
-            if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-                continue;
+            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //    continue;
 
             that.counter++;
-            that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //
         }
 
        

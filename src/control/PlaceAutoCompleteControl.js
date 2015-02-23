@@ -72,12 +72,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
             
             if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
 
             if ( that.options.options && that.options.options.hirebike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
@@ -86,10 +86,15 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
                         </button>');
             
+            if ( that.options.options && that.options.options.ebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'ebike' ? 'active' : '') + 
+                    '" travel-type="ebike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="de">E-Fahrrad</span></button>');
+            
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
-                    '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '

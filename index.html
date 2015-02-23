@@ -16,8 +16,7 @@
     <link href="styles/prettify.css" rel="stylesheet" type="text/css">
 
     <!-- Fonts -->
-    <link href="fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="fonts/map-icons/css/map-icons.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 
     <!-- IE8 support for HTML5 elements and media queries -->
@@ -87,11 +86,11 @@
                         <a href="#api">API</a>
                     </li>
                     <li class="page-scroll">
+                        <a href="#maps">Maps</a>
+                    </li>
+                    <li class="page-scroll">
                         <a href="#faq">FAQ</a>
                     </li>
-                    <!-- <li class="page-scroll">
-                        <a href="#contact">Contact</a>
-                    </li> -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -205,6 +204,7 @@
                         <li><a id="routing-nav" href="#routing">Routing in public transportation</a></li>
                         <li><a id="filter-nav" href="#filter">Filter by travel time</a></li>
                         <li><a id="multiple-nav" href="#multiple">Intersection of polygons</a></li>
+                        <li><a id="inverse-nav" href="#inverse">Using black and white polygons</a></li>
                         <li><a id="htmlControl-nav" href="#htmlControl">Using a custom Html control</a></li>
                     </ul>
                 </div>
@@ -390,6 +390,14 @@
 
                         <!-- Textarea -->
                         <div class="form-group">
+                          <label class="col-md-4 control-label" for="region">Phone/Skype</label>
+                          <div class="col-md-6">                     
+                            <textarea class="form-control input-md" id="phone" name="phone" placeholder="Let us call you right back" required=""></textarea>
+                          </div>
+                        </div>
+
+                        <!-- Textarea -->
+                        <div class="form-group">
                           <label class="col-md-4 control-label" for="description">Description</label>
                           <div class="col-md-6">                     
                             <textarea class="form-control input-md" width="100%" rows="3" id="description" name="description" placeholder="Please give us a short description of the project that you would like to do with the API." required=""></textarea>
@@ -423,6 +431,36 @@
                             Something went wrong during your registration. Please try again or contact us at <a href="mailto:developers@route360.net">developers@route360.net</a>.
                         </p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="success maps" id="maps">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2><i class="fa fa-globe"></i> Custom Maps</h2>
+                    <hr class="star-light">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>
+                        You need your own custom map style? Please contact us at <code><a href="mailto:developers@route360.net">developers@route360.net</a></code> and we will generate a beautiful map style that fits <i>your</i> design.
+                    </p>    
+                </div>
+            </div>
+            <div class="row text-center">
+                <h1>Example: Low contrast</h1>
+                <div class="col-lg-12">
+                    <div id="map-one"></div>
+                </div>
+            </div>
+            <div class="row text-center" style="margin-top: 20px;">
+                <h1>Example: Focus on nature</h1>
+                <div class="col-lg-12">
+                    <div id="map-two"></div>
                 </div>
             </div>
         </div>
@@ -543,6 +581,7 @@
     <script src="lib/r360/examples/routingExample.js"></script>
     <script src="lib/r360/examples/htmlControlExample.js"></script>
     <script src="lib/r360/examples/gettingStartedExample.js"></script>
+    <script src="lib/r360/examples/inverseExample.js"></script>
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
@@ -598,6 +637,18 @@
                 $('#util-nav').parent().addClass('active');
                 $('#api-content').html($('#util-api').html());
             });
+
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+
+    var mapOne = L.map('map-one').setView([47.050314, 8.307765], 13);
+    var mapTwo = L.map('map-two').setView([47.050314, 8.307765], 13);
+    var attribution = "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | designed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a> | <a href='https://www.mapbox.com/'>MapBox</a>";
+
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(mapOne);
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(mapTwo);
 
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
@@ -723,6 +774,33 @@
                 !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 
+            $('#inverse-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#inverse-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Displaying polygons in black and white </h3> \
+                        <p class="text-justify lead"> \
+                            Sometimes it might be helpful to not display the colored areas that can be reached from a certain location \
+                            but to hide areas that are not reachable. In order to do that we created the black and white polygons, or inverse \
+                            polygonization as we call it. If you only request a single travel time, and this is probably the most common use case \
+                            for this feature (but you can specify as much as you want, see the example below), you can dramatically decrease \
+                            processing time on the server side and as a side effect decrease the size of the returned polygon. This might be \
+                            especially helpful in mobile environments, where bandwidth is the limit. Additionally, this also helps on slower \
+                            machines (mobile phones aren\'t super computers, yet) to convert the returned polygon to SVG. Zooming and panning \
+                            should be much smoother with this setting. <br> \
+                            You can also adjust the surrounding background color and its opacity as the example shows. \
+                        </p> \
+                        <div id="map-inverseExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="inverseExample"></pre>');
+
+                inverseExample();
+                $('#inverseExample').text(inverseExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
             $('#htmlControl-nav').click(function(){
 
                 $('#tutorial-menu > li').removeClass('active');
@@ -781,6 +859,9 @@
                     lastname: {
                         required: true
                     },
+                    phone : {
+                        required: true  
+                    },
                     email: {
                         required:   true,
                         email:      true,
@@ -834,7 +915,7 @@
                                     to      : ["developers@route360.net", result.email].join(", "), 
                                     from    : "developers@route360.net", 
                                     subject : "Route360° API Key", 
-                                    message : generateEmail(result.apiKey, $("#region").val(), $("#description").val())
+                                    message : generateEmail(result.apiKey, $("#region").val(), $("#description").val(), $("#phone").val())
                                 }
                             );
                         })
@@ -855,10 +936,12 @@
                 }
             });
 
-            function generateEmail(key, region, description) {
+            function generateEmail(key, region, description, phone) {
 
                 return "<html><head></head><body> \
                     <p>Congratulations, you have successfully generated your Route360° API key. Your account is now activated. Your API key is <b>"+key+"</b>. The <i>r360.config.serviceUrl</i> for this developer preview is <b>http://api.route360.net/api_dev/</b>. <br>This preview is limited to the Berlin/Brandenburg area for now. If you need a different area please drop us a mail.<br>If you have any further questions please don't hesitate to contact us at <a href='mailto:developers@route360.net'>developers@route360.net</a>.</p> \
+                    <h4>Phone/Skype</h4> \
+                    <p>" + phone + "</p> \
                     <h4>Region</h4> \
                     <p>" + region + "</p> \
                     <h4>Description</h4> \

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (767c02d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (5250530), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -79,11 +79,11 @@ r360.config = {
     defaultTravelTimeControlOptions : {
         travelTimes     : [
             { time : 300  , color : "#006837", opacity : 0.1 },
-            { time : 600  , color : "#39B54A"},
-            { time : 900  , color : "#8CC63F"},
-            { time : 1200 , color : "#F7931E"},
-            { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"}
+            { time : 600  , color : "#39B54A", opacity : 1.0},
+            { time : 900  , color : "#8CC63F", opacity : 1.0},
+            { time : 1200 , color : "#F7931E", opacity : 1.0},
+            { time : 1500 , color : "#F15A24", opacity : 1.0},
+            { time : 1800 , color : "#C1272D", opacity : 1.0}
         ],
         position : 'topright',
         label: 'travel time',
@@ -119,6 +119,16 @@ r360.config = {
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
+        position : 'topleft',
+        reset : false,
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
+    },
+
+    photonPlaceAutoCompleteOptions : {
+        serviceUrl : "https://geocode2.route360.net/photon/api?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -531,6 +541,8 @@ r360.TravelOptions = function(){
     this.walkDownhill     = 0;
 
     this.minPolygonHoleSize = 1000000;
+    this.supportWatts     = 0;
+    this.renderWatts      = false;
     this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
     this.travelType       = "walk";
     this.elevationEnabled = true;
@@ -695,6 +707,8 @@ r360.TravelOptions = function(){
 
         this.sources.push(source);
     }
+
+
 
     /*
      *
@@ -1078,6 +1092,23 @@ r360.TravelOptions = function(){
 
         this.elevationEnabled = elevationEnabled;
     }
+
+    this.setRenderingMode = function(renderingMode){
+        if(renderingMode == "watts")
+            this.renderWatts = true;
+    }
+
+    this.getRenderingMode = function(){
+       return this.renderWatts;
+    }
+
+    this.setSupportWatts = function(supportWatts){
+        this.supportWatts = supportWatts;
+    }
+
+    this.getSupportWatts = function(){
+        return this.supportWatts;
+    }
 };
 
 r360.travelOptions = function () { 
@@ -1102,10 +1133,14 @@ r360.PolygonService = {
 
             // we only need the source points for the polygonizing and the polygon travel times
             var cfg = {
+                elevation        : travelOptions.isElevationEnabled(),
                 polygon          : { 
-                    minPolygonHoleSize : travelOptions.getMinPolygonHoleSize(), 
-                    values             : travelOptions.getTravelTimes(), 
-                    intersectionMode   : travelOptions.getIntersectionMode() 
+
+                    values           : travelOptions.getTravelTimes(), 
+                    intersectionMode : travelOptions.getIntersectionMode(),
+                    renderWatts      : travelOptions.getRenderingMode(),
+                    supportWatts     : travelOptions.getSupportWatts()
+
                 },
                 sources          : []
             };
@@ -1116,7 +1151,7 @@ r360.PolygonService = {
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
@@ -1313,7 +1348,7 @@ r360.TimeService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
@@ -1357,7 +1392,7 @@ r360.TimeService = {
                 cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                     id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
                 });
             });
@@ -3005,13 +3040,13 @@ r360.Route = function(travelTime, segments){
                 // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color:          lastSegement.color, 
-                    fillColor:      that.routeSegments[j-1].color, 
-                    fillOpacity:    0.5, 
-                    opacity:        0.5, 
+                    color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
+                    fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    1, 
+                    opacity:        1, 
                     stroke:         true, 
-                    weight:         3, 
-                    radius:         5 
+                    weight:         4, 
+                    radius:         7 
                 });         
 
                (function(marker, k) {
@@ -3560,12 +3595,11 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._scale(polygonTopRight, scale);
         that._scale(polygonBottomLeft, scale);
 
-        if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-            return pathData;
-
         // the outer boundary       
-        that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-        
+        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
+
+     
         // the inner boundaries
         for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
 
@@ -3576,11 +3610,12 @@ r360.Route360PolygonLayer = L.Class.extend({
             that._scale(polygonTopRight, scale);
             that._scale(polygonBottomLeft, scale);
 
-            if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-                continue;
+            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //    continue;
 
             that.counter++;
-            that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //
         }
 
        

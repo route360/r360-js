@@ -55,12 +55,13 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl                                  = 'http://api.route360.net/api_switzerland_0.0.2/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
-    r360.config.defaultPolygonLayerOptions.animate          = false;
+    // r360.config.defaultPolygonLayerOptions.animate          = false;
+    r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
     
-    var options = { bike : true, walk : true, car : true, transit : true, init : 'bike' };
+    var options = { bike : true, walk : true, car : true, transit : true, init : 'car' };
 
     // define which options the user is going to have
     for ( var i = 0 ; i < maxSources ; i++ ) {
@@ -159,8 +160,8 @@ $(document).ready(function(){
             // each button has a label which is displayed, a key, a tooltip for mouseover events 
             // and a boolean which indicates if the button is selected by default
             // labels may contain html
-            { label: '<span class=""></span> Color', key: 'color',   checked : true  },
-            { label: '<span class=""></span> B/W',   key: 'inverse', checked : false }
+            { label: '<span class=""></span> Color', key: 'color',   checked : false  },
+            { label: '<span class=""></span> B/W',   key: 'inverse', checked : true }
         ]
     });
 
@@ -419,6 +420,7 @@ $(document).ready(function(){
             travelOptions.setIntersectionMode(intersectionButtons.getValue());
             travelOptions.setTravelTimes(travelTimeControl.getValues());
             travelOptions.setWaitControl(waitControl);
+            travelOptions.setElevationEnabled(true);
             travelOptions.setDate('20150114');
             travelOptions.setTime('39600');
 
@@ -437,6 +439,9 @@ $(document).ready(function(){
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                 polygonLayer.clearAndAddLayers(polygons);
+
+                map.fitBounds(polygonLayer.getBoundingBox());
+                
             });
         }
     }

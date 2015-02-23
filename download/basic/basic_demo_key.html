@@ -44,26 +44,20 @@
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: attribution
-            }).addTo(map);
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
 
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
+            r360.config.serviceUrl = 'http://api.route360.net/api_developers/';
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon);
-            marker.lat = latlon[0];
-            marker.lon = latlon[1];
-            marker.addTo(map);
+            var marker = L.marker(latlon).addTo(map);
 
             // create the layer to add the polygons
-            var cpl = r360.route360PolygonLayer();
+            var polygonLayer = r360.route360PolygonLayer();
             // add it to the map
-            map.addLayer(cpl);
+            map.addLayer(polygonLayer);
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials
@@ -71,16 +65,16 @@
             // we only have one source which is the marker we just added
             travelOptions.addSource(marker);
             // we want to have polygons for 5 to 30 minutes
-            travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
+            travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
                 // add the returned polygons to the polygon layer 
-                cpl.addLayer(polygons);
+                polygonLayer.addLayer(polygons);
                 
                 // zoom the map to fit the polygons perfectly
-                map.fitBounds(cpl.getBoundingBox());
+                map.fitBounds(polygonLayer.getBoundingBox());
             });
         });
     </script>

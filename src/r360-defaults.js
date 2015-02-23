@@ -2,6 +2,8 @@ r360.config = {
 
     // serviceUrl      : 'http://localhost:8080/api/',
     serviceUrl      : 'http://api.route360.net/api_dev/',
+    serviceUrl      : 'http://localhost:8080/api/',
+    serviceUrl      : 'http://api.route360.net/api_developers/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
@@ -15,17 +17,16 @@ r360.config = {
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
     logging         : false,
-    utm             : true,
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
             { time : 300  , color : "#006837", opacity : 0.1 },
-            { time : 600  , color : "#39B54A", opacity : 1.0},
-            { time : 900  , color : "#8CC63F", opacity : 1.0},
-            { time : 1200 , color : "#F7931E", opacity : 1.0},
-            { time : 1500 , color : "#F15A24", opacity : 1.0},
-            { time : 1800 , color : "#C1272D", opacity : 1.0}
+            { time : 600  , color : "#39B54A", opacity : 0.2 },
+            { time : 900  , color : "#8CC63F", opacity : 0.3 },
+            { time : 1200 , color : "#F7931E", opacity : 0.4 },
+            { time : 1500 , color : "#F15A24", opacity : 0.5 },
+            { time : 1800 , color : "#C1272D", opacity : 1.0 }
         ],
         position : 'topright',
         label: 'travel time',
@@ -35,28 +36,28 @@ r360.config = {
     routeTypes  : [
 
         // non transit
-        { routeType : 'WALK'     , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'BIKE'     , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'CAR'      , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'TRANSFER' , color : "#558D54",   halo : "#558D54"},
+        { routeType : 'WALK'     , color : "#558D54",   haloColor : "white"},
+        { routeType : 'BIKE'     , color : "#558D54",   haloColor : "white"},
+        { routeType : 'CAR'      , color : "#558D54",   haloColor : "white"},
+        { routeType : 'TRANSFER' , color : "#C1272D",   haloColor : "white"},
 
         // berlin
-        { routeType : 102        , color : "#006837",   halo : "#006837"},
-        { routeType : 400        , color : "#156ab8",   halo : "#156ab8"},
-        { routeType : 900        , color : "red",       halo : "red"},
-        { routeType : 700        , color : "#A3007C",   halo : "#A3007C"},
-        { routeType : 1000       , color : "blue",      halo : "blue"},
-        { routeType : 109        , color : "#006F35",   halo : "#006F35"},
-        { routeType : 100        , color : "red",       halo : "red"},
+        { routeType : 102        , color : "#006837",   haloColor : "white" },
+        { routeType : 400        , color : "#156ab8",   haloColor : "white" },
+        { routeType : 900        , color : "red",       haloColor : "white" },
+        { routeType : 700        , color : "#A3007C",   haloColor : "white" },
+        { routeType : 1000       , color : "blue",      haloColor : "white" },
+        { routeType : 109        , color : "#006F35",   haloColor : "white" },
+        { routeType : 100        , color : "red",       haloColor : "white" },
         // new york      
-        { routeType : 1          , color : "red",       halo : "red"},
-        { routeType : 2          , color : "blue",      halo : "blue"},
-        { routeType : 3          , color : "yellow",    halo : "yellow"},
-        { routeType : 0          , color : "green",     halo : "green"},
-        { routeType : 4          , color : "orange",    halo : "orange"},
-        { routeType : 5          , color : "red",       halo : "red"},
-        { routeType : 6          , color : "blue",      halo : "blue"},
-        { routeType : 7          , color : "yellow",    halo : "yellow" }
+        { routeType : 1          , color : "red",       haloColor : "red"},
+        { routeType : 2          , color : "blue",      haloColor : "blue"},
+        { routeType : 3          , color : "yellow",    haloColor : "yellow"},
+        { routeType : 0          , color : "green",     haloColor : "green"},
+        { routeType : 4          , color : "orange",    haloColor : "orange"},
+        { routeType : 5          , color : "red",       haloColor : "red"},
+        { routeType : 6          , color : "blue",      haloColor : "blue"},
+        { routeType : 7          , color : "yellow",    haloColor : "yellow" }
     ],
 
     defaultPlaceAutoCompleteOptions : {
@@ -95,7 +96,7 @@ r360.config = {
         backgroundOpacity : 0.5,
         inverse : false,
 
-        animate : true,
+        animate : false,
         animationDuration : 1
     },
 

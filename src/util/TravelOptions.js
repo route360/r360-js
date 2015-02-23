@@ -3,34 +3,35 @@
  */
 r360.TravelOptions = function(){
 
-    this.sources          = [];
-    this.targets          = [];
+    this.sources            = [];
+    this.targets            = [];
     this.service;
 
-    this.bikeSpeed        = 15;
-    this.bikeUphill       = 20;
-    this.bikeDownhill     = -10;
-    this.walkSpeed        = 5;
-    this.walkUphill       = 10;
-    this.walkDownhill     = 0;
+    this.bikeSpeed          = undefined;
+    this.bikeUphill         = undefined;
+    this.bikeDownhill       = undefined;
+    this.walkSpeed          = undefined;
+    this.walkUphill         = undefined;
+    this.walkDownhill       = undefined;
 
-    this.minPolygonHoleSize = 1000000;
-    this.supportWatts     = 0;
-    this.renderWatts      = false;
-    this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
-    this.travelType       = "walk";
-    this.elevationEnabled = true;
+    this.supportWatts       = undefined;
+    this.renderWatts        = undefined;
+    
+    this.travelTimes        = undefined;
+    this.travelType         = undefined;
+    this.elevationEnabled   = undefined;
+    this.minPolygonHoleSize = undefined;
 
-    this.time             = r360.Util.getTimeInSeconds();
-    this.date             = r360.Util.getCurrentDate();
-    this.errors           = [];
+    this.time               = undefined;
+    this.date               = undefined;
+    this.errors             = [];
 
-    this.intersectionMode = 'union';
-    this.pathSerializer   = r360.config.pathSerializer;
-    this.maxRoutingTime   = r360.config.maxRoutingTime;
+    this.intersectionMode   = undefined;
+    this.pathSerializer     = r360.config.pathSerializer;
+    this.maxRoutingTime     = undefined;
     this.waitControl;
 
-    this.isValidPolygonServiceOptions = function(){
+    this.isValidPolygonServiceOptions = function(isRouteRequest){
 
         // reset errors
         this.errors = [];
@@ -52,51 +53,55 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Sources are not of type array!');
 
         // is the given travel type supported
-        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentBike', 'rentAndReturnBike'], this.getTravelType() ) )
+        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentBike', 'rentandreturnbike'], this.getTravelType() ) )
             this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
         else {
 
             if ( this.getTravelType() == 'car' ) ; // nothing to do
             else if ( this.getTravelType() == 'bike' || this.getTravelType() == 'rentBike' || this.getTravelType() == 'rentAndReturnBike') {
 
-                // validate downhill/uphill penalties
-                if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
-                    this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
-                        Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
+                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
 
-                // we need to have a positiv speeds
+                    // validate downhill/uphill penalties
+                    if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
+                        this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
+                            Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
+                }
+
+                // we need to have a positiv speed
                 if ( this.getBikeSpeed() <= 0 ) this.getErrors().push("Bike speed needs to be larger then 0.");
             }
             else if ( this.getTravelType() == 'walk' ) {
 
-                // validate downhill/uphill penalties
-                if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
-                    this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
-                        Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
+                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
+
+                    // validate downhill/uphill penalties
+                    if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
+                        this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
+                            Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
+                }
 
                 // we need to have a positiv speeds
                 if ( this.getWalkSpeed() <= 0 ) this.getErrors().push("Walk speed needs to be larger then 0.");
             }
             else if ( this.getTravelType() == 'transit' ) {
 
-                if ( this.getTime() < 0 ) this.getErrors().push("Start time for transit routing needs to larger than 0: " + this.getTime());
-                if ( this.getDate().length != 8 ) this.getErrors().push("Date has to have format YYYYMMDD: " + this.getDate());
+                // so far no checks needed for transit, default values for date and time are generated on server side
             }
         }
 
-        // travel times needs to be an array
-        if ( Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
-            this.getErrors().push('Travel times have to be an array!');
-        }
-        else {
+        if ( !isRouteRequest ) {
 
-            if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
-                this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
-        }
+            // travel times needs to be an array
+            if ( typeof this.getTravelTimes() == 'undefined' || Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
+                this.getErrors().push('Travel times have to be an array!');
+            }
+            else {
 
-        // only let valid intersections mode pass
-        if ( !_.contains(['union', 'average', 'intersection', 'none'], this.getIntersectionMode() ) )
-            this.getErrors().push('Not supported intersection mode given: ' + this.getIntersectionMode() );
+                if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
+                    this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
+            }
+        }
 
         // false if we found errors
         return this.errors.length == 0;
@@ -109,7 +114,7 @@ r360.TravelOptions = function(){
      */
     this.isValidRouteServiceOptions = function(){
 
-        this.isValidPolygonServiceOptions();
+        this.isValidPolygonServiceOptions(true);
 
         // check if targets are of type array
         if ( Object.prototype.toString.call(this.getTargets()) === '[object Array]' ) {
@@ -567,19 +572,34 @@ r360.TravelOptions = function(){
         this.elevationEnabled = elevationEnabled;
     }
 
-    this.setRenderingMode = function(renderingMode){
-        if(renderingMode == "watts")
-            this.renderWatts = true;
+    /**
+     * [setRenderingMode description]
+     * @param {[type]} renderWatts [description]
+     */
+    this.setRenderWatts = function(renderWatts){
+        this.renderWatts = renderWatts;
     }
 
-    this.getRenderingMode = function(){
+    /**
+     * [getRenderingMode description]
+     * @return {[type]} [description]
+     */
+    this.getRenderWatts = function(){
        return this.renderWatts;
     }
 
+    /**
+     * [setSupportWatts description]
+     * @param {[type]} supportWatts [description]
+     */
     this.setSupportWatts = function(supportWatts){
         this.supportWatts = supportWatts;
     }
 
+    /**
+     * [getSupportWatts description]
+     * @return {[type]} [description]
+     */
     this.getSupportWatts = function(){
         return this.supportWatts;
     }
