@@ -82,8 +82,15 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentbike' ? 'active' : '') + 
-                    '" travel-type="hirebike"> \
+                    '" travel-type="rentbike"> \
                             <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                        </button>');
+
+            if ( that.options.options && that.options.options.rentandreturnbike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
+                    '" travel-type="rentandreturnbike"> \
+                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="de">Fahrrad leihen & abgeben</span>\
                         </button>');
             
             if ( that.options.options && that.options.options.ebike ) 

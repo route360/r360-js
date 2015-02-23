@@ -53,7 +53,7 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Sources are not of type array!');
 
         // is the given travel type supported
-        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike'], this.getTravelType() ) )
+        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
             this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
         else {
 
