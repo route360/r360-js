@@ -36,7 +36,7 @@ r360.config = {
     routeTypes  : [
 
         // non transit
-        { routeType : 'WALK'     , color : "#558D54",   haloColor : "white"},
+        { routeType : 'WALK'     , color : "blue",   haloColor : "white"},
         { routeType : 'BIKE'     , color : "#558D54",   haloColor : "white"},
         { routeType : 'CAR'      , color : "#558D54",   haloColor : "white"},
         { routeType : 'TRANSFER' , color : "#C1272D",   haloColor : "white"},
