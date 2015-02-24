@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get polygon example</title>
+    <meta charset="UTF-8">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.0.custom.css">
+    <link rel="stylesheet" href="r360.css"/>
+
+    <style>
+        html, body, #map {
+
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <!-- scripts -->
+    <script src="jquery-1.10.2.js"></script>
+    <script src="jquery-ui-1.10.4.min.js"></script>
+    <script src="leaflet.js"></script>
+    <script src="underscore.js"></script>
+    <script src="r360-src.js"></script>
+
+     <script type="text/javascript">
+        $(document).ready(function(){
+
+            var latlon = [52.5167, 13.3833];
+
+            // add the map and set the initial center to berlin
+            var map = L.map('map').setView(latlon, 13);
+            // attribution to give credit to OSM map data and VBB for public transportation 
+            var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+            // initialising the base map. To change the base map just change following
+            // lines as described by cloudmade, mapbox etc..
+            // note that mapbox is a paided service
+            L.tileLayer('http://localhost:8888/v2/Brandenburg/{z}/{x}/{y}.png', {
+                maxZoom: 18, attribution: attribution }).addTo(map);
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                { time : 600  , color : "#006837", opacity : 1.0 },
+                { time : 1200  , color : "#39B54A", opacity : 1.0 },
+                { time : 1800  , color : "#8CC63F", opacity : 1.0 },
+                { time : 2400 , color : "#F7931E", opacity : 1.0 },
+                { time : 3000 , color : "#F15A24", opacity : 1.0 },
+                { time : 3600 , color : "#C1272D", opacity : 1.0 }
+            ];
+
+            r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
+            r360.config.defaultPolygonLayerOptions.inverse = true;
+            r360.config.defaultPolygonLayerOptions.animate = false;
+
+            var polygonLayer            = r360.route360PolygonLayer().addTo(map);
+
+            var travelOptions = r360.travelOptions();
+            travelOptions.addSource({ lat : 52.52086, lon : 13.4093 });
+            travelOptions.setDate("20141125");
+            travelOptions.setTime("43200");
+            travelOptions.setTravelTimes([1800]);
+            travelOptions.setTravelType('walk');
+
+            // call the polygon service
+            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                    
+                polygonLayer.clearAndAddLayers(polygons);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>

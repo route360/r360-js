@@ -38,7 +38,7 @@ $(document).ready(function(){
     // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
-    var options = { bike : true, walk : true, ebike: true, rentbike: true, init : 'bike' };
+    var options = { bike : true, walk : true, ebike: true, rentbike: true, rentandreturnbike : true, init : 'bike' };
     var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select source!', reset : true, reverse : false , image : 'images/source.png', options : options});
     var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : true  , image : 'images/target.png'});
 
@@ -338,15 +338,14 @@ $(document).ready(function(){
     function setTravelingSpeeds(travelOptions){
 
         var travelSpeed;
-        if ( sourceAutoComplete.getTravelType() == 'bike' )     travelSpeed = bikeSpeedButtons.getValue();
-        if ( sourceAutoComplete.getTravelType() == 'rentbike' ) travelSpeed = rentbikeSpeedButtons.getValue();
-        if ( sourceAutoComplete.getTravelType() == 'walk' )     travelSpeed = walkSpeedButtons.getValue();
-
-        console.log(travelSpeed);
+        if ( sourceAutoComplete.getTravelType() == 'bike' )              travelSpeed = bikeSpeedButtons.getValue();
+        if ( sourceAutoComplete.getTravelType() == 'rentbike' )          travelSpeed = rentbikeSpeedButtons.getValue();
+        if ( sourceAutoComplete.getTravelType() == 'walk' )              travelSpeed = walkSpeedButtons.getValue();
+        if ( sourceAutoComplete.getTravelType() == 'rentandreturnbike' ) travelSpeed = rentAndReturnBikeSpeedButtons.getValue();
 
         if ( travelSpeed == 'slow' ) {
 
-            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
 
                 travelOptions.setBikeUphill(22);
                 travelOptions.setBikeDownhill(-8);
@@ -363,7 +362,7 @@ $(document).ready(function(){
 
         if ( travelSpeed == 'medium' ) {
             
-            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
                 
                 travelOptions.setBikeSpeed(17);
                 travelOptions.setBikeUphill(20);
@@ -380,7 +379,7 @@ $(document).ready(function(){
 
         if ( travelSpeed == 'fast' ) {
             
-            if ( sourceAutoComplete.getTravelType() == 'bike' || sourceAutoComplete.getTravelType() == 'rentbike' ) {
+            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
 
                 travelOptions.setBikeSpeed(27);
                 travelOptions.setBikeUphill(18);
@@ -429,6 +428,11 @@ $(document).ready(function(){
             setTravelingSpeeds(travelOptions);    
             travelOptions.setTravelTimes(travelTimeControl.getValues());
         }
+        if ( sourceAutoComplete.getTravelType() == 'rentandreturnbike' ) {
+
+            setTravelingSpeeds(travelOptions);    
+            travelOptions.setTravelTimes(travelTimeControl.getValues());
+        }
         
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
@@ -444,6 +448,7 @@ $(document).ready(function(){
         if ( typeof rentbikeSpeedButtons != 'undefined' ) map.removeControl(rentbikeSpeedButtons);
         if ( typeof walkSpeedButtons     != 'undefined' ) map.removeControl(walkSpeedButtons);
         if ( typeof supportLevelButtons  != 'undefined' ) map.removeControl(supportLevelButtons);
+        if ( typeof rentAndReturnBikeSpeedButtons  != 'undefined' ) map.removeControl(rentAndReturnBikeSpeedButtons);
     }
 
     function addControls() {
@@ -482,6 +487,7 @@ $(document).ready(function(){
             supportLevelButtons  = undefined;
             walkSpeedButtons     = undefined;
             rentbikeSpeedButtons = undefined;
+            rentAndReturnBikeSpeedButtons = undefined;
         }
         else if ( sourceAutoComplete.getTravelType() == 'walk' ) {
 
@@ -523,6 +529,7 @@ $(document).ready(function(){
             supportLevelButtons  = undefined;
             bikeSpeedButtons     = undefined;
             rentbikeSpeedButtons = undefined;
+            rentAndReturnBikeSpeedButtons = undefined;
         }
         else if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
 
@@ -555,6 +562,7 @@ $(document).ready(function(){
             bikeSpeedButtons     = undefined;
             walkSpeedButtons     = undefined;
             rentbikeSpeedButtons = undefined;
+            rentAndReturnBikeSpeedButtons = undefined;
         }
         else if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
 
@@ -587,6 +595,40 @@ $(document).ready(function(){
             walkSpeedButtons    = undefined;
             supportLevelButtons = undefined;
             travelWattControl   = undefined;
+            rentAndReturnBikeSpeedButtons = undefined;
+        }
+        else if ( sourceAutoComplete.getTravelType() == 'rentandreturnbike' ) {
+
+            travelTimeControl       = r360.travelTimeControl({
+                travelTimes     : [
+                    { time : 300  , color : "#006837"}, 
+                    { time : 600  , color : "#39B54A"},
+                    { time : 900  , color : "#8CC63F"},
+                    { time : 1200 , color : "#F7931E"},
+                    { time : 1500 , color : "#F15A24"},
+                    { time : 1800 , color : "#C1272D"}
+                ],
+                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+            });
+
+            rentAndReturnBikeSpeedButtons = r360.radioButtonControl({
+                buttons : [
+                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                ]});
+
+            travelTimeControl.onSlideStop(getPolygons);
+            rentAndReturnBikeSpeedButtons.onChange(getPolygons);
+
+            map.addControl(travelTimeControl);
+            map.addControl(rentAndReturnBikeSpeedButtons);
+
+            bikeSpeedButtons    = undefined;
+            walkSpeedButtons    = undefined;
+            supportLevelButtons = undefined;
+            travelWattControl   = undefined;
+            rentbikeSpeedButtons = undefined;
         }
     }
 
