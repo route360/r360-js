@@ -25,57 +25,57 @@
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var points = [{ lat : 52.516873748236804, lon : 13.38435173034668 },
-                            { lat : 52.5169651512655, lon : 13.385639190673828 },
-                            { lat : 52.51635144156805, lon : 13.385918140411377 },
-                            { lat : 52.514823658921216, lon : 13.386175632476807 },
-                            { lat : 52.513674522440496, lon : 13.386411666870117 },
-                            { lat : 52.51373981509122, lon : 13.38778495788574 },
-                            { lat : 52.514105452142424, lon : 13.389372825622559 },
-                            { lat : 52.51487589168357, lon : 13.39085340499878 },
-                            { lat : 52.51568549156065, lon : 13.391046524047852 },
-                            { lat : 52.51581607078898, lon : 13.39257001876831 },
-                            { lat : 52.51585524448182, lon : 13.393449783325195 },
-                            { lat : 52.51594664962925, lon : 13.394222259521484 },
-                            { lat : 52.51618169056387, lon : 13.395273685455322 },
-                            { lat : 52.51529375154732, lon : 13.395423889160156 },
-                            { lat : 52.51535904179207, lon : 13.39780569076538 },
-                            { lat : 52.51563325976066, lon : 13.399114608764648 },
-                            { lat : 52.51588136025762, lon : 13.400144577026367 },
-                            { lat : 52.51610334372537, lon : 13.401904106140137 },
-                            { lat : 52.51679540263231, lon : 13.403491973876953 },
-                            { lat : 52.51735687637764, lon : 13.404715061187742 },
-                            { lat : 52.517892228382834, lon : 13.406388759613037 },
-                            { lat : 52.51876705786406, lon : 13.406732082366942 },
-                            { lat : 52.51965492669053, lon : 13.405487537384033 },
-                            { lat : 52.52037304276293, lon : 13.40456485748291 },
-                            { lat : 52.52099975265203, lon : 13.403363227844237 },
-                            { lat : 52.5216395097755, lon : 13.402912616729735 },
-                            { lat : 52.522409817214495, lon : 13.402183055877686 },
-                            { lat : 52.52284066124772, lon : 13.399758338928223 },
-                            { lat : 52.52329761242298, lon : 13.398470878601072 },
-                            { lat : 52.52375455884491, lon : 13.39733362197876 },
-                            { lat : 52.524185389689116, lon : 13.395209312438965 },
-                            { lat : 52.52342816902858, lon : 13.394629955291748 },
-                            { lat : 52.52342816902858, lon : 13.393578529357908 },
-                            { lat : 52.5234412246678, lon : 13.391754627227783 },
-                            { lat : 52.5234412246678, lon : 13.389694690704346 },
-                            { lat : 52.5234020577385, lon : 13.387999534606934 },
-                            { lat : 52.521704790590796, lon : 13.388020992279053 },
-                            { lat : 52.52056889056365, lon : 13.387978076934814 },
-                            { lat : 52.51988994778821, lon : 13.388407230377197 },
-                            { lat : 52.51922405141273, lon : 13.388364315032959 },
-                            { lat : 52.51854508785383, lon : 13.385617733001709 },
-                            { lat : 52.51836228817983, lon : 13.383643627166748 },
-                            { lat : 52.51832311672216, lon : 13.381497859954834 },
-                            { lat : 52.5173307614788, lon : 13.380575180053711 },
-                            { lat : 52.516521191916425, lon : 13.380725383758545 },
-                            { lat : 52.51662565334331, lon : 13.38330030441284 }]
+            var points = [{ lat : 52.516873748236804, lng : 13.38435173034668 },
+                            { lat : 52.5169651512655, lng : 13.385639190673828 },
+                            { lat : 52.51635144156805, lng : 13.385918140411377 },
+                            { lat : 52.514823658921216, lng : 13.386175632476807 },
+                            { lat : 52.513674522440496, lng : 13.386411666870117 },
+                            { lat : 52.51373981509122, lng : 13.38778495788574 },
+                            { lat : 52.514105452142424, lng : 13.389372825622559 },
+                            { lat : 52.51487589168357, lng : 13.39085340499878 },
+                            { lat : 52.51568549156065, lng : 13.391046524047852 },
+                            { lat : 52.51581607078898, lng : 13.39257001876831 },
+                            { lat : 52.51585524448182, lng : 13.393449783325195 },
+                            { lat : 52.51594664962925, lng : 13.394222259521484 },
+                            { lat : 52.51618169056387, lng : 13.395273685455322 },
+                            { lat : 52.51529375154732, lng : 13.395423889160156 },
+                            { lat : 52.51535904179207, lng : 13.39780569076538 },
+                            { lat : 52.51563325976066, lng : 13.399114608764648 },
+                            { lat : 52.51588136025762, lng : 13.400144577026367 },
+                            { lat : 52.51610334372537, lng : 13.401904106140137 },
+                            { lat : 52.51679540263231, lng : 13.403491973876953 },
+                            { lat : 52.51735687637764, lng : 13.404715061187742 },
+                            { lat : 52.517892228382834, lng : 13.406388759613037 },
+                            { lat : 52.51876705786406, lng : 13.406732082366942 },
+                            { lat : 52.51965492669053, lng : 13.405487537384033 },
+                            { lat : 52.52037304276293, lng : 13.40456485748291 },
+                            { lat : 52.52099975265203, lng : 13.403363227844237 },
+                            { lat : 52.5216395097755, lng : 13.402912616729735 },
+                            { lat : 52.522409817214495, lng : 13.402183055877686 },
+                            { lat : 52.52284066124772, lng : 13.399758338928223 },
+                            { lat : 52.52329761242298, lng : 13.398470878601072 },
+                            { lat : 52.52375455884491, lng : 13.39733362197876 },
+                            { lat : 52.524185389689116, lng : 13.395209312438965 },
+                            { lat : 52.52342816902858, lng : 13.394629955291748 },
+                            { lat : 52.52342816902858, lng : 13.393578529357908 },
+                            { lat : 52.5234412246678, lng : 13.391754627227783 },
+                            { lat : 52.5234412246678, lng : 13.389694690704346 },
+                            { lat : 52.5234020577385, lng : 13.387999534606934 },
+                            { lat : 52.521704790590796, lng : 13.388020992279053 },
+                            { lat : 52.52056889056365, lng : 13.387978076934814 },
+                            { lat : 52.51988994778821, lng : 13.388407230377197 },
+                            { lat : 52.51922405141273, lng : 13.388364315032959 },
+                            { lat : 52.51854508785383, lng : 13.385617733001709 },
+                            { lat : 52.51836228817983, lng : 13.383643627166748 },
+                            { lat : 52.51832311672216, lng : 13.381497859954834 },
+                            { lat : 52.5173307614788, lng : 13.380575180053711 },
+                            { lat : 52.516521191916425, lng : 13.380725383758545 },
+                            { lat : 52.51662565334331, lng : 13.38330030441284 }]
 
             var latlon = [52.518035858298816, 13.400616645812988];
 
             // add the map and set the initial center to berlin
-            var map = L.map('map').setView(latlon, 16);
+            var map = L.map('map').setView(latlon, 15);
             // attribution to give credit to OSM map data and VBB for public transportation 
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
@@ -98,7 +98,7 @@
             r360.config.serviceKey = 'uhWrWpUhyZQy8rPfiC7X';
             r360.config.serviceUrl = 'http://dev.route360.net/api_norway/';
             r360.config.serviceUrl = 'http://dev.route360.net/api_brandenburg/';
-            // r360.config.serviceUrl = 'http://localhost:8080/api/';
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
             
             r360.config.defaultPolygonLayerOptions.animate = false;
             r360.config.defaultTravelTimeControlOptions.travelTimes = [
@@ -137,19 +137,32 @@
             })
 
             var i = 0;
+            var startColor = { red : 57,  green : 181, blue : 74 };
+            var endColor   = { red : 193, green : 39,  blue : 45 };
 
             function timeout() {
                 setTimeout(function () {
                     
-
-                    
                     if ( i < points.length ) {
 
-                        if ( i > points.length * 1/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#39B54A", opacity : 0.1 }];
-                        if ( i > points.length * 2/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#8CC63F", opacity : 0.1 }];
-                        if ( i > points.length * 3/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#F7931E", opacity : 0.1 }];
-                        if ( i > points.length * 4/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#F15A24", opacity : 0.1 }];
-                        if ( i > points.length * 5/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#C1272D", opacity : 0.1 }];
+                        var diffRed     = endColor.red   - startColor.red;
+                        var diffGreen   = endColor.green - startColor.green;
+                        var diffBlue    = endColor.blue  - startColor.blue;
+                        var percentFade = i / points.length;
+
+                        diffRed         = ((diffRed   * percentFade) + startColor.red).toFixed(0);
+                        diffGreen       = ((diffGreen * percentFade) + startColor.green).toFixed(0);
+                        diffBlue        = ((diffBlue  * percentFade) + startColor.blue).toFixed(0);
+
+                        console.log("rgb("+diffRed+","+diffGreen+","+diffBlue+")");
+
+                        r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "rgb("+diffRed+","+diffGreen+","+diffBlue+")", opacity : 1.0 }];
+
+                        // if ( i > points.length * 1/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#39B54A", opacity : 0.1 }];
+                        // if ( i > points.length * 2/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#8CC63F", opacity : 0.1 }];
+                        // if ( i > points.length * 3/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#F7931E", opacity : 0.1 }];
+                        // if ( i > points.length * 4/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#F15A24", opacity : 0.1 }];
+                        // if ( i > points.length * 5/6 ) r360.config.defaultTravelTimeControlOptions.travelTimes = [ { time : 100 , color : "#C1272D", opacity : 0.1 }];
 
                         // you need to define some options for the polygon service
                         // for more travel options check out the other tutorials
@@ -167,7 +180,7 @@
 
                         timeout();
                     }
-                }, 800);
+                }, 400);
             }
 
             timeout();
@@ -185,6 +198,7 @@
     </script>
 </head>
 <body>
+    <div id="myCanvas"></div>
     <div id="map"></div>
 </body>
 </html>

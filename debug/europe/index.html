@@ -61,19 +61,20 @@
             // r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             r360.config.defaultTravelTimeControlOptions.travelTimes = [
-                { time : 3600 * 1  , color : "#006837", opacity : 1.0 },
-                { time : 3600 * 2  , color : "#39B54A", opacity : 1.0 },
-                { time : 3600 * 3  , color : "#8CC63F", opacity : 1.0 },
-                { time : 3600 * 4  , color : "#F7931E", opacity : 1.0 },
-                { time : 3600 * 5  , color : "#F15A24", opacity : 1.0 },
-                { time : 3600 * 6  , color : "#C1272D", opacity : 1.0 }
+                { time : 3600 * 2  , color : "#006837", opacity : 1.0 },
+                { time : 3600 * 4  , color : "#39B54A", opacity : 1.0 },
+                { time : 3600 * 6  , color : "#8CC63F", opacity : 1.0 },
+                { time : 3600 * 8  , color : "#F7931E", opacity : 1.0 },
+                { time : 3600 * 10  , color : "#F15A24", opacity : 1.0 },
+                { time : 3600 * 12  , color : "#C1272D", opacity : 1.0 }
             ];
 
             var travelTimeControl = r360.travelTimeControl({
                 travelTimes     : r360.config.defaultTravelTimeControlOptions.travelTimes, 
                 position        : 'topright', 
                 label           : 'Travel time: ', 
-                initValue       : 120
+                initValue       : 720,
+                unit            : 'min'
             });
 
             //  bind the action to the travel time control
@@ -123,7 +124,7 @@
     var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
 
     // add the newly created control to the map
-    map.addControl(intersectionModeButtons);
+    // map.addControl(intersectionModeButtons);
 
 
             // create a new readio button control with the given options
@@ -155,7 +156,7 @@
                 showPolygons(); 
             });
 
-            map.addControl(polygonOptions);
+            // map.addControl(polygonOptions);
 
             $('span[lang="de"]').hide();
 
