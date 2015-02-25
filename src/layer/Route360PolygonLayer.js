@@ -50,6 +50,13 @@ r360.Route360PolygonLayer = L.Class.extend({
         })();
     },
 
+    setInverse: function(inverse){
+        this.inverse = inverse;
+    },
+
+    getInverse: function(){
+        return this.inverse;
+    },
     /* 
      *
      */

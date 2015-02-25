@@ -62,16 +62,23 @@ r360.PolygonService = {
                 if ( travelType == 'rentbike' ) {
                     
                     src.tm.rentbike = {};
-                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.speed    = travelOptions.getBikeSpeed();
-                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.uphill   = travelOptions.getBikeUphill();
-                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.downhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+
                 }
                 if ( travelType == 'rentandreturnbike' ) {
                     
                     src.tm.rentandreturnbike = {};
-                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.speed    = travelOptions.getBikeSpeed();
-                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.uphill   = travelOptions.getBikeUphill();
-                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.downhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
                 }
                 if ( travelType == 'bike' ) {
                     

@@ -33,11 +33,39 @@ r360.RouteService = {
                 src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel type
-                if ( travelType == 'transit' ) {
+              if ( travelType == 'transit' ) {
                     
                     src.tm.transit.frame = {};
                     if ( typeof travelOptions.getTime() != 'undefined' ) src.tm.transit.frame.time = travelOptions.getTime();
                     if ( typeof travelOptions.getDate() != 'undefined' ) src.tm.transit.frame.date = travelOptions.getDate();
+                }
+                if ( travelType == 'ebike' ) {
+                    
+                    src.tm.ebike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.ebike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'rentbike' ) {
+                    
+                    src.tm.rentbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+
+                }
+                if ( travelType == 'rentandreturnbike' ) {
+                    
+                    src.tm.rentandreturnbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
                 }
                 if ( travelType == 'bike' ) {
                     

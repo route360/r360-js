@@ -115,7 +115,7 @@ $(document).ready(function(){
     // if someone selects a new target we need to get new routes
     // and update the marker to the new location
     targetAutoComplete.onSelect(function(item){
-
+        targetLayer.clearLayers();
         targetMarker = createMarker(item.latlng, 'flag-checkered', 'green', targetLayer, updateTarget, item.firstRow);
         updateTarget();
     });
@@ -265,6 +265,10 @@ $(document).ready(function(){
      */
     function getRoutes(){
 
+        //route needs to have both source and target
+        if(sourceMarker == '' || targetMarker == '')
+            return;
+
         routeLayer.clearLayers();
 
         var travelOptions = r360.travelOptions();
@@ -345,53 +349,32 @@ $(document).ready(function(){
 
         if ( travelSpeed == 'slow' ) {
 
-            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
-
-                travelOptions.setBikeUphill(22);
-                travelOptions.setBikeDownhill(-8);
-                travelOptions.setBikeSpeed(12);
-            }
-
-            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
-
-                travelOptions.setWalkSpeed(4);
-                travelOptions.setWalkUphill(12);
-                travelOptions.setWalkDownhill(0);
-            }
+            travelOptions.setBikeUphill(22);
+            travelOptions.setBikeDownhill(-8);
+            travelOptions.setBikeSpeed(12);
+            travelOptions.setWalkSpeed(4);
+            travelOptions.setWalkUphill(12);
+            travelOptions.setWalkDownhill(0);
         }
 
         if ( travelSpeed == 'medium' ) {
-            
-            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
-                
-                travelOptions.setBikeSpeed(17);
-                travelOptions.setBikeUphill(20);
-                travelOptions.setBikeDownhill(-10);
-            }
 
-            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
-
-                travelOptions.setWalkSpeed(5);
-                travelOptions.setWalkUphill(10);
-                travelOptions.setWalkDownhill(0);
-            }
+            travelOptions.setBikeSpeed(17);
+            travelOptions.setBikeUphill(20);
+            travelOptions.setBikeDownhill(-10);
+            travelOptions.setWalkSpeed(5);
+            travelOptions.setWalkUphill(10);
+            travelOptions.setWalkDownhill(0);  
         }
 
         if ( travelSpeed == 'fast' ) {
             
-            if ( _.contains(['bike', 'rentbike', 'rentandreturnbike'], sourceAutoComplete.getTravelType()) ) {
-
-                travelOptions.setBikeSpeed(27);
-                travelOptions.setBikeUphill(18);
-                travelOptions.setBikeDownhill(-12);
-            }
-
-            if ( sourceAutoComplete.getTravelType() == 'walk' ) {
-
-                travelOptions.setWalkSpeed(6);
-                travelOptions.setWalkUphill(8);
-                travelOptions.setWalkDownhill(0);
-            }
+            travelOptions.setBikeSpeed(27);
+            travelOptions.setBikeUphill(18);
+            travelOptions.setBikeDownhill(-12);
+            travelOptions.setWalkSpeed(6);
+            travelOptions.setWalkUphill(8);
+            travelOptions.setWalkDownhill(0);
         }
     }
 
@@ -401,6 +384,10 @@ $(document).ready(function(){
      * @return {[type]} [description]
      */
     function getPolygons(){
+
+        // polygon needs source
+        if(sourceMarker == '')
+            return;
 
         var travelOptions = r360.travelOptions();
         travelOptions.addSource(sourceMarker);
@@ -442,9 +429,9 @@ $(document).ready(function(){
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
             if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
-                r360.config.defaultPolygonLayerOptions.inverse = true;
+               polygonLayer.setInverse(true);
             }else{
-                r360.config.defaultPolygonLayerOptions.inverse = false;
+                polygonLayer.setInverse(false);
             }
 
             polygonLayer.clearAndAddLayers(polygons);
@@ -489,8 +476,10 @@ $(document).ready(function(){
             });
 
             travelTimeControl.onSlideStop(getPolygons);
-            bikeSpeedButtons.onChange(getPolygons);
-
+            bikeSpeedButtons.onChange(function(){
+                getRoutes(); getPolygons();
+            });
+         
             map.addControl(travelTimeControl);
             map.addControl(bikeSpeedButtons);
             
@@ -531,7 +520,9 @@ $(document).ready(function(){
             });
 
             travelTimeControl.onSlideStop(getPolygons);
-            walkSpeedButtons.onChange(getPolygons);
+            walkSpeedButtons.onChange(function(){
+                getRoutes(); getPolygons();
+            });
 
             map.addControl(travelTimeControl);
             map.addControl(walkSpeedButtons);
@@ -564,7 +555,9 @@ $(document).ready(function(){
                 ]});
 
             travelWattControl.onSlideStop(getPolygons);
-            supportLevelButtons.onChange(getPolygons);
+            supportLevelButtons.onChange(function(){
+                getRoutes(); getPolygons();
+            });
 
             map.addControl(travelWattControl);
             map.addControl(supportLevelButtons);
@@ -597,7 +590,9 @@ $(document).ready(function(){
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
-            rentbikeSpeedButtons.onChange(getPolygons);
+            rentbikeSpeedButtons.onChange(function(){
+                getRoutes(); getPolygons();
+            });
 
             map.addControl(travelTimeControl);
             map.addControl(rentbikeSpeedButtons);
@@ -630,7 +625,9 @@ $(document).ready(function(){
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
-            rentAndReturnBikeSpeedButtons.onChange(getPolygons);
+            rentAndReturnBikeSpeedButtons.onChange(function(){
+                getRoutes(); getPolygons();
+            });
 
             map.addControl(travelTimeControl);
             map.addControl(rentAndReturnBikeSpeedButtons);
