@@ -34,8 +34,8 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.i18n.language   = 'en';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
-    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
+    //r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
+    r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: true, rentandreturnbike : true, init : 'bike' };
@@ -292,7 +292,7 @@ $(document).ready(function(){
             _.each(routes, function(route, index){
 
                 currentRoute = route;
-                route.fadeIn(routeLayer, 500, "travelDistance", { color : elevationColors[index].strokeColor, haloColor : "#ffffff" });
+                route.fadeIn(routeLayer, 500, "travelDistance", { colorr : elevationColors[index].strokeColor, haloColor : "#ffffff" });
 
                 html +=
                     '<tr style="margin-top:5px;">\
@@ -421,7 +421,12 @@ $(document).ready(function(){
 
             travelOptions.setRenderWatts(true);
             travelOptions.setSupportWatts(supportLevelButtons.getValue());
-            travelOptions.setTravelTimes(travelWattControl.getValues());
+
+            var vals = travelWattControl.getValues();
+            var val = new Array();
+            val.push(vals[vals.length-1]);
+
+            travelOptions.setTravelTimes(val);
         }
         if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
 
@@ -436,6 +441,12 @@ $(document).ready(function(){
         
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+            if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
+                r360.config.defaultPolygonLayerOptions.inverse = true;
+            }else{
+                r360.config.defaultPolygonLayerOptions.inverse = false;
+            }
+
             polygonLayer.clearAndAddLayers(polygons);
         });
     }
