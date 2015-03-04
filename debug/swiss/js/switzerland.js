@@ -207,14 +207,14 @@ $(document).ready(function(){
         // // only so many source markers are allowed
         else {
 
-            // targetLayer.clearLayers();
+            targetLayer.clearLayers();
 
-            // targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
-            // if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
-            // targetMarker.on('dragend', updateTarget);
-            // targetMarker.addTo(targetLayer);
+            targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
+            if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
+            targetMarker.on('dragend', updateTarget);
+            targetMarker.addTo(targetLayer);
 
-            // updateTarget();
+            updateTarget();
         }
     });
 

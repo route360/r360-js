@@ -34,8 +34,8 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.i18n.language   = 'en';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
-    //r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
-    r360.config.serviceUrl      = 'http://localhost:8080/api/';
+    r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
+    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: true, rentandreturnbike : true, init : 'bike' };
