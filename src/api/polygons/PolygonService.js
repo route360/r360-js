@@ -28,6 +28,7 @@ r360.PolygonService = {
                 if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
                 if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
                 if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
+                if ( typeof travelOptions.getMinPolygonHoleSize() != 'undefined' ) cfg.polygon.minPolygonHoleSize     = travelOptions.getMinPolygonHoleSize();
             }
                 
             // add each source point and it's travel configuration to the cfg

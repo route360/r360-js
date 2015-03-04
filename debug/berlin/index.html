@@ -81,7 +81,12 @@
                     { time : 1800 , color : "#8CC63F", opacity : 1.0},
                     { time : 2400 , color : "#F7931E", opacity : 1.0},
                     { time : 3000 , color : "#F15A24", opacity : 1.0},
-                    { time : 3600 , color : "#C1272D", opacity : 1.0}
+                    { time : 3600 , color : "#C1272D", opacity : 1.0},
+                    { time : 7200 , color : "green", opacity : 1.0},
+                    { time : 10800 , color : "blue", opacity : 1.0},
+                    { time : 14400 , color : "red", opacity : 1.0},
+                    { time : 18000 , color : "yellow", opacity : 1.0}
+
 
             ];
 
@@ -274,7 +279,7 @@
                 travelOptions.setTime('35000');
                 travelOptions.setDate('20140825');
                 travelOptions.setTime('39000');
-                travelOptions.setTravelTimes([600,1200,1800]);
+                travelOptions.setTravelTimes([3600,7200,10800,14400,18000]);
                 travelOptions.setElevationEnabled(elevationButtons.getValue());
                 travelOptions.setRenderWatts(renderingModeButtons.getValue());
 
@@ -294,7 +299,7 @@
                 travelOptions.setIntersectionMode(intersectionModeButtons.getValue());
 
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                    travelOptions.setTravelTimes([600]);
+                    travelOptions.setTravelTimes([18000]);
 
                 // call the service
                 r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){

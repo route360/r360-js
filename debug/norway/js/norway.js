@@ -349,8 +349,8 @@ $(document).ready(function(){
 
         if ( travelSpeed == 'slow' ) {
 
-            travelOptions.setBikeUphill(22);
-            travelOptions.setBikeDownhill(-8);
+            travelOptions.setBikeUphill(40);
+            travelOptions.setBikeDownhill(-20);
             travelOptions.setBikeSpeed(12);
             travelOptions.setWalkSpeed(4);
             travelOptions.setWalkUphill(12);
@@ -359,9 +359,9 @@ $(document).ready(function(){
 
         if ( travelSpeed == 'medium' ) {
 
-            travelOptions.setBikeSpeed(17);
-            travelOptions.setBikeUphill(20);
-            travelOptions.setBikeDownhill(-10);
+            travelOptions.setBikeSpeed(20);
+            travelOptions.setBikeUphill(40);
+            travelOptions.setBikeDownhill(-20);
             travelOptions.setWalkSpeed(5);
             travelOptions.setWalkUphill(10);
             travelOptions.setWalkDownhill(0);  
@@ -370,8 +370,8 @@ $(document).ready(function(){
         if ( travelSpeed == 'fast' ) {
             
             travelOptions.setBikeSpeed(27);
-            travelOptions.setBikeUphill(18);
-            travelOptions.setBikeDownhill(-12);
+            travelOptions.setBikeUphill(40);
+            travelOptions.setBikeDownhill(-20);
             travelOptions.setWalkSpeed(6);
             travelOptions.setWalkUphill(8);
             travelOptions.setWalkDownhill(0);
