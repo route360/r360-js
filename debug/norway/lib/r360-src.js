@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (767c02d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (280587e), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -58,7 +58,6 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    // serviceUrl      : 'http://localhost:8080/api/',
     serviceUrl      : 'http://api.route360.net/api_dev/',
     nominatimUrl    : 'http://geocode.route360.net/',
     serviceVersion  : 'v1',
@@ -73,17 +72,16 @@ r360.config = {
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
     logging         : false,
-    utm             : true,
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
         travelTimes     : [
             { time : 300  , color : "#006837", opacity : 0.1 },
-            { time : 600  , color : "#39B54A"},
-            { time : 900  , color : "#8CC63F"},
-            { time : 1200 , color : "#F7931E"},
-            { time : 1500 , color : "#F15A24"},
-            { time : 1800 , color : "#C1272D"}
+            { time : 600  , color : "#39B54A", opacity : 0.2 },
+            { time : 900  , color : "#8CC63F", opacity : 0.3 },
+            { time : 1200 , color : "#F7931E", opacity : 0.4 },
+            { time : 1500 , color : "#F15A24", opacity : 0.5 },
+            { time : 1800 , color : "#C1272D", opacity : 1.0 }
         ],
         position : 'topright',
         label: 'travel time',
@@ -93,33 +91,42 @@ r360.config = {
     routeTypes  : [
 
         // non transit
-        { routeType : 'WALK'     , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'BIKE'     , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'CAR'      , color : "#558D54",   halo : "#558D54"},
-        { routeType : 'TRANSFER' , color : "#558D54",   halo : "#558D54"},
+        { routeType : 'WALK'     , color : "red",   haloColor : "white"},
+        { routeType : 'BIKE'     , color : "#558D54",   haloColor : "white"},
+        { routeType : 'CAR'      , color : "#558D54",   haloColor : "white"},
+        { routeType : 'TRANSFER' , color : "#C1272D",   haloColor : "white"},
 
         // berlin
-        { routeType : 102        , color : "#006837",   halo : "#006837"},
-        { routeType : 400        , color : "#156ab8",   halo : "#156ab8"},
-        { routeType : 900        , color : "red",       halo : "red"},
-        { routeType : 700        , color : "#A3007C",   halo : "#A3007C"},
-        { routeType : 1000       , color : "blue",      halo : "blue"},
-        { routeType : 109        , color : "#006F35",   halo : "#006F35"},
-        { routeType : 100        , color : "red",       halo : "red"},
+        { routeType : 102        , color : "#006837",   haloColor : "white" },
+        { routeType : 400        , color : "#156ab8",   haloColor : "white" },
+        { routeType : 900        , color : "red",       haloColor : "white" },
+        { routeType : 700        , color : "#A3007C",   haloColor : "white" },
+        { routeType : 1000       , color : "blue",      haloColor : "white" },
+        { routeType : 109        , color : "#006F35",   haloColor : "white" },
+        { routeType : 100        , color : "red",       haloColor : "white" },
         // new york      
-        { routeType : 1          , color : "red",       halo : "red"},
-        { routeType : 2          , color : "blue",      halo : "blue"},
-        { routeType : 3          , color : "yellow",    halo : "yellow"},
-        { routeType : 0          , color : "green",     halo : "green"},
-        { routeType : 4          , color : "orange",    halo : "orange"},
-        { routeType : 5          , color : "red",       halo : "red"},
-        { routeType : 6          , color : "blue",      halo : "blue"},
-        { routeType : 7          , color : "yellow",    halo : "yellow" }
+        { routeType : 1          , color : "red",       haloColor : "red"},
+        { routeType : 2          , color : "blue",      haloColor : "blue"},
+        { routeType : 3          , color : "yellow",    haloColor : "yellow"},
+        { routeType : 0          , color : "green",     haloColor : "green"},
+        { routeType : 4          , color : "orange",    haloColor : "orange"},
+        { routeType : 5          , color : "red",       haloColor : "red"},
+        { routeType : 6          , color : "blue",      haloColor : "blue"},
+        { routeType : 7          , color : "yellow",    haloColor : "yellow" }
     ],
 
     defaultPlaceAutoCompleteOptions : {
         serviceUrl : "http://geocode.route360.net/solr/select?",
-        // serviceUrl : "http://148.251.160.52/api?",
+        position : 'topleft',
+        reset : false,
+        reverse : false,
+        placeholder : 'Select source',
+        maxRows : 5,
+        width : 300
+    },
+
+    photonPlaceAutoCompleteOptions : {
+        serviceUrl : "https://geocode2.route360.net/photon/api?",
         position : 'topleft',
         reset : false,
         reverse : false,
@@ -430,8 +437,6 @@ r360.Util = {
                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
                 });
 
-                console.log(polygon.getArea());
-            
                 sourcePolygons.polygons.push(polygon);
             });
 
@@ -522,32 +527,35 @@ r360.Util = {
  */
 r360.TravelOptions = function(){
 
-    this.sources          = [];
-    this.targets          = [];
+    this.sources            = [];
+    this.targets            = [];
     this.service;
 
-    this.bikeSpeed        = 15;
-    this.bikeUphill       = 20;
-    this.bikeDownhill     = -10;
-    this.walkSpeed        = 5;
-    this.walkUphill       = 10;
-    this.walkDownhill     = 0;
+    this.bikeSpeed          = undefined;
+    this.bikeUphill         = undefined;
+    this.bikeDownhill       = undefined;
+    this.walkSpeed          = undefined;
+    this.walkUphill         = undefined;
+    this.walkDownhill       = undefined;
 
-    this.minPolygonHoleSize = 1000000;
-    this.travelTimes      = [300, 600, 900, 1200, 1500, 1800];
-    this.travelType       = "walk";
-    this.elevationEnabled = true;
+    this.supportWatts       = undefined;
+    this.renderWatts        = undefined;
+    
+    this.travelTimes        = undefined;
+    this.travelType         = undefined;
+    this.elevationEnabled   = undefined;
+    this.minPolygonHoleSize = undefined;
 
-    this.time             = r360.Util.getTimeInSeconds();
-    this.date             = r360.Util.getCurrentDate();
-    this.errors           = [];
+    this.time               = undefined;
+    this.date               = undefined;
+    this.errors             = [];
 
-    this.intersectionMode = 'union';
-    this.pathSerializer   = r360.config.pathSerializer;
-    this.maxRoutingTime   = r360.config.maxRoutingTime;
+    this.intersectionMode   = undefined;
+    this.pathSerializer     = r360.config.pathSerializer;
+    this.maxRoutingTime     = undefined;
     this.waitControl;
 
-    this.isValidPolygonServiceOptions = function(){
+    this.isValidPolygonServiceOptions = function(isRouteRequest){
 
         // reset errors
         this.errors = [];
@@ -569,51 +577,55 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Sources are not of type array!');
 
         // is the given travel type supported
-        if ( !_.contains(['bike', 'transit', 'walk', 'car'], this.getTravelType() ) )
+        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
             this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
         else {
 
             if ( this.getTravelType() == 'car' ) ; // nothing to do
-            else if ( this.getTravelType() == 'bike' ) {
+            else if ( this.getTravelType() == 'bike' || this.getTravelType() == 'rentbike' || this.getTravelType() == 'rentandreturnbike') {
 
-                // validate downhill/uphill penalties
-                if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
-                    this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
-                        Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
+                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
 
-                // we need to have a positiv speeds
+                    // validate downhill/uphill penalties
+                    if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
+                        this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
+                            Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
+                }
+
+                // we need to have a positiv speed
                 if ( this.getBikeSpeed() <= 0 ) this.getErrors().push("Bike speed needs to be larger then 0.");
             }
             else if ( this.getTravelType() == 'walk' ) {
 
-                // validate downhill/uphill penalties
-                if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
-                    this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
-                        Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
+                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
+
+                    // validate downhill/uphill penalties
+                    if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
+                        this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
+                            Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
+                }
 
                 // we need to have a positiv speeds
                 if ( this.getWalkSpeed() <= 0 ) this.getErrors().push("Walk speed needs to be larger then 0.");
             }
             else if ( this.getTravelType() == 'transit' ) {
 
-                if ( this.getTime() < 0 ) this.getErrors().push("Start time for transit routing needs to larger than 0: " + this.getTime());
-                if ( this.getDate().length != 8 ) this.getErrors().push("Date has to have format YYYYMMDD: " + this.getDate());
+                // so far no checks needed for transit, default values for date and time are generated on server side
             }
         }
 
-        // travel times needs to be an array
-        if ( Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
-            this.getErrors().push('Travel times have to be an array!');
-        }
-        else {
+        if ( !isRouteRequest ) {
 
-            if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
-                this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
-        }
+            // travel times needs to be an array
+            if ( typeof this.getTravelTimes() == 'undefined' || Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
+                this.getErrors().push('Travel times have to be an array!');
+            }
+            else {
 
-        // only let valid intersections mode pass
-        if ( !_.contains(['union', 'average', 'intersection', 'none'], this.getIntersectionMode() ) )
-            this.getErrors().push('Not supported intersection mode given: ' + this.getIntersectionMode() );
+                if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
+                    this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
+            }
+        }
 
         // false if we found errors
         return this.errors.length == 0;
@@ -626,7 +638,7 @@ r360.TravelOptions = function(){
      */
     this.isValidRouteServiceOptions = function(){
 
-        this.isValidPolygonServiceOptions();
+        this.isValidPolygonServiceOptions(true);
 
         // check if targets are of type array
         if ( Object.prototype.toString.call(this.getTargets()) === '[object Array]' ) {
@@ -698,6 +710,8 @@ r360.TravelOptions = function(){
 
         this.sources.push(source);
     }
+
+
 
     /*
      *
@@ -1081,6 +1095,38 @@ r360.TravelOptions = function(){
 
         this.elevationEnabled = elevationEnabled;
     }
+
+    /**
+     * [setRenderingMode description]
+     * @param {[type]} renderWatts [description]
+     */
+    this.setRenderWatts = function(renderWatts){
+        this.renderWatts = renderWatts;
+    }
+
+    /**
+     * [getRenderingMode description]
+     * @return {[type]} [description]
+     */
+    this.getRenderWatts = function(){
+       return this.renderWatts;
+    }
+
+    /**
+     * [setSupportWatts description]
+     * @param {[type]} supportWatts [description]
+     */
+    this.setSupportWatts = function(supportWatts){
+        this.supportWatts = supportWatts;
+    }
+
+    /**
+     * [getSupportWatts description]
+     * @return {[type]} [description]
+     */
+    this.getSupportWatts = function(){
+        return this.supportWatts;
+    }
 };
 
 r360.travelOptions = function () { 
@@ -1104,52 +1150,85 @@ r360.PolygonService = {
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
 
             // we only need the source points for the polygonizing and the polygon travel times
-            var cfg = {
-                polygon          : { 
-                    minPolygonHoleSize : travelOptions.getMinPolygonHoleSize(), 
-                    values             : travelOptions.getTravelTimes(), 
-                    intersectionMode   : travelOptions.getIntersectionMode() 
-                },
-                sources          : []
-            };
+            var cfg = {}; 
+            cfg.sources = [];
 
+            if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
+            if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
+                 typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+
+                cfg.polygon = {};
+
+                if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
+                if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
+                if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
+                if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
+                if ( typeof travelOptions.getMinPolygonHoleSize() != 'undefined' ) cfg.polygon.minPolygonHoleSize     = travelOptions.getMinPolygonHoleSize();
+            }
+                
             // add each source point and it's travel configuration to the cfg
             _.each(travelOptions.getSources(), function(source){
 
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')   ? source.id  : source.lat + ';' + source.lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
                     tm  : {}
                 };
 
                 var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
 
+                // this enables car routing
                 src.tm[travelType] = {};
 
                 // set special routing parameters depending on the travel type
                 if ( travelType == 'transit' ) {
                     
-                    src.tm.transit.frame = {
-                        time : travelOptions.getTime(),
-                        date : travelOptions.getDate()
-                    };
+                    src.tm.transit.frame = {};
+                    if ( typeof travelOptions.getTime() != 'undefined' ) src.tm.transit.frame.time = travelOptions.getTime();
+                    if ( typeof travelOptions.getDate() != 'undefined' ) src.tm.transit.frame.date = travelOptions.getDate();
+                }
+                if ( travelType == 'ebike' ) {
+                    
+                    src.tm.ebike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.ebike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'rentbike' ) {
+                    
+                    src.tm.rentbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+
+                }
+                if ( travelType == 'rentandreturnbike' ) {
+                    
+                    src.tm.rentandreturnbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
                 }
                 if ( travelType == 'bike' ) {
                     
-                    src.tm.bike = {
-                        speed       : travelOptions.getBikeSpeed(),
-                        uphill      : travelOptions.getBikeUphill(),
-                        downhill    : travelOptions.getBikeDownhill()
-                    };
+                    src.tm.bike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.bike.downhill = travelOptions.getBikeDownhill();
                 }
                 if ( travelType == 'walk') {
                     
-                    src.tm.walk = {
-                        speed       : travelOptions.getWalkSpeed(),
-                        uphill      : travelOptions.getWalkUphill(),
-                        downhill    : travelOptions.getWalkDownhill()
-                    };
+                    src.tm.walk = {};
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.walk.downhill = travelOptions.getWalkDownhill();
                 }
 
                 cfg.sources.push(src);
@@ -1168,7 +1247,8 @@ r360.PolygonService = {
                             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                             // call callback with returned results
                             callback(r360.Util.parsePolygons(result));
-                        });
+                        })
+                        .error(function() { alert("error occurred "); });
             }
             else { 
 
@@ -1186,7 +1266,6 @@ r360.PolygonService = {
     }
 }
 
-
 r360.RouteService = {
 
     cache : {},
@@ -1194,7 +1273,7 @@ r360.RouteService = {
     /*
      *
      */
-    getRoutes : function(travelOptions, callback) {
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidRouteServiceOptions() ) {
@@ -1212,7 +1291,7 @@ r360.RouteService = {
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
+                    id  : _.has(source, 'id')  ? source.id  : '',
                     tm  : {}
                 };
 
@@ -1220,29 +1299,54 @@ r360.RouteService = {
                 
                 src.tm[travelType] = {};
 
-                // set special routing parameters depending on the travel mode
-                if ( travelType == "transit" ) {
+                // set special routing parameters depending on the travel type
+              if ( travelType == 'transit' ) {
                     
-                    src.tm.transit.frame = {
-                        time : travelOptions.getTime(),
-                        date : travelOptions.getDate()
-                    };
+                    src.tm.transit.frame = {};
+                    if ( typeof travelOptions.getTime() != 'undefined' ) src.tm.transit.frame.time = travelOptions.getTime();
+                    if ( typeof travelOptions.getDate() != 'undefined' ) src.tm.transit.frame.date = travelOptions.getDate();
                 }
-                if ( travelType == "bike" ) {
+                if ( travelType == 'ebike' ) {
                     
-                    src.tm.bike = {
-                        speed       : travelOptions.getBikeSpeed(),
-                        uphill      : travelOptions.getBikeUphill(),
-                        downhill    : travelOptions.getBikeDownhill()
-                    };
+                    src.tm.ebike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.ebike.downhill = travelOptions.getBikeDownhill();
                 }
-                if ( travelType == "walk") {
+                if ( travelType == 'rentbike' ) {
                     
-                    src.tm.walk = {
-                        speed       : travelOptions.getWalkSpeed(),
-                        uphill      : travelOptions.getWalkUphill(),
-                        downhill    : travelOptions.getWalkDownhill()
-                    };
+                    src.tm.rentbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+
+                }
+                if ( travelType == 'rentandreturnbike' ) {
+                    
+                    src.tm.rentandreturnbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
+                }
+                if ( travelType == 'bike' ) {
+                    
+                    src.tm.bike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.bike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'walk') {
+                    
+                    src.tm.walk = {};
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.walk.downhill = travelOptions.getWalkDownhill();
                 }
 
                 // add it to the list of sources
@@ -1256,7 +1360,7 @@ r360.RouteService = {
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                     lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lng,
+                    id  : _.has(target, 'id')  ? target.id  : '',
                 });
             });
 
@@ -1266,20 +1370,26 @@ r360.RouteService = {
                     encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
                         function(result){
 
-                            // cache the result
-                            r360.RouteService.cache[JSON.stringify(cfg)] = result;
                             // hide the please wait control
                             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                            // call callback with returned results
-                            callback(r360.Util.parseRoutes(result)); 
-                        });
+
+                            if ( result.code == 'ok' ) {
+
+                                // cache the result
+                                r360.RouteService.cache[JSON.stringify(cfg)] = result.data;
+                                // call callback with returned results
+                                successCallback(r360.Util.parseRoutes(result.data)); 
+                            }
+                            else 
+                                errorCallback(result.code, result.message);
+                        })
             }
             else { 
 
                 // hide the please wait control
                 if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                 // call callback with returned results
-                callback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
+                successCallback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
             }
         }
         else {
@@ -1316,7 +1426,7 @@ r360.TimeService = {
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                    lon : _.has(source, 'lon') ? source.lon : source.getLatLng().lng,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
                     id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
                     tm  : {}
                 };
@@ -1360,7 +1470,7 @@ r360.TimeService = {
                 cfg.targets.push({
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
-                    lon : _.has(target, 'lon') ? target.lon : target.getLatLng().lng,
+                    lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                     id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
                 });
             });
@@ -1405,6 +1515,134 @@ r360.TimeService = {
     }
 };
 
+
+r360.PopulationService = {
+
+    cache : {},
+
+    /*
+     *
+     */
+    getPopulationStatistics : function(travelOptions, populationStatistics, callback) {
+
+        // only make the request if we have a valid configuration
+        if ( travelOptions.isValidPolygonServiceOptions() ) {
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+
+            // we only need the source points for the polygonizing and the polygon travel times
+            var cfg = {}; 
+            cfg.sources = [];
+
+            if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
+            if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
+                 typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+
+                cfg.polygon = {};
+
+                if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
+                if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
+                if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
+                if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
+            }
+                
+            // add each source point and it's travel configuration to the cfg
+            _.each(travelOptions.getSources(), function(source){
+
+                var src = {
+                    lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                    lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
+                    tm  : {}
+                };
+
+                var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+                // this enables car routing
+                src.tm[travelType] = {};
+
+                // set special routing parameters depending on the travel type
+                if ( travelType == 'transit' ) {
+                    
+                    src.tm.transit.frame = {};
+                    if ( typeof travelOptions.getTime() != 'undefined' ) src.tm.transit.frame.time = travelOptions.getTime();
+                    if ( typeof travelOptions.getDate() != 'undefined' ) src.tm.transit.frame.date = travelOptions.getDate();
+                }
+                if ( travelType == 'ebike' ) {
+                    
+                    src.tm.ebike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.ebike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'rentbike' ) {
+                    
+                    src.tm.rentbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentbike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentbike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentbike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'rentandreturnbike' ) {
+                    
+                    src.tm.rentandreturnbike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.rentandreturnbike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.rentandreturnbike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.rentandreturnbike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'bike' ) {
+                    
+                    src.tm.bike = {};
+                    if ( typeof travelOptions.getBikeSpeed()    != 'undefined' ) src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                    if ( typeof travelOptions.getBikeUphill()   != 'undefined' ) src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                    if ( typeof travelOptions.getBikeDownhill() != 'undefined' ) src.tm.bike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'walk') {
+                    
+                    src.tm.walk = {};
+                    if ( typeof travelOptions.getWalkSpeed()    != 'undefined' ) src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                    if ( typeof travelOptions.getWalkUphill()   != 'undefined' ) src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                    if ( typeof travelOptions.getWalkDownhill() != 'undefined' ) src.tm.walk.downhill = travelOptions.getWalkDownhill();
+                }
+
+                cfg.sources.push(src);
+            });
+
+            var statistics = [];
+            _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
+
+            if ( !_.has(r360.PopulationService.cache, JSON.stringify(cfg + statistics.join("&"))) ) {
+
+                // make the request to the Route360° backend 
+                $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/population?cfg=' + 
+                    encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey + '&' + statistics.join("&"), 
+                        function(result){
+
+                            // cache the result
+                            r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
+                            // hide the please wait control
+                            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                            // call callback with returned results
+                            callback(result);
+                        })
+                        .error(function(e) { alert("error occurred ", e); });
+            }
+            else { 
+
+                // hide the please wait control
+                if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                // call callback with returned results
+                callback(r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")]);
+            }
+        }
+        else {
+
+            alert('Travel options are not valid!')
+            console.log(travelOptions.getErrors());
+        }
+    }
+}
+
 r360.placeAutoCompleteControl = function (options) {
     return new r360.PlaceAutoCompleteControl(options);
 };
@@ -1426,6 +1664,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'width'))       this.options.width       = options.width;
             if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( _.has(options, 'image'))       this.options.image       = options.image;
+            if ( _.has(options, 'index'))       this.options.index       = options.index;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -1478,24 +1717,36 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
             
             if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
 
-            if ( that.options.options && that.options.options.hirebike ) 
+            if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
-                    '" travel-type="hirebike"> \
+                    + (this.options.travelType == 'rentbike' ? 'active' : '') + 
+                    '" travel-type="rentbike"> \
                             <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
                         </button>');
+
+            if ( that.options.options && that.options.options.rentandreturnbike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
+                    '" travel-type="rentandreturnbike"> \
+                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="de">Fahrrad leihen & abgeben</span>\
+                        </button>');
+            
+            if ( that.options.options && that.options.options.ebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'ebike' ? 'active' : '') + 
+                    '" travel-type="ebike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="de">E-Fahrrad</span></button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
-                    '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
@@ -1635,6 +1886,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                                 firstRow    : firstRow.join(", "),
                                 secondRow   : secondRow.join(" "),
                                 term        : request.term,
+                                index       : that.options.index,
                                 latlng      : new L.LatLng(latlng[0], latlng[1])
                             }
                         }));
@@ -1732,6 +1984,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
     getValue : function(){
         return this.options.value;
+    },
+
+    getIndex : function(){
+        return this.options.index;
     },
 
     onResize: function(){
@@ -1969,6 +2225,7 @@ r360.TravelTimeControl = L.Control.extend({
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
             if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
+            if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
             if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
             if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
             if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
@@ -2031,12 +2288,12 @@ r360.TravelTimeControl = L.Control.extend({
         this.options.travelTimeInfo = $('<div/>');
         this.options.travelTimeSlider = $('<div/>', {"class" : "no-border"}).append(sliderColors);
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
-        this.options.labelSpan = '<span lang="en">Traveltime</span><span lang="de">Reisezeit</span>: ';
+        this.options.labelSpan = '<span lang="en">'+this.options.label+'</span>: ';
 
         if ( this.options.icon != 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
-        var unitSpan = $('<span/>', {"text" : "min"});
+        var unitSpan = $('<span/>', {"text" : this.options.unit});
 
         $(this.options.sliderContainer).append(this.options.miBox);
         this.options.miBox.append(this.options.travelTimeInfo);
@@ -2759,7 +3016,7 @@ r360.RouteSegment = function(segment){
     * Call it distance instead
     */
 
-    that.distance        = segment.length;    
+    that.distance        = segment.length / 1000;    
     that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
@@ -2777,6 +3034,7 @@ r360.RouteSegment = function(segment){
     if ( segment.isTransit ) {
 
         that.color          = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).color;
+        that.haloColor      = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).haloColor;
         that.transitSegment = true;
         that.routeType      = segment.routeType;
         that.routeShortName = segment.routeShortName;
@@ -2789,7 +3047,7 @@ r360.RouteSegment = function(segment){
     else {
 
         that.color     = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
-        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).halo;
+        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).haloColor;
     }
 
     that.getPoints = function(){
@@ -2866,9 +3124,13 @@ r360.routeSegment = function (segment) {
  */
 r360.Route = function(travelTime, segments){
 
-    var that = this;
-    that.travelTime = travelTime;
-    that.routeSegments = new Array();
+    var that             = this;
+    that.travelTime      = travelTime;
+    that.routeSegments   = new Array();
+    that.uphillMeter     = 0;
+    that.downhillMeter   = 0;
+    that.targetHeight    = undefined;
+    that.sourceHeight    = undefined;
 
     _.each(segments, function(segment){                
         that.routeSegments.push(r360.routeSegment(segment));
@@ -2967,6 +3229,42 @@ r360.Route = function(travelTime, segments){
         return points;
     }
 
+    that.getUphillElevation = function() {
+        return that.uphillMeter;
+    }
+
+    that.getDownhillElevation = function() {
+        return that.downhillMeter;
+    }
+
+    that.getTotalElevationDifference = function(){
+        return Math.abs(that.sourceHeight - that.targetHeight);
+    }
+
+    that.setElevationDifferences = function() {
+
+        var points           = that.getPoints();
+        var previousHeight   = undefined; 
+        var sourceHeight, targetHeight;
+
+        for ( var i = points.length - 1; i >= 0 ; i-- ) {
+
+            if ( i == 0 )                 that.targetHeight = points[i].alt;
+            if ( i == points.length - 1 ) that.sourceHeight = points[i].alt;
+
+            if ( typeof previousHeight != 'undefined' ) {
+
+                // we go down
+                if ( previousHeight > points[i].alt )  
+                    that.downhillMeter += (previousHeight - points[i].alt);
+                else if ( previousHeight < points[i].alt )
+                    that.uphillMeter += (points[i].alt - previousHeight);
+            }
+
+            previousHeight = points[i].alt;
+        }
+    }();
+
     /*
      *
      */
@@ -3002,13 +3300,13 @@ r360.Route = function(travelTime, segments){
                 // create a small circlular marker to indicate the users have to switch trips
                 var latLng = lastSegement.points[0];
                 var marker = L.circleMarker(latLng, { 
-                    color:          lastSegement.color, 
-                    fillColor:      that.routeSegments[j-1].color, 
-                    fillOpacity:    0.5, 
-                    opacity:        0.5, 
+                    color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
+                    fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    1, 
+                    opacity:        1, 
                     stroke:         true, 
-                    weight:         3, 
-                    radius:         5 
+                    weight:         4, 
+                    radius:         7 
                 });         
 
                (function(marker, k) {
@@ -3030,7 +3328,7 @@ r360.Route = function(travelTime, segments){
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
-            if ( segment.getType() != "TRANSIT" && segment.getType() == "WALK" )  {
+            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK" || segment.getType() == "BIKE") )  {
 
                 polylineOptions.weight    = 7;
                 polylineOptions.dashArray = "1, 10";
@@ -3184,6 +3482,7 @@ r360.Route360PolygonLayer = L.Class.extend({
 
             if ( typeof options.opacity     != 'undefined') this.opacity      = options.opacity;
             if ( typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
+            if ( typeof options.inverse     != 'undefined') this.inverse      = options.inverse;
         }
 
         this._multiPolygons = new Array(); 
@@ -3205,6 +3504,13 @@ r360.Route360PolygonLayer = L.Class.extend({
         })();
     },
 
+    setInverse: function(inverse){
+        this.inverse = inverse;
+    },
+
+    getInverse: function(){
+        return this.inverse;
+    },
     /* 
      *
      */
@@ -3557,12 +3863,11 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._scale(polygonTopRight, scale);
         that._scale(polygonBottomLeft, scale);
 
-        if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-            return pathData;
-
         // the outer boundary       
-        that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-        
+        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
+
+     
         // the inner boundaries
         for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
 
@@ -3573,11 +3878,12 @@ r360.Route360PolygonLayer = L.Class.extend({
             that._scale(polygonTopRight, scale);
             that._scale(polygonBottomLeft, scale);
 
-            if(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y)
-                continue;
+            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
+                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //    continue;
 
             that.counter++;
-            that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
+            //
         }
 
        
@@ -3652,44 +3958,30 @@ r360.Route360PolygonLayer = L.Class.extend({
                 }
                                             if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                                    
 
-                if(svgData.length != 0){
+                if ( svgData.length != 0 ) {
+                    
                     var color   = mp.getColor();
                     var opacity = mp.getOpacity();
-                                            if(r360.config.logging) var start_raphael  = new Date().getTime();
+                    
+                    if ( r360.config.logging ) 
+                        var start_raphael  = new Date().getTime();
 
-                    var animate = false;     
-                    if(that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate)
-                        if(that._isAnimated())
-                            animate = true;
+                    var animate = that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate && that._isAnimated() ? true : false;     
 
-
-                    if(!r360.config.defaultPolygonLayerOptions.inverse)
-                        g.push(that._getGElement(svgData, 1, color, animate));
-                    else
-                        g.push(that._getGElement(svgData, opacity, 'black', animate));
+                    g.push(!that.inverse ? that._getGElement(svgData, 1, color, animate) : that._getGElement(svgData, opacity, 'black', animate));
               
-                                            if(r360.config.logging)     console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
+                    if ( r360.config.logging )
+                        console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
                 }
             }
 
-            var svgString;
-            if(!r360.config.defaultPolygonLayerOptions.inverse)
-                svgString = that._getNormalSvgElement(g);
-            else
-                svgString = that._getInverseSvgElement(g);
+            var svgString = !that.inverse ? that._getNormalSvgElement(g) : that._getInverseSvgElement(g);
 
             $('#canvas'+ $(this._map._container).attr("id")).append(svgString);
-               
-
-
-           
         }
 
-                                            if(r360.config.logging){
-                                                var end   = new Date().getTime();
-                                                console.log("layer resetting tool: " +  (end - start) + "ms");
-                                            } 
-
+        if ( r360.config.logging )
+            console.log("layer resetting tool: " +  (new Date().getTime() - start) + "ms");
     },
 
     _isAnimated: function(){
@@ -3787,8 +4079,8 @@ r360.Route360PolygonLayer = L.Class.extend({
 
 });
 
-r360.route360PolygonLayer = function () {
-    return new r360.Route360PolygonLayer();
+r360.route360PolygonLayer = function (options) {
+    return new r360.Route360PolygonLayer(options);
 };
 
 

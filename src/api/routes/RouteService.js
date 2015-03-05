@@ -1,4 +1,3 @@
-
 r360.RouteService = {
 
     cache : {},
@@ -6,7 +5,7 @@ r360.RouteService = {
     /*
      *
      */
-    getRoutes : function(travelOptions, callback) {
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidRouteServiceOptions() ) {
@@ -24,7 +23,7 @@ r360.RouteService = {
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
+                    id  : _.has(source, 'id')  ? source.id  : '',
                     tm  : {}
                 };
 
@@ -93,7 +92,7 @@ r360.RouteService = {
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                     lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lng,
+                    id  : _.has(target, 'id')  ? target.id  : '',
                 });
             });
 
@@ -103,12 +102,18 @@ r360.RouteService = {
                     encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey, 
                         function(result){
 
-                            // cache the result
-                            r360.RouteService.cache[JSON.stringify(cfg)] = result;
                             // hide the please wait control
                             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                            // call callback with returned results
-                            callback(r360.Util.parseRoutes(result)); 
+
+                            if ( result.code == 'ok' ) {
+
+                                // cache the result
+                                r360.RouteService.cache[JSON.stringify(cfg)] = result.data;
+                                // call callback with returned results
+                                successCallback(r360.Util.parseRoutes(result.data)); 
+                            }
+                            else 
+                                errorCallback(result.code, result.message);
                         });
             }
             else { 
@@ -116,7 +121,7 @@ r360.RouteService = {
                 // hide the please wait control
                 if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                 // call callback with returned results
-                callback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
+                successCallback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
             }
         }
         else {

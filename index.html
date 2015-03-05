@@ -77,7 +77,7 @@
                     <li class="page-scroll">
                         <a href="#gettingStarted">Getting started</a>
                     </li>
-                    <li class="page-scroll">
+                    <li class="page-scroll" stlye="display:none;">
                         <a href="#demo">Demo</a>
                     </li>
                     <li class="page-scroll">
@@ -116,62 +116,79 @@
 
     <section id="gettingStarted">
         <div class="container">
-            <div class="col-lg-12 text-center">
-                <h2>Screenshots</h2>
-                <hr class="star-primary">
-                <div id="screenshots">
-                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
-                      <!-- Indicators -->
-                        <ol class="carousel-indicators">
-                            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-                            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-                            <li data-target="#carousel-example-generic" data-slide-to="2"></li>
-                        </ol>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Route360° API Features</h2>
+                    <hr class="star-primary">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div>
+                        <p><i class="fa fa-caret-right"></i> Generate polygons which represent the area which is reachable from a given source point</p>
+                        <p><i class="fa fa-caret-right"></i> Support for walk, car, bike, E-bike and transit routing</p>
+                        <p><i class="fa fa-caret-right"></i> A number of predefined map controls (travel time slider, date and time chooser, travel type chooser, etc.)</p>
+                        <p><i class="fa fa-caret-right"></i> Detailed routing information from source to target (travel time, transit trips, etc.)</p>
+                        <p><i class="fa fa-caret-right"></i> Get routing information for hundreds of POIs in a single request in milliseconds</p>
+                        <p><i class="fa fa-caret-right"></i> Support for elevation data</p>
+                    </div>
+                    <div id="screenshots" style="margin-top: 45px;">
+                        <h3>Screenshots</h3>
+                        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" data-interval="0">
+                          <!-- Indicators -->
+                            <ol class="carousel-indicators">
+                                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                                <li data-target="#carousel-example-generic" data-slide-to="3"></li>
+                            </ol>
 
-                        <!-- Wrapper for slides -->
-                        <div class="carousel-inner" role="listbox">
-                            <div class="item active">
-                                <img src="img/gallery/cropped/pois_with_route.jpg" alt="..."  class="img-thumbnail img-responsive">
-                                <div class="carousel-caption">
-                                    <h3>This is a caption</h3>
-                                    <p>And this is a little longer sub caption</p>
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner" role="listbox">
+                                <div class="item active">
+                                    <img src="img/gallery/cropped/pois_with_route.jpg" alt="..."  class="img-thumbnail img-responsive">
+                                    <div class="carousel-caption" style="color: #2C3E50; text-shadow: rgba(255, 255, 255, 1) 0px 1px 6px;">
+                                        <h3>Use public transportation</h3>
+                                        <p>See all reachable points in your traval time and get detailed travel information</p>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery/cropped/europe.jpg" alt="..."  class="img-thumbnail img-responsive">
+                                    <div class="carousel-caption"  style="color: #2C3E50; text-shadow: rgba(255, 255, 255, 1) 0px 1px 6px;">
+                                        <h3>The world is the limit</h3>
+                                        <p>Travel time polygons and routing easily handles 12 hours by car</p>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery/cropped/inverse.jpg" alt="..."  class="img-thumbnail img-responsive">
+                                    <div class="carousel-caption" style="color: #2C3E50; text-shadow: rgba(255, 255, 255, 1) 0px 1px 6px;">
+                                        <h3>Monochrom travel time polygons</h3>
+                                        <p>You can hide anything that you can't reach anyway</p>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery/cropped/elevation.jpg" alt="..."  class="img-thumbnail img-responsive">
+                                    <div class="carousel-caption" style="color: #2C3E50; text-shadow: rgba(255, 255, 255, 1) 0px 1px 6px;">
+                                        <h3>Elevation enabled</h3>
+                                        <p>We use state of the art elevation data to improve routing and polygonization</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="item">
-                                <img src="img/gallery/cropped/europe.jpg" alt="..."  class="img-thumbnail img-responsive">
-                                <div class="carousel-caption">
-                                    <h3>This is a caption</h3>
-                                    <p>And this is a little longer sub caption</p>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <img src="img/gallery/cropped/inverse.jpg" alt="..."  class="img-thumbnail img-responsive">
-                                <div class="carousel-caption">
-                                    <h3>This is a caption</h3>
-                                    <p>And this is a little longer sub caption</p>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <img src="img/gallery/cropped/elevation.jpg" alt="..."  class="img-thumbnail img-responsive">
-                                <div class="carousel-caption">
-                                    <h3>This is a caption</h3>
-                                    <p>And this is a little longer sub caption</p>
-                                </div>
-                            </div>
+
+                            <!-- Controls -->
+                            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
                         </div>
-
-                        <!-- Controls -->
-                        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a>
                     </div>
                 </div>
             </div>
+            
 
             <div class="col-lg-12 text-center" style="margin-top: 25px;">
                 <h2>Getting started</h2>
@@ -218,7 +235,7 @@
         </div>
     </section>
 
-     <section class="success demo" id="demo">
+     <!-- <section class="success demo" id="demo">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -241,7 +258,7 @@
                 <iframe id="demo-iframe" frameBorder="0" src="http://demo.route360.net/ab-no_unreachable/#/"></iframe>
             </div>
         </div>
-    </section>
+    </section> -->
 
 
     <section class="tutorials" id="tutorials">
@@ -610,10 +627,10 @@
     <!-- End Piwik Code -->
 
     <script src="lib/jquery/jquery-1.10.2.js"></script>
-    <!-- // <script src="lib/bootstrap/bootstrap.min.js"></script> -->
+    // <script src="lib/bootstrap/bootstrap.min.js"></script>
     <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
     <script src="lib/jquery/jquery.validate.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <!-- // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="lib/freelancer/classie.js"></script>
     <script src="lib/freelancer/cbpAnimatedHeader.js"></script>

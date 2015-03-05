@@ -10,7 +10,9 @@ $(document).ready(function(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
+    var _0e455ea3 = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
+    var _0ad4304c = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
+    _0e455ea3.addTo(map);
 
     var currentRoute;
     var elevationData = [];
@@ -50,7 +52,24 @@ $(document).ready(function(){
     map.addControl(waitControl);
 
     $('span[lang="de"]').hide();
+    var rentalsLayer = L.layerGroup();
 
+    _.each(rentals, function(station){
+
+        var marker = L.circleMarker([station.lat, station.lng], { 
+                    color:          "white", 
+                    fillColor:      "#FF4D4F", 
+                    fillOpacity:    0.7, 
+                    opacity:        1, 
+                    stroke:         true, 
+                    weight:         3, 
+                    radius:         6 
+                }).addTo(rentalsLayer);
+
+         marker.bindPopup("<b>" + station.description + "!</b>");
+    })
+
+    map.addControl(L.control.layers({ "Nature": _0e455ea3, "Monochrom": _0ad4304c }, { "Bike Rental Stations" : rentalsLayer }, { position : 'bottomright' }));
     var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
 
     // ==================================================================================================================================
@@ -323,6 +342,19 @@ $(document).ready(function(){
 
             targetMarker.bindPopup(html);
             targetMarker.openPopup();
+            targetMarker.html = html;
+            targetMarker.data = data;
+            targetMarker.longestLabel = longestLabel;
+
+            targetMarker.on('click' , function(){
+
+                targetMarker.bindPopup(targetMarker.html).openPopup();
+
+                new Chart(document.getElementById("elevationChart").getContext("2d")).Line({
+                    labels: targetMarker.longestLabel,
+                    datasets: targetMarker.data
+                }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
+            });
 
             new Chart(document.getElementById("elevationChart").getContext("2d")).Line({
                 labels: longestLabel,
@@ -331,6 +363,40 @@ $(document).ready(function(){
 
             $('.routeModus0').css('background-color', "rgba(" + hexToRgb(elevationColors[0].fillColor).join(', ') + ", " +  elevationColors[0].fillColorOpacity + ")");
             $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
+        },
+        function(code, message){
+
+            var errorMessage = "";
+
+            switch(code) {
+                case 'no-route-found':
+                    errorMessage = "Your destination point is not reachable from the given source."
+                    break;
+                case 'travel-time-exceeded':
+                    errorMessage = "The travel time to the given target exceeds the maximal travel time!";
+                    break;
+                case 'wrong-configuration':
+                    errorMessage = "There was an error with the service configuration!";
+                    break;
+                case 'could-not-connect-point-to-network':
+                    errorMessage = "Your destination point is not connectable to the main network.";
+                    break;
+                default: 
+                    errorMessage = "There was an error with your request. Please try again.";
+            }
+
+            var n = noty({
+                text: errorMessage,
+                type: 'error',
+                theme: 'bootstrapTheme',
+                timeout : '5000',
+                animation: {
+                    open: 'animated zoomIn', // Animate.css class names
+                    close: 'animated zoomOut', // Animate.css class names
+                    easing: 'swing', // unavailable - no need
+                    speed: 500 // unavailable - no need
+                }
+            });
         });
     };
 
@@ -408,12 +474,7 @@ $(document).ready(function(){
 
             travelOptions.setRenderWatts(true);
             travelOptions.setSupportWatts(supportLevelButtons.getValue());
-
-            var vals = travelWattControl.getValues();
-            var val = new Array();
-            val.push(vals[vals.length-1]);
-
-            travelOptions.setTravelTimes(val);
+            travelOptions.setTravelTimes([travelWattControl.getMaxValue() / 60]);
         }
         if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
 
@@ -537,12 +598,12 @@ $(document).ready(function(){
 
             travelWattControl       = r360.travelTimeControl({
                 travelTimes     : [
-                    { time : 30 , color : "#006837"}, 
-                    { time : 60  , color : "#39B54A"},
-                    { time : 90  , color : "#8CC63F"},
-                    { time : 120 , color : "#F7931E"},
-                    { time : 150 , color : "#F15A24"},
-                    { time : 180 , color : "#C1272D"}
+                    { time : 60 * 30 , color : "#006837"}, 
+                    { time : 60 * 60  , color : "#39B54A"},
+                    { time : 60 * 90  , color : "#8CC63F"},
+                    { time : 60 * 120 , color : "#F7931E"},
+                    { time : 60 * 150 , color : "#F15A24"},
+                    { time : 60 * 180 , color : "#C1272D"}
                 ],
                 position : 'topright', label: 'Battery capacity', unit : 'Wh', initValue: 30
             });

@@ -6,7 +6,7 @@ r360.PolygonService = {
     /*
      *
      */
-    getTravelTimePolygons : function(travelOptions, callback) {
+    getTravelTimePolygons : function(travelOptions, successCallback) {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidPolygonServiceOptions() ) {
@@ -106,21 +106,27 @@ r360.PolygonService = {
                     encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey, 
                         function(result){
 
-                            // cache the result
-                            r360.PolygonService.cache[JSON.stringify(cfg)] = result;
                             // hide the please wait control
                             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                            // call callback with returned results
-                            callback(r360.Util.parsePolygons(result));
-                        })
-                        .error(function() { alert("error occurred "); });
+
+                            if ( result.code == 'ok' ) {
+
+                                // cache the result
+                                r360.PolygonService.cache[JSON.stringify(cfg)] = result.data;
+                                 // call successCallback with returned results
+                                successCallback(r360.Util.parsePolygons(result.data));
+                            }
+                            else 
+                                errorCallback(result.code, result.message);
+
+                        });
             }
             else { 
 
                 // hide the please wait control
                 if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                // call callback with returned results
-                callback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+                // call successCallback with returned results
+                successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
             }
         }
         else {

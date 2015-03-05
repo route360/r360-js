@@ -4,13 +4,13 @@
     <title>Get polygon example</title>
     <meta charset="UTF-8">
     <!-- stylesheets -->
-    <link rel="stylesheet" href="styles/leaflet.css"/>
     <link rel="stylesheet" href="styles/r360.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/jquery-ui-1.10.0.custom.css"/>
     <link rel="stylesheet" href="styles/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="styles/animate.css"/>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="fonts/map-icons/css/map-icons.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="styles/leaflet.css"/>
 
     <style>
         html, body, #map {
@@ -19,7 +19,7 @@
             height: 100%;
         }
 
-        input {
+        input.r360-autocomplete {
 
             width: 250px !important;
         }
@@ -57,19 +57,19 @@
     <!-- scripts -->
     <script src="jquery-1.10.2.js"></script>
     <script src="jquery-ui-1.10.4.min.js"></script>
-    <script src="lib/leaflet-src.js"></script>
-    <script src="lib/raphael-min.js"></script>
+    <script src="lib/leaflet.js"></script>
     <script type="text/javascript" src='lib/ChartnoLabels.min.js'></script>
     <script src="underscore.js"></script>
-    <!-- // <script src="lib/r360.js"></script> -->
+    <!-- <script type="text/javascript" src="../../lib/build/deps.js"></script>
+    <script type="text/javascript" src="../../lib/build/r360-include.js"></script> -->
+    <script src="lib/r360-src.js"></script>
+    <script type="text/javascript" src="data/rentals.js"></script>
     <script src="js/norway.js"></script>
-    <!-- // <script type="text/javascript" src="data/rentals.js"></script> -->
     <script type="text/javascript" src="lib/leaflet.awesome-markers.min.js"></script>
-    <script type="text/javascript" src="../../lib/build/deps.js"></script>
-    <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
+    <script type="text/javascript" src="lib/jquery.noty.packaged.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrapTheme.js"></script>
 </head>
 <body>
     <div id="map"></div>
-    <!-- <canvas id='elevationChart' width='400' height='200'></canvas> -->
 </body>
 </html>
