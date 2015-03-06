@@ -617,8 +617,8 @@ $(document).ready(function(){
             supportLevelButtons = r360.radioButtonControl({
                 buttons : [
                     { label: '<span class=""></span> Easy',   key: 0,   tooltip: 'Let the e-bike do the work', checked : false },
-                    { label: '<span class=""></span> Medium', key: 60,  tooltip: 'Do a little bit of work by yourself', checked : true  },
-                    { label: '<span class=""></span> Hard',   key: 130, tooltip: 'Lets save some energy', checked : false }
+                    { label: '<span class=""></span> Medium', key: 75,  tooltip: 'Do a little bit of work by yourself', checked : true  },
+                    { label: '<span class=""></span> Hard',   key: 150, tooltip: 'Lets save some energy', checked : false }
                 ]});
 
             travelWattControl.onSlideStop(getPolygons);
