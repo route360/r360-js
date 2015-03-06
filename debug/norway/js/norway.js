@@ -604,21 +604,21 @@ $(document).ready(function(){
 
             travelWattControl       = r360.travelTimeControl({
                 travelTimes     : [
-                    { time : 60 * 30 , color : "#006837"}, 
-                    { time : 60 * 60  , color : "#39B54A"},
-                    { time : 60 * 90  , color : "#8CC63F"},
-                    { time : 60 * 120 , color : "#F7931E"},
-                    { time : 60 * 150 , color : "#F15A24"},
-                    { time : 60 * 180 , color : "#C1272D"}
+                    { time : 60 * 60 , color : "#006837"}, 
+                    { time : 60 * 120  , color : "#39B54A"},
+                    { time : 60 * 180  , color : "#8CC63F"},
+                    { time : 60 * 240 , color : "#F7931E"},
+                    { time : 60 * 300 , color : "#F15A24"},
+                    { time : 60 * 360 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Battery capacity', unit : 'Wh', initValue: 30
+                position : 'topright', label: 'Battery capacity', unit : 'Wh', initValue: 180
             });
 
             supportLevelButtons = r360.radioButtonControl({
                 buttons : [
                     { label: '<span class=""></span> Easy',   key: 0,   tooltip: 'Let the e-bike do the work', checked : false },
-                    { label: '<span class=""></span> Medium', key: 75,  tooltip: 'Do a little bit of work by yourself', checked : true  },
-                    { label: '<span class=""></span> Hard',   key: 150, tooltip: 'Lets save some energy', checked : false }
+                    { label: '<span class=""></span> Medium', key: 60,  tooltip: 'Do a little bit of work by yourself', checked : true  },
+                    { label: '<span class=""></span> Hard',   key: 130, tooltip: 'Lets save some energy', checked : false }
                 ]});
 
             travelWattControl.onSlideStop(getPolygons);
