@@ -2,7 +2,7 @@ r360.TimeService = {
 
     cache : {},
 
-    getRouteTime : function(travelOptions, callback) {
+    getRouteTime : function(travelOptions, successCallback, errorCallback) {
 
         // only make the request if we have a valid configuration
         if ( travelOptions.isValidTimeServiceOptions() ) {
@@ -19,43 +19,66 @@ r360.TimeService = {
             // configure sources
             _.each(travelOptions.getSources(), function(source){
 
-                console.log(source);
-
                 // set the basic information for this source
                 var src = {
                     lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
                     lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                    id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lon,
+                    id  : _.has(source, 'id')  ? source.id  : '',
                     tm  : {}
                 };
 
                 var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
 
+                // this enables car routing
                 src.tm[travelType] = {};
 
-                // set special routing parameters depending on the travel mode
-                if ( travelType == "transit" ) {
+                // set special routing parameters depending on the travel type
+                if ( travelType == 'transit' ) {
                     
-                    src.tm.transit.frame = {
-                        time : travelOptions.getTime(),
-                        date : travelOptions.getDate()
-                    };
+                    src.tm.transit.frame = {};
+                    if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
+                    if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
                 }
-                if ( travelType == "bike" ) {
+                if ( travelType == 'ebike' ) {
                     
-                    src.tm.bike = {
-                        speed       : travelOptions.getBikeSpeed(),
-                        uphill      : travelOptions.getBikeUphill(),
-                        downhill    : travelOptions.getBikeDownhill()
-                    };
+                    src.tm.ebike = {};
+                    if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                    if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                    if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
                 }
-                if ( travelType == "walk") {
+                if ( travelType == 'rentbike' ) {
                     
-                    src.tm.walk = {
-                        speed       : travelOptions.getWalkSpeed(),
-                        uphill      : travelOptions.getWalkUphill(),
-                        downhill    : travelOptions.getWalkDownhill()
-                    };
+                    src.tm.rentbike = {};
+                    if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+                }
+                if ( travelType == 'rentandreturnbike' ) {
+                    
+                    src.tm.rentandreturnbike = {};
+                    if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                    if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                    if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                    if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                    if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                    if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
+                }
+                if ( travelType == 'bike' ) {
+                    
+                    src.tm.bike = {};
+                    if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                    if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                    if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
+                }
+                if ( travelType == 'walk') {
+                    
+                    src.tm.walk = {};
+                    if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                    if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                    if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
                 }
                 
                 // add to list of sources
@@ -69,7 +92,7 @@ r360.TimeService = {
 
                     lat : _.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                     lng : _.has(target, 'lon') ? target.lon : _.has(target, 'lng') ? target.lng : target.getLatLng().lng,
-                    id  : _.has(target, 'id')  ? target.id  : target.lat + ';' + target.lon,
+                    id  : _.has(target, 'id')  ? target.id  : '',
                 });
             });
 
@@ -83,17 +106,42 @@ r360.TimeService = {
                     contentType: "application/json",
                     dataType:    "json",
                     success: function (result) {
-                        // cache the request
-                        r360.TimeService.cache[JSON.stringify(cfg)] = result;
+
                         // hide the please wait control
                         if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                        // return the results
-                        callback(result);
+
+                        // the new version is an object, old one an array
+                        if ( _.isObject(result) ) {
+
+                            if ( result.code == 'ok' ) {
+
+                                // cache the result
+                                r360.TimeService.cache[JSON.stringify(cfg)] = result.data;
+                                // call successCallback with returned results
+                                successCallback(result.data);
+                            }
+                            else 
+                                // check if the error callback is defined
+                                if ( _.isFunction(errorCallback) )
+                                    errorCallback(result.code, result.message);
+                        }
+                        // fallback for old clients
+                        else {
+
+                            // cache the result
+                            r360.TimeService.cache[JSON.stringify(cfg)] = result;
+                            // call successCallback with returned results
+                            successCallback(result);
+                        }
                     },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        
-                        console.log(xhr.status);
-                        console.log(thrownError);
+                    // this only happens if the service is not available, all other errors have to be transmitted in the response
+                    error: function(data){ 
+
+                        // hide the please wait control
+                        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                        // call error callback if defined
+                        if ( _.isFunction(errorCallback) )
+                            errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
                     }
                 });
             }
@@ -102,7 +150,7 @@ r360.TimeService = {
                 // hide the please wait control
                 if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
                 // call callback with returned results
-                callback(r360.TimeService.cache[JSON.stringify(cfg)]); 
+                successCallback(r360.TimeService.cache[JSON.stringify(cfg)]); 
             }
         }
         else {

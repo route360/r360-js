@@ -36,8 +36,8 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.i18n.language   = 'en';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
-    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
+    // r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
+    r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: true, rentandreturnbike : true, init : 'bike' };
@@ -364,39 +364,44 @@ $(document).ready(function(){
             $('.routeModus0').css('background-color', "rgba(" + hexToRgb(elevationColors[0].fillColor).join(', ') + ", " +  elevationColors[0].fillColorOpacity + ")");
             $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
         },
-        function(code, message){
+        function(code, message){ showErrorMessage(code, message); });
+    };
 
-            var errorMessage = "";
+    showErrorMessage = function(code, message, timeout) {
 
-            switch(code) {
-                case 'no-route-found':
-                    errorMessage = "Your destination point is not reachable from the given source."
-                    break;
-                case 'travel-time-exceeded':
-                    errorMessage = "The travel time to the given target exceeds the maximal travel time!";
-                    break;
-                case 'wrong-configuration':
-                    errorMessage = "There was an error with the service configuration!";
-                    break;
-                case 'could-not-connect-point-to-network':
-                    errorMessage = "Your destination point is not connectable to the main network.";
-                    break;
-                default: 
-                    errorMessage = "There was an error with your request. Please try again.";
+        var errorMessage = "";
+
+        switch(code) {
+            case 'service-not-available':
+                errorMessage = message;
+                break;
+            case 'no-route-found':
+                errorMessage = "Your destination point is not reachable from the given source.";
+                break;
+            case 'travel-time-exceeded':
+                errorMessage = "The travel time to the given target exceeds the maximal travel time!";
+                break;
+            case 'wrong-configuration':
+                errorMessage = "There was an error with the service configuration!";
+                break;
+            case 'could-not-connect-point-to-network':
+                errorMessage = "Your destination point is not connectable to the main network.";
+                break;
+            default: 
+                errorMessage = "There was an error with your request. Please try again.";
+        }
+
+        var n = noty({
+            text: errorMessage,
+            type: 'error',
+            theme: 'bootstrapTheme',
+            timeout : typeof timeout !== 'undefined' ? timeout : 3500,
+            animation: {
+                open: 'animated zoomIn', // Animate.css class names
+                close: 'animated zoomOut', // Animate.css class names
+                easing: 'swing', // unavailable - no need
+                speed: 500 // unavailable - no need
             }
-
-            var n = noty({
-                text: errorMessage,
-                type: 'error',
-                theme: 'bootstrapTheme',
-                timeout : '5000',
-                animation: {
-                    open: 'animated zoomIn', // Animate.css class names
-                    close: 'animated zoomOut', // Animate.css class names
-                    easing: 'swing', // unavailable - no need
-                    speed: 500 // unavailable - no need
-                }
-            });
         });
     };
 
@@ -475,6 +480,9 @@ $(document).ready(function(){
             travelOptions.setRenderWatts(true);
             travelOptions.setSupportWatts(supportLevelButtons.getValue());
             travelOptions.setTravelTimes([travelWattControl.getMaxValue() / 60]);
+            travelOptions.setBikeSpeed(20);
+            travelOptions.setBikeUphill(10);
+            travelOptions.setBikeDownhill(-5);
         }
         if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
 
@@ -488,15 +496,13 @@ $(document).ready(function(){
         }
         
         // call the service
-        r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-            if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
-               polygonLayer.setInverse(true);
-            }else{
-                polygonLayer.setInverse(false);
-            }
-
-            polygonLayer.clearAndAddLayers(polygons);
-        });
+        r360.PolygonService.getTravelTimePolygons(travelOptions,
+            function(polygons){
+                polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
+                polygonLayer.clearAndAddLayers(polygons);
+            },
+            function(code, message){ showErrorMessage(code, message); }
+        );
     }
 
     function removeControls() {
