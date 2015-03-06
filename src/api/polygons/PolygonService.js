@@ -106,12 +106,12 @@ r360.PolygonService = {
                     timeout     : 5000,
                     dataType    : "json",
                     success     : function(result) {
-                        
+
                         // hide the please wait control
                         if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                         // the new version is an object, old one an array
-                        if ( _.isObject(result) ) {
+                        if ( _.has(result, 'data')  ) {
 
                             if ( result.code == 'ok' ) {
 

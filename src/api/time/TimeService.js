@@ -111,7 +111,7 @@ r360.TimeService = {
                         if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                         // the new version is an object, old one an array
-                        if ( _.isObject(result) ) {
+                        if ( _.has(result, 'data')  ) {
 
                             if ( result.code == 'ok' ) {
 
