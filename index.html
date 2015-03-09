@@ -17,7 +17,7 @@
     <link href="styles/prettify.css" rel="stylesheet" type="text/css">
 
     <!-- Fonts -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 
     <!-- IE8 support for HTML5 elements and media queries -->
@@ -77,7 +77,7 @@
                     <li class="page-scroll">
                         <a href="#gettingStarted">Getting started</a>
                     </li>
-                    <li class="page-scroll" stlye="display:none;">
+                    <li class="page-scroll" style="display:none;">
                         <a href="#demo">Demo</a>
                     </li>
                     <li class="page-scroll">
@@ -229,6 +229,7 @@
             <pre class="prettyprint" id='gettingstarted-code'>
             </pre>
             <p>Easy, right? You should see something like this:
+                <div class="alert alert-danger" id='r360-gettingstarted-error' role="alert" style="display: none;"></div>
                 <div id="map-example1"></div>
             </p>
             <p>You can have a look at the complete example <a href="download/basic/basic_demo_key.html" target="_blank">here</a>.</p>
@@ -281,6 +282,7 @@
                         <li><a id="multiple-nav" href="#multiple">Intersection of polygons</a></li>
                         <li><a id="inverse-nav" href="#inverse">Using black and white polygons</a></li>
                         <li><a id="htmlControl-nav" href="#htmlControl">Using a custom Html control</a></li>
+                        <li><a id="errorHandling-nav" href="#errorHandling">Handle errors from the server</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-10">
@@ -657,6 +659,7 @@
     <script src="lib/r360/examples/htmlControlExample.js"></script>
     <script src="lib/r360/examples/gettingStartedExample.js"></script>
     <script src="lib/r360/examples/inverseExample.js"></script>
+    <script src="lib/r360/examples/errorHandlingExample.js"></script>
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
@@ -890,6 +893,68 @@
 
                 htmlControlExample();
                 $('#htmlControlExample').text(htmlControlExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#errorHandling-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#errorHandling-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Handling errors returned from the server</h3> \
+                        <div class="row"> \
+                            <div class="col-md-12"> \
+                                <p class="lead"> \
+                                    Each of the Route360° web services take a success and error callback function as parameters. Since we also support \
+                                    older version if Internet Explorer we issue all our requests via JSONP. Unfortuneatly this makes it very hard \
+                                    to catch server side errors or exceptions. We walkaround this limitation by returning a 200 Request Ok and return \
+                                    a JSON Object that looks like this: <code>{ data : [], status : "", message : "" }</code>. We can the evaluate the \
+                                    given errors at least after the timeout defined for the <code>jQuery.ajax()</code> call. The currently possbile error codes \
+                                    are: \
+                                </p>\
+                            </div> \
+                        </div> \
+                        <div class="row"> \
+                            <div class="col-md-6"> \
+                                <h4 style="text-transform: lowercase;"><i class="fa fa-angle-double-right"></i> service-not-available</h4> \
+                                <p class="text-justify"> \
+                                    This exceptions happens if the hole Route360° web service is not available. This might be due to a service \
+                                    restart/update or a complete outage. We are closely monitoring our service availablity, so should you receive \
+                                    this message for longer than a short period of minutes and you are sure you configured the service url correct, \
+                                    please don\'t hesitate to contact us. \
+                                </p> \
+                                <h4 style="text-transform: lowercase;"><i class="fa fa-angle-double-right"></i> no-route-found</h4> \
+                                <p class="text-justify"> \
+                                    This exception is thrown if there is no route between a given source and target point. This can happen, if for \
+                                    example the target point is on an island and therefore no direct connection to the main network exists. \
+                                </p> \
+                                <h4 style="text-transform: lowercase;"><i class="fa fa-angle-double-right"></i> travel-time-exceeded</h4> \
+                                <p class="text-justify"> \
+                                    This exception happens if the travel time between a given source and target point exceeds the server side \
+                                    limitation of 12 hours.\
+                                </p> \
+                            </div> \
+                            <div class="col-md-6"> \
+                                <h4 style="text-transform: lowercase;"><i class="fa fa-angle-double-right"></i> wrong-configuration</h4> \
+                                <p class="text-justify"> \
+                                    This exception is thrown if the configuration of each service is incorrect, for example if a travel type \
+                                    that is not supported or a transit date not covered by the server is given. \
+                                </p> \
+                                <h4 style="text-transform: lowercase;"><i class="fa fa-angle-double-right"></i> could-not-connect-point-to-network</h4> \
+                                <p class="text-justify"> \
+                                    The service connects the given source and target points to the underlying OSM network. Therefore we calculate \
+                                    the closest edge to the given point that matches the given travel type. If we can\'t find such an edge this \
+                                    exception is returned. \
+                                </p> \
+                            </div> \
+                        </div> \
+                        <p class="text-justify lead">The code should produce an error message:</p> \
+                        <div id="r360-error" class="alert alert-danger" style="display: none;" role="alert"></div> \
+                        <pre class="prettyprint" id="errorHandlingExample"></pre>');
+
+                errorHandlingExample();
+                $('#errorHandlingExample').text(errorHandlingExample.toString());
                 !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 

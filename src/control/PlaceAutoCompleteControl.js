@@ -83,20 +83,20 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentbike' ? 'active' : '') + 
                     '" travel-type="rentbike"> \
-                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
                         </button>');
 
             if ( that.options.options && that.options.options.rentandreturnbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
                     '" travel-type="rentandreturnbike"> \
-                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="de">Fahrrad leihen & abgeben</span>\
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="de">Fahrrad leihen & abgeben</span>\
                         </button>');
             
             if ( that.options.options && that.options.options.ebike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'ebike' ? 'active' : '') + 
-                    '" travel-type="ebike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="de">E-Fahrrad</span></button>');
+                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="de">E-Fahrrad</span></button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '

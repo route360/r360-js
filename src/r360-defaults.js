@@ -1,7 +1,8 @@
 r360.config = {
 
-    serviceUrl      : 'http://api.route360.net/api_dev/',
-    nominatimUrl    : 'http://geocode.route360.net/',
+    serviceUrl      : 'https://api.route360.net/api_dev/',
+    // serviceUrl      : 'http://localhost:8080/api/',
+    nominatimUrl    : 'https://geocode.route360.net/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
     maxRoutingTime  : 3600,
@@ -58,7 +59,7 @@ r360.config = {
     ],
 
     defaultPlaceAutoCompleteOptions : {
-        serviceUrl : "http://geocode.route360.net/solr/select?",
+        serviceUrl : "https://geocode.route360.net/solr/select?",
         position : 'topleft',
         reset : false,
         reverse : false,

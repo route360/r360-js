@@ -238,7 +238,7 @@
 
             // create a marker and add it to the map
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
-            showPolygons();
+            // showPolygons();
 
             homeMarker.on('dragend', function(){         showPolygons(); });
             intersectionModeButtons.onChange(function(){ showPolygons(); });
@@ -315,8 +315,6 @@
                 travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
                 travelOptions.addTarget({lat : 52.52175701517317, lng : 13.377571105957031});
                 travelOptions.setTravelType('transit');
-                travelOptions.setDate('20150125');
-                travelOptions.setTime('35000');
                 travelOptions.setDate('20140825');
                 travelOptions.setTime('39600');
 
@@ -328,31 +326,31 @@
                     });
                 });
 
-                var travelOptions = r360.travelOptions();
-                travelOptions.addSource({lat : 52.514000984723936, lng : 13.368666172027586});
-                travelOptions.addTarget({lat : 52.513282764498854, lng : 13.35813045501709 });
-                travelOptions.setTravelType('bike');
+                // var travelOptions = r360.travelOptions();
+                // travelOptions.addSource({lat : 52.514000984723936, lng : 13.368666172027586});
+                // travelOptions.addTarget({lat : 52.513282764498854, lng : 13.35813045501709 });
+                // travelOptions.setTravelType('bike');
 
-                // call the service
-                r360.RouteService.getRoutes(travelOptions, function(routes) {
-                    _.each(routes, function(route){
+                // // call the service
+                // r360.RouteService.getRoutes(travelOptions, function(routes) {
+                //     _.each(routes, function(route){
 
-                        route.fadeIn(routeLayer, 500, "travelDistance");
-                    });
-                });
+                //         route.fadeIn(routeLayer, 500, "travelDistance");
+                //     });
+                // });
 
-                var travelOptions = r360.travelOptions();
-                travelOptions.addSource({lat : 52.51815337333538, lng : 13.372678756713867 });
-                travelOptions.addTarget({lat : 52.5089601366896, lng : 13.371927738189697 });
-                travelOptions.setTravelType('car');
+                // var travelOptions = r360.travelOptions();
+                // travelOptions.addSource({lat : 52.51815337333538, lng : 13.372678756713867 });
+                // travelOptions.addTarget({lat : 52.5089601366896, lng : 13.371927738189697 });
+                // travelOptions.setTravelType('car');
 
-                // call the service
-                r360.RouteService.getRoutes(travelOptions, function(routes) {
-                    _.each(routes, function(route){
+                // // call the service
+                // r360.RouteService.getRoutes(travelOptions, function(routes) {
+                //     _.each(routes, function(route){
 
-                        route.fadeIn(routeLayer, 500, "travelDistance");
-                    });
-                });
+                //         route.fadeIn(routeLayer, 500, "travelDistance");
+                //     });
+                // });
             }
 
             showRoutes();

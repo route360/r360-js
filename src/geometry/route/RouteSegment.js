@@ -24,14 +24,16 @@ r360.RouteSegment = function(segment){
         that.points.push(r360.Util.webMercatorToLatLng(new L.Point(point[1], point[0]), point[2]));
     });
 
+
     // in case we have a transit route, we set a color depending
     //  on the route type (bus, subway, tram etc.)
     // and we set information which are only available 
     // for transit segments like depature station and route short sign
     if ( segment.isTransit ) {
 
-        that.color          = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).color;
-        that.haloColor      = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType}).haloColor;
+        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType});
+        that.color          = typeof colorObject != 'undefined' && _.has(colorObject, 'color')     ? colorObject.color : 'RED';
+        that.haloColor      = typeof colorObject != 'undefined' && _.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
         that.transitSegment = true;
         that.routeType      = segment.routeType;
         that.routeShortName = segment.routeShortName;
@@ -43,8 +45,9 @@ r360.RouteSegment = function(segment){
     }
     else {
 
-        that.color     = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).color;
-        that.haloColor = _.findWhere(r360.config.routeTypes, {routeType : segment.type }).haloColor;
+        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.type});
+        that.color          = typeof colorObject != 'undefined' && _.has(colorObject, 'color')     ? colorObject.color : 'RED';
+        that.haloColor      = typeof colorObject != 'undefined' && _.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
     }
 
     that.getPoints = function(){
