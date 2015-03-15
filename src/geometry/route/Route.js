@@ -153,32 +153,41 @@ r360.Route = function(travelTime, segments){
 
     that.fadeIn = function(map, drawingTime, fadingType, colors, onClick){
 
-        var total, segment, percent, timeToDraw, lastSegement;
-        var k = 0;
-
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-        for ( var j = that.routeSegments.length - 1 ; j >= 0 ; j-- ) { 
-            
-            segment = that.routeSegments[j];
+        fadePathSegment(that.routeSegments.length - 1);        
+
+        function fadePathSegment(z){
+
+            // calculate fading time for segment
+            segment = that.routeSegments[z];
             percent = fadingType == "travelTime" ? segment.getTravelTime() / that.getTravelTime() : segment.getDistance() / that.getDistance();
-           
+
             timeToDraw = percent * drawingTime;
 
             // transfer don't have a linestring, just a point
             if ( segment.getType() != "TRANSFER" ) {
-                
-                (function(segment, k, timeToDraw) {
-                    setTimeout( function() { fader(segment, timeToDraw, colors); }, k);
-                })(segment, k, timeToDraw);
-
+                fader(segment, timeToDraw, colors, z); 
             }
             else {
-                
-                // create a small circlular marker to indicate the users have to switch trips
-                var latLng = lastSegement.points[0];
-                var marker = L.circleMarker(latLng, { 
+                addTransferSegment(segment); 
+                if(--z >= 0)
+                    fadePathSegment(z);
+            }          
+        }
+
+        function addTransferSegment(segment){
+
+            addCircularMarker(segment.points[0]);     
+
+            // if inter station transfer -> involves two stops -> we need a second circle
+            if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
+                 addCircularMarker(segment.points[1]);
+        }
+
+        function addCircularMarker(latLng) {
+            var marker = L.circleMarker(latLng, { 
                     color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
                     fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
                     fillOpacity:    1, 
@@ -188,19 +197,12 @@ r360.Route = function(travelTime, segments){
                     radius:         7 
                 });         
 
-               (function(marker, k) {
-                    setTimeout(function() {
-                        marker.addTo(map);
-                        marker.bringToFront();
-                    }, k);
-                })(marker, k);
-            }
-
-            k += timeToDraw;
-            lastSegement = segment;
+            marker.addTo(map);
+            marker.bringToFront();
         }
+        
 
-        function fader(segment, millis, colors){
+        function fader(segment, millis, colors, z){
 
             var polylineOptions         = {};
             polylineOptions.color       = typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor();
@@ -208,7 +210,6 @@ r360.Route = function(travelTime, segments){
             polylineOptions.weight      = 5;
 
             if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK" || segment.getType() == "BIKE") )  {
-
                 polylineOptions.weight    = 7;
                 polylineOptions.dashArray = "1, 10";
             }
@@ -228,16 +229,16 @@ r360.Route = function(travelTime, segments){
             haloLine.on('click', onClick);
             polyLine.on('click', onClick);
 
-            fadeLine(polyLine, haloLine, choppedLine, 1)
+            fadeLine(polyLine, haloLine, choppedLine, 1, z)
         };
 
         /*
         function is recalling itself every 25ms
         if you want the line to be drawn in one second you need to add a chopped line in (roughly) 40 pieces
-        precise timing is hard to perform as a few millis are taken by the actual line drawing
+        When line is drawn fadePathSegment is called in order to draw the next segment. 
         */
 
-        function fadeLine(polyLine, haloLine, choppedLine, i){
+        function fadeLine(polyLine, haloLine, choppedLine, i, z){
 
             var latlngs = polyLine.getLatLngs();
 
@@ -250,8 +251,14 @@ r360.Route = function(travelTime, segments){
                 polyLine.setLatLngs(latlngs);
             } 
 
-            if ( ++i < choppedLine.length ) 
-                setTimeout(function(){ fadeLine(polyLine, haloLine, choppedLine, i); }, 15);
+            if ( ++i < choppedLine.length ) {
+                setTimeout(function(){ 
+                    fadeLine(polyLine, haloLine, choppedLine, i, z); 
+                }, 15);
+            }else{               
+                if(--z >= 0)
+                   fadePathSegment(z);
+            }
         }
 
         /*

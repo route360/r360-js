@@ -240,13 +240,14 @@
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
             // showPolygons();
 
-            homeMarker.on('dragend', function(){         showPolygons(); });
+            homeMarker.on('dragend', function(){         //showPolygons(); 
+            });
             intersectionModeButtons.onChange(function(){ showPolygons(); });
             renderingModeButtons.onChange(function(){    showPolygons(); });
             supportLevelButtons.onChange(function(){     showPolygons(); });
             elevationButtons.onChange(function(){        showPolygons(); });
 
-            map.on("clicka", function(e){    
+            map.on("click", function(e){    
 
                 routeLayer.clearLayers();
                 markerLayer.clearLayers();
@@ -254,7 +255,7 @@
                 var travelOptions = r360.travelOptions();
                 travelOptions.addSource(homeMarker);
 
-                travelOptions.setDate('20150115');
+                travelOptions.setDate('20150310');
                 travelOptions.setTime('28800');
 
                 travelOptions.setTravelType(travelTypeButtons.getValue());
