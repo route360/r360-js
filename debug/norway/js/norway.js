@@ -34,25 +34,25 @@ $(document).ready(function(){
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.i18n.language   = 'en';
+    r360.config.i18n.language   = 'de';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
     // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
-    var options = { bike : true, walk : true, ebike: true, rentbike: true, rentandreturnbike : true, init : 'bike' };
-    var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select source!', reset : true, reverse : false , image : 'images/source.png', options : options});
+    var options = { bike : true, walk : true, ebike: true, rentbike: false, rentandreturnbike : true, init : 'bike' };
+    var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select source!', reset : true, reverse : false , showOnStartup : true, image : 'images/source.png', options : options});
     var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : true  , image : 'images/target.png'});
+    // sourceAutoComplete.toggleOptions();
 
     // add the controls to the map
     map.addControl(sourceAutoComplete);
     map.addControl(targetAutoComplete);
-    map.addControl(L.control.zoom({ position : 'bottomleft' }));
     var waitControl = r360.waitControl({ position : 'bottomright' });
     map.addControl(waitControl);
 
-    $('span[lang="de"]').hide();
     var rentalsLayer = L.layerGroup();
+    var museumsLayer = L.layerGroup();
 
     _.each(rentals, function(station){
 
@@ -66,10 +66,32 @@ $(document).ready(function(){
                     radius:         6 
                 }).addTo(rentalsLayer);
 
-         marker.bindPopup("<b>" + station.description + "!</b>");
-    })
+         marker.bindPopup("<b>" + station.description + "</b>");
+    });
 
-    map.addControl(L.control.layers({ "Nature": _0e455ea3, "Monochrom": _0ad4304c }, { "Bike Rental Stations" : rentalsLayer }, { position : 'bottomright' }));
+    var poiTypeButtons = r360.radioButtonControl({
+            buttons : [
+                { label: '<i class="fa fa-university"></i> Museum', key: "tourism='museum'", tooltip: 'English', checked : true },
+                { label: '<i class="fa fa-tint"></i> Badestellen', key: 'no', tooltip: 'Norsk',   checked : false },
+                { label: '<i class="fa fa-beer"></i> Kneipe', key: 'de', tooltip: 'Deutsch', checked : false  }
+            ],
+            position : 'bottomleft'
+        });
+    var languageButtons = r360.radioButtonControl({
+            buttons : [
+                { label: '<img src="images/us.png"></div> en', key: 'en', tooltip: 'English', checked : false },
+                { label: '<img src="images/no.png"></div> no', key: 'no', tooltip: 'Norsk',   checked : false },
+                { label: '<img src="images/de.png"></div> de', key: 'de', tooltip: 'Deutsch', checked : true  }
+            ],
+            position : 'bottomleft'
+        });
+    languageButtons.onChange(switchLanguage);
+    map.addControl(poiTypeButtons);
+    map.addControl(languageButtons);
+    switchLanguage(r360.config.i18n.language);
+
+    map.addControl(L.control.layers({ "Nature": _0e455ea3, "Monochrom": _0ad4304c }, { "<span lang='de'>Fahrradleihstationen</span><span lang='en'>Bike Rental Stations</span><span lang='no'>TODO</span>" : rentalsLayer, "<span lang='de'>Museen</span><span lang='en'>Museums</span><span lang='no'>TODO</span>" : museumsLayer }, { position : 'bottomright' }));
+    map.addControl(L.control.zoom({ position : 'bottomright' }));
     var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
 
     // ==================================================================================================================================
@@ -226,6 +248,7 @@ $(document).ready(function(){
             autoComplete.setValue({ firstRow : displayName, latlng : marker.getLatLng(), label : displayName });
             autoComplete.setFieldValue(displayName);
             marker.bindPopup(displayName);
+            marker.name = displayName;
         });
     }
 
@@ -282,11 +305,13 @@ $(document).ready(function(){
      * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the 
      * leaflet marker popup.]
      */
-    function getRoutes(){
+    function getRoutes(target){
 
         //route needs to have both source and target
         if(sourceMarker == '' || targetMarker == '')
             return;
+
+        if ( typeof target !== 'undefined') targetMarker = target;
 
         routeLayer.clearLayers();
 
@@ -303,12 +328,13 @@ $(document).ready(function(){
             var data         = [];
             var longestLabel = [];
             var html        = 
+                (targetMarker.name !== 'undefined' ? "<h3 class='text-center'>"+targetMarker.name+"</h3>" : "") +
                 '<table class="table table-striped"> \
                     <thead>\
                         <tr>\
-                          <th>Travel time</th>\
-                          <th>Distance</th>\
-                          <th>Elevation difference</th>\
+                          <th><span lang="de">Reisezeit</span><span lang="en">Travel time</span><span lang="no">Reisetid</span></th>\
+                          <th><span lang="de">Entfernung</span><span lang="en">Distance</span><span lang="no">Avstand</span></th>\
+                          <th><span lang="de">Höhenunterschied</span><span lang="en">Elevation difference</span><span lang="no">Stigning</span></th>\
                         </tr>\
                     </thead>';
 
@@ -321,7 +347,7 @@ $(document).ready(function(){
                     '<tr style="margin-top:5px;">\
                         <td style="vertical-align: middle;">' + r360.Util.secondsToHoursAndMinutes(currentRoute.getTravelTime()) + '</td>\
                         <td style="vertical-align: middle;">' + currentRoute.getDistance().toFixed(2) + ' km</td>\
-                        <td style="vertical-align: middle;">' + currentRoute.getTotalElevationDifference() + 'm<br> <i class="fa fa-arrow-up" style="color:#C1272D;">' + currentRoute.getUphillElevation() + 'm</i> <i class="fa fa-arrow-down" style="color:#006837;">' + currentRoute.getDownhillElevation() + 'm</i></td>\
+                        <td style="vertical-align: middle;">' + currentRoute.getTotalElevationDifference() + 'm <i class="fa fa-arrow-up" style="color:#C1272D;">' + currentRoute.getUphillElevation() + 'm</i> <i class="fa fa-arrow-down" style="color:#006837;">' + currentRoute.getDownhillElevation() + 'm</i></td>\
                     </tr>'
 
                 var elevations = currentRoute.getElevations();
@@ -338,7 +364,7 @@ $(document).ready(function(){
 
             html += 
                 '</table>\
-                <canvas id="elevationChart" width="400" height="200"></canvas>';
+                <canvas id="elevationChart" width="350" height="150"></canvas>';
 
             targetMarker.bindPopup(html);
             targetMarker.openPopup();
@@ -354,12 +380,14 @@ $(document).ready(function(){
                     labels: targetMarker.longestLabel,
                     datasets: targetMarker.data
                 }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
+                switchLanguage();
             });
 
             new Chart(document.getElementById("elevationChart").getContext("2d")).Line({
                 labels: longestLabel,
                 datasets: data
             }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
+            switchLanguage();
 
             $('.routeModus0').css('background-color', "rgba(" + hexToRgb(elevationColors[0].fillColor).join(', ') + ", " +  elevationColors[0].fillColorOpacity + ")");
             $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
@@ -394,6 +422,22 @@ $(document).ready(function(){
         var n = noty({
             text: errorMessage,
             type: 'error',
+            theme: 'bootstrapTheme',
+            timeout : typeof timeout !== 'undefined' ? timeout : 3500,
+            animation: {
+                open: 'animated zoomIn', // Animate.css class names
+                close: 'animated zoomOut', // Animate.css class names
+                easing: 'swing', // unavailable - no need
+                speed: 500 // unavailable - no need
+            }
+        });
+    };
+
+    showInfoMessage = function(message, timeout) {
+
+        var n = noty({
+            text: message,
+            type: 'info',
             theme: 'bootstrapTheme',
             timeout : typeof timeout !== 'undefined' ? timeout : 3500,
             animation: {
@@ -498,11 +542,98 @@ $(document).ready(function(){
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions,
             function(polygons){
+
                 polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
                 polygonLayer.clearAndAddLayers(polygons);
+
+                r360.OsmService.getPoisInBoundingBox(map, ["tourism='museum'"], waitControl, function(pois){
+
+                    if ( pois.length == 0 ) 
+                        showInfoMessage(noPoisInTravelTime());
+                    else {
+
+                        _.each(pois, function(poi) { travelOptions.addTarget({ lat : poi.lat, lng : poi.lng, id : poi.id }); })
+                        travelOptions.setMaxRoutingTime(_.max(travelOptions.getTravelTimes()));
+
+                        r360.TimeService.getRouteTime(travelOptions, function(sources){
+
+                            var withinTravelTime = 0;
+
+                            _.each(sources[0].targets, function(target){
+
+                                var poi = _.find(pois, function(poi){ return poi.id == target.id ; });
+                                poi.travelTime = target.travelTime;
+
+                                // the travel time to these pois is shorter then the maximum travel width
+                                if ( poi.travelTime > 0 && poi.travelTime <= travelOptions.getMaxRoutingTime() ) {
+
+                                    var marker = L.marker([poi.lat, poi.lng], { icon : L.AwesomeMarkers.icon({ icon: 'university', prefix : 'fa', markerColor: 'green' }) }).addTo(museumsLayer);
+                                    marker.name = (poi.name ? poi.name : "<span lang='en'>Name unknown</span><span lang='de'>Name unbekannt</span><span lang='no'>nevne ukjent</span>");
+
+                                    withinTravelTime++;
+
+                                    marker.on('click mouseovvvvvver', function(){
+
+                                        getRoutes(marker);
+                                    }); 
+                                }
+                            });
+
+                            showInfoMessage(xPoisWithInTravelTime(withinTravelTime));
+                            switchLanguage();
+                        })
+                    }
+
+                                        // _.each(results, function(result){
+
+                                        //     console.log(result);
+
+                                        //     var marker = L.circleMarker([result.lat, result.lng], { 
+                                        //             color:          "white", 
+                                        //             fillColor:      "#FF4D4F", 
+                                        //             fillOpacity:    0.7, 
+                                        //             opacity:        1, 
+                                        //             stroke:         true, 
+                                        //             weight:         3, 
+                                        //             radius:         6 
+                                        //         }).addTo(museumsLayer);
+
+                                        //      marker.bindPopup();
+                                        // })
+                                        // 
+                    
+                    switchLanguage();
+                }, 
+                function() {
+
+                    showErrorMessage();
+                });
             },
             function(code, message){ showErrorMessage(code, message); }
         );
+    };
+
+    function xPoisWithInTravelTime(numberOfPois){
+
+        return buildHtmlSpan([{ lang : 'de', text : 'Es wurden ' + numberOfPois + ' Sehenswürdigkeiten in der angegebenen Reisezeit gefunden.'}, 
+                               { lang : 'en', text : 'There were ' + numberOfPois + ' point of interests found in the given travel time.'},
+                               { lang : 'no', text : 'TODO'}] );   
+    }
+
+    function noPoisInTravelTime() {
+        return buildHtmlSpan([{ lang : 'de', text : 'Es wurden in der angegebenen Reisezeit leider keine Sehenswürdigkeiten gefunden.'}, 
+                               { lang : 'en', text : 'Unfortunately there were no point of interests found in the given travel time.'},
+                               { lang : 'no', text : 'TODO'}] );
+    }
+
+    function buildHtmlSpan(strings) {
+
+        var result = "";
+        _.each(strings, function(string) {
+            result += "<span lang='"+string.lang+"'>"+string.text+"</span>";
+        });
+
+        return result;
     }
 
     function removeControls() {
@@ -514,6 +645,16 @@ $(document).ready(function(){
         if ( typeof walkSpeedButtons     != 'undefined' ) map.removeControl(walkSpeedButtons);
         if ( typeof supportLevelButtons  != 'undefined' ) map.removeControl(supportLevelButtons);
         if ( typeof rentAndReturnBikeSpeedButtons  != 'undefined' ) map.removeControl(rentAndReturnBikeSpeedButtons);
+    }
+
+    function switchLanguage() {
+
+        r360.config.i18n.language = languageButtons.getValue();
+        $("[lang='de'], [lang='en'], [lang='no']").hide();
+        $("[lang='"+languageButtons.getValue()+"']").show();
+
+        sourceAutoComplete.updateI18n(true);
+        targetAutoComplete.updateI18n(false);
     }
 
     function addControls() {
@@ -531,14 +672,16 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+                position : 'topright', label: '<span lang="en">Travel time: </span>\
+                                               <span lang="de">Reisezeit: </span>\
+                                               <span lang="no">Reisetid: </span>', unit : 'min', initValue: 30
             });
 
             bikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
-                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
-                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
                 ]
             });
 
@@ -567,22 +710,16 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+                position : 'topright', label: '<span lang="en">Travel time: </span>\
+                                               <span lang="de">Reisezeit: </span>\
+                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
             });
 
             walkSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
-                    // and a boolean which indicates if the button is selected by default
-                    // labels may contain html
-                    { label: '<span class=""></span> Slow', key: 'slow',     
-                      tooltip: 'Walking speed: 4km/h', checked : false },
-
-                    { label: '<span class=""></span> Medium', key: 'medium',     
-                      tooltip: 'Walking speed: 5km/h', checked : true  },
-
-                    { label: '<span class=""></span> Fast', key: 'fast',      
-                      tooltip: 'Walking speed: 6km/h', checked : false }
+                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow', tooltip: 'Walking speed: 4km/h', checked : false },
+                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Walking speed: 5km/h', checked : true  },
+                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast', tooltip: 'Walking speed: 6km/h', checked : false }
                 ]
             });
 
@@ -646,14 +783,16 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+                position : 'topright', label: '<span lang="en">Travel time: </span>\
+                                               <span lang="de">Reisezeit: </span>\
+                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
             });
 
             rentbikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
-                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
-                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
@@ -681,14 +820,16 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Travel time', unit : 'min', initValue: 30
+                position : 'topright', label: '<span lang="en">Travel time: </span>\
+                                               <span lang="de">Reisezeit: </span>\
+                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
             });
 
             rentAndReturnBikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span class=""></span> Slow',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
-                    { label: '<span class=""></span> Medium', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
-                    { label: '<span class=""></span> Fast',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
@@ -705,6 +846,8 @@ $(document).ready(function(){
             travelWattControl   = undefined;
             rentbikeSpeedButtons = undefined;
         }
+
+        switchLanguage();
     }
 
     addControls();

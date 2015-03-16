@@ -10,16 +10,17 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         if ( typeof options !== "undefined" ) {
             
-            if ( _.has(options, 'position'))    this.options.position    = options.position;
-            if ( _.has(options, 'label'))       this.options.label       = options.label;
-            if ( _.has(options, 'country'))     this.options.country     = options.country;
-            if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
-            if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
-            if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
-            if ( _.has(options, 'width'))       this.options.width       = options.width;
-            if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
-            if ( _.has(options, 'image'))       this.options.image       = options.image;
-            if ( _.has(options, 'index'))       this.options.index       = options.index;
+            if ( _.has(options, 'position'))      this.options.position      = options.position;
+            if ( _.has(options, 'label'))         this.options.label         = options.label;
+            if ( _.has(options, 'country'))       this.options.country       = options.country;
+            if ( _.has(options, 'reset'))         this.options.reset         = options.reset;
+            if ( _.has(options, 'reverse'))       this.options.reverse       = options.reverse;
+            if ( _.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
+            if ( _.has(options, 'width'))         this.options.width         = options.width;
+            if ( _.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
+            if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
+            if ( _.has(options, 'image'))         this.options.image         = options.image;
+            if ( _.has(options, 'index'))         this.options.index         = options.index;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -28,8 +29,18 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         }
     },
 
+    toggleOptions : function(container){
+
+        var that = this;
+
+        if ( typeof container == 'undefined' )
+            $('#' + that.options.id + '-options').slideToggle();
+        else 
+            $(container).find('#' + that.options.id + '-options').slideToggle();
+    },
+
     onAdd: function(map){
-        
+
         var that = this;
         var i18n            = r360.config.i18n;   
         var countrySelector =  "";
@@ -63,50 +74,50 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
             that.options.input += 
                 '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
+                    <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
             if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
             
             if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span></button>');
 
             if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentbike' ? 'active' : '') + 
                     '" travel-type="rentbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
                         </button>');
 
             if ( that.options.options && that.options.options.rentandreturnbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
                     '" travel-type="rentandreturnbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="de">Fahrrad leihen & abgeben</span>\
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
                         </button>');
             
             if ( that.options.options && that.options.options.ebike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'ebike' ? 'active' : '') + 
-                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="de">E-Fahrrad</span></button>');
+                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span></button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
-                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'car' ? 'active' : '') + 
-                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
+                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="no">TODO</span><span lang="de">Auto</span></button>');
             
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
@@ -117,12 +128,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
              that.options.input += 
                 '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
+                    <button id="'+that.options.id+'-reverse-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
                 </span>';
 
             that.options.input += 
                 '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
+                    <button id="'+that.options.id+'-reset-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
                 </span>';
         // }
         // if ( that.options.reverse ) {
@@ -274,7 +285,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             return $( "<li>" ).append(html).appendTo(ul);
         };
         
-        this.onResize();     
+        this.onResize(); 
 
         return nameContainer;
     },
@@ -297,6 +308,16 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     onTravelTypeChange: function(onTravelTypeChange){
 
         this.options.onTravelTypeChange = onTravelTypeChange;
+    },
+
+    updateI18n : function(source) {
+
+        var that = this;
+        $("#autocomplete-" + that.options.id).attr("placeholder", r360.config.i18n.get(source ? 'placeholderSrc' : 'placeholderTrg'));
+        $('#' + that.options.id + '-reverse-button').attr('title', r360.config.i18n.get('reverse'));
+        $('#' + that.options.id + '-reset-button').attr('title', r360.config.i18n.get('reset'));
+        $('#' + that.options.id + '-options-btn').attr('title', r360.config.i18n.get('settings'));
+        
     },
 
     reset : function(){

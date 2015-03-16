@@ -7,6 +7,7 @@ var deps = {
 		      'api/polygons/PolygonService.js',
 		      'api/routes/RouteService.js',
 		      'api/time/TimeService.js',
+              'api/osm/OsmService.js',
               'api/population/PopulationService.js'
 		      ],
 		desc: ''
