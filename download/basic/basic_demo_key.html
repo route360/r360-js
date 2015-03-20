@@ -38,7 +38,7 @@
 
             // add the map and set the initial center to berlin
             var map = L.map('map').setView(latlon, 13);
-            // attribution to give credit to OSM map data and VBB for public transportation 
+            // attribution to give credit to OSM map data and VBB for public transportation
             var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
             // initialising the base map. To change the base map just change following
@@ -49,7 +49,7 @@
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_developers/';
+            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
 
             // create a marker and add it to the map
             var marker = L.marker(latlon).addTo(map);
@@ -69,10 +69,10 @@
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-                    
-                // add the returned polygons to the polygon layer 
+
+                // add the returned polygons to the polygon layer
                 polygonLayer.addLayer(polygons);
-                
+
                 // zoom the map to fit the polygons perfectly
                 map.fitBounds(polygonLayer.getBoundingBox());
             });
