@@ -4,14 +4,30 @@ r360.TimeService = {
 
     getRouteTime : function(travelOptions, successCallback, errorCallback) {
 
-        // hide the please wait control
-        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
+        }
 
         var cfg = { 
             sources : [], targets : [],
             pathSerializer : travelOptions.getPathSerializer(), 
             maxRoutingTime : travelOptions.getMaxRoutingTime()
         };
+
+        if ( !_.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !_.isUndefined(travelOptions.getTravelTimes()) || !_.isUndefined(travelOptions.getIntersectionMode()) || 
+             !_.isUndefined(travelOptions.getRenderWatts()) || !_.isUndefined(travelOptions.getSupportWatts()) ) {
+
+            cfg.polygon = {};
+
+            if ( !_.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
+            if ( !_.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+            if ( !_.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
+            if ( !_.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
+            if ( !_.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
+        }
 
         // configure sources
         _.each(travelOptions.getSources(), function(source){
@@ -101,6 +117,7 @@ r360.TimeService = {
                 type:        "POST",
                 data:        JSON.stringify(cfg) ,
                 contentType: "application/json",
+                timeout:     r360.config.requestTimeout,
                 dataType:    "json",
                 success: function (result) {
 

@@ -6,6 +6,7 @@ r360.config = {
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
+    requestTimeout  : 10000,
     maxRoutingTime  : 3600,
     bikeSpeed       : 15,
     bikeUphill      : 20,
@@ -101,27 +102,147 @@ r360.config = {
 
     i18n : {
 
-        language            : 'de',
-        departure           : { en : 'Departure',       de : 'Abfahrt' },
-        placeholderSrc      : { en : 'Select source!',  de : 'Start wählen!',   no : 'Velg start!'},
-        placeholderTrg      : { en : 'Select target!',  de : 'Ziel wählen!' ,   no : 'Velg en destinasjon!' },
-        line                : { en : 'Line',            de : 'Linie' },
-        arrival             : { en : 'Arrival',         de : 'Ankunft' },
-        from                : { en : 'From',            de : 'Von' },
-        to                  : { en : 'To',              de : 'Nach' },
-        travelTime          : { en : 'Travel time',     de : 'Reisezeit' },
-        totalTime           : { en : 'Total time',      de : 'Gesamtzeit' },
-        distance            : { en : 'Distance',        de : 'Distanz' },
-        wait                : { en : 'Please wait!',    de : 'Bitte warten!' ,  no : 'Vennligst vent!' },
-        elevation           : { en : 'Elevation',       de : 'Höhenunterschied' },
-        timeFormat          : { en : 'a.m.',            de : 'Uhr' },
-        reset               : { en : 'Reset input',     de : 'Eingeben löschen', no : 'Tilbakestill innspill' },
-        reverse             : { en : 'Switch source and target',   de : 'Start und Ziel tauschen', no : 'Sett på start og slutt' },
-        settings            : { en : 'Switch travel type',   de : 'Reisemodus wechseln', no : 'TODO' },
-        noRouteFound        : { en : 'No route found!', de : 'Keine Route gefunden!' },
-        monthNames          : { de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'] },
-        dayNames            : { de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'] },
-        dayNamesMin         : { de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] },
+        language             : 'en',
+        configuredLangguages : ['en', 'de', 'no'],
+
+        slow                 : { en : 'Slow',
+                                 de : 'Langsam', 
+                                 no : 'Sakte'},
+        
+        medium               : { en : 'Medium',
+                                 de : 'Mittel', 
+                                 no : 'Medium'},
+
+        fast                 : { en : 'Fast',
+                                 de : 'Schnell', 
+                                 no : 'Raskt' },
+
+        departure            : { en : 'Departure',
+                                 de : 'Abfahrt', 
+                                 no : 'TODO TRANSLATION: '},
+        
+        placeholderSrc       : { en : 'Select source!',
+                                 de : 'Start wählen!',   
+                                 no : 'Velg start!'},
+        
+        placeholderTrg       : { en : 'Select target!',
+                                 de : 'Ziel wählen!' ,   
+                                 no : 'Velg en destinasjon!' },
+        
+        line                 : { en : 'Line',
+                                 de : 'Linie', 
+                                 no : 'TODO TRANSLATION: ' },
+        
+        arrival              : { en : 'Arrival',
+                                 de : 'Ankunft',
+                                 no : 'TODO TRANSLATION: ' },
+        
+        from                 : { en : 'From',
+                                 de : 'Von' , 
+                                 no : 'TODO TRANSLATION: '},
+        
+        to                   : { en : 'To',
+                                 de : 'Nach', 
+                                 no : 'TODO TRANSLATION: ' },
+        
+        travelTime           : { en : 'Travel time',
+                                 de : 'Reisezeit', 
+                                 no : 'Reisetid' },
+        
+        totalTime            : { en : 'Total time',
+                                 de : 'Gesamtzeit', 
+                                 no : 'TODO TRANSLATION: ' },
+       
+        batteryCapacity      : { en : 'Battery capacity: ',
+                                 de : 'Akkuleistung: ', 
+                                 no : 'TODO TRANSLATION: ' },
+       
+        distance             : { en : 'Distance',
+                                 de : 'Distanz', 
+                                 no : 'Avstand' },
+        
+        wait                 : { en : 'Please wait!',
+                                 de : 'Bitte warten!' ,  
+                                 no : 'Vennligst vent!' },
+       
+        polygonWait          : { en : 'Calculating reachable area!',
+                                 de : 'Berechne erreichbare Fläche!' ,  
+                                 no : 'TODO TRANSLATION' },
+       
+        routeWait            : { en : 'Searching route to target(s)!',
+                                 de : 'Suche Route zum Ziel!' ,  
+                                 no : 'TODO TRANSLATION' },
+       
+        timeWait             : { en : 'Getting travel times to target(s)!',
+                                 de : 'Berechne Reisezeiten für Ziele!' ,  
+                                 no : 'TODO TRANSLATION' },
+       
+        osmWait              : { en : 'Searching for points of interests!',
+                                 de : 'Suche nach Sehenswürdigkeiten!' ,  
+                                 no : 'TODO TRANSLATION' },
+       
+        populationWait       : { en : 'Calculating population statistics!',
+                                 de : 'Berechne Bevölkerungsstatistik!',
+                                 no : 'TODO TRANSLATION' },
+ 
+        elevation            : { en : 'Elevation',       
+                                 de : 'Höhenunterschied',
+                                 no : 'Stigning' },
+        
+        timeFormat           : { en : 'a.m.',            
+                                 de : 'Uhr',
+                                 no : 'TODO_TRANSLATION' },
+        
+        reset                : { en : 'Reset input',     
+                                 de : 'Eingeben löschen', 
+                                 no : 'Tilbakestill innspill' },
+        
+        reverse              : { en : 'Switch source and target',   
+                                 de : 'Start und Ziel tauschen', 
+                                 no : 'Sett på start og slutt' },
+        
+        settings             : { en : 'Switch travel type',   
+                                 de : 'Reisemodus wechseln', 
+                                 no : 'TODO TRANSLATION' },
+        
+        noRouteFound         : { en : 'No route found!', 
+                                 de : 'Keine Route gefunden!',
+                                 no : 'TODO TRANSLATION' },
+        
+        monthNames           : { en : ['January','February','March','April','May','June','July','August','September','October','November','December'] ,
+                                 de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+                                 no : ['TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION']},
+        
+        dayNames             : { en : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                                 de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'],
+                                 no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION','TODO_TRANSLATION'] },
+        
+        dayNamesMin          : { en : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                                 de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+                                 no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION'] },
+
+        museum               : { en : 'Museums', 
+                                 de : 'Museen',
+                                 no : 'Museer' },
+
+        swimming_pool        : { en : 'Schwimmbäder', 
+                                 de : 'Swimming pools',
+                                 no : 'Svømmebassenger' },
+
+        restaurant           : { en : 'Restaurants', 
+                                 de : 'Restaurants',
+                                 no : 'Restauranter' },
+        
+        getSpan : function(key, langs) {
+
+            var translation = "";    
+            _.each(_.keys(r360.config.i18n[key]), function(language){
+                translation += '<span lang="'+language+'">'+r360.config.i18n[key][language]+'</span>';
+            })
+
+            return translation;             
+        },
+        
         get : function(key){
 
             var translation;

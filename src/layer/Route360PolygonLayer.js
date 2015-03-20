@@ -61,7 +61,8 @@ r360.Route360PolygonLayer = L.Class.extend({
      *
      */
     getBoundingBox : function(){
-        return new L.LatLngBounds(this._bottomLeft, this._topRight)
+
+        return new L.LatLngBounds(this._bottomLeft, this._topRight);
     },
     
     /*
@@ -82,6 +83,11 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     },
 
+    fitMap: function(){
+
+        this._map.fitBounds(this.getBoundingBox());
+    },
+
     /**
      * [clearAndAddLayers description]
      * @param  {[type]} sourceToPolygons [description]
@@ -91,6 +97,8 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         this.clearLayers();
         this.addLayer(sourceToPolygons);
+
+        return this;
     },
     
     /*
@@ -98,8 +106,6 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer:function(sourceToPolygons){        
         
-
-
         var that    = this;
         that.redrawCount = 0;
 
@@ -108,26 +114,20 @@ r360.Route360PolygonLayer = L.Class.extend({
         that._resetBoundingBox();
         that._multiPolygons = new Array();
 
-        if(r360.config.logging) var start_projecting   = new Date().getTime();
+        if ( r360.config.logging ) var start_projecting   = new Date().getTime();
 
-        for(var i = 0; i < sourceToPolygons.length; i++){
-            for(var j = 0; j < sourceToPolygons[i].polygons.length; j++){
-                //if(sourceToPolygons[i].polygons[j].travelTime == 3600){
+        for ( var i = 0; i < sourceToPolygons.length ; i++){
+            for ( var j = 0; j < sourceToPolygons[i].polygons.length ; j++) {
 
-                    sourceToPolygons[i].polygons[j].project(); 
-                 that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
-                 that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
-                //}
-                 
+                sourceToPolygons[i].polygons[j].project(); 
+                that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
+                that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
             }
         }
         
         that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
 
-        if(r360.config.logging){
-            var end = new Date().getTime();
-            console.log("adding layers took " + (end - start));
-        }
+        if (r360.config.logging) console.log("adding layers took " + (new Date().getTime() - start));
 
         that._reset();
     },
@@ -173,8 +173,8 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         var that = this;        
 
-        if (polygon.topRight.lat    > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
-        if (polygon.bottomLeft.lat  < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
+        if ( polygon.topRight.lat   > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
+        if ( polygon.bottomLeft.lat < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
             
         if ( polygon.topRight.lng   > that._topRight.lng )      that._topRight.lng   = polygon.topRight.lng;
         if ( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
@@ -280,7 +280,6 @@ r360.Route360PolygonLayer = L.Class.extend({
 
     _splicePath: function(pathData){
         if(this._isCollinear())
-        console.log
 
         if(pathData.length >= 3){
             if(pathData[pathData.length-1][1] == pathData[pathData.length-2][1] && pathData[pathData.length-2][1] == pathData[pathData.length-3][1]){

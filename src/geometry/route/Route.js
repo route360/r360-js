@@ -61,6 +61,7 @@ r360.Route = function(travelTime, segments){
 
         var elevations = { x : [] , y : []};
         for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
+        // for ( var i = that.getDistance() * 1000 ; i >= 0 ; i = i - 100 ) {
 
             elevations.x.push((i / 1000) + " km" );
             elevations.y.push(that.getElevationAt(i));
@@ -77,7 +78,7 @@ r360.Route = function(travelTime, segments){
     that.getElevationAt = function(meter) {
 
         var currentLength = 0;
-        var points = that.getPoints();
+        var points = that.getPoints().reverse();
 
         for ( var i = 1 ; i < points.length ; i++ ){
 
@@ -179,6 +180,8 @@ r360.Route = function(travelTime, segments){
 
         function addTransferSegment(segment){
 
+            console.log(segment);
+
             addCircularMarker(segment.points[0]);     
 
             // if inter station transfer -> involves two stops -> we need a second circle
@@ -193,8 +196,8 @@ r360.Route = function(travelTime, segments){
                     fillOpacity:    1, 
                     opacity:        1, 
                     stroke:         true, 
-                    weight:         4, 
-                    radius:         7 
+                    weight:         6, 
+                    radius:         10 
                 });         
 
             marker.addTo(map);
@@ -209,7 +212,7 @@ r360.Route = function(travelTime, segments){
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
-            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK" || segment.getType() == "BIKE") )  {
+            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK") )  {
                 polylineOptions.weight    = 7;
                 polylineOptions.dashArray = "1, 10";
             }

@@ -38,6 +38,12 @@ text-shadow: rgba(255, 255, 255, 0.74902) 0px 1px 1px;
 
 }
 
+.r360-box-shadow {
+
+    -webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+}
+
 .travel-type-options {
 
     background-color: white;

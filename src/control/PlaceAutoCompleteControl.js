@@ -48,6 +48,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         that.options.map    = map;
         that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
 
+        // $(nameContainer).addClass("r360-box-shadow");
+
         map.on("resize", that.onResize.bind(that));          
 
         // calculate the width in dependency to the number of buttons attached to the field
@@ -57,7 +59,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         var style = 'style="width:'+ width +'px;"';
 
         that.options.input = 
-            '<div class="input-group autocomplete" '+style+'> \
+            '<div class="input-group autocomplete r360-box-shadow" '+style+'> \
                 <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
                 type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
@@ -77,7 +79,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                     <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadow" style="color: black;width:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
             if ( that.options.options && that.options.options.walk ) 

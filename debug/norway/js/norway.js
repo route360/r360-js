@@ -1,18 +1,16 @@
 $(document).ready(function(){
 
     var latlon = [59.91295532794218, 10.74239730834961];
+    // latlon = [60.260935867848005,11.014480590820312];
 
-    // add the map and set the initial center to berlin
-    var map = L.map('map', {zoomControl : false}).setView(latlon, 12);
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
     var _0e455ea3 = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
     var _0ad4304c = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
-    _0e455ea3.addTo(map);
 
     var currentRoute;
     var elevationData = [];
@@ -26,18 +24,13 @@ $(document).ready(function(){
     var sourceMarker = '';
     var targetMarker = '';
     var travelType   = '';
-    var routeLayer   = L.featureGroup().addTo(map);
-    var sourceLayer  = L.featureGroup().addTo(map);
-    var rentalLayer  = L.featureGroup().addTo(map);
-    var targetLayer  = L.featureGroup().addTo(map);
-    var polygonLayer = r360.route360PolygonLayer().addTo(map);
 
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.i18n.language   = 'de';
+    r360.config.i18n.language   = 'no';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
-    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
+    r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: false, rentandreturnbike : true, init : 'bike' };
@@ -45,14 +38,24 @@ $(document).ready(function(){
     var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : true  , image : 'images/target.png'});
     // sourceAutoComplete.toggleOptions();
 
-    // add the controls to the map
-    map.addControl(sourceAutoComplete);
-    map.addControl(targetAutoComplete);
-    var waitControl = r360.waitControl({ position : 'bottomright' });
-    map.addControl(waitControl);
+    var rentalsLayer            = L.layerGroup();
+    var museumsLayer            = L.layerGroup();
+    var unreachableTargetLayer  = L.layerGroup();
+    var polygonLayer            = r360.route360PolygonLayer();
 
-    var rentalsLayer = L.layerGroup();
-    var museumsLayer = L.layerGroup();
+    var baseLayers = { "Nature": _0e455ea3, "Monochrom": _0ad4304c } ;
+    var overlays   = { //"<span lang='de'>Fahrradleihstationen</span><span lang='en'>Bike Rental Stations</span><span lang='no'>TODO TRANSLATION</span>" : rentalsLayer, 
+                       // "<span lang='de'>Museen</span><span lang='en'>Museums</span><span lang='no'>TODO TRANSLATION</span>" : museumsLayer,
+                       "<span lang='de'>Nicht erreichbare Ziele</span><span lang='en'>Unreachable targets</span><span lang='no'>TODO TRANSLATION</span>" : unreachableTargetLayer,
+                       "<span lang='de'>Reisezeitpolygone</span><span lang='en'>Travel time polygons</span><span lang='no'>TODO TRANSLATION</span>" : polygonLayer };
+
+    // add the map and set the initial center to berlin
+    var map                 = L.map('map', {zoomControl : false, layers : [_0e455ea3, polygonLayer]}).setView(latlon, 12);
+    var routeLayer          = L.featureGroup().addTo(map);
+    var rentalLayer         = L.featureGroup().addTo(map);
+    var targetClickLayer    = L.featureGroup().addTo(map);
+    var targetEntityLayer   = L.featureGroup().addTo(map);
+    var sourceLayer         = L.featureGroup().addTo(map);
 
     _.each(rentals, function(station){
 
@@ -69,28 +72,36 @@ $(document).ready(function(){
          marker.bindPopup("<b>" + station.description + "</b>");
     });
 
-    var poiTypeButtons = r360.radioButtonControl({
+    var poiTypeButtons = r360.checkboxButtonControl({
             buttons : [
-                { label: '<i class="fa fa-university"></i> Museum', key: "tourism='museum'", tooltip: 'English', checked : true },
-                { label: '<i class="fa fa-tint"></i> Badestellen', key: 'no', tooltip: 'Norsk',   checked : false },
-                { label: '<i class="fa fa-beer"></i> Kneipe', key: 'de', tooltip: 'Deutsch', checked : false  }
+                { icon: '<i class="fa fa-university"></i>', label : r360.config.i18n.getSpan('museum'),         key: "tourism='museum'",        checked : true },
+                { icon: '<i class="fa fa-tint"></i>',       label : r360.config.i18n.getSpan('swimming_pool'),  key: "leisure='swimming_pool'", checked : false },
+                { icon: '<i class="fa fa-cutlery"></i>',    label : r360.config.i18n.getSpan('restaurant'),     key: "amenity='restaurant'",    checked : false  }
             ],
-            position : 'bottomleft'
+            position : 'bottomleft',
+            onChange : getPolygons
         });
+    
     var languageButtons = r360.radioButtonControl({
             buttons : [
                 { label: '<img src="images/us.png"></div> en', key: 'en', tooltip: 'English', checked : false },
-                { label: '<img src="images/no.png"></div> no', key: 'no', tooltip: 'Norsk',   checked : false },
-                { label: '<img src="images/de.png"></div> de', key: 'de', tooltip: 'Deutsch', checked : true  }
+                { label: '<img src="images/no.png"></div> no', key: 'no', tooltip: 'Norsk',   checked : true },
+                { label: '<img src="images/de.png"></div> de', key: 'de', tooltip: 'Deutsch', checked : false  }
             ],
-            position : 'bottomleft'
+            position : 'bottomleft',
+            onChange : switchLanguage
         });
-    languageButtons.onChange(switchLanguage);
+
+    // add the controls to the map
+    map.addControl(sourceAutoComplete);
+    map.addControl(targetAutoComplete);
+    var waitControl = r360.waitControl({ position : 'bottomright' });
+    map.addControl(waitControl);
     map.addControl(poiTypeButtons);
     map.addControl(languageButtons);
     switchLanguage(r360.config.i18n.language);
 
-    map.addControl(L.control.layers({ "Nature": _0e455ea3, "Monochrom": _0ad4304c }, { "<span lang='de'>Fahrradleihstationen</span><span lang='en'>Bike Rental Stations</span><span lang='no'>TODO</span>" : rentalsLayer, "<span lang='de'>Museen</span><span lang='en'>Museums</span><span lang='no'>TODO</span>" : museumsLayer }, { position : 'bottomright' }));
+    map.addControl(L.control.layers(baseLayers, overlays, { position : 'bottomright' }));
     map.addControl(L.control.zoom({ position : 'bottomright' }));
     var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
 
@@ -115,8 +126,8 @@ $(document).ready(function(){
         // create a target marker and get the routes for the target
         else {
 
-            targetLayer.clearLayers();
-            targetMarker = createMarker(e.latlng, 'flag-checkered', 'green', targetLayer, updateTarget);
+            targetClickLayer.clearLayers();
+            targetMarker = createMarker(e.latlng, 'flag-checkered', 'green', targetClickLayer, updateTarget);
             updateTarget();
         }
     });
@@ -156,8 +167,8 @@ $(document).ready(function(){
     // if someone selects a new target we need to get new routes
     // and update the marker to the new location
     targetAutoComplete.onSelect(function(item){
-        targetLayer.clearLayers();
-        targetMarker = createMarker(item.latlng, 'flag-checkered', 'green', targetLayer, updateTarget, item.firstRow);
+        targetClickLayer.clearLayers();
+        targetMarker = createMarker(item.latlng, 'flag-checkered', 'green', targetClickLayer, updateTarget, item.firstRow);
         updateTarget();
     });
 
@@ -170,15 +181,15 @@ $(document).ready(function(){
         if ( sourceMarker != '' && targetMarker != '' ) {
 
             var tempMarker = targetMarker;
-            targetMarker = createMarker(sourceMarker.getLatLng(), 'flag-checkered', 'green', targetLayer, updateTarget);
+            targetMarker = createMarker(sourceMarker.getLatLng(), 'flag-checkered', 'green', targetClickLayer, updateTarget);
             sourceMarker = createMarker(tempMarker.getLatLng(), 'home', 'red', sourceLayer, updateSource);
 
             polygonLayer.clearLayers();
             routeLayer.clearLayers();
-            targetLayer.clearLayers();
+            targetClickLayer.clearLayers();
             sourceLayer.clearLayers();
 
-            targetMarker.addTo(targetLayer);
+            targetMarker.addTo(targetClickLayer);
             sourceMarker.addTo(sourceLayer);
 
             var tempValue = targetAutoComplete.getValue();
@@ -198,9 +209,9 @@ $(document).ready(function(){
 
             polygonLayer.clearLayers();
             routeLayer.clearLayers();
-            targetLayer.clearLayers();
+            targetClickLayer.clearLayers();
             sourceLayer.clearLayers();
-            targetMarker = createMarker(sourceMarker.getLatLng(), 'flag-checkered', 'green', targetLayer, updateTarget);
+            targetMarker = createMarker(sourceMarker.getLatLng(), 'flag-checkered', 'green', targetClickLayer, updateTarget);
             sourceMarker = '';
             targetAutoComplete.setValue(sourceAutoComplete.getValue());
             targetAutoComplete.setFieldValue(sourceAutoComplete.getFieldValue());
@@ -212,7 +223,7 @@ $(document).ready(function(){
 
             polygonLayer.clearLayers();
             routeLayer.clearLayers();
-            targetLayer.clearLayers();
+            targetClickLayer.clearLayers();
             sourceLayer.clearLayers();
             sourceMarker = createMarker(targetMarker.getLatLng(), 'home', 'red', sourceLayer, updateSource);
             targetMarker = '';
@@ -229,7 +240,7 @@ $(document).ready(function(){
     targetAutoComplete.onReset(function(){
 
         routeLayer.clearLayers();
-        targetLayer.clearLayers();
+        targetClickLayer.clearLayers();
         targetAutoComplete.reset();
         targetMarker = '';
     });
@@ -241,6 +252,8 @@ $(document).ready(function(){
      */
     function updateAutocomplete(autoComplete, marker){
 
+        marker.name = 'undefined';
+
         // update the street in the autocomplete
         r360.Util.getAddressByCoordinates(marker.getLatLng(), 'de', function(json){
             
@@ -248,7 +261,6 @@ $(document).ready(function(){
             autoComplete.setValue({ firstRow : displayName, latlng : marker.getLatLng(), label : displayName });
             autoComplete.setFieldValue(displayName);
             marker.bindPopup(displayName);
-            marker.name = displayName;
         });
     }
 
@@ -275,7 +287,7 @@ $(document).ready(function(){
      * [updateTarget This method gets new routes and updates the target autocomplete with a reverse geocoding.]
      * @return {[type]} [description]
      */
-    function updateTarget() {
+    function updateTarget(event) {
 
         getRoutes();
         updateAutocomplete(targetAutoComplete, targetMarker);
@@ -293,7 +305,7 @@ $(document).ready(function(){
      */
     function createMarker(latLng, icon, color, layer, dragend, popup){
 
-        var marker = L.marker(latLng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: icon, prefix : 'fa', markerColor: color })}).addTo(layer);
+        var marker = L.marker(latLng, { draggable : true, riseOnHover :  icon == 'home', icon: L.AwesomeMarkers.icon({ icon: icon, prefix : 'fa', markerColor: color })}).addTo(layer);
         if ( typeof popup != 'undefined') marker.bindPopup(popup);
         marker.on('dragend', dragend);
 
@@ -305,13 +317,13 @@ $(document).ready(function(){
      * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the 
      * leaflet marker popup.]
      */
-    function getRoutes(target){
-
-        //route needs to have both source and target
-        if(sourceMarker == '' || targetMarker == '')
-            return;
+    function getRoutes(target, event){
 
         if ( typeof target !== 'undefined') targetMarker = target;
+
+        //route needs to have both source and target
+        if (sourceMarker == '' || targetMarker == '')
+            return;
 
         routeLayer.clearLayers();
 
@@ -327,21 +339,23 @@ $(document).ready(function(){
 
             var data         = [];
             var longestLabel = [];
-            var html        = 
-                (targetMarker.name !== 'undefined' ? "<h3 class='text-center'>"+targetMarker.name+"</h3>" : "") +
+            var name         = (targetMarker.name !== 'undefined' ? "<h4 class='text-center' id='target-name'>"+targetMarker.name+"</h4>" : "");
+            var urlName      = (_.has(targetMarker, 'url') && targetMarker.url  !== 'undefined' ? '<a href="'+targetMarker.url+'" target="_blank">' + name + '</a>' : name);
+            var html = 
+                urlName +
                 '<table class="table table-striped"> \
                     <thead>\
                         <tr>\
-                          <th><span lang="de">Reisezeit</span><span lang="en">Travel time</span><span lang="no">Reisetid</span></th>\
-                          <th><span lang="de">Entfernung</span><span lang="en">Distance</span><span lang="no">Avstand</span></th>\
-                          <th><span lang="de">Höhenunterschied</span><span lang="en">Elevation difference</span><span lang="no">Stigning</span></th>\
+                          <th>'+ r360.config.i18n.getSpan('travelTime')+'</th>\
+                          <th>'+ r360.config.i18n.getSpan('distance')+'</th>\
+                          <th>'+ r360.config.i18n.getSpan('elevation')+'</th>\
                         </tr>\
                     </thead>';
 
             _.each(routes, function(route, index){
 
                 currentRoute = route;
-                route.fadeIn(routeLayer, 500, "travelDistance", { colorr : elevationColors[index].strokeColor, haloColor : "#ffffff" });
+                route.fadeIn(routeLayer, 500, "travelDistance", { color : '#0e4858', haloColor : "#ffffff" });
 
                 html +=
                     '<tr style="margin-top:5px;">\
@@ -388,9 +402,6 @@ $(document).ready(function(){
                 datasets: data
             }, { pointDot : false, scaleShowGridLines: false, showXLabels : 10, showTooltips: false });
             switchLanguage();
-
-            $('.routeModus0').css('background-color', "rgba(" + hexToRgb(elevationColors[0].fillColor).join(', ') + ", " +  elevationColors[0].fillColorOpacity + ")");
-            $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
         },
         function(code, message){ showErrorMessage(code, message); });
     };
@@ -404,19 +415,22 @@ $(document).ready(function(){
                 errorMessage = message;
                 break;
             case 'no-route-found':
-                errorMessage = "Your destination point is not reachable from the given source.";
+                errorMessage = "<span lang='en'>Your destination point is not reachable from the given source.</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
                 break;
             case 'travel-time-exceeded':
-                errorMessage = "The travel time to the given target exceeds the maximal travel time!";
+                errorMessage = "<span lang='en'>The travel time to the given target exceeds the maximal travel time!</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
                 break;
             case 'wrong-configuration':
-                errorMessage = "There was an error with the service configuration!";
+                errorMessage = "<span lang='en'>There was an error with the service configuration!</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
                 break;
             case 'could-not-connect-point-to-network':
-                errorMessage = "Your destination point is not connectable to the main network.";
+                errorMessage = "<span lang='en'>Your destination point is not connectable to the main network.</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
+                break;
+            case 'no-source-marker':
+                errorMessage = "<span lang='en'>Please first select a point on the map or select an entry from the dropdown menu.</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
                 break;
             default: 
-                errorMessage = "There was an error with your request. Please try again.";
+                errorMessage = "<span lang='en'>There was an error with your request. Please try again.</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
         }
 
         var n = noty({
@@ -429,7 +443,8 @@ $(document).ready(function(){
                 close: 'animated zoomOut', // Animate.css class names
                 easing: 'swing', // unavailable - no need
                 speed: 500 // unavailable - no need
-            }
+            },
+            callback : { onShow : switchLanguage }
         });
     };
 
@@ -445,7 +460,8 @@ $(document).ready(function(){
                 close: 'animated zoomOut', // Animate.css class names
                 easing: 'swing', // unavailable - no need
                 speed: 500 // unavailable - no need
-            }
+            },
+            callback : { onShow : switchLanguage }
         });
     };
 
@@ -493,6 +509,18 @@ $(document).ready(function(){
         }
     }
 
+    function getIcon(poi) {
+
+        var faIcon = poi.type == "tourism='museum'"        ? 'university'   : 'home';
+        var color  = poi.type == "tourism='museum'"        ? 'orange'       : 'black';
+        faIcon =     poi.type == "leisure='swimming_pool'" ? 'tint'         : faIcon;
+        color  =     poi.type == "leisure='swimming_pool'" ? 'darkblue'     : color;
+        faIcon =     poi.type == "amenity='restaurant'"    ? 'cutlery'      : faIcon;
+        color  =     poi.type == "amenity='restaurant'"    ? 'purple'       : color;
+
+        return L.marker([poi.lat, poi.lng], { icon : L.AwesomeMarkers.icon({ icon: faIcon, prefix : 'fa', markerColor: color }) });
+    }
+
     /**
      * [getPolygons This method performs a webservice request to the r360 polygon service for the specified source and travel options.
      * The returned travel type polygons are then painted on the map]
@@ -501,24 +529,21 @@ $(document).ready(function(){
     function getPolygons(){
 
         // polygon needs source
-        if(sourceMarker == '')
+        if ( sourceMarker == '' ) {
+
+            showErrorMessage('no-source-marker');
             return;
+        }
 
         var travelOptions = r360.travelOptions();
         travelOptions.addSource(sourceMarker);
         travelOptions.setTravelType(sourceAutoComplete.getTravelType());
         travelOptions.setWaitControl(waitControl);
-
-        if ( sourceAutoComplete.getTravelType() == 'bike' ) {
-
+        setTravelingSpeeds(travelOptions);
+        
+        if ( typeof travelTimeControl !== 'undefined' )
             travelOptions.setTravelTimes(travelTimeControl.getValues());
-            setTravelingSpeeds(travelOptions);    
-        }
-        if ( sourceAutoComplete.getTravelType() == 'walk' ) {
-
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-            setTravelingSpeeds(travelOptions);    
-        }
+        
         if ( sourceAutoComplete.getTravelType() == 'ebike' ) {
 
             travelOptions.setRenderWatts(true);
@@ -528,102 +553,120 @@ $(document).ready(function(){
             travelOptions.setBikeUphill(10);
             travelOptions.setBikeDownhill(-5);
         }
-        if ( sourceAutoComplete.getTravelType() == 'rentbike' ) {
-
-            setTravelingSpeeds(travelOptions);    
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-        }
-        if ( sourceAutoComplete.getTravelType() == 'rentandreturnbike' ) {
-
-            setTravelingSpeeds(travelOptions);    
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-        }
         
         // call the service
         r360.PolygonService.getTravelTimePolygons(travelOptions,
             function(polygons){
 
                 polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
-                polygonLayer.clearAndAddLayers(polygons);
+                polygonLayer.clearAndAddLayers(polygons).fitMap();
 
-                r360.OsmService.getPoisInBoundingBox(map, ["tourism='museum'"], waitControl, function(pois){
+                targetEntityLayer.clearLayers();
+                unreachableTargetLayer.clearLayers();
 
-                    if ( pois.length == 0 ) 
-                        showInfoMessage(noPoisInTravelTime());
-                    else {
-
-                        _.each(pois, function(poi) { travelOptions.addTarget({ lat : poi.lat, lng : poi.lng, id : poi.id }); })
-                        travelOptions.setMaxRoutingTime(_.max(travelOptions.getTravelTimes()));
-
-                        r360.TimeService.getRouteTime(travelOptions, function(sources){
-
-                            var withinTravelTime = 0;
-
-                            _.each(sources[0].targets, function(target){
-
-                                var poi = _.find(pois, function(poi){ return poi.id == target.id ; });
-                                poi.travelTime = target.travelTime;
-
-                                // the travel time to these pois is shorter then the maximum travel width
-                                if ( poi.travelTime > 0 && poi.travelTime <= travelOptions.getMaxRoutingTime() ) {
-
-                                    var marker = L.marker([poi.lat, poi.lng], { icon : L.AwesomeMarkers.icon({ icon: 'university', prefix : 'fa', markerColor: 'green' }) }).addTo(museumsLayer);
-                                    marker.name = (poi.name ? poi.name : "<span lang='en'>Name unknown</span><span lang='de'>Name unbekannt</span><span lang='no'>nevne ukjent</span>");
-
-                                    withinTravelTime++;
-
-                                    marker.on('click mouseovvvvvver', function(){
-
-                                        getRoutes(marker);
-                                    }); 
-                                }
-                            });
-
-                            showInfoMessage(xPoisWithInTravelTime(withinTravelTime));
-                            switchLanguage();
-                        })
-                    }
-
-                                        // _.each(results, function(result){
-
-                                        //     console.log(result);
-
-                                        //     var marker = L.circleMarker([result.lat, result.lng], { 
-                                        //             color:          "white", 
-                                        //             fillColor:      "#FF4D4F", 
-                                        //             fillOpacity:    0.7, 
-                                        //             opacity:        1, 
-                                        //             stroke:         true, 
-                                        //             weight:         3, 
-                                        //             radius:         6 
-                                        //         }).addTo(museumsLayer);
-
-                                        //      marker.bindPopup();
-                                        // })
-                                        // 
-                    
-                    switchLanguage();
-                }, 
-                function() {
-
-                    showErrorMessage();
+                var poiTypes = [];
+                _.each(_.keys(poiTypeButtons.getValue()), function(key){
+                    if ( poiTypeButtons.getValue()[key] == true ) poiTypes.push(key);
                 });
+
+                if ( poiTypes.length != 0 ) {
+
+                    r360.OsmService.getPoisInBoundingBox(undefined, poiTypes, waitControl, function(pois){
+
+                        var notInBoundingBox = [];
+
+                        if ( pois.length == 0 ) 
+                            showInfoMessage(noPoisInTravelTime());
+                        else {
+
+                            _.each(pois, function(poi) { 
+
+                                if ( polygonLayer.getBoundingBox().contains([poi.lat, poi.lng] )  ) 
+                                    travelOptions.addTarget({ lat : poi.lat, lng : poi.lng, id : poi.id }); 
+                                else 
+                                    notInBoundingBox.push(poi);
+                                
+                            })
+                            travelOptions.setMaxRoutingTime(_.max(travelOptions.getTravelTimes()));
+
+                            r360.TimeService.getRouteTime(travelOptions, function(sources){
+
+                                var withinTravelTime = 0;
+
+                                _.each(sources[0].targets, function(target){
+
+                                    var poi = _.find(pois, function(poi){ return poi.id == target.id ; });
+                                    poi.travelTime = travelOptions.getRenderWatts() ? target.travelTime / 3600 : target.travelTime;
+
+                                    // the travel time to these pois is shorter then the maximum travel width
+                                    if ( poi.travelTime > 0 && poi.travelTime <= travelOptions.getMaxRoutingTime() ) {
+
+                                        var marker = getIcon(poi).addTo(targetEntityLayer);
+                                        marker.name = (poi.name ? poi.name : 'undefined');//"<span lang='en'>Name unknown</span><span lang='de'>Name unbekannt</span><span lang='no'>nevne ukjent</span>");
+
+
+if ( marker.name == 'Astrup Fearnley Museet' )
+    console.log(poi.travelTime);
+
+                                        if ( typeof poi.url != 'undefined' )
+                                            marker.url  = /^https?:\/\//i.test(poi.url) ? poi.url : "http://" + poi.url;
+
+                                        withinTravelTime++;
+
+                                        marker.on('click mouseovvvvvver', function(){
+
+                                            targetClickLayer.clearLayers();
+                                            getRoutes(marker);
+                                        });
+                                    }
+                                    else 
+                                        addMarker(poi, unreachableTargetLayer, 0.5);
+                                });
+
+                                _.each(notInBoundingBox, function(poi){
+
+                                    addMarker(poi, unreachableTargetLayer, 0.5);
+                                });
+
+                                showInfoMessage(xPoisWithInTravelTime(withinTravelTime));
+                            })
+                        }
+
+                        switchLanguage();
+                    }, 
+                    function() {
+
+                        showErrorMessage();
+                    });
+                }
             },
             function(code, message){ showErrorMessage(code, message); }
         );
     };
 
+    function addMarker(poi, layer, opacity) {
+
+        var marker = getIcon(poi).addTo(layer);
+        marker.setOpacity(opacity);
+
+        marker.on('click mouseovvvvvver', function(){
+
+            targetClickLayer.clearLayers();
+            getRoutes(marker);
+        });
+    }
+
     function xPoisWithInTravelTime(numberOfPois){
 
         return buildHtmlSpan([{ lang : 'de', text : 'Es wurden ' + numberOfPois + ' Sehenswürdigkeiten in der angegebenen Reisezeit gefunden.'}, 
                                { lang : 'en', text : 'There were ' + numberOfPois + ' point of interests found in the given travel time.'},
-                               { lang : 'no', text : 'TODO'}] );   
+                               { lang : 'no', text : 'TODO TRANSLATION'}] );   
     }
 
     function noPoisInTravelTime() {
         return buildHtmlSpan([{ lang : 'de', text : 'Es wurden in der angegebenen Reisezeit leider keine Sehenswürdigkeiten gefunden.'}, 
                                { lang : 'en', text : 'Unfortunately there were no point of interests found in the given travel time.'},
-                               { lang : 'no', text : 'TODO'}] );
+                               { lang : 'no', text : 'TODO TRANSLATION'}] );
     }
 
     function buildHtmlSpan(strings) {
@@ -672,9 +715,7 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: '<span lang="en">Travel time: </span>\
-                                               <span lang="de">Reisezeit: </span>\
-                                               <span lang="no">Reisetid: </span>', unit : 'min', initValue: 30
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: 15
             });
 
             bikeSpeedButtons = r360.radioButtonControl({
@@ -710,16 +751,14 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: '<span lang="en">Travel time: </span>\
-                                               <span lang="de">Reisezeit: </span>\
-                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: 15
             });
 
             walkSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow', tooltip: 'Walking speed: 4km/h', checked : false },
-                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Walking speed: 5km/h', checked : true  },
-                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast', tooltip: 'Walking speed: 6km/h', checked : false }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: 'Walking speed: 4km/h', checked : false },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: 'Walking speed: 5km/h', checked : true  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: 'Walking speed: 6km/h', checked : false }
                 ]
             });
 
@@ -748,7 +787,7 @@ $(document).ready(function(){
                     { time : 60 * 300 , color : "#F15A24"},
                     { time : 60 * 360 , color : "#C1272D"}
                 ],
-                position : 'topright', label: 'Battery capacity', unit : 'Wh', initValue: 180
+                position : 'topright', label: r360.config.i18n.getSpan('batteryCapacity'), unit : 'Wh', initValue: 180
             });
 
             supportLevelButtons = r360.radioButtonControl({
@@ -783,16 +822,14 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: '<span lang="en">Travel time: </span>\
-                                               <span lang="de">Reisezeit: </span>\
-                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: 15
             });
 
             rentbikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
-                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
-                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
@@ -820,16 +857,14 @@ $(document).ready(function(){
                     { time : 1500 , color : "#F15A24"},
                     { time : 1800 , color : "#C1272D"}
                 ],
-                position : 'topright', label: '<span lang="en">Travel time: </span>\
-                                               <span lang="de">Reisezeit: </span>\
-                                               <span lang="no">TODO: </span>', unit : 'min', initValue: 30
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: 15
             });
 
             rentAndReturnBikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: '<span lang="en">Slow</span><span lang="de">Langsam</span><span lang="no">Sakte</span>',   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
-                    { label: '<span lang="en">Medium</span><span lang="de">Mittel</span><span lang="no">Medium</span>', key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
-                    { label: '<span lang="en">Fast</span><span lang="de">Schnell</span><span lang="no">Raskt</span>',   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: 'Cycling speed: 12km/h', checked : false },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: 'Cycling speed: 17km/h', checked : true  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: 'Cycling speed: 27km/h', checked : false }
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);

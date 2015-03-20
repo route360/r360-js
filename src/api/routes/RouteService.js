@@ -7,8 +7,11 @@ r360.RouteService = {
      */
     getRoutes : function(travelOptions, successCallback, errorCallback) {
 
-        // hide the please wait control
-        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
+        }
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),
@@ -97,7 +100,7 @@ r360.RouteService = {
             // make the request to the Route360° backend 
             $.ajax({
                 url         : r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey,
-                timeout     : 5000,
+                timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
                     

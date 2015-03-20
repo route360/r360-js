@@ -8,8 +8,9 @@ r360.RadioButtonControl = L.Control.extend({
             
             if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
             if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
-            else alert("No buttons supplied!");
+            if ( typeof options.onChange !== 'undefined' ) this.options.onChange = options.onChange;
         }
+        else alert("No buttons supplied!");
     },
 
     onAdd: function (map) {
@@ -70,6 +71,7 @@ r360.RadioButtonControl = L.Control.extend({
         that.options.buttonGroupId = r360.Util.generateId(5);
 
         var div = $('<div/>', { id : that.options.buttonGroupId });
+        div.addClass('r360-box-shadow');
 
         // add each button to the group
         _.each(that.options.buttons, function(button){

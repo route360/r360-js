@@ -219,10 +219,9 @@ r360.Util = {
     parsePolygons : function(polygonsJson) {
                
         if ( polygonsJson.error ) return errorMessage;
+        if ( r360.config.logging) var start   = new Date().getTime();
 
-        if(r360.config.logging) var start   = new Date().getTime();
-
-        var polygonList = Array();
+        var polygonList = [];
 
         _.each(polygonsJson, function(source){
 
@@ -230,19 +229,14 @@ r360.Util = {
 
             _.each(source.polygons, function (polygonJson) {
 
-                var polygon = r360.polygon();
-                polygon.setTravelTime(polygonJson.travelTime);
-                polygon.setArea(polygonJson.area);
+                var polygon = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.Util.parseLatLonArray(polygonJson.outerBoundary));
 
                 var color = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
-                polygon.setColor(typeof color !== 'undefined' ? color.color : '#000000');
+                polygon.setColor(!_.isUndefined(color) ? color.color : '#000000');
                 
                 var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
-                polygon.setOpacity(typeof opacity !== 'undefined' ? opacity.opacity : 1);
+                polygon.setOpacity(!_.isUndefined(opacity) ? opacity.opacity : 1);
                 
-                polygon.setOuterBoundary(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-                polygon.setBoundingBox();
-
                 _.each(polygonJson.innerBoundary, function (innerBoundary) {
                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
                 });

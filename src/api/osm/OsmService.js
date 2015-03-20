@@ -6,23 +6,30 @@ r360.OsmService = {
     /*
      *
      */
-    getPoisInBoundingBox : function(map, tags, waitControl, successCallback, errorCallback) {
+    getPoisInBoundingBox : function(boundingBox, tags, waitControl, successCallback, errorCallback) {
 
-        // hide the please wait control
-        if ( waitControl ) waitControl.show();
+        // swho the please wait control
+        if ( waitControl ) {
+            waitControl.show();
+            waitControl.updateText(r360.config.i18n.getSpan('osmWait'));
+        }
 
         var data = $.param({
-            northEast : map.getBounds()._northEast.lng + '-' + map.getBounds()._northEast.lat,
-            southWest : map.getBounds()._southWest.lng + '-' + map.getBounds()._southWest.lat,
             tags      : tags
         }, true);
+
+        if ( typeof boundingBox !== 'undefined' ) {
+
+            data.northEast = boundingBox._northEast.lng + '|' + boundingBox._northEast.lat;
+            data.southWest = boundingBox._southWest.lng + '|' + boundingBox._southWest.lat;
+        }
 
         if ( !_.has(r360.OsmService.cache, data) ) {
 
             // make the request to the Route360° backend 
             $.ajax({
                 url         : r360.config.osmServiceUrl + 'pois/search?callback=?&' + data,
-                timeout     : 5000,
+                timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
 

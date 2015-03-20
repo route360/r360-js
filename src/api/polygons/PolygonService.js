@@ -8,24 +8,27 @@ r360.PolygonService = {
      */
     getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
 
-        // hide the please wait control
-        if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().show();
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
         cfg.sources = [];
 
-        if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( typeof travelOptions.getTravelTimes()     != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
-             typeof travelOptions.getRenderWatts()     != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+        if ( !_.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !_.isUndefined(travelOptions.getTravelTimes()) || !_.isUndefined(travelOptions.getIntersectionMode()) || 
+             !_.isUndefined(travelOptions.getRenderWatts()) || !_.isUndefined(travelOptions.getSupportWatts()) ) {
 
             cfg.polygon = {};
 
-            if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
-            if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
-            if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
-            if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
-            if ( typeof travelOptions.getMinPolygonHoleSize() != 'undefined' ) cfg.polygon.minPolygonHoleSize     = travelOptions.getMinPolygonHoleSize();
+            if ( !_.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
+            if ( !_.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+            if ( !_.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
+            if ( !_.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
+            if ( !_.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
             
         // add each source point and it's travel configuration to the cfg
@@ -100,7 +103,7 @@ r360.PolygonService = {
             // make the request to the Route360° backend 
             $.ajax({
                 url         : r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
-                timeout     : 5000,
+                timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
 
