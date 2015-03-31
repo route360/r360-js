@@ -28,10 +28,16 @@ r360.RadioButtonControl = L.Control.extend({
             that.options.onChange(that.options.checked);
         });  
 
-
-        $(this.options.input).each(function(){
+        $(this.options.input).each(function(index){
 
             $(this).tooltip({
+                open: function( event, ui ) {
+                    $("[lang='de'], [lang='en'], [lang='no']").hide();
+                    $("[lang='"+r360.config.i18n.language+"']").show();
+                },
+                content: function () {
+                      return $(this).attr('title');
+                },
                 position: {
                     my: "center top+10",
                     at: "center bottom",
@@ -99,7 +105,27 @@ r360.RadioButtonControl = L.Control.extend({
                 input.attr({"checked" : "checked"})
             };
             // add a tooltip if one was provided
-            if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
+            if ( typeof button.tooltip != 'undefined' ) 
+                label.attr({"title" : button.tooltip});//
+                //{
+
+            //     label.tooltip({
+            //         content: "asd",
+            //         position: {
+            //             my: "center top+10",
+            //             at: "center bottom",
+            //             using: function( position, feedback ) {
+            //                 $( this ).css( position );
+            //                 $( "<div>" )
+            //                 .addClass( "arrow top" )
+            //                 .addClass( feedback.vertical )
+            //                 .addClass( feedback.horizontal )
+            //                 .appendTo( this );
+            //             }
+            //         }
+            //     });
+            // }
+                
 
             div.append(input);
             div.append(label);

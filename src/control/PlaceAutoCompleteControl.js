@@ -21,6 +21,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
             if ( _.has(options, 'image'))         this.options.image         = options.image;
             if ( _.has(options, 'index'))         this.options.index         = options.index;
+            if ( _.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -60,7 +61,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         that.options.input = 
             '<div class="input-group autocomplete r360-box-shadow" '+style+'> \
-                <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
+                <input id="autocomplete-'+that.options.id+'" style="color: black;widthe:'+width+'" \
                 type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
@@ -79,7 +80,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                     <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadow" style="color: black;width:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadoww" style="color: black;widtth:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
             if ( that.options.options && that.options.options.walk ) 
@@ -162,9 +163,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             $(nameContainer).find('.travel-type-button').removeClass('active');
             $(this).addClass('active');
 
-            setTimeout(function() {
-                  $('#' + that.options.id + '-options').slideToggle();
-            }, 300);
+            if ( that.options.autoHide ) {
+
+                setTimeout(function() {
+                    $('#' + that.options.id + '-options').slideToggle();
+                }, 300);
+            }
 
             that.options.travelType = $(this).attr('travel-type');
             that.options.onTravelTypeChange();

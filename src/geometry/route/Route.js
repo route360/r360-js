@@ -5,14 +5,20 @@ r360.Route = function(travelTime, segments){
 
     var that             = this;
     that.travelTime      = travelTime;
-    that.routeSegments   = new Array();
+    that.routeSegments   = [];
+    that.points          = [];
     that.uphillMeter     = 0;
     that.downhillMeter   = 0;
     that.targetHeight    = undefined;
     that.sourceHeight    = undefined;
 
-    _.each(segments, function(segment){                
-        that.routeSegments.push(r360.routeSegment(segment));
+    // the server delivers the route from target to source
+    _.each(segments.reverse(), function(segment){                
+
+        var routeSegment = r360.routeSegment(segment);
+        that.routeSegments.push(routeSegment);
+
+        that.points = that.points.concat(routeSegment.getPoints().reverse());            
     });
 
     /*
@@ -61,8 +67,6 @@ r360.Route = function(travelTime, segments){
 
         var elevations = { x : [] , y : []};
         for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
-        // for ( var i = that.getDistance() * 1000 ; i >= 0 ; i = i - 100 ) {
-
             elevations.x.push((i / 1000) + " km" );
             elevations.y.push(that.getElevationAt(i));
         }
@@ -78,12 +82,11 @@ r360.Route = function(travelTime, segments){
     that.getElevationAt = function(meter) {
 
         var currentLength = 0;
-        var points = that.getPoints().reverse();
 
-        for ( var i = 1 ; i < points.length ; i++ ){
+        for ( var i = 1 ; i < that.points.length ; i++ ){
 
-            var previousPoint   =  points[i - 1];
-            var currentPoint    =  points[i];
+            var previousPoint   =  that.points[i - 1];
+            var currentPoint    =  that.points[i];
             var currentDistance =  previousPoint.distanceTo(currentPoint);
 
             currentLength += currentDistance;
@@ -97,16 +100,6 @@ r360.Route = function(travelTime, segments){
      */
     that.getSegments = function(){
         return that.routeSegments;
-    }
-
-    that.getPoints = function() {
-
-        var points = [];
-        _.each(that.routeSegments, function(segment){
-            points = points.concat(segment.getPoints());
-        });
-
-        return points;
     }
 
     that.getUphillElevation = function() {
@@ -123,25 +116,25 @@ r360.Route = function(travelTime, segments){
 
     that.setElevationDifferences = function() {
 
-        var points           = that.getPoints();
         var previousHeight   = undefined; 
         var sourceHeight, targetHeight;
 
-        for ( var i = points.length - 1; i >= 0 ; i-- ) {
+        for ( var i = that.points.length - 1; i >= 0 ; i-- ) {
 
-            if ( i == 0 )                 that.targetHeight = points[i].alt;
-            if ( i == points.length - 1 ) that.sourceHeight = points[i].alt;
+            if ( i == 0 )                       that.targetHeight = that.points[i].alt;
+            if ( i == that.points.length - 1 )  that.sourceHeight = that.points[i].alt;
 
             if ( typeof previousHeight != 'undefined' ) {
 
-                // we go down
-                if ( previousHeight > points[i].alt )  
-                    that.downhillMeter += (previousHeight - points[i].alt);
-                else if ( previousHeight < points[i].alt )
-                    that.uphillMeter += (points[i].alt - previousHeight);
+                // we go up
+                if ( previousHeight > that.points[i].alt )  
+                    that.uphillMeter += (previousHeight - that.points[i].alt);
+                // and down
+                else if ( previousHeight < that.points[i].alt )
+                    that.downhillMeter += (that.points[i].alt - previousHeight);
             }
 
-            previousHeight = points[i].alt;
+            previousHeight = that.points[i].alt;
         }
     }();
 
@@ -157,7 +150,7 @@ r360.Route = function(travelTime, segments){
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-        fadePathSegment(that.routeSegments.length - 1);        
+        fadePathSegment(0);        
 
         function fadePathSegment(z){
 
@@ -173,14 +166,12 @@ r360.Route = function(travelTime, segments){
             }
             else {
                 addTransferSegment(segment); 
-                if(--z >= 0)
+                if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
         }
 
         function addTransferSegment(segment){
-
-            console.log(segment);
 
             addCircularMarker(segment.points[0]);     
 
@@ -224,7 +215,7 @@ r360.Route = function(travelTime, segments){
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces      = millis / 15;
-            var choppedLine = chopLineString(segment.getPoints().reverse(), pieces);
+            var choppedLine = chopLineString(segment.getPoints(), pieces);
             var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(map);
             var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(map);
 
@@ -259,7 +250,7 @@ r360.Route = function(travelTime, segments){
                     fadeLine(polyLine, haloLine, choppedLine, i, z); 
                 }, 15);
             }else{               
-                if(--z >= 0)
+                if(++z < that.routeSegments.length)
                    fadePathSegment(z);
             }
         }

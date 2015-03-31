@@ -1,7 +1,7 @@
 r360.config = {
 
     serviceUrl      : 'https://api.route360.net/api_dev/',
-    serviceUrl      : 'http://localhost:8080/api/',
+    // serviceUrl      : 'http://localhost:8080/api/',
     nominatimUrl    : 'https://geocode.route360.net/',
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
     serviceVersion  : 'v1',
@@ -65,6 +65,7 @@ r360.config = {
         position : 'topleft',
         reset : false,
         reverse : false,
+        autoHide : true,
         placeholder : 'Select source',
         maxRows : 5,
         width : 300
@@ -103,11 +104,15 @@ r360.config = {
     i18n : {
 
         language             : 'en',
-        configuredLangguages : ['en', 'de', 'no'],
+        configuredLanguages  : ['en', 'de', 'no'],
 
         slow                 : { en : 'Slow',
                                  de : 'Langsam', 
                                  no : 'Sakte'},
+
+        low                  : { en : 'Low',
+                                 de : 'Gering', 
+                                 no : 'Lav'},
         
         medium               : { en : 'Medium',
                                  de : 'Mittel', 
@@ -117,17 +122,21 @@ r360.config = {
                                  de : 'Schnell', 
                                  no : 'Raskt' },
 
+        high                 : { en : 'High',
+                                 de : 'Hoch', 
+                                 no : 'Høy' },
+
         departure            : { en : 'Departure',
                                  de : 'Abfahrt', 
                                  no : 'TODO TRANSLATION: '},
         
         placeholderSrc       : { en : 'Select source!',
                                  de : 'Start wählen!',   
-                                 no : 'Velg start!'},
+                                 no : 'Start'},
         
         placeholderTrg       : { en : 'Select target!',
                                  de : 'Ziel wählen!' ,   
-                                 no : 'Velg en destinasjon!' },
+                                 no : 'Mål' },
         
         line                 : { en : 'Line',
                                  de : 'Linie', 
@@ -153,9 +162,9 @@ r360.config = {
                                  de : 'Gesamtzeit', 
                                  no : 'TODO TRANSLATION: ' },
        
-        batteryCapacity      : { en : 'Battery capacity: ',
-                                 de : 'Akkuleistung: ', 
-                                 no : 'TODO TRANSLATION: ' },
+        batteryCapacity      : { en : 'Battery capacity',
+                                 de : 'Akkuleistung', 
+                                 no : 'Batterikapasitet' },
        
         distance             : { en : 'Distance',
                                  de : 'Distanz', 
@@ -167,23 +176,23 @@ r360.config = {
        
         polygonWait          : { en : 'Calculating reachable area!',
                                  de : 'Berechne erreichbare Fläche!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         routeWait            : { en : 'Searching route to target(s)!',
                                  de : 'Suche Route zum Ziel!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         timeWait             : { en : 'Getting travel times to target(s)!',
                                  de : 'Berechne Reisezeiten für Ziele!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         osmWait              : { en : 'Searching for points of interests!',
                                  de : 'Suche nach Sehenswürdigkeiten!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         populationWait       : { en : 'Calculating population statistics!',
                                  de : 'Berechne Bevölkerungsstatistik!',
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
  
         elevation            : { en : 'Elevation',       
                                  de : 'Höhenunterschied',
@@ -195,15 +204,15 @@ r360.config = {
         
         reset                : { en : 'Reset input',     
                                  de : 'Eingeben löschen', 
-                                 no : 'Tilbakestill innspill' },
+                                 no : 'Reset' },
         
         reverse              : { en : 'Switch source and target',   
                                  de : 'Start und Ziel tauschen', 
-                                 no : 'Sett på start og slutt' },
+                                 no : 'Motsatt' },
         
         settings             : { en : 'Switch travel type',   
                                  de : 'Reisemodus wechseln', 
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Reisemåte' },
         
         noRouteFound         : { en : 'No route found!', 
                                  de : 'Keine Route gefunden!',
@@ -221,19 +230,67 @@ r360.config = {
                                  de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
                                  no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION'] },
 
-        museum               : { en : 'Museums', 
-                                 de : 'Museen',
-                                 no : 'Museer' },
+        museum               : { en : 'Museum', 
+                                 de : 'Museum',
+                                 no : 'Museum' },
 
-        swimming_pool        : { en : 'Schwimmbäder', 
-                                 de : 'Swimming pools',
+        swimming_pool        : { en : 'Swimming pool', 
+                                 de : 'Schwimmbad',
                                  no : 'Svømmebassenger' },
 
-        restaurant           : { en : 'Restaurants', 
-                                 de : 'Restaurants',
-                                 no : 'Restauranter' },
+        restaurant           : { en : 'Restaurant', 
+                                 de : 'Restaurant',
+                                 no : 'Restaurant' },
+
+        cinema               : { en : 'Cinema', 
+                                 de : 'Kino',
+                                 no : 'Kino' },
+
+        theater              : { en : 'Theater', 
+                                 de : 'Theater',
+                                 no : 'Teater' },
+
+        library              : { en : 'Library', 
+                                 de : 'Bibliothek',
+                                 no : 'Bibliotek' },
+
+        bike_rental_station  : { en : 'Bike rental station', 
+                                 de : 'Fahrradleihstation',
+                                 no : 'TODO TRANSLATION' },
+
+        cycling_speed_help   : { en : 'Cycling speed: {}km/h', 
+                                 de : 'Fahrradgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h' },
+
+        walking_speed_help   : { en : 'Walk speed: {}km/h', 
+                                 de : 'Laufgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h' },
+
+        ebike_speed_help_fast : { en : 'Little support from the pedelec', 
+                                 de : 'Keine Unterstützung durch das Pedelec',
+                                 no : 'Høy egeninnsats - Liten motorinnsats' },
+
+        ebike_speed_help_medium: { en : 'Medium support from the pedelec', 
+                                 de : 'Mittlere Unterstützung durch das Pedelec',
+                                 no : 'Medium egeninnsats - Medium motorinnsats' },
+
+        ebike_speed_help_slow: { en : 'Full support from the pedelec', 
+                                 de : 'Volle Unterstützung durch das Pedelec',
+                                 no : 'Liten egeninnsats - Høy motorinnsats' },
         
-        getSpan : function(key, langs) {
+
+        switchLanguage : function() {
+
+            var selector = [];
+            _.each(r360.config.i18n.configuredLanguages, function(language){
+                selector.push("[lang='"+language+"']"); 
+            });
+
+            $(selector.join(", ")).hide();
+            $("[lang='"+r360.config.i18n.language+"']").show();
+        },
+
+        getSpan : function(key) {
 
             var translation = "";    
             _.each(_.keys(r360.config.i18n[key]), function(language){
@@ -241,6 +298,22 @@ r360.config = {
             })
 
             return translation;             
+        },
+
+        getSpan : function(key, variables) {
+
+            var translation = "";    
+            _.each(_.keys(r360.config.i18n[key]), function(language){
+
+                var template = r360.config.i18n[key][language];
+                _.each(variables, function(variable){
+                    template = template.replace("{}", variable);
+                })
+
+                translation += '<span lang="' + language + '">' + template + '</span>';
+            })
+
+            return translation == '' ? '_' + key + '_' : translation;             
         },
         
         get : function(key){

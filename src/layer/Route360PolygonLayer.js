@@ -93,10 +93,12 @@ r360.Route360PolygonLayer = L.Class.extend({
      * @param  {[type]} sourceToPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(sourceToPolygons){
+    clearAndAddLayers : function(polygons, fitMap){
 
         this.clearLayers();
-        this.addLayer(sourceToPolygons);
+        this.addLayer(polygons);
+
+        if ( typeof fitBounds !== 'undefined' ) this.fitMap();
 
         return this;
     },

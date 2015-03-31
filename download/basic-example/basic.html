@@ -28,7 +28,6 @@
     <script src="jquery-ui-1.10.4.min.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
-    <script src="raphael-min.js"></script>
     <script src="r360-src.js"></script>
 
      <script type="text/javascript">
@@ -44,12 +43,15 @@
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: attribution
+            }).addTo(map);
 
             // set the service key, this is a demo key
             // please contact us and request your own key
-            r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_developers/';
+            r360.config.serviceKey = 'ENTER YOUR API KEY HERE';
+            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
 
             // create a marker and add it to the map
             var marker = L.marker(latlon).addTo(map);
@@ -66,15 +68,16 @@
             travelOptions.addSource(marker);
             // we want to have polygons for 5 to 30 minutes
             travelOptions.setTravelTimes([300, 600, 900, 1200, 1500, 1800]);
+            // go by foot
+            travelOptions.setTravelType('walk');
 
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
                     
                 // add the returned polygons to the polygon layer 
-                polygonLayer.addLayer(polygons);
+                // and zoom the map to fit the polygons perfectly
+                polygonLayer.clearAndAddLayers(polygons, true);
                 
-                // zoom the map to fit the polygons perfectly
-                map.fitBounds(polygonLayer.getBoundingBox());
             });
         });
     </script>

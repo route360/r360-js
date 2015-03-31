@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (82d3013), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (887ab3f), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -59,7 +59,7 @@ if (!Function.prototype.bind) {
 r360.config = {
 
     serviceUrl      : 'https://api.route360.net/api_dev/',
-    serviceUrl      : 'http://localhost:8080/api/',
+    // serviceUrl      : 'http://localhost:8080/api/',
     nominatimUrl    : 'https://geocode.route360.net/',
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
     serviceVersion  : 'v1',
@@ -123,6 +123,7 @@ r360.config = {
         position : 'topleft',
         reset : false,
         reverse : false,
+        autoHide : true,
         placeholder : 'Select source',
         maxRows : 5,
         width : 300
@@ -161,11 +162,15 @@ r360.config = {
     i18n : {
 
         language             : 'en',
-        configuredLangguages : ['en', 'de', 'no'],
+        configuredLanguages  : ['en', 'de', 'no'],
 
         slow                 : { en : 'Slow',
                                  de : 'Langsam', 
                                  no : 'Sakte'},
+
+        low                  : { en : 'Low',
+                                 de : 'Gering', 
+                                 no : 'Lav'},
         
         medium               : { en : 'Medium',
                                  de : 'Mittel', 
@@ -175,17 +180,21 @@ r360.config = {
                                  de : 'Schnell', 
                                  no : 'Raskt' },
 
+        high                 : { en : 'High',
+                                 de : 'Hoch', 
+                                 no : 'Høy' },
+
         departure            : { en : 'Departure',
                                  de : 'Abfahrt', 
                                  no : 'TODO TRANSLATION: '},
         
         placeholderSrc       : { en : 'Select source!',
                                  de : 'Start wählen!',   
-                                 no : 'Velg start!'},
+                                 no : 'Start'},
         
         placeholderTrg       : { en : 'Select target!',
                                  de : 'Ziel wählen!' ,   
-                                 no : 'Velg en destinasjon!' },
+                                 no : 'Mål' },
         
         line                 : { en : 'Line',
                                  de : 'Linie', 
@@ -211,9 +220,9 @@ r360.config = {
                                  de : 'Gesamtzeit', 
                                  no : 'TODO TRANSLATION: ' },
        
-        batteryCapacity      : { en : 'Battery capacity: ',
-                                 de : 'Akkuleistung: ', 
-                                 no : 'TODO TRANSLATION: ' },
+        batteryCapacity      : { en : 'Battery capacity',
+                                 de : 'Akkuleistung', 
+                                 no : 'Batterikapasitet' },
        
         distance             : { en : 'Distance',
                                  de : 'Distanz', 
@@ -225,23 +234,23 @@ r360.config = {
        
         polygonWait          : { en : 'Calculating reachable area!',
                                  de : 'Berechne erreichbare Fläche!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         routeWait            : { en : 'Searching route to target(s)!',
                                  de : 'Suche Route zum Ziel!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         timeWait             : { en : 'Getting travel times to target(s)!',
                                  de : 'Berechne Reisezeiten für Ziele!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         osmWait              : { en : 'Searching for points of interests!',
                                  de : 'Suche nach Sehenswürdigkeiten!' ,  
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
        
         populationWait       : { en : 'Calculating population statistics!',
                                  de : 'Berechne Bevölkerungsstatistik!',
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Vennligst vent!' },
  
         elevation            : { en : 'Elevation',       
                                  de : 'Höhenunterschied',
@@ -253,15 +262,15 @@ r360.config = {
         
         reset                : { en : 'Reset input',     
                                  de : 'Eingeben löschen', 
-                                 no : 'Tilbakestill innspill' },
+                                 no : 'Reset' },
         
         reverse              : { en : 'Switch source and target',   
                                  de : 'Start und Ziel tauschen', 
-                                 no : 'Sett på start og slutt' },
+                                 no : 'Motsatt' },
         
         settings             : { en : 'Switch travel type',   
                                  de : 'Reisemodus wechseln', 
-                                 no : 'TODO TRANSLATION' },
+                                 no : 'Reisemåte' },
         
         noRouteFound         : { en : 'No route found!', 
                                  de : 'Keine Route gefunden!',
@@ -279,19 +288,67 @@ r360.config = {
                                  de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
                                  no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION'] },
 
-        museum               : { en : 'Museums', 
-                                 de : 'Museen',
-                                 no : 'Museer' },
+        museum               : { en : 'Museum', 
+                                 de : 'Museum',
+                                 no : 'Museum' },
 
-        swimming_pool        : { en : 'Schwimmbäder', 
-                                 de : 'Swimming pools',
+        swimming_pool        : { en : 'Swimming pool', 
+                                 de : 'Schwimmbad',
                                  no : 'Svømmebassenger' },
 
-        restaurant           : { en : 'Restaurants', 
-                                 de : 'Restaurants',
-                                 no : 'Restauranter' },
+        restaurant           : { en : 'Restaurant', 
+                                 de : 'Restaurant',
+                                 no : 'Restaurant' },
+
+        cinema               : { en : 'Cinema', 
+                                 de : 'Kino',
+                                 no : 'Kino' },
+
+        theater              : { en : 'Theater', 
+                                 de : 'Theater',
+                                 no : 'Teater' },
+
+        library              : { en : 'Library', 
+                                 de : 'Bibliothek',
+                                 no : 'Bibliotek' },
+
+        bike_rental_station  : { en : 'Bike rental station', 
+                                 de : 'Fahrradleihstation',
+                                 no : 'TODO TRANSLATION' },
+
+        cycling_speed_help   : { en : 'Cycling speed: {}km/h', 
+                                 de : 'Fahrradgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h' },
+
+        walking_speed_help   : { en : 'Walk speed: {}km/h', 
+                                 de : 'Laufgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h' },
+
+        ebike_speed_help_fast : { en : 'Little support from the pedelec', 
+                                 de : 'Keine Unterstützung durch das Pedelec',
+                                 no : 'Høy egeninnsats - Liten motorinnsats' },
+
+        ebike_speed_help_medium: { en : 'Medium support from the pedelec', 
+                                 de : 'Mittlere Unterstützung durch das Pedelec',
+                                 no : 'Medium egeninnsats - Medium motorinnsats' },
+
+        ebike_speed_help_slow: { en : 'Full support from the pedelec', 
+                                 de : 'Volle Unterstützung durch das Pedelec',
+                                 no : 'Liten egeninnsats - Høy motorinnsats' },
         
-        getSpan : function(key, langs) {
+
+        switchLanguage : function() {
+
+            var selector = [];
+            _.each(r360.config.i18n.configuredLanguages, function(language){
+                selector.push("[lang='"+language+"']"); 
+            });
+
+            $(selector.join(", ")).hide();
+            $("[lang='"+r360.config.i18n.language+"']").show();
+        },
+
+        getSpan : function(key) {
 
             var translation = "";    
             _.each(_.keys(r360.config.i18n[key]), function(language){
@@ -299,6 +356,22 @@ r360.config = {
             })
 
             return translation;             
+        },
+
+        getSpan : function(key, variables) {
+
+            var translation = "";    
+            _.each(_.keys(r360.config.i18n[key]), function(language){
+
+                var template = r360.config.i18n[key][language];
+                _.each(variables, function(variable){
+                    template = template.replace("{}", variable);
+                })
+
+                translation += '<span lang="' + language + '">' + template + '</span>';
+            })
+
+            return translation == '' ? '_' + key + '_' : translation;             
         },
         
         get : function(key){
@@ -1977,6 +2050,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
             if ( _.has(options, 'image'))         this.options.image         = options.image;
             if ( _.has(options, 'index'))         this.options.index         = options.index;
+            if ( _.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
             if ( _.has(options, 'options')) {
 
                  this.options.options    = options.options;
@@ -2016,7 +2090,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         that.options.input = 
             '<div class="input-group autocomplete r360-box-shadow" '+style+'> \
-                <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
+                <input id="autocomplete-'+that.options.id+'" style="color: black;widthe:'+width+'" \
                 type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
@@ -2035,7 +2109,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                     <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
 
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadow" style="color: black;width:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadoww" style="color: black;widtth:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
             if ( that.options.options && that.options.options.walk ) 
@@ -2118,9 +2192,12 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             $(nameContainer).find('.travel-type-button').removeClass('active');
             $(this).addClass('active');
 
-            setTimeout(function() {
-                  $('#' + that.options.id + '-options').slideToggle();
-            }, 300);
+            if ( that.options.autoHide ) {
+
+                setTimeout(function() {
+                    $('#' + that.options.id + '-options').slideToggle();
+                }, 300);
+            }
 
             that.options.travelType = $(this).attr('travel-type');
             that.options.onTravelTypeChange();
@@ -2858,10 +2935,16 @@ r360.RadioButtonControl = L.Control.extend({
             that.options.onChange(that.options.checked);
         });  
 
-
-        $(this.options.input).each(function(){
+        $(this.options.input).each(function(index){
 
             $(this).tooltip({
+                open: function( event, ui ) {
+                    $("[lang='de'], [lang='en'], [lang='no']").hide();
+                    $("[lang='"+r360.config.i18n.language+"']").show();
+                },
+                content: function () {
+                      return $(this).attr('title');
+                },
                 position: {
                     my: "center top+10",
                     at: "center bottom",
@@ -2929,7 +3012,27 @@ r360.RadioButtonControl = L.Control.extend({
                 input.attr({"checked" : "checked"})
             };
             // add a tooltip if one was provided
-            if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
+            if ( typeof button.tooltip != 'undefined' ) 
+                label.attr({"title" : button.tooltip});//
+                //{
+
+            //     label.tooltip({
+            //         content: "asd",
+            //         position: {
+            //             my: "center top+10",
+            //             at: "center bottom",
+            //             using: function( position, feedback ) {
+            //                 $( this ).css( position );
+            //                 $( "<div>" )
+            //                 .addClass( "arrow top" )
+            //                 .addClass( feedback.vertical )
+            //                 .addClass( feedback.horizontal )
+            //                 .appendTo( this );
+            //             }
+            //         }
+            //     });
+            // }
+                
 
             div.append(input);
             div.append(label);
@@ -2982,6 +3085,13 @@ r360.CheckboxButtonControl = L.Control.extend({
         $(this.options.input).each(function(){
 
             $(this).tooltip({
+                open: function( event, ui ) {
+                    $("[lang='de'], [lang='en'], [lang='no']").hide();
+                    $("[lang='"+r360.config.i18n.language+"']").show();
+                },
+                content: function () {
+                      return $(this).attr('title');
+                },
                 position: {
                     my: "center top+10",
                     at: "center bottom",
@@ -3465,14 +3575,20 @@ r360.Route = function(travelTime, segments){
 
     var that             = this;
     that.travelTime      = travelTime;
-    that.routeSegments   = new Array();
+    that.routeSegments   = [];
+    that.points          = [];
     that.uphillMeter     = 0;
     that.downhillMeter   = 0;
     that.targetHeight    = undefined;
     that.sourceHeight    = undefined;
 
-    _.each(segments, function(segment){                
-        that.routeSegments.push(r360.routeSegment(segment));
+    // the server delivers the route from target to source
+    _.each(segments.reverse(), function(segment){                
+
+        var routeSegment = r360.routeSegment(segment);
+        that.routeSegments.push(routeSegment);
+
+        that.points = that.points.concat(routeSegment.getPoints().reverse());            
     });
 
     /*
@@ -3521,8 +3637,6 @@ r360.Route = function(travelTime, segments){
 
         var elevations = { x : [] , y : []};
         for ( var i = 0 ; i < that.getDistance() * 1000 ; i = i + 100 ) {
-        // for ( var i = that.getDistance() * 1000 ; i >= 0 ; i = i - 100 ) {
-
             elevations.x.push((i / 1000) + " km" );
             elevations.y.push(that.getElevationAt(i));
         }
@@ -3538,12 +3652,11 @@ r360.Route = function(travelTime, segments){
     that.getElevationAt = function(meter) {
 
         var currentLength = 0;
-        var points = that.getPoints().reverse();
 
-        for ( var i = 1 ; i < points.length ; i++ ){
+        for ( var i = 1 ; i < that.points.length ; i++ ){
 
-            var previousPoint   =  points[i - 1];
-            var currentPoint    =  points[i];
+            var previousPoint   =  that.points[i - 1];
+            var currentPoint    =  that.points[i];
             var currentDistance =  previousPoint.distanceTo(currentPoint);
 
             currentLength += currentDistance;
@@ -3557,16 +3670,6 @@ r360.Route = function(travelTime, segments){
      */
     that.getSegments = function(){
         return that.routeSegments;
-    }
-
-    that.getPoints = function() {
-
-        var points = [];
-        _.each(that.routeSegments, function(segment){
-            points = points.concat(segment.getPoints());
-        });
-
-        return points;
     }
 
     that.getUphillElevation = function() {
@@ -3583,25 +3686,25 @@ r360.Route = function(travelTime, segments){
 
     that.setElevationDifferences = function() {
 
-        var points           = that.getPoints();
         var previousHeight   = undefined; 
         var sourceHeight, targetHeight;
 
-        for ( var i = points.length - 1; i >= 0 ; i-- ) {
+        for ( var i = that.points.length - 1; i >= 0 ; i-- ) {
 
-            if ( i == 0 )                 that.targetHeight = points[i].alt;
-            if ( i == points.length - 1 ) that.sourceHeight = points[i].alt;
+            if ( i == 0 )                       that.targetHeight = that.points[i].alt;
+            if ( i == that.points.length - 1 )  that.sourceHeight = that.points[i].alt;
 
             if ( typeof previousHeight != 'undefined' ) {
 
-                // we go down
-                if ( previousHeight > points[i].alt )  
-                    that.downhillMeter += (previousHeight - points[i].alt);
-                else if ( previousHeight < points[i].alt )
-                    that.uphillMeter += (points[i].alt - previousHeight);
+                // we go up
+                if ( previousHeight > that.points[i].alt )  
+                    that.uphillMeter += (previousHeight - that.points[i].alt);
+                // and down
+                else if ( previousHeight < that.points[i].alt )
+                    that.downhillMeter += (that.points[i].alt - previousHeight);
             }
 
-            previousHeight = points[i].alt;
+            previousHeight = that.points[i].alt;
         }
     }();
 
@@ -3617,7 +3720,7 @@ r360.Route = function(travelTime, segments){
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-        fadePathSegment(that.routeSegments.length - 1);        
+        fadePathSegment(0);        
 
         function fadePathSegment(z){
 
@@ -3633,14 +3736,12 @@ r360.Route = function(travelTime, segments){
             }
             else {
                 addTransferSegment(segment); 
-                if(--z >= 0)
+                if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
         }
 
         function addTransferSegment(segment){
-
-            console.log(segment);
 
             addCircularMarker(segment.points[0]);     
 
@@ -3684,7 +3785,7 @@ r360.Route = function(travelTime, segments){
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces      = millis / 15;
-            var choppedLine = chopLineString(segment.getPoints().reverse(), pieces);
+            var choppedLine = chopLineString(segment.getPoints(), pieces);
             var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(map);
             var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(map);
 
@@ -3719,7 +3820,7 @@ r360.Route = function(travelTime, segments){
                     fadeLine(polyLine, haloLine, choppedLine, i, z); 
                 }, 15);
             }else{               
-                if(--z >= 0)
+                if(++z < that.routeSegments.length)
                    fadePathSegment(z);
             }
         }
@@ -3896,10 +3997,12 @@ r360.Route360PolygonLayer = L.Class.extend({
      * @param  {[type]} sourceToPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(sourceToPolygons){
+    clearAndAddLayers : function(polygons, fitMap){
 
         this.clearLayers();
-        this.addLayer(sourceToPolygons);
+        this.addLayer(polygons);
+
+        if ( typeof fitBounds !== 'undefined' ) this.fitMap();
 
         return this;
     },

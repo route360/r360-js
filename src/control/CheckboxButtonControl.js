@@ -37,6 +37,13 @@ r360.CheckboxButtonControl = L.Control.extend({
         $(this.options.input).each(function(){
 
             $(this).tooltip({
+                open: function( event, ui ) {
+                    $("[lang='de'], [lang='en'], [lang='no']").hide();
+                    $("[lang='"+r360.config.i18n.language+"']").show();
+                },
+                content: function () {
+                      return $(this).attr('title');
+                },
                 position: {
                     my: "center top+10",
                     at: "center bottom",

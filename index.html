@@ -77,7 +77,16 @@
                     <li class="page-scroll">
                         <a href="#gettingStarted">Getting started</a>
                     </li>
-                    <li class="page-scroll" style="display:none;">
+                    <li class="dropdown page-scroll">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Services <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#maps">Maps</a></li>
+                            <li><a href="#software">Custom Software</a></li>
+                            <!-- <li class="divider"></li> -->
+                            <!-- <li><a href="#use-cases">Use cases</a></li> -->
+                        </ul>
+                    </li>
+                    <li class="page-scroll" style="display:noene;">
                         <a href="#demo">Demo</a>
                     </li>
                     <li class="page-scroll">
@@ -85,9 +94,6 @@
                     </li>
                     <li class="page-scroll">
                         <a href="#api">API</a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#maps">Maps</a>
                     </li>
                     <li class="page-scroll">
                         <a href="#faq">FAQ</a>
@@ -123,7 +129,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-12 text-center">
+                <div class="col-lg-12 col-lg-oaffset-1 text-centeer">
                     <div>
                         <p><i class="fa fa-caret-right"></i> Generate polygons which represent the area which is reachable from a given source point</p>
                         <p><i class="fa fa-caret-right"></i> Support for walk, car, bike, E-bike and transit routing</p>
@@ -131,6 +137,8 @@
                         <p><i class="fa fa-caret-right"></i> Detailed routing information from source to target (travel time, transit trips, etc.)</p>
                         <p><i class="fa fa-caret-right"></i> Get routing information for hundreds of POIs in a single request in milliseconds</p>
                         <p><i class="fa fa-caret-right"></i> Support for elevation data</p>
+                        <p><i class="fa fa-caret-right"></i> In collaboration with:</p>
+                        <p><img src="img/hpi_logo.jpg" class="img-responsive" style="width: 200px; margin: 0 auto;"> </p>
                     </div>
                     <div id="screenshots" style="margin-top: 45px;">
                         <h3>Screenshots</h3>
@@ -236,6 +244,44 @@
         </div>
     </section>
 
+    <section class="tutorials maps">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2><i class="fa fa-wrench"></i> Our Services</h2>
+                    <hr class="star-light">
+                    <p>The Route360° service is a product of the Motion Intelligence Gmbh. We provide our technology as <i>software as a service</i>, but we also offer other services. In case you need help please don't hesitate to contact us at <code><a href="mailto:developers@route360.net">developers@route360.net</a></code>.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12" id="maps">
+                    <h3><i class="fa fa-globe"></i> Map styles <small style="color: white">You need your own beautiful custom map style that fits your design?</small></h3>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-lg-6">
+                    <div id="map-one"></div>
+                    <h4 style="text-align: left;">Example: Low contrast</h4>
+                </div>
+                <div class="col-lg-6">
+                    <div id="map-two"></div>
+                    <h4 style="text-align: left;">Example: Focus on nature</h4>
+                </div>
+            </div>
+            <hr class="star-light">
+            <div class="row" id="software">
+                <div class="col-lg-6">
+                    <h3><i class="fa fa-code"></i> API customization and integration <small style="color: white">You need a feature that is not already offered by our services?</small></h3>
+                    <p>In case that our Route360° service or the open source javascript API does not provide the features you like, we would be happy develop them for you. Also, we can integrate our technology into your existing product.</p>
+                </div>
+                <div class="col-lg-6">
+                    <h3><i class="fa fa-wrench"></i> Full-fledged web application development <small style="color: white">You have an idea but no development experience?</small></h3>
+                    <p>We can help you build state of the art web applications with user management, point of interest databases and a tight integration of our Route360° services.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
      <!-- <section class="success demo" id="demo">
         <div class="container">
             <div class="row">
@@ -261,6 +307,30 @@
         </div>
     </section> -->
 
+    <section class="success demo" id="demo">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2><a href="#demo" style="color:white; text-decoration: none;">Population statistics demo</a></h2>
+                    <hr class="star-light">
+                </div>
+            </div>
+            <div class="row">
+                    <p>To showcase our technology we have prepared a little <a href="http://population.route360.net" target="_blank">demostration</a> where you can find out how many people you can reach within a given travel time and type. Since the city of Berlin publishes demographics data on a very fine grained level and OpenStreetMaps provides us with the polygons for buildings, we are able approximate the number of persons living in any given building. Combined with our <code>TimeService</code> we can build beautiful animations (also thanks to <a href="http://www.chartjs.org/">charts.js</a>) on the reachable population.
+                        <div class="bs-callout bs-callout-info">
+                            <h4>Customization</h4>
+                            <p>
+                                In case you also want to have this for your city/region or you want to integrate other demographic statistics please drop us an email to <code><a style="color: #c7254e" href="mailto:developers@route360.net">developers@route360.net</a></code>. We will then check out for you, if data for your region is available and build custom webservices to fit your customers needs. 
+                            </p>
+                    </div>
+                 </p>
+                 <a href="http://population.route360.net" target="_blank">
+                    <img class="img-responsive" src="img/demo/stats_pict.png">
+                </a>
+                <!-- <iframe id="demo-iframe" frameBorder="0" src="http://population.route360.net/"></iframe> -->
+            </div>
+        </div>
+    </section>
 
     <section class="tutorials" id="tutorials">
         <div class="container">
@@ -508,36 +578,6 @@
                             Something went wrong during your registration. Please try again or contact us at <a href="mailto:developers@route360.net">developers@route360.net</a>.
                         </p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="success maps" id="maps">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <h2><i class="fa fa-globe"></i> Custom Maps</h2>
-                    <hr class="star-light">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <p>
-                        You need your own custom map style? Please contact us at <code><a href="mailto:developers@route360.net">developers@route360.net</a></code> and we will generate a beautiful map style that fits <i>your</i> design.
-                    </p>    
-                </div>
-            </div>
-            <div class="row text-center">
-                <h1>Example: Low contrast</h1>
-                <div class="col-lg-12">
-                    <div id="map-one"></div>
-                </div>
-            </div>
-            <div class="row text-center" style="margin-top: 20px;">
-                <h1>Example: Focus on nature</h1>
-                <div class="col-lg-12">
-                    <div id="map-two"></div>
                 </div>
             </div>
         </div>
