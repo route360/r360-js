@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (887ab3f), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (43330c9), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -740,6 +740,7 @@ r360.TravelOptions = function(){
 
     this.time               = undefined;
     this.date               = undefined;
+    this.recommendations    = undefined;
     this.errors             = [];
 
     this.intersectionMode   = undefined;
@@ -1074,6 +1075,26 @@ r360.TravelOptions = function(){
     this.getIntersectionMode = function(){
 
         return this.intersectionMode;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getRecommendations = function(){
+
+        return this.recommendations;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setRecommendations = function(recommendations){
+
+        this.recommendations = recommendations;
     }
     
     /*
@@ -1521,6 +1542,7 @@ r360.RouteService = {
                 src.tm.transit.frame = {};
                 if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
                 if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                if ( !_.isUndefined(travelOptions.getRecommendations()) ) src.tm.transit.recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -2003,7 +2025,7 @@ r360.PopulationService = {
                         // cache the result
                         r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parsePolygons(result));
+                        successCallback(result);
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response

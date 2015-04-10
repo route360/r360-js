@@ -133,7 +133,7 @@ r360.PopulationService = {
                         // cache the result
                         r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parsePolygons(result));
+                        successCallback(result);
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response

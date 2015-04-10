@@ -37,6 +37,7 @@ r360.RouteService = {
                 src.tm.transit.frame = {};
                 if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
                 if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                if ( !_.isUndefined(travelOptions.getRecommendations()) ) src.tm.transit.recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 

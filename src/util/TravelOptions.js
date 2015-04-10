@@ -24,6 +24,7 @@ r360.TravelOptions = function(){
 
     this.time               = undefined;
     this.date               = undefined;
+    this.recommendations    = undefined;
     this.errors             = [];
 
     this.intersectionMode   = undefined;
@@ -358,6 +359,26 @@ r360.TravelOptions = function(){
     this.getIntersectionMode = function(){
 
         return this.intersectionMode;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getRecommendations = function(){
+
+        return this.recommendations;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setRecommendations = function(recommendations){
+
+        this.recommendations = recommendations;
     }
     
     /*

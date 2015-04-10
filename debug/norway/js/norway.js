@@ -4,7 +4,7 @@ $(document).ready(function(){
     // latlon = [60.260935867848005,11.014480590820312];
 
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ='<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox © OpenStreetMap</a> | DEM © <a href="http://www.kartverket.no/" target="_blank">Kartverket</a> | Utviklet av <a href="http://www.route360.net/" target="_blank">Route360°</a> for <a href="http://www.forbrukerradet.no/" target="_blank">Forbrukerrådet</a>';
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..

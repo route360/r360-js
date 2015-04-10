@@ -240,8 +240,7 @@
             var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
             // showPolygons();
 
-            homeMarker.on('dragend', function(){         //showPolygons(); 
-            });
+            homeMarker.on('dragend', function(){         showPolygons(); });
             intersectionModeButtons.onChange(function(){ showPolygons(); });
             renderingModeButtons.onChange(function(){    showPolygons(); });
             supportLevelButtons.onChange(function(){     showPolygons(); });
@@ -280,7 +279,7 @@
                 travelOptions.setTime('35000');
                 travelOptions.setDate('20140825');
                 travelOptions.setTime('39000');
-                travelOptions.setTravelTimes([3600,7200,10800,14400,18000]);
+                travelOptions.setTravelTimes([600,1200,1800]);
                 travelOptions.setElevationEnabled(elevationButtons.getValue());
                 travelOptions.setRenderWatts(renderingModeButtons.getValue());
 
@@ -307,6 +306,8 @@
                     polygonLayer.clearAndAddLayers(polygons);
                 });
             }
+
+            showPolygons();
 
             function showRoutes(){
 
@@ -354,7 +355,7 @@
                 // });
             }
 
-            showRoutes();
+            // showRoutes();
 });
     </script>
 </head>
