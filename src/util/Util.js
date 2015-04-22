@@ -261,9 +261,9 @@ r360.Util = {
 
         var routes = new Array();
 
-        _.each(json.routes, function(jsonRoute){
-            routes.push(r360.route(jsonRoute.travelTime, jsonRoute.segments));
-        });
+        for(var i = 0; i < json.routes.length; i++){
+            routes.push(r360.route(json.routes[i].travelTime, json.routes[i].segments));
+        }
 
         return routes;
     },
