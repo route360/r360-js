@@ -39,6 +39,7 @@ $(document).ready(function(){
     r360.config.i18n.language   = 'no';
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
+    r360.config.serviceUrl      = 'http://dev.route360.net/api_norway_0.0.3/';
     // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
@@ -104,6 +105,8 @@ $(document).ready(function(){
             buttons : [
                 { label: '<img src="images/no.png"></div> no', key: 'no', tooltip: 'Norsk',   checked : true },
                 { label: '<img src="images/us.png"></div> en', key: 'en', tooltip: 'English', checked : false },
+                { label: '<i class="fa fa-info-circle"></i>', key: 'info', tooltip: r360.config.i18n.getSpan('info'), checked : false },
+                { label: '<i class="fa fa-expand"></i>', key: 'fullscreen', tooltip: r360.config.i18n.getSpan('fullscreen'), checked : false },
                 // { label: '<img src="images/de.png"></div> de', key: 'de', tooltip: 'Deutsch', checked : false  }
             ],
             position : 'bottomleft',
@@ -369,7 +372,8 @@ $(document).ready(function(){
         travelOptions.setElevationEnabled(true);
         travelOptions.setTravelType(sourceAutoComplete.getTravelType());
         travelOptions.setWaitControl(waitControl);
-        travelOptions.addTarget(targetMarker);
+        travelOptions.addTarget({lat:59.924458004935055,lng:10.740053057670593});
+        // travelOptions.addTarget(targetMarker);
         setTravelingSpeeds(travelOptions);
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
@@ -619,7 +623,7 @@ $(document).ready(function(){
 
                 polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
                 polygonLayer.clearAndAddLayers(polygons);//.fitMap();
-                callback();
+                if ( typeof callback == 'function' ) callback();
 
                 targetEntityLayer.clearLayers();
                 unreachableTargetLayer.clearLayers();
@@ -753,12 +757,27 @@ $(document).ready(function(){
 
     function switchLanguage() {
 
-        r360.config.i18n.language = languageButtons.getValue();
-        $("[lang='de'], [lang='en'], [lang='no']").hide();
-        $("[lang='"+languageButtons.getValue()+"']").show();
+        if ( _.contains(['de', 'en', 'no'], languageButtons.getValue())  ) {
 
-        sourceAutoComplete.updateI18n(true);
-        targetAutoComplete.updateI18n(false);
+            r360.config.i18n.language = languageButtons.getValue();
+            $("[lang='de'], [lang='en'], [lang='no']").hide();
+            $("[lang='"+languageButtons.getValue()+"']").show();
+
+            sourceAutoComplete.updateI18n(true);
+            targetAutoComplete.updateI18n(false);
+        }
+        else if ( languageButtons.getValue() == 'info' ) {
+
+            languageButtons.setValue(r360.config.i18n.language);
+            switchLanguage();
+            window.open('http://www.forbrukerradet.no/side/sjekk-hvor-langt-du-kan-sykle-p%C3%A5-kort-tid','_blank');
+        }
+        else if ( languageButtons.getValue() == 'fullscreen' ) {
+
+            languageButtons.setValue(r360.config.i18n.language);
+            switchLanguage();
+            window.open('http://sykledit.route360.net','_blank');
+        }
     }
 
     function addControls() {

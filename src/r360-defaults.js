@@ -106,6 +106,14 @@ r360.config = {
         language             : 'en',
         configuredLanguages  : ['en', 'de', 'no'],
 
+        info                 : { en : 'More information',
+                                 de : 'Mehr informationen', 
+                                 no : 'Mer Informasjon'},
+
+        fullscreen           : { en : 'Fullscreen',
+                                 de : 'Vollbild', 
+                                 no : 'Fullskjerm'},
+
         slow                 : { en : 'Slow',
                                  de : 'Langsam', 
                                  no : 'Sakte'},

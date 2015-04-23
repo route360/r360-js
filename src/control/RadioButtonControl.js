@@ -60,8 +60,17 @@ r360.RadioButtonControl = L.Control.extend({
     },
 
     onChange: function (func){
-
         this.options.onChange = func;      
+    },
+
+    setValue: function(key) {
+
+        $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "']:checked").next().removeClass("ui-state-active");
+        var a = $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "'][key='"+key+"']");
+        a.attr("checked", true);
+        a.addClass('checked');
+        a.next().addClass( "ui-state-active" );
+        this.options.checked = key;
     },
 
     getValue: function(){

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (33b75fd), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (885b527), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -163,6 +163,14 @@ r360.config = {
 
         language             : 'en',
         configuredLanguages  : ['en', 'de', 'no'],
+
+        info                 : { en : 'More information',
+                                 de : 'Mehr informationen', 
+                                 no : 'Mer Informasjon'},
+
+        fullscreen           : { en : 'Fullscreen',
+                                 de : 'Vollbild', 
+                                 no : 'Fullskjerm'},
 
         slow                 : { en : 'Slow',
                                  de : 'Langsam', 
@@ -2996,8 +3004,17 @@ r360.RadioButtonControl = L.Control.extend({
     },
 
     onChange: function (func){
-
         this.options.onChange = func;      
+    },
+
+    setValue: function(key) {
+
+        $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "']:checked").next().removeClass("ui-state-active");
+        var a = $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "'][key='"+key+"']");
+        a.attr("checked", true);
+        a.addClass('checked');
+        a.next().addClass( "ui-state-active" );
+        this.options.checked = key;
     },
 
     getValue: function(){
@@ -4442,8 +4459,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                     
                     var color   = mp.getColor();
                     var opacity = mp.getOpacity();
-
-                    console.log(mp);
                     
                     if ( r360.config.logging ) 
                         var start_raphael  = new Date().getTime();
