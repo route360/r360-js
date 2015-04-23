@@ -40,7 +40,6 @@ $(document).ready(function(){
     r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
     r360.config.serviceUrl      = 'http://dev.route360.net/api_norway_0.0.3/';
-    // r360.config.serviceUrl      = 'http://localhost:8080/api/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: false, rentandreturnbike : true, init : 'bike' };
@@ -68,20 +67,24 @@ $(document).ready(function(){
 
     _0e455ea3.addTo(map);
 
+    var bikeRentalIcon = L.icon({
+        iconUrl: 'images/rentalBike.png',
+        
+
+        iconSize:     [25, 25], // size of the icon
+      
+        iconAnchor:   [12.5, 12.5], // point of the icon which will correspond to marker's location
+       
+        popupAnchor:  [0, -12.5] // point from which the popup should open relative to the iconAnchor
+    });
+
     _.each(rentals, function(station){
 
-        // var marker = L.circleMarker([station.lat, station.lng], { 
-        //             color:          "white", 
-        //             fillColor:      "#FF4D4F", 
-        //             fillOpacity:    0.7, 
-        //             opacity:        1, 
-        //             stroke:         true, 
-        //             weight:         3, 
-        //             radius:         6 
-        //         }).addTo(rentalsLayer);
 
-        var marker = createMarker([station.lat, station.lng], 'bicycle', 'darkblue', rentalsLayer);
-
+        var marker = L.marker([station.lat, station.lng],  
+                    {icon: bikeRentalIcon}
+                ).addTo(rentalsLayer);
+        
         marker.bindPopup("<div class='text-center'>" + (station.description.length > 0 ? station.description : r360.config.i18n.getSpan('bike_rental_station')) + "</div>");
         marker.on('click', function(){ switchLanguage(r360.config.i18n.language)});
     });
@@ -572,7 +575,7 @@ $(document).ready(function(){
             var support = supportLevelButtons.getValue();
 
             travelOptions.setRenderWatts(true);
-            travelOptions.setSupportWatts(support == 'slow' ? 0 : support == 'medium' ? 75 : 150);
+            travelOptions.setSupportWatts(support == 'slow' ? 20 : support == 'medium' ? 37 : 54);
             travelOptions.setTravelTimes([travelWattControl.getMaxValue() / 60]);
             travelOptions.setBikeSpeed(20);
             travelOptions.setBikeUphill(10);
