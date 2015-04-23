@@ -260,15 +260,19 @@ r360.config = {
 
         cycling_speed_help   : { en : 'Cycling speed: {}km/h', 
                                  de : 'Fahrradgeschwindigkeit: {}km/h',
-                                 no : 'Fart: {}km/h' },
+                                 no : 'G Fart: {}km/h, Fart: {}km/h' },
 
         walking_speed_help   : { en : 'Walk speed: {}km/h', 
                                  de : 'Laufgeschwindigkeit: {}km/h',
                                  no : 'Fart: {}km/h' },
 
+        walking_and_cycling_speed_help  : { en : 'Walk speed: {}km/h, Cycling speed: {}km/h', 
+                                 de : 'Laufgeschwindigkeit: {}km/h, Fahrradgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h (Gå), Fart: {}km/h (Sykle)' },
+
         ebike_speed_help_fast : { en : 'Little support from the pedelec', 
                                  de : 'Keine Unterstützung durch das Pedelec',
-                                 no : 'Høy egeninnsats - Liten motorinnsats' },
+                                 no : 'Høy egeninnsats - Lav motorinnsats' },
 
         ebike_speed_help_medium: { en : 'Medium support from the pedelec', 
                                  de : 'Mittlere Unterstützung durch das Pedelec',
@@ -276,8 +280,11 @@ r360.config = {
 
         ebike_speed_help_slow: { en : 'Full support from the pedelec', 
                                  de : 'Volle Unterstützung durch das Pedelec',
-                                 no : 'Liten egeninnsats - Høy motorinnsats' },
-        
+                                 no : 'Lav egeninnsats - Høy motorinnsats' },
+
+        contribution:          { en : 'Personal contribution', 
+                                 de : 'Eigenleistung',
+                                 no : 'Egeninnsats' },
 
         switchLanguage : function() {
 

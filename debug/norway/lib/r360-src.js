@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (887ab3f), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (33b75fd), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -318,15 +318,19 @@ r360.config = {
 
         cycling_speed_help   : { en : 'Cycling speed: {}km/h', 
                                  de : 'Fahrradgeschwindigkeit: {}km/h',
-                                 no : 'Fart: {}km/h' },
+                                 no : 'G Fart: {}km/h, Fart: {}km/h' },
 
         walking_speed_help   : { en : 'Walk speed: {}km/h', 
                                  de : 'Laufgeschwindigkeit: {}km/h',
                                  no : 'Fart: {}km/h' },
 
+        walking_and_cycling_speed_help  : { en : 'Walk speed: {}km/h, Cycling speed: {}km/h', 
+                                 de : 'Laufgeschwindigkeit: {}km/h, Fahrradgeschwindigkeit: {}km/h',
+                                 no : 'Fart: {}km/h (Gå), Fart: {}km/h (Sykle)' },
+
         ebike_speed_help_fast : { en : 'Little support from the pedelec', 
                                  de : 'Keine Unterstützung durch das Pedelec',
-                                 no : 'Høy egeninnsats - Liten motorinnsats' },
+                                 no : 'Høy egeninnsats - Lav motorinnsats' },
 
         ebike_speed_help_medium: { en : 'Medium support from the pedelec', 
                                  de : 'Mittlere Unterstützung durch das Pedelec',
@@ -334,8 +338,11 @@ r360.config = {
 
         ebike_speed_help_slow: { en : 'Full support from the pedelec', 
                                  de : 'Volle Unterstützung durch das Pedelec',
-                                 no : 'Liten egeninnsats - Høy motorinnsats' },
-        
+                                 no : 'Lav egeninnsats - Høy motorinnsats' },
+
+        contribution:          { en : 'Personal contribution', 
+                                 de : 'Eigenleistung',
+                                 no : 'Egeninnsats' },
 
         switchLanguage : function() {
 
@@ -649,9 +656,9 @@ r360.Util = {
 
         var routes = new Array();
 
-        _.each(json.routes, function(jsonRoute){
-            routes.push(r360.route(jsonRoute.travelTime, jsonRoute.segments));
-        });
+        for(var i = 0; i < json.routes.length; i++){
+            routes.push(r360.route(json.routes[i].travelTime, json.routes[i].segments));
+        }
 
         return routes;
     },
@@ -740,6 +747,7 @@ r360.TravelOptions = function(){
 
     this.time               = undefined;
     this.date               = undefined;
+    this.recommendations    = undefined;
     this.errors             = [];
 
     this.intersectionMode   = undefined;
@@ -1074,6 +1082,26 @@ r360.TravelOptions = function(){
     this.getIntersectionMode = function(){
 
         return this.intersectionMode;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getRecommendations = function(){
+
+        return this.recommendations;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setRecommendations = function(recommendations){
+
+        this.recommendations = recommendations;
     }
     
     /*
@@ -1521,6 +1549,7 @@ r360.RouteService = {
                 src.tm.transit.frame = {};
                 if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
                 if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                if ( !_.isUndefined(travelOptions.getRecommendations()) ) src.tm.transit.recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1597,7 +1626,7 @@ r360.RouteService = {
                         if ( result.code == 'ok' ) {
 
                             // cache the result
-                            r360.RouteService.cache[JSON.stringify(cfg)] = result.data;
+                            r360.RouteService.cache[JSON.stringify(cfg)] = JSON.parse(JSON.stringify(result.data));
                             // call successCallback with returned results
                             successCallback(r360.Util.parseRoutes(result.data));
                         }
@@ -1610,7 +1639,7 @@ r360.RouteService = {
                     else {
 
                         // cache the result
-                        r360.RouteService.cache[JSON.stringify(cfg)] = result;
+                        r360.RouteService.cache[JSON.stringify(cfg)] = JSON.parse(JSON.stringify(result));
                         // call successCallback with returned results
                         successCallback(r360.Util.parseRoutes(result));
                     }
@@ -1631,7 +1660,7 @@ r360.RouteService = {
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
-            successCallback(r360.Util.parseRoutes(r360.RouteService.cache[JSON.stringify(cfg)])); 
+            successCallback(r360.Util.parseRoutes(JSON.parse(JSON.stringify(r360.RouteService.cache[JSON.stringify(cfg)])))); 
         }
     }
 };
@@ -2003,7 +2032,7 @@ r360.PopulationService = {
                         // cache the result
                         r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parsePolygons(result));
+                        successCallback(result);
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
@@ -4413,6 +4442,8 @@ r360.Route360PolygonLayer = L.Class.extend({
                     
                     var color   = mp.getColor();
                     var opacity = mp.getOpacity();
+
+                    console.log(mp);
                     
                     if ( r360.config.logging ) 
                         var start_raphael  = new Date().getTime();

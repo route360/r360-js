@@ -22,7 +22,7 @@ $(document).ready(function(){
     }];
 
     r360.config.defaultTravelTimeControlOptions.travelTimes = [
-        { time : 300  * 2, color : "#006837", opacity : 0.1 },
+        { time : 300  * 2, color : "#006837", opacity : 1.0 },
         { time : 600  * 2, color : "#39B54A", opacity : 0.2 },
         { time : 900  * 2, color : "#8CC63F", opacity : 0.3 },
         { time : 1200 * 2, color : "#F7931E", opacity : 0.4 },
@@ -55,7 +55,6 @@ $(document).ready(function(){
     var baseLayers = { "Nature": _0e455ea3, "Monochrom": _0ad4304c } ;
     var overlays   = { "<span lang='de'>Nicht erreichbare Ziele</span><span lang='en'>Unreachable targets</span><span lang='no'>Ikke oppnåelige mål</span>"    : unreachableTargetLayer,
                        "<span lang='de'>Reisezeitpolygone</span><span lang='en'>Travel time polygons</span><span lang='no'>Tilgjengelig overflate</span>"         : polygonLayer,
-                       // "<span lang='de'>Fahrradleihstationen</span><span lang='en'>Bike Rental Stations</span><span lang='no'>TODO TRANSLATION</span>"      : rentalsLayer 
                    };
 
     // add the map and set the initial center to berlin
@@ -70,15 +69,17 @@ $(document).ready(function(){
 
     _.each(rentals, function(station){
 
-        var marker = L.circleMarker([station.lat, station.lng], { 
-                    color:          "white", 
-                    fillColor:      "#FF4D4F", 
-                    fillOpacity:    0.7, 
-                    opacity:        1, 
-                    stroke:         true, 
-                    weight:         3, 
-                    radius:         6 
-                }).addTo(rentalsLayer);
+        // var marker = L.circleMarker([station.lat, station.lng], { 
+        //             color:          "white", 
+        //             fillColor:      "#FF4D4F", 
+        //             fillOpacity:    0.7, 
+        //             opacity:        1, 
+        //             stroke:         true, 
+        //             weight:         3, 
+        //             radius:         6 
+        //         }).addTo(rentalsLayer);
+
+        var marker = createMarker([station.lat, station.lng], 'bicycle', 'darkblue', rentalsLayer);
 
         marker.bindPopup("<div class='text-center'>" + (station.description.length > 0 ? station.description : r360.config.i18n.getSpan('bike_rental_station')) + "</div>");
         marker.on('click', function(){ switchLanguage(r360.config.i18n.language)});
@@ -121,6 +122,16 @@ $(document).ready(function(){
     map.addControl(L.control.layers({}, overlays, { position : 'bottomright' }));
     map.addControl(L.control.zoom({ position : 'bottomright' }));
     var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
+
+    // get the coordinates from the browser
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position){
+            var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
+
+            sourceMarker = createMarker(latlng, 'home', 'red', sourceLayer, updateSource);
+            updateSource();
+        });
+    }
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
@@ -298,8 +309,9 @@ $(document).ready(function(){
      */
     function updateSource() {
 
-        map.panTo(sourceMarker.getLatLng());
-        getPolygons();
+        getPolygons(function(){
+            map.panTo(sourceMarker.getLatLng())
+        });
         updateAutocomplete(sourceAutoComplete, sourceMarker);
     }
 
@@ -345,7 +357,9 @@ $(document).ready(function(){
         if (sourceMarker == '' || targetMarker == '' )
             return;
 
-        routeLayer.clearLayers();
+        // routeLayer.clearLayers();
+        map.removeLayer(routeLayer);
+        routeLayer = L.featureGroup().addTo(map);
 
         if ( !map.hasLayer(targetMarker) )
             return; 
@@ -469,7 +483,7 @@ $(document).ready(function(){
                 errorMessage = "";
                 break;
             default: 
-                errorMessage = "<span lang='en'>There was an error with your request. Please try again.</span><span lang='no'>TODO TRANSLATION</span><span lang='de'>TODO TRANSLATION</span>";
+                errorMessage = "<span lang='en'>There was an error with your request. Please try again.</span><span lang='no'>Det var en feil med din forespørsel. Vennligst prøv igjen.</span><span lang='de'>TODO TRANSLATION</span>";
         }
 
         if ( errorMessage != "" ) {
@@ -581,7 +595,7 @@ $(document).ready(function(){
      * The returned travel type polygons are then painted on the map]
      * @return {[type]} [description]
      */
-    function getPolygons(){
+    function getPolygons(callback){
 
         // polygon needs source
         if ( sourceMarker == '' ) {
@@ -605,6 +619,7 @@ $(document).ready(function(){
 
                 polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
                 polygonLayer.clearAndAddLayers(polygons);//.fitMap();
+                callback();
 
                 targetEntityLayer.clearLayers();
                 unreachableTargetLayer.clearLayers();
@@ -771,9 +786,9 @@ $(document).ready(function(){
 
             bikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('cycling_speed_help', [12]), checked : speedModi == 'slow' },
-                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('cycling_speed_help', [17]), checked : speedModi == 'medium'  },
-                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('cycling_speed_help', [27]), checked : speedModi == 'fast' }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [4,12]), checked : speedModi == 'slow' },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [5,17]), checked : speedModi == 'medium'  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [6,27]), checked : speedModi == 'fast' }
                 ]
             });
 
@@ -807,9 +822,9 @@ $(document).ready(function(){
 
             walkSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('walking_speed_help', [12]), checked : speedModi == 'slow' },
-                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('walking_speed_help', [17]), checked : speedModi == 'medium'  },
-                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('walking_speed_help', [27]), checked : speedModi == 'fast' }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [4,12]), checked : speedModi == 'slow' },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [5,17]), checked : speedModi == 'medium'  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [6,27]), checked : speedModi == 'fast' }
                 ]
             });
 
@@ -831,19 +846,19 @@ $(document).ready(function(){
 
             travelWattControl       = r360.travelTimeControl({
                 travelTimes     : [
-                    { time : 60 * 60 , color : "#006837"}, 
-                    { time : 60 * 120  , color : "#39B54A"},
-                    { time : 60 * 180  , color : "#8CC63F"},
-                    { time : 60 * 240 , color : "#F7931E"},
-                    { time : 60 * 300 , color : "#F15A24"},
-                    { time : 60 * 360 , color : "#C1272D"}
+                    { time : 60 * 100 , color : "#fff", opacity : 1.0}, // #d5d5d5 -> grey
+                    { time : 60 * 200 , color : "#fff", opacity : 1.0},
+                    { time : 60 * 300 , color : "#fff", opacity : 1.0},
+                    { time : 60 * 400 , color : "#fff", opacity : 1.0},
+                    { time : 60 * 500 , color : "#fff", opacity : 1.0},
+                    { time : 60 * 600 , color : "#fff", opacity : 1.0}
                 ],
-                position : 'topright', label: r360.config.i18n.getSpan('batteryCapacity'), unit : 'Wh', initValue: 180
+                position : 'topright', label: r360.config.i18n.getSpan('batteryCapacity'), unit : 'Wh', initValue: 300
             });
 
             supportLevelButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: r360.config.i18n.getSpan('low'),    key: 'slow',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_slow'),   checked : speedModi == 'slow' },
+                    { label: r360.config.i18n.getSpan('low') + " "+ r360.config.i18n.getSpan('contribution'),    key: 'slow',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_slow'),   checked : speedModi == 'slow' },
                     { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('ebike_speed_help_medium'), checked : speedModi == 'medium'  },
                     { label: r360.config.i18n.getSpan('high'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_fast'),   checked : speedModi == 'fast' }
                 ]});
@@ -878,9 +893,9 @@ $(document).ready(function(){
 
             rentAndReturnBikeSpeedButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('cycling_speed_help', [12]), checked : speedModi == 'slow' },
-                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('cycling_speed_help', [17]), checked : speedModi == 'medium'  },
-                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('cycling_speed_help', [27]), checked : speedModi == 'fast' }
+                    { label: r360.config.i18n.getSpan('slow'),   key: 'slow',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [4,12]), checked : speedModi == 'slow' },
+                    { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [5,17]), checked : speedModi == 'medium'  },
+                    { label: r360.config.i18n.getSpan('fast'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('walking_and_cycling_speed_help', [6,27]), checked : speedModi == 'fast' }
                 ]});
 
             travelTimeControl.onSlideStop(getPolygons);
