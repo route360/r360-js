@@ -165,7 +165,9 @@ r360.Route = function(travelTime, segments){
                 fader(segment, timeToDraw, colors, z); 
             }
             else {
-                addTransferSegment(segment); 
+                
+                if ( _.has(colors, 'paintTransfer') && colors.paintTransfer ) addTransferSegment(segment); 
+                
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
@@ -187,8 +189,8 @@ r360.Route = function(travelTime, segments){
                     fillOpacity:    1, 
                     opacity:        1, 
                     stroke:         true, 
-                    weight:         6, 
-                    radius:         10 
+                    weight:         4, 
+                    radius:         8 
                 });         
 
             marker.addTo(map);

@@ -9,8 +9,8 @@ $(document).ready(function(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service
-    var _0e455ea3 = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
-    var _0ad4304c = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution });
+    var _0e455ea3 = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 22, attribution: attribution });
+    var _0ad4304c = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 22, attribution: attribution });
 
     var currentRoute;
     var elevationData = [];
@@ -69,12 +69,8 @@ $(document).ready(function(){
 
     var bikeRentalIcon = L.icon({
         iconUrl: 'images/rentalBike.png',
-        
-
         iconSize:     [25, 25], // size of the icon
-      
         iconAnchor:   [12.5, 12.5], // point of the icon which will correspond to marker's location
-       
         popupAnchor:  [0, -12.5] // point from which the popup should open relative to the iconAnchor
     });
 
@@ -398,7 +394,7 @@ $(document).ready(function(){
 
             _.each(routes, function(route, index){
 
-                route.fadeIn(routeLayer, 500, "travelDistance", { color : '#0e4858', haloColor : "#ffffff" });
+                route.fadeIn(routeLayer, 500, "travelDistance", { color : '#0e4858', haloColor : "#ffffff", paintTransfer : true });
 
                 html +=
                     '<tr style="margin-top:5px;">\
@@ -803,7 +799,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 30 : travelTimeControl.getMaxValue() / 60
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             bikeSpeedButtons = r360.radioButtonControl({
@@ -839,7 +835,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 30 : travelTimeControl.getMaxValue() / 60
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             walkSpeedButtons = r360.radioButtonControl({
@@ -910,7 +906,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 30 : travelTimeControl.getMaxValue() / 60
+                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             rentAndReturnBikeSpeedButtons = r360.radioButtonControl({
