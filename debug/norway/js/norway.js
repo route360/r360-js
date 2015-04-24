@@ -375,8 +375,8 @@ $(document).ready(function(){
         travelOptions.setElevationEnabled(true);
         travelOptions.setTravelType(sourceAutoComplete.getTravelType());
         travelOptions.setWaitControl(waitControl);
-        travelOptions.addTarget({lat:59.924458004935055,lng:10.740053057670593});
-        // travelOptions.addTarget(targetMarker);
+        //travelOptions.addTarget({lat:59.924458004935055,lng:10.740053057670593});
+        travelOptions.addTarget(targetMarker);
         setTravelingSpeeds(travelOptions);
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
@@ -575,7 +575,7 @@ $(document).ready(function(){
             var support = supportLevelButtons.getValue();
 
             travelOptions.setRenderWatts(true);
-            travelOptions.setSupportWatts(support == 'slow' ? 20 : support == 'medium' ? 37 : 54);
+            travelOptions.setSupportWatts(support == 'slow' ? 20 : support == 'medium' ? 40 : 54);
             travelOptions.setTravelTimes([travelWattControl.getMaxValue() / 60]);
             travelOptions.setBikeSpeed(20);
             travelOptions.setBikeUphill(10);
