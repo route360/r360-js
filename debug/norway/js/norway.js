@@ -1,5 +1,28 @@
 $(document).ready(function(){
 
+    var QueryString = function () {
+      // This function is anonymous, is executed immediately and 
+      // the return value is assigned to QueryString!
+      var query_string = {};
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+            // If first entry with this name
+        if (typeof query_string[pair[0]] === "undefined") {
+          query_string[pair[0]] = pair[1];
+            // If second entry with this name
+        } else if (typeof query_string[pair[0]] === "string") {
+          var arr = [ query_string[pair[0]], pair[1] ];
+          query_string[pair[0]] = arr;
+            // If third or later entry with this name
+        } else {
+          query_string[pair[0]].push(pair[1]);
+        }
+      } 
+        return query_string;
+    } ();
+
     var latlon = [59.91295532794218, 10.74239730834961];
     // latlon = [60.260935867848005,11.014480590820312];
 
@@ -43,6 +66,9 @@ $(document).ready(function(){
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: false, rentandreturnbike : true, init : 'bike' };
+    if ( typeof QueryString.travelType != 'undefined' && (QueryString.travelType == 'bike' || QueryString.travelType == 'ebike' || QueryString.travelType == 'walk'  || QueryString.travelType == 'rentandreturnbike' ) )
+        options.init = QueryString.travelType;
+
     var sourceAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select source!', reset : true, reverse : false , showOnStartup : true, image : 'images/source.png', autoHide : false, options : options});
     var targetAutoComplete = r360.placeAutoCompleteControl({ country : "Norge", placeholder : 'Select target!', reset : true, reverse : true  , image : 'images/target.png'});
     // sourceAutoComplete.toggleOptions();
@@ -876,7 +902,7 @@ $(document).ready(function(){
 
             supportLevelButtons = r360.radioButtonControl({
                 buttons : [
-                    { label: r360.config.i18n.getSpan('low') + " "+ r360.config.i18n.getSpan('contribution'),    key: 'slow',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_slow'),   checked : speedModi == 'slow' },
+                    { label: r360.config.i18n.getSpan('low_contribution'),    key: 'slow',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_slow'),   checked : speedModi == 'slow' },
                     { label: r360.config.i18n.getSpan('medium'), key: 'medium', tooltip: r360.config.i18n.getSpan('ebike_speed_help_medium'), checked : speedModi == 'medium'  },
                     { label: r360.config.i18n.getSpan('high'),   key: 'fast',   tooltip: r360.config.i18n.getSpan('ebike_speed_help_fast'),   checked : speedModi == 'fast' }
                 ]});

@@ -294,6 +294,10 @@ r360.config = {
                                  de : 'Eigenleistung',
                                  no : 'Egeninnsats' },
 
+        low_contribution:      { en : 'Low personal contribution', 
+                                 de : 'Geringe Eigenleistung',
+                                 no : 'Lav Egeninnsats' },
+
         switchLanguage : function() {
 
             var selector = [];
