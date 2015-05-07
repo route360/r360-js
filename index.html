@@ -351,6 +351,7 @@
                         <li><a id="filter-nav" href="#filter">Filter by travel time</a></li>
                         <li><a id="multiple-nav" href="#multiple">Intersection of polygons</a></li>
                         <li><a id="inverse-nav" href="#inverse">Using black and white polygons</a></li>
+                        <li><a id="color-route-nav" href="#color-route">Custom colors for routes</a></li>
                         <li><a id="htmlControl-nav" href="#htmlControl">Using a custom Html control</a></li>
                         <li><a id="errorHandling-nav" href="#errorHandling">Handle errors from the server</a></li>
                     </ul>
@@ -669,7 +670,7 @@
     <!-- End Piwik Code -->
 
     <script src="lib/jquery/jquery-1.10.2.js"></script>
-    // <script src="lib/bootstrap/bootstrap.min.js"></script>
+    <script src="lib/bootstrap/bootstrap.min.js"></script>
     <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
     <script src="lib/jquery/jquery.validate.min.js"></script>
     <!-- // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> -->
@@ -699,6 +700,7 @@
     <script src="lib/r360/examples/htmlControlExample.js"></script>
     <script src="lib/r360/examples/gettingStartedExample.js"></script>
     <script src="lib/r360/examples/inverseExample.js"></script>
+    <script src="lib/r360/examples/colorRouteExample.js"></script>
     <script src="lib/r360/examples/errorHandlingExample.js"></script>
 
     <!-- Code for example 1 -->
@@ -916,6 +918,33 @@
 
                 inverseExample();
                 $('#inverseExample').text(inverseExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#color-route-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#color-route-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Displaying polygons in black and white </h3> \
+                        <p class="text-justify lead"> \
+                            Sometimes it might be helpful to not display the colored areas that can be reached from a certain location \
+                            but to hide areas that are not reachable. In order to do that we created the black and white polygons, or inverse \
+                            polygonization as we call it. If you only request a single travel time, and this is probably the most common use case \
+                            for this feature (but you can specify as much as you want, see the example below), you can dramatically decrease \
+                            processing time on the server side and as a side effect decrease the size of the returned polygon. This might be \
+                            especially helpful in mobile environments, where bandwidth is the limit. Additionally, this also helps on slower \
+                            machines (mobile phones aren\'t super computers, yet) to convert the returned polygon to SVG. Zooming and panning \
+                            should be much smoother with this setting. <br> \
+                            You can also adjust the surrounding background color and its opacity as the example shows. \
+                        </p> \
+                        <div id="map-colorRouteExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="colorRouteExample"></pre>');
+
+                colorRouteExample();
+                $('#colorRouteExample').text(colorRouteExample.toString());
                 !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
             });
 

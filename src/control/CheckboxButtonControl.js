@@ -75,12 +75,18 @@ r360.CheckboxButtonControl = L.Control.extend({
         return this.options.checked;
     },
 
+    getId: function(){
+
+        return this.id;
+    },
+
     getCheckboxButtonHTML: function(){
 
         var that = this; 
 
         // generate an ID for the complete button group
         that.options.buttonGroupId = r360.Util.generateId(5);
+        that.id = that.options.buttonGroupId;
 
         var div = $('<div/>', { id : that.options.buttonGroupId });
         div.addClass('r360-box-shadow');

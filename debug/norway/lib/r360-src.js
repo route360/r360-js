@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (4f9bc89), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (14e8555), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2742,7 +2742,9 @@ r360.TravelTimeControl = L.Control.extend({
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
         this.options.labelSpan = this.options.label;
 
-        if ( this.options.icon != 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
+        console.log(this.options);
+
+        if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
         var unitSpan = $('<span/>', {"text" : this.options.unit});
@@ -3173,12 +3175,18 @@ r360.CheckboxButtonControl = L.Control.extend({
         return this.options.checked;
     },
 
+    getId: function(){
+
+        return this.id;
+    },
+
     getCheckboxButtonHTML: function(){
 
         var that = this; 
 
         // generate an ID for the complete button group
         that.options.buttonGroupId = r360.Util.generateId(5);
+        that.id = that.options.buttonGroupId;
 
         var div = $('<div/>', { id : that.options.buttonGroupId });
         div.addClass('r360-box-shadow');
@@ -3641,6 +3649,25 @@ r360.Route = function(travelTime, segments){
         that.points = that.points.concat(routeSegment.getPoints().reverse());            
     });
 
+    that.equals = function(route) {
+        return that.getKey() === route.getKey();
+    };
+
+    that.getKey = function(){
+
+        var key     = travelTime;
+        var points  = "";
+
+        _.each(that.getSegments(), function(segment){ 
+            
+            key += " " + segment.getRouteShortName() + " " + segment.getDepartureTime() + " " + segment.getArrivalTime();
+
+            _.each(segment.getPoints(), function(point){ points += " " + point.lat + "" + point.lng; });
+        });
+
+        return key + points;
+    }
+
     /*
      *
      */
@@ -3765,7 +3792,7 @@ r360.Route = function(travelTime, segments){
         return that.travelTime;
     }
 
-    that.fadeIn = function(map, drawingTime, fadingType, colors, onClick){
+    that.fadeIn = function(map, drawingTime, fadingType, options, onClick){
 
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
@@ -3782,11 +3809,13 @@ r360.Route = function(travelTime, segments){
 
             // transfer don't have a linestring, just a point
             if ( segment.getType() != "TRANSFER" ) {
-                fader(segment, timeToDraw, colors, z); 
+                fader(segment, timeToDraw, options, z); 
             }
             else {
                 
-                if ( _.has(colors, 'paintTransfer') && colors.paintTransfer ) addTransferSegment(segment); 
+                if ( typeof options === 'undefined' || !_.has(options, 'paintTransfer') || 
+                    (_.has(options, 'paintTransfer') && options.paintTransfer) ) 
+                    addTransferSegment(segment); 
                 
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
@@ -3804,8 +3833,8 @@ r360.Route = function(travelTime, segments){
 
         function addCircularMarker(latLng) {
             var marker = L.circleMarker(latLng, { 
-                    color:          typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor(), 
-                    fillColor:      typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    color:          typeof options != 'undefined' && _.has(options, 'color') ? options.color : segment.getColor(), 
+                    fillColor:      typeof options != 'undefined' && _.has(options, 'haloColor') ? options.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
                     fillOpacity:    1, 
                     opacity:        1, 
                     stroke:         true, 
@@ -3818,10 +3847,10 @@ r360.Route = function(travelTime, segments){
         }
         
 
-        function fader(segment, millis, colors, z){
+        function fader(segment, millis, options, z){
 
             var polylineOptions         = {};
-            polylineOptions.color       = typeof colors != 'undefined' && _.has(colors, 'color') ? colors.color : segment.getColor();
+            polylineOptions.color       = typeof options != 'undefined' && _.has(options, 'color') ? options.color : segment.getColor();
             polylineOptions.opacity     = 0.8;
             polylineOptions.weight      = 5;
 
@@ -3833,7 +3862,7 @@ r360.Route = function(travelTime, segments){
             var polylineHaloOptions     = {};
             polylineHaloOptions.weight  = 10;
             polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = typeof colors != 'undefined' && _.has(colors, 'haloColor') ? colors.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.color   = typeof options != 'undefined' && _.has(options, 'haloColor') ? options.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces      = millis / 15;

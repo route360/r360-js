@@ -263,6 +263,7 @@
                 r360.RouteService.getRoutes(travelOptions, function(routes) {
                     _.each(routes, function(route){
 
+                        console.log(route.getTravelTime());
                         route.fadeIn(routeLayer, 500, "travelDistance");
                     });
                 });
@@ -279,7 +280,7 @@
                 travelOptions.setTime('35000');
                 travelOptions.setDate('20140825');
                 travelOptions.setTime('39000');
-                travelOptions.setTravelTimes([600,1200,1800]);
+                travelOptions.setTravelTimes([600,1200,1800,2400,3000,3600]);
                 travelOptions.setElevationEnabled(elevationButtons.getValue());
                 travelOptions.setRenderWatts(renderingModeButtons.getValue());
 
@@ -313,12 +314,30 @@
 
                 // visualization of junit test cases
 
+                // var travelOptions = r360.travelOptions();
+                // travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
+                // travelOptions.addTarget({lat : 52.52175701517317, lng : 13.377571105957031});
+                // travelOptions.setTravelType('transit');
+                // travelOptions.setDate('20140825');
+                // travelOptions.setTime('39600');
+
+                // // call the service
+                // r360.RouteService.getRoutes(travelOptions, function(routes) {
+                //     _.each(routes, function(route){
+
+                //         route.fadeIn(routeLayer, 500, "travelDistance");
+                //     });
+                // });
+                // 
+                var source = {lat : 52.514000984723936, lng : 13.368666172027586};
+                var target = {lat : 52.513282764498854, lng : 13.35813045501709 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
+
                 var travelOptions = r360.travelOptions();
-                travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
-                travelOptions.addTarget({lat : 52.52175701517317, lng : 13.377571105957031});
-                travelOptions.setTravelType('transit');
-                travelOptions.setDate('20140825');
-                travelOptions.setTime('39600');
+                travelOptions.addSource(source);
+                travelOptions.addTarget(target);
+                travelOptions.setTravelType('bike');
 
                 // call the service
                 r360.RouteService.getRoutes(travelOptions, function(routes) {
@@ -328,34 +347,44 @@
                     });
                 });
 
-                // var travelOptions = r360.travelOptions();
-                // travelOptions.addSource({lat : 52.514000984723936, lng : 13.368666172027586});
-                // travelOptions.addTarget({lat : 52.513282764498854, lng : 13.35813045501709 });
-                // travelOptions.setTravelType('bike');
+                var source = {lat : 52.51815337333538, lng : 13.372678756713867 };
+                var target = {lat : 52.5089601366896, lng : 13.371927738189697 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
 
-                // // call the service
-                // r360.RouteService.getRoutes(travelOptions, function(routes) {
-                //     _.each(routes, function(route){
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(source);
+                travelOptions.addTarget(target);
+                travelOptions.setTravelType('car');
 
-                //         route.fadeIn(routeLayer, 500, "travelDistance");
-                //     });
-                // });
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
 
-                // var travelOptions = r360.travelOptions();
-                // travelOptions.addSource({lat : 52.51815337333538, lng : 13.372678756713867 });
-                // travelOptions.addTarget({lat : 52.5089601366896, lng : 13.371927738189697 });
-                // travelOptions.setTravelType('car');
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
 
-                // // call the service
-                // r360.RouteService.getRoutes(travelOptions, function(routes) {
-                //     _.each(routes, function(route){
+                var source = {lat : 52.5167, lng : 13.3833 };
+                var target = {lat : 52.49992172845934, lng : 13.390617370605467 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
 
-                //         route.fadeIn(routeLayer, 500, "travelDistance");
-                //     });
-                // });
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(source); 
+                travelOptions.addTarget(target); 
+                travelOptions.setTravelType('walk');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
             }
 
-            // showRoutes();
+            showRoutes();
 });
     </script>
 </head>

@@ -88,7 +88,9 @@ r360.TravelTimeControl = L.Control.extend({
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
         this.options.labelSpan = this.options.label;
 
-        if ( this.options.icon != 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
+        console.log(this.options);
+
+        if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
         var unitSpan = $('<span/>', {"text" : this.options.unit});

@@ -28,7 +28,7 @@
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [48.2000, 16.3667];
+            var latlon = [48.210260, 16.3867950];
 
             var map = L.map('map').setView(latlon, 12);
 
@@ -46,8 +46,9 @@
             L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
                 maxZoom: 18, attribution: attribution }).addTo(map);
 
-            r360.config.serviceKey = "0PMV4AZLMM23LEABVN34";
+            r360.config.serviceKey = "uhWrWpUhyZQy8rPfiC7X";
             r360.config.serviceUrl = 'https://api.route360.net/api_austria/';
+            // r360.config.serviceUrl = 'https://dev.route360.net/api_austria/';
             // r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             r360.config.defaultTravelTimeControlOptions.travelTimes = [

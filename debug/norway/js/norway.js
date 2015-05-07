@@ -27,7 +27,7 @@ $(document).ready(function(){
     // latlon = [60.260935867848005,11.014480590820312];
 
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ='<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox © OpenStreetMap</a> | DEM © <a href="http://www.kartverket.no/" target="_blank">Kartverket</a> | Utviklet av <a href="http://www.route360.net/" target="_blank">Route360°</a> for <a href="http://www.forbrukerradet.no/" target="_blank">Forbrukerrådet</a>';
+    var attribution ='<a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox © OSM</a> | DEM © <a href="http://www.kartverket.no/" target="_blank">Kartverket</a> | Utviklet av <a href="http://www.route360.net/" target="_blank">Route360°</a> for <a href="http://www.forbrukerradet.no/" target="_blank">Forbrukerrådet</a>';
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
@@ -60,9 +60,9 @@ $(document).ready(function(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.i18n.language   = 'no';
-    r360.config.serviceKey      = 'uhWrWpUhyZQy8rPfiC7X';
+    r360.config.serviceKey      = 'FL9LYCTYQAUNVLAETPPU';
     r360.config.serviceUrl      = 'http://api.route360.net/api_norway_0.0.3/';
-    r360.config.serviceUrl      = 'http://dev.route360.net/api_norway_0.0.3/';
+    // r360.config.serviceUrl      = 'http://dev.route360.net/api_norway_0.0.3/';
     
     // define which options the user is going to have
     var options = { bike : true, walk : true, ebike: true, rentbike: false, rentandreturnbike : true, init : 'bike' };
@@ -100,8 +100,16 @@ $(document).ready(function(){
         popupAnchor:  [0, -12.5] // point from which the popup should open relative to the iconAnchor
     });
 
-    _.each(rentals, function(station){
+    setTimeout(function() { 
+        
+        if ( !map.hasLayer(sourceMarker) ) {
+            
+            sourceMarker = createMarker({ lat : 59.911667, lng : 10.750833 }, 'home', 'red', sourceLayer, updateSource);
+            updateSource();
+        }
+    }, 500);
 
+    _.each(rentals, function(station){
 
         var marker = L.marker([station.lat, station.lng],  
                     {icon: bikeRentalIcon}
@@ -147,6 +155,9 @@ $(document).ready(function(){
     map.addControl(languageButtons);
     switchLanguage(r360.config.i18n.language);
 
+    console.log("#" + poiTypeButtons.getId());
+    $("#" + poiTypeButtons.getId()).css('margin-bottom', '20px');
+
     map.addControl(L.control.layers({}, overlays, { position : 'bottomright' }));
     map.addControl(L.control.zoom({ position : 'bottomright' }));
     var travelTimeControl, travelWattControl, bikeSpeedButtons, rentbikeSpeedButtons, supportLevelButtons, walkSpeedButtons;
@@ -156,8 +167,9 @@ $(document).ready(function(){
         navigator.geolocation.getCurrentPosition(function(position){
             var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
 
+            sourceLayer.clearLayers();
             sourceMarker = createMarker(latlng, 'home', 'red', sourceLayer, updateSource);
-            updateSource();
+            updateSource();    
         });
     }
 
@@ -647,7 +659,7 @@ $(document).ready(function(){
             function(polygons){
 
                 polygonLayer.setInverse(sourceAutoComplete.getTravelType() == 'ebike' ? true : false);
-                polygonLayer.clearAndAddLayers(polygons);//.fitMap();
+                polygonLayer.clearAndAddLayers(polygons).fitMap();
                 if ( typeof callback == 'function' ) callback();
 
                 targetEntityLayer.clearLayers();
@@ -809,6 +821,8 @@ $(document).ready(function(){
 
         removeControls();
 
+        r360.config.defaultRadioOptions.position = "topleft";
+
         var speedModi = 'medium';
         if ( typeof bikeSpeedButtons !== 'undefined' ) speedModi = bikeSpeedButtons.getValue();
         if ( typeof walkSpeedButtons !== 'undefined' ) speedModi = walkSpeedButtons.getValue();
@@ -825,7 +839,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
+                position : 'topleft', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             bikeSpeedButtons = r360.radioButtonControl({
@@ -861,7 +875,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
+                position : 'topleft', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             walkSpeedButtons = r360.radioButtonControl({
@@ -897,7 +911,7 @@ $(document).ready(function(){
                     { time : 60 * 500 , color : "#fff", opacity : 1.0},
                     { time : 60 * 600 , color : "#fff", opacity : 1.0}
                 ],
-                position : 'topright', label: r360.config.i18n.getSpan('batteryCapacity'), unit : 'Wh', initValue: 300
+                position : 'topleft', label: r360.config.i18n.getSpan('batteryCapacity'), unit : 'Wh', initValue: 300
             });
 
             supportLevelButtons = r360.radioButtonControl({
@@ -932,7 +946,7 @@ $(document).ready(function(){
                     { time : 1500 * 2, color : "#F15A24"},
                     { time : 1800 * 2, color : "#C1272D"}
                 ],
-                position : 'topright', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
+                position : 'topleft', label : r360.config.i18n.getSpan('travelTime'), unit : 'min', initValue: typeof travelTimeControl == 'undefined' ? 60 : travelTimeControl.getMaxValue() / 60
             });
 
             rentAndReturnBikeSpeedButtons = r360.radioButtonControl({

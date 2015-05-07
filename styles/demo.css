@@ -9,7 +9,8 @@ header {
 
 #map-example1, #map-addTravelTimeControlExample, 
 #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-inverseExample,
-#map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample, #map-multipleExample, #map-htmlControlExample, #map-errorHandlingExample {
+#map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample, #map-multipleExample, #map-htmlControlExample, #map-errorHandlingExample,
+#map-colorRouteExample {
 
     height: 400px;
     margin-bottom: 15px; 

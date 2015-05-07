@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Get polygon example</title>
+    <title>Sykledit</title>
     <meta charset="UTF-8">
     <!-- stylesheets -->
     <link rel="stylesheet" href="styles/r360.css"/>
@@ -12,6 +12,22 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/leaflet.css"/>
 
+    <!-- Piwik -->
+    <script type="text/javascript">
+      var _paq = _paq || [];
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u=(("https:" == document.location.protocol) ? "https" : "http") + "://www.route360.net/analytics/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 3]);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript';
+        g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <noscript><p><img src="http://www.route360.net/analytics/piwik.php?idsite=3" style="border:0;" alt="" /></p></noscript>
+    
+    <!-- End Piwik Code -->
     <style>
         html, body, #map {
 
@@ -21,7 +37,7 @@
 
         input.r360-autocomplete {
 
-            width: 250px !important;
+            width: 220px !important;
         }
 
         .waitControl {
