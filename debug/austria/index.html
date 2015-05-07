@@ -1,0 +1,265 @@
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>Get polygon example</title>
+    <meta charset="UTF-8">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.0.custom.css">
+    <link rel="stylesheet" href="r360.css"/>
+
+    <style>
+        html, body, #map {
+
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <!-- scripts -->
+    <script src="jquery-1.10.2.js"></script>
+    <script src="jquery-ui-1.10.4.min.js"></script>
+    <script src="leaflet.js"></script>
+    <script src="underscore.js"></script>
+    <script type="text/javascript" src="../../lib/graticule/graticule.js"></script>
+    <script type="text/javascript" src="../../lib/build/deps.js"></script>
+    <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
+
+     <script type="text/javascript">
+        $(document).ready(function(){
+
+            var latlon = [48.2000, 16.3667];
+
+            var map = L.map('map').setView(latlon, 12);
+
+            // Specify bold red lines instead of thin grey lines
+            L.graticule({
+                style: {
+                    color: '#000',
+                    weight: 1
+                }
+            }).addTo(map);
+           
+            // attribution to give credit to OSM map data and VBB for public transportation 
+            var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+                maxZoom: 18, attribution: attribution }).addTo(map);
+
+            r360.config.serviceKey = "0PMV4AZLMM23LEABVN34";
+            r360.config.serviceUrl = 'https://api.route360.net/api_austria/';
+            // r360.config.serviceUrl = 'http://localhost:8080/api/';
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                { time : 600 * 1  , color : "#006837", opacity : 1.0 },
+                { time : 600 * 2  , color : "#39B54A", opacity : 1.0 },
+                { time : 600 * 3  , color : "#8CC63F", opacity : 1.0 },
+                { time : 600 * 4  , color : "#F7931E", opacity : 1.0 },
+                { time : 600 * 5  , color : "#F15A24", opacity : 1.0 },
+                { time : 600 * 6  , color : "#C1272D", opacity : 1.0 }
+            ];
+
+            // L.rectangle([[52.4783729748,13.3277368531],[52.5520736045,13.463715857]], {color: "green", weight: 2}).addTo(map);
+
+// L.rectangle([[52.500,13.000],[53.000,13.500]], {color: "green", weight: 2}).addTo(map);
+// L.rectangle([[52.000,13.000],[52.500,13.500]], {color: "red", weight: 2}).addTo(map);
+// 
+
+// L.rectangle([[60.000,40.000],[70.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("85");
+// L.rectangle([[60.000,30.000],[70.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("86");
+// L.rectangle([[60.000,20.000],[70.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("87");
+// L.rectangle([[60.000,10.000],[70.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("88");
+// L.rectangle([[60.000,0.000],[70.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("89");
+// L.rectangle([[60.000,-10.000],[70.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("90");
+// L.rectangle([[60.000,-20.000],[70.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("91");
+// L.rectangle([[60.000,-30.000],[70.000,-20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("92");
+// L.rectangle([[20.000,-20.000],[30.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("235");
+// L.rectangle([[70.000,30.000],[80.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("50");
+// L.rectangle([[40.000,-10.000],[50.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("162");
+// L.rectangle([[70.000,20.000],[80.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("51");
+// L.rectangle([[70.000,10.000],[80.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("52");
+// L.rectangle([[70.000,-10.000],[80.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("54");
+// L.rectangle([[40.000,40.000],[50.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("157");
+// L.rectangle([[40.000,30.000],[50.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("158");
+// L.rectangle([[40.000,20.000],[50.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("159");
+// L.rectangle([[40.000,10.000],[50.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("160");
+// L.rectangle([[30.000,40.000],[40.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("193");
+// L.rectangle([[30.000,30.000],[40.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("194");
+// L.rectangle([[30.000,20.000],[40.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("195");
+// L.rectangle([[40.000,0.000],[50.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("161");
+// L.rectangle([[30.000,10.000],[40.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("196");
+// L.rectangle([[50.000,40.000],[60.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("121");
+// L.rectangle([[50.000,30.000],[60.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("122");
+// L.rectangle([[30.000,0.000],[40.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("197");
+// L.rectangle([[50.000,20.000],[60.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("123");
+// L.rectangle([[50.000,10.000],[60.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("124");
+// L.rectangle([[30.000,-10.000],[40.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("198");
+// L.rectangle([[50.000,0.000],[60.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("125");
+// L.rectangle([[50.000,-10.000],[60.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("126");
+// L.rectangle([[30.000,-20.000],[40.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("199");
+// L.rectangle([[50.000,-20.000],[60.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("127");
+// L.rectangle([[30.000,-30.000],[40.000,-20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("200");
+// L.rectangle([[30.000,-40.000],[40.000,-30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("201");
+
+            
+// L.rectangle([[35.000,45.000],[40.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("746");
+// L.rectangle([[75.000,15.000],[80.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("176");
+// L.rectangle([[35.000,40.000],[40.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("747");
+// L.rectangle([[75.000,10.000],[80.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("177");
+// L.rectangle([[55.000,45.000],[60.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("458");
+// L.rectangle([[35.000,35.000],[40.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("748");
+// L.rectangle([[55.000,40.000],[60.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("459");
+// L.rectangle([[70.000,30.000],[75.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("245");
+// L.rectangle([[45.000,45.000],[50.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("602");
+// L.rectangle([[40.000,45.000],[45.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("674");
+// L.rectangle([[70.000,25.000],[75.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("246");
+// L.rectangle([[40.000,40.000],[45.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("675");
+// L.rectangle([[45.000,40.000],[50.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("603");
+// L.rectangle([[35.000,30.000],[40.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("749");
+// L.rectangle([[70.000,20.000],[75.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("247");
+// L.rectangle([[40.000,35.000],[45.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("676");
+// L.rectangle([[55.000,35.000],[60.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("460");
+// L.rectangle([[35.000,25.000],[40.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("750");
+// L.rectangle([[45.000,35.000],[50.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("604");
+// L.rectangle([[55.000,30.000],[60.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("461");
+// L.rectangle([[30.000,30.000],[35.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("821");
+// L.rectangle([[40.000,30.000],[45.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("677");
+// L.rectangle([[35.000,20.000],[40.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("751");
+// L.rectangle([[35.000,15.000],[40.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("752");
+// L.rectangle([[55.000,25.000],[60.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("462");
+// L.rectangle([[70.000,15.000],[75.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("248");
+// L.rectangle([[45.000,30.000],[50.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("605");
+// L.rectangle([[25.000,-15.000],[30.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("902");
+// L.rectangle([[25.000,-20.000],[30.000,-15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("903");
+// L.rectangle([[55.000,20.000],[60.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("463");
+// L.rectangle([[30.000,25.000],[35.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("822");
+// L.rectangle([[40.000,25.000],[45.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("678");
+// L.rectangle([[55.000,15.000],[60.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("464");
+// L.rectangle([[40.000,20.000],[45.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("679");
+// L.rectangle([[40.000,15.000],[45.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("680");
+// L.rectangle([[45.000,25.000],[50.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("606");
+// L.rectangle([[45.000,20.000],[50.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("607");
+// L.rectangle([[30.000,20.000],[35.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("823");
+// L.rectangle([[30.000,-10.000],[35.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("829");
+// L.rectangle([[30.000,-15.000],[35.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("830");
+// L.rectangle([[55.000,10.000],[60.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("465");
+// L.rectangle([[50.000,45.000],[55.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("530");
+// L.rectangle([[40.000,10.000],[45.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("681");
+// L.rectangle([[30.000,-20.000],[35.000,-15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("831");
+// L.rectangle([[35.000,10.000],[40.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("753");
+// L.rectangle([[40.000,5.000],[45.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("682");
+// L.rectangle([[40.000,0.000],[45.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("683");
+// L.rectangle([[45.000,15.000],[50.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("608");
+// L.rectangle([[35.000,5.000],[40.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("754");
+// L.rectangle([[55.000,5.000],[60.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("466");
+// L.rectangle([[40.000,-5.000],[45.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("684");
+// L.rectangle([[40.000,-10.000],[45.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("685");
+// L.rectangle([[50.000,40.000],[55.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("531");
+// L.rectangle([[45.000,10.000],[50.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("609");
+// L.rectangle([[45.000,5.000],[50.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("610");
+// L.rectangle([[50.000,35.000],[55.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("532");
+// L.rectangle([[55.000,0.000],[60.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("467");
+// L.rectangle([[50.000,30.000],[55.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("533");
+// L.rectangle([[35.000,0.000],[40.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("755");
+// L.rectangle([[35.000,-5.000],[40.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("756");
+// L.rectangle([[45.000,0.000],[50.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("611");
+// L.rectangle([[50.000,25.000],[55.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("534");
+// L.rectangle([[55.000,-5.000],[60.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("468");
+// L.rectangle([[35.000,-10.000],[40.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("757");
+// L.rectangle([[55.000,-10.000],[60.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("469");
+// L.rectangle([[45.000,-5.000],[50.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("612");
+// L.rectangle([[35.000,-30.000],[40.000,-25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("761");
+// L.rectangle([[50.000,20.000],[55.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("535");
+// L.rectangle([[35.000,-35.000],[40.000,-30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("762");
+// L.rectangle([[50.000,15.000],[55.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("536");
+// L.rectangle([[45.000,-10.000],[50.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("613");
+// L.rectangle([[50.000,10.000],[55.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("537");
+// L.rectangle([[50.000,5.000],[55.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("538");
+// L.rectangle([[50.000,0.000],[55.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("539");
+// L.rectangle([[65.000,-15.000],[70.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("326");
+// L.rectangle([[65.000,-20.000],[70.000,-15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("327");
+// L.rectangle([[50.000,-5.000],[55.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("540");
+// L.rectangle([[65.000,-25.000],[70.000,-20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("328");
+// L.rectangle([[50.000,-10.000],[55.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("541");
+// L.rectangle([[50.000,-15.000],[55.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("542");
+// L.rectangle([[60.000,45.000],[65.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("386");
+// L.rectangle([[60.000,40.000],[65.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("387");
+// L.rectangle([[60.000,35.000],[65.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("388");
+// L.rectangle([[60.000,30.000],[65.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("389");
+// L.rectangle([[60.000,25.000],[65.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("390");
+// L.rectangle([[60.000,20.000],[65.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("391");
+// L.rectangle([[60.000,15.000],[65.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("392");
+// L.rectangle([[60.000,10.000],[65.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("393");
+// L.rectangle([[60.000,5.000],[65.000,10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("394");
+// L.rectangle([[60.000,0.000],[65.000,5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("395");
+// L.rectangle([[60.000,-5.000],[65.000,0.000]], {color: "green", weight: 2}).addTo(map).bindPopup("396");
+// L.rectangle([[60.000,-10.000],[65.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("397");
+// L.rectangle([[60.000,-15.000],[65.000,-10.000]], {color: "green", weight: 2}).addTo(map).bindPopup("398");
+// L.rectangle([[60.000,-20.000],[65.000,-15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("399");
+// L.rectangle([[60.000,-25.000],[65.000,-20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("400");
+// L.rectangle([[70.000,-10.000],[75.000,-5.000]], {color: "green", weight: 2}).addTo(map).bindPopup("253");
+// L.rectangle([[65.000,45.000],[70.000,50.000]], {color: "green", weight: 2}).addTo(map).bindPopup("314");
+// L.rectangle([[65.000,40.000],[70.000,45.000]], {color: "green", weight: 2}).addTo(map).bindPopup("315");
+// L.rectangle([[65.000,35.000],[70.000,40.000]], {color: "green", weight: 2}).addTo(map).bindPopup("316");
+// L.rectangle([[65.000,30.000],[70.000,35.000]], {color: "green", weight: 2}).addTo(map).bindPopup("317");
+// L.rectangle([[65.000,25.000],[70.000,30.000]], {color: "green", weight: 2}).addTo(map).bindPopup("318");
+// L.rectangle([[65.000,20.000],[70.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("319");
+// L.rectangle([[65.000,15.000],[70.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("320");
+// L.rectangle([[65.000,10.000],[70.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("321");
+            
+            
+
+            $('span[lang="de"]').hide();
+
+            // create the layer to add the polygons
+            var routeLayer   = L.featureGroup().addTo(map);
+            var markerLayer  = L.featureGroup().addTo(map);
+            var polygonLayer = r360.route360PolygonLayer().addTo(map);
+
+            // create a marker and add it to the map
+            var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
+            showPolygons();
+
+            homeMarker.on('dragend', function(){
+
+                showPolygons();    
+            });
+
+            map.on("click", function(e){    
+
+                routeLayer.clearLayers();
+                markerLayer.clearLayers();
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(homeMarker);
+                travelOptions.setTravelType('walk');
+                travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
+
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance", { color : 'green', haloColor : 'blue' });
+                    });
+                });
+            });
+
+            function showPolygons(){
+
+                var travelOptions = r360.travelOptions();
+
+                travelOptions.addSource(homeMarker);
+                travelOptions.setTravelTimes([600 * 1, 600 * 2, 600 * 3, 600 * 4, 600 * 5, 600 * 6]);
+                travelOptions.setTravelType('walk');
+
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                    polygonLayer.clearAndAddLayers(polygons);
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
