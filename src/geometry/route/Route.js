@@ -185,8 +185,7 @@ r360.Route = function(travelTime, segments){
             }
             else {
                 
-                if ( typeof options === 'undefined' || !_.has(options, 'paintTransfer') || 
-                    (_.has(options, 'paintTransfer') && options.paintTransfer) ) 
+                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !_.has(options, 'paintTransfer') )) 
                     addTransferSegment(segment); 
                 
                 if(++z < that.routeSegments.length)
@@ -205,13 +204,13 @@ r360.Route = function(travelTime, segments){
 
         function addCircularMarker(latLng) {
             var marker = L.circleMarker(latLng, { 
-                    color:          typeof options != 'undefined' && _.has(options, 'color') ? options.color : segment.getColor(), 
-                    fillColor:      typeof options != 'undefined' && _.has(options, 'haloColor') ? options.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
-                    fillOpacity:    1, 
-                    opacity:        1, 
-                    stroke:         true, 
-                    weight:         4, 
-                    radius:         8 
+                    color:          !_.isUndefined(options) && _.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
+                    fillColor:      !_.isUndefined(options) && _.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    !_.isUndefined(options) && _.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1, 
+                    opacity:        !_.isUndefined(options) && _.has(options, 'transferOpacity')    ? options.transferOpacity     : 1, 
+                    stroke:         !_.isUndefined(options) && _.has(options, 'transferStroke')     ? options.transferStroke      : true, 
+                    weight:         !_.isUndefined(options) && _.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
+                    radius:         !_.isUndefined(options) && _.has(options, 'transferRadius')     ? options.transferRadius      : 8 
                 });         
 
             marker.addTo(map);
@@ -222,19 +221,21 @@ r360.Route = function(travelTime, segments){
         function fader(segment, millis, options, z){
 
             var polylineOptions         = {};
-            polylineOptions.color       = typeof options != 'undefined' && _.has(options, 'color') ? options.color : segment.getColor();
-            polylineOptions.opacity     = 0.8;
-            polylineOptions.weight      = 5;
+            polylineOptions.color       = !_.isUndefined(options) && _.has(options, 'color')    ? options.color   : segment.getColor();
+            polylineOptions.opacity     = !_.isUndefined(options) && _.has(options, 'opacity' ) ? options.opacity : 0.8;
+            polylineOptions.weight      = !_.isUndefined(options) && _.has(options, 'weight' )  ? options.weight  : 5;
 
             if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK") )  {
-                polylineOptions.weight    = 7;
-                polylineOptions.dashArray = "1, 10";
+                
+                polylineOptions.color     = !_.isUndefined(options) && _.has(options, 'walkColor' )     ? options.walkColor     : '#006F35';
+                polylineOptions.weight    = !_.isUndefined(options) && _.has(options, 'walkWeight' )    ? options.walkWeight : 7;
+                polylineOptions.dashArray = !_.isUndefined(options) && _.has(options, 'walkDashArray' ) ? options.walkDashArray : "1, 10";
             }
 
             var polylineHaloOptions     = {};
-            polylineHaloOptions.weight  = 10;
-            polylineHaloOptions.opacity = 0.7;
-            polylineHaloOptions.color   = typeof options != 'undefined' && _.has(options, 'haloColor') ? options.haloColor : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+            polylineHaloOptions.weight  = !_.isUndefined(options) && _.has(options, 'haloWeight' )  ? options.haloWeight  : 10;
+            polylineHaloOptions.opacity = !_.isUndefined(options) && _.has(options, 'haloOpacity' ) ? options.haloOpacity : 0.7;
+            polylineHaloOptions.color   = !_.isUndefined(options) && _.has(options, 'haloColor')    ? options.haloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
 
             // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
             var pieces      = millis / 15;
