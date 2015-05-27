@@ -207,12 +207,17 @@
 // L.rectangle([[65.000,20.000],[70.000,25.000]], {color: "green", weight: 2}).addTo(map).bindPopup("319");
 // L.rectangle([[65.000,15.000],[70.000,20.000]], {color: "green", weight: 2}).addTo(map).bindPopup("320");
 // L.rectangle([[65.000,10.000],[70.000,15.000]], {color: "green", weight: 2}).addTo(map).bindPopup("321");
-            
-            
+                
+
+            L.rectangle([[48.4239349319,16.7103118896],[48.0110289217,16.0853056908]], {color: "green", weight: 2}).addTo(map);
+            L.rectangle([[48.5239349319,16.9103118896],[47.9110289217,15.8853056908]], {color: "red", weight: 2}).addTo(map);
+
+            L.marker([48.1318975,16.7299568], { draggable : true }).addTo(map);
 
             $('span[lang="de"]').hide();
 
             // create the layer to add the polygons
+            window.points = [];
             var routeLayer   = L.featureGroup().addTo(map);
             var markerLayer  = L.featureGroup().addTo(map);
             var polygonLayer = r360.route360PolygonLayer().addTo(map);
@@ -235,6 +240,17 @@
                 travelOptions.addSource(homeMarker);
                 travelOptions.setTravelType('walk');
                 travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
+
+                // r360.RouteService.getRoutes(travelOptions, 
+
+                //     function(routes){
+                //         _.each(routes, function(route){
+                //             window.points = window.points.concat(route.points);
+                //         });
+                //     }
+                // );
+                // console.log(window.points);
+                // var polyline = L.polyline(window.points, {color: 'red'}).addTo(map);
 
                 r360.RouteService.getRoutes(travelOptions, function(routes) {
                     _.each(routes, function(route){

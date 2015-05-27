@@ -55,12 +55,13 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl                                  = 'http://api.route360.net/api_switzerland_0.0.2/';
-    // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
-    
+    polygonLayer.setInverse(true);
+
     var options = { bike : true, walk : true, car : true, transit : true, init : 'car' };
 
     // define which options the user is going to have
@@ -140,7 +141,8 @@ $(document).ready(function(){
     var travelTimeControl       = r360.travelTimeControl({
         travelTimes : r360.config.defaultTravelTimeControlOptions.travelTimes,
         position    : 'topright', // this is the position in the map
-        label       : 'Travel time: ', // the label, customize for i18n
+        label       : 'Travel time', // the label, customize for i18n
+        unit        : 'min',
         initValue   : 20 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
     });
 
@@ -169,6 +171,7 @@ $(document).ready(function(){
     polygonButtons.onChange(function(){ 
 
         r360.config.defaultPolygonLayerOptions.inverse = !r360.config.defaultPolygonLayerOptions.inverse;
+        polygonLayer.setInverse(r360.config.defaultPolygonLayerOptions.inverse);
         updateSource();
     });
     intersectionButtons.onChange(updateSource);
@@ -194,8 +197,9 @@ $(document).ready(function(){
     map.on('click', function(e){
 
         var index0 = _.indexOf(sourceMarkers, 0);
-        var index1 = _.indexOf(sourceMarkers, 1);
-        var index2 = _.indexOf(sourceMarkers, 2);
+        // var index1 = _.indexOf(sourceMarkers, 1);
+        // var index2 = _.indexOf(sourceMarkers, 2);
+        var index1 = -1;var index2 = -1;
 
         // create source marker and make a polygon request
         if (  index0 >= 0 || index1 >= 0 || index2 >= 0 ) {
@@ -349,6 +353,8 @@ $(document).ready(function(){
 
             _.each(routes, function(route, index){
 
+                console.log(route);2
+
                 currentRoute = route;
                 route.fadeIn(routeLayer, 500, "travelDistance", { color : elevationColors[index].strokeColor, haloColor : "#ffffff" });
 
@@ -421,17 +427,17 @@ $(document).ready(function(){
             travelOptions.setTravelTimes(travelTimeControl.getValues());
             travelOptions.setWaitControl(waitControl);
             travelOptions.setElevationEnabled(true);
-            travelOptions.setDate('20150114');
+            travelOptions.setDate('20150115');
             travelOptions.setTime('39600');
 
             var maxTravelTime = _.max(travelTimeControl.getValues());
 
             if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
-                travelOptions.setMinPolygonHoleSize(1 * 1000 * 1000);
-            if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
                 travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
-            if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+            if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
                 travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
+            if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+                travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
             if ( r360.config.defaultPolygonLayerOptions.inverse ) 
                 travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
@@ -442,6 +448,9 @@ $(document).ready(function(){
 
                 map.fitBounds(polygonLayer.getBoundingBox());
                 
+            }, function(error) {
+
+                alert("Sorry... an error occured. Please try again!");
             });
         }
     }

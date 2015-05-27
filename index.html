@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-
+    <META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="">
@@ -120,7 +120,7 @@
         </div>
     </header>
 
-    <section id="gettingStarted">
+    <section>
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -197,8 +197,7 @@
                 </div>
             </div>
             
-
-            <div class="col-lg-12 text-center" style="margin-top: 25px;">
+            <div class="col-lg-12 text-center" style="margin-top: 25px;" id="gettingStarted">
                 <h2>Getting started</h2>
                 <hr class="star-primary">
             </div>
@@ -498,69 +497,83 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <form class="form-horizontal" id="create-user-form">
-                    <fieldset>
 
-                        <!-- Text input-->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="firstname">First name</label>  
-                          <div class="col-md-6">
-                          <input style="padding-left: 15px;" id="firstname" name="firstname" type="text" placeholder="Please enter your first name" class="form-control input-md" required="">
-                            
-                          </div>
+                <form action="https://www.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8" method="POST" class="form-horizontal" id="create-user-form">
+
+                    <input type=hidden name="oid" value="00D20000000maO8">
+                    <input type=hidden name="retURL" value="https://developers.route360.net/thank-you.html">
+
+                    <!-- <input type="hidden" name="debug" value=1>                              -->
+                    <!-- <input type="hidden" name="debugEmail" value="gerber@motionintelligence.net"> -->
+
+                    <!-- Text input-->
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="first_name">First name</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="first_name" name="first_name" type="text" placeholder="Please enter your first name" class="form-control input-md" required="">
                         </div>
+                    </div>
 
-                        <!-- Text input-->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="lastname">Last name</label>  
-                          <div class="col-md-6">
-                          <input style="padding-left: 15px;" id="lastname" name="lastname" type="text" placeholder="Please enter your last name" class="form-control input-md" required="">
-                            
-                          </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="last_name">Last name</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="last_name" name="last_name" type="text" placeholder="Please enter your last name" class="form-control input-md" required="">
                         </div>
+                    </div>  
 
-                        <!-- Text input-->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="email">Email</label>  
-                          <div class="col-md-6">
-                          <input style="padding-left: 15px;" id="email" name="email" type="text" placeholder="Please enter your email address" class="form-control input-md" required="">
-                            
-                          </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="email">Email</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="email" name="email" type="text" placeholder="Please enter your email address" class="form-control input-md" required="">
                         </div>
+                    </div>
 
-                        <!-- Textarea -->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="region">Region</label>
-                          <div class="col-md-6">                     
-                            <textarea class="form-control input-md" id="region" name="region" placeholder="Please let us know for which region you are planning to use our API" required=""></textarea>
-                          </div>
-                        </div>
-
-                        <!-- Textarea -->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="region">Phone/Skype</label>
-                          <div class="col-md-6">                     
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="phone">Phone/Skype</label>
+                        <div class="col-md-6">                     
                             <textarea class="form-control input-md" id="phone" name="phone" placeholder="Let us call you right back" required=""></textarea>
-                          </div>
                         </div>
+                    </div>
 
-                        <!-- Textarea -->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="description">Description</label>
-                          <div class="col-md-6">                     
-                            <textarea class="form-control input-md" width="100%" rows="3" id="description" name="description" placeholder="Please give us a short description of the project that you would like to do with the API." required=""></textarea>
-                          </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="company">Company</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="company" name="company" type="text" placeholder="Who are you working for?" class="form-control input-md" required="">
                         </div>
+                    </div>
 
-                        <!-- Button -->
-                        <div class="form-group">
-                          <label class="col-md-4 control-label" for="submit"></label>
-                          <div class="col-md-4">
-                            <button type="submit" id="api-submit" class="btn btn-default">Request API Key</button>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="URL">Website</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="URL" name="URL" type="text" placeholder="Do you have a URL?" class="form-control input-md" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="country">Country</label>  
+                        <div class="col-md-6">
+                            <input style="padding-left: 15px;" id="country" name="country" type="text" placeholder="Where do you come from?" class="form-control input-md" required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="00N20000007VCHL">Description</label>
+                        <div class="col-md-6">                     
+                            <textarea class="form-control input-md" width="100%" rows="3" id="00N20000007VCHL" name="00N20000007VCHL" placeholder="Please give us a short description of the project that you would like to do with the API." required=""></textarea>
+                        </div>
+                    </div>
+
+                    <!-- <label for="lead_source">Lead-Quelle</label> -->
+
+                    <input type=hidden name="lead_source" id="lead_source" value="API-Anfrage">
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="btnSubmit"></label>
+                        <div class="col-md-4">
+                            <button type="button" name="btnSubmit" id="api-submit" class="btn btn-default">Request API Key</button>
                             <button type="button" class="btn btn-success"><a style="color: white; text-decoration: none;" target="_blank" href="https://www.route360.net/disclaimer/">Disclaimer</a></button>
-                          </div>
                         </div>
-                    </fieldset>
+                    </div>
                 </form>
             </div>
             <div class="col-lg-12" id="api-key-result">
@@ -1055,10 +1068,10 @@
             
             $("#create-user-form").validate({
                 rules: {
-                    firstname: {
+                    first_name: {
                         required: true
                     },
-                    lastname: {
+                    last_name: {
                         required: true
                     },
                     phone : {
@@ -1076,6 +1089,12 @@
                                 }
                             }
                         }
+                    },
+                    company: {
+                        required: false
+                    },
+                    URL: {
+                        required: false
                     },
                     region: {
                         required: true
@@ -1096,13 +1115,17 @@
                 success: function (element) {
                     
                     element.addClass('valid').closest('.form-group').removeClass('has-error').addClass('has-success');
-                },
-                submitHandler: function(form) {
+                }
+            });
+
+            $('#api-submit').on('click', function(){
+                
+                if ( $('#create-user-form').valid() ) {
 
                     $('#api-submit').prop('disabled', true);
 
-                    var params = ['firstname=' + $("#firstname").val(), 
-                                  'lastname=' + $("#lastname").val(), 
+                    var params = ['firstname=' + $("#first_name").val(), 
+                                  'lastname=' + $("#last_name").val(), 
                                   'email=' + $("#email").val()];
 
                     $.getJSON(r360.config.serviceUrl + r360.config.serviceVersion + '/apiKey?' + params.join("&") + '&key=' + r360.config.serviceKey, 
@@ -1117,9 +1140,11 @@
                                     to      : ["developers@route360.net", result.email].join(", "), 
                                     from    : "developers@route360.net", 
                                     subject : "Route360° API Key", 
-                                    message : generateEmail(result.apiKey, $("#region").val(), $("#description").val(), $("#phone").val())
+                                    message : generateEmail(result.apiKey, $("#country").val(), $("#00N20000007VCHL").val(), $("#phone").val())
                                 }
                             );
+
+                            document.getElementById('create-user-form').submit();
                         })
                         .fail(function(jqXHR, status, error){
 

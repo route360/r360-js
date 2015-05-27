@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (7470f07), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (bc0fea6), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -3815,7 +3815,7 @@ r360.Route = function(travelTime, segments){
                 
                 if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !_.has(options, 'paintTransfer') )) 
                     addTransferSegment(segment); 
-                
+
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          

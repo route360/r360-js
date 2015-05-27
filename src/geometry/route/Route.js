@@ -187,7 +187,7 @@ r360.Route = function(travelTime, segments){
                 
                 if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !_.has(options, 'paintTransfer') )) 
                     addTransferSegment(segment); 
-                
+
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
