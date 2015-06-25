@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Get polygon example</title>
+    <meta charset="UTF-8">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.0.custom.css">
+    <link rel="stylesheet" href="r360.css"/>
+
+    <style>
+        html, body, #map {
+
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <!-- scripts -->
+    <script src="jquery-1.10.2.js"></script>
+    <script src="jquery-ui-1.10.4.min.js"></script>
+    <script src="leaflet.js"></script>
+    <script src="underscore.js"></script>
+    <script type="text/javascript" src="../../lib/build/deps.js"></script>
+    <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
+
+     <script type="text/javascript">
+        $(document).ready(function(){
+
+            r360.config.defaultPolygonLayerOptions.animate = false;
+
+            // Berlin latlng = [52.542354,13.343966];
+            // Oslo latlon = [59.913715,10.752019];
+            //var latlon = [52.543387,13.361604];
+
+            // stanstadt latlon = [46.976402,8.339293]
+
+            //Wedding latlon = [52.553289320469446,13.337574005126953];
+            // Wedding latlon = [52.553289320469446,13.337574005126953];
+            var latlon = [52.542354,13.343966];
+            var latlon2 = [52.5455,13.3633];
+            var latlon3 = [52.5465,13.3637];
+            var latlon4 = [52.5435,13.3633];
+            var latlon5 = [52.5475,13.3630];
+
+            //console.log(r360.Util.latLngToWebMercator(L.latLng(latlon)));
+
+               // add the map and set the initial center to berlin
+            var map = L.map('map').setView(latlon, 14);
+           
+            // attribution to give credit to OSM map data and VBB for public transportation 
+            var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='http://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+
+            // initialising the base map. To change the base map just change following
+            // lines as described by cloudmade, mapbox etc..
+            // note that mapbox is a paided service
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+                maxZoom: 22, attribution: attribution }).addTo(map);
+
+            // set the service key, this is a demo key
+            // please contact us and request your own key
+
+            r360.config.serviceKey = "KRXn8oesiA4MNxrzMhJx";
+            r360.config.serviceUrl = 'http://api.route360.net/api_dev/';
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
+            r360.config.serviceUrl = 'http://dev.route360.net/dev_tiling/';
+            // r360.config.serviceUrl = 'http://dev.route360.net/dev_no_tiling/';
+
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+
+              { time : 30  , color : "#006837", opacity : 1.0},
+                    { time : 60 , color : "#39B54A", opacity : 1.0},
+                    { time : 90 , color : "#8CC63F", opacity : 1.0},
+                    { time : 120 , color : "#F7931E", opacity : 1.0},
+                    { time : 150 , color : "#F15A24", opacity : 1.0},
+                    { time : 180 , color : "#C1272D", opacity : 1.0},
+
+                    { time : 1800 * 1  , color : "#006837", opacity : 1.0},
+                    { time : 1800 * 2 , color : "#39B54A", opacity : 1.0},
+                    { time : 1800 * 3 , color : "#8CC63F", opacity : 1.0},
+                    { time : 1800 * 4 , color : "#F7931E", opacity : 1.0},
+                    { time : 1800 * 5 , color : "#F15A24", opacity : 1.0},
+                    { time : 1800 * 6 , color : "#C1272D", opacity : 1.0}
+            ];
+
+            // add the newly created control to the map
+            // map.addControl(travelTimeControl);
+
+
+            // add a radio element with all the different transport types
+            var buttonOptions = {
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: '<span class="map-icon-bicycling"></span> rent + return bike', key: 'rentAndReturnBike',     
+                      tooltip: 'Cycling speed is on average 15km/h', checked : false },
+                    
+                    { label: '<span class="map-icon-bicycling"></span> rent bike', key: 'rentBike',     
+                      tooltip: 'Cycling speed is on average 15km/h', checked : false },
+
+                    { label: '<span class="map-icon-bicycling"></span> Cycling', key: 'bike',     
+                      tooltip: 'Cycling speed is on average 15km/h', checked : true },
+
+                    { label: '<span class="map-icon-walking"></span> Walking', key: 'walk',     
+                      tooltip: 'Walking speed is on average 5km/h', checked : false  },
+
+                    { label: '<span class="fa fa-car"></span> Car', key: 'car',      
+                      tooltip: 'Car speed is limited by speed limit', checked : false },
+
+                    { label: '<span class="map-icon-train-station"></span> Transit', key: 'transit',  
+                      tooltip: 'This demo only contains subways', checked : false }
+                ]
+            };
+
+
+            var intersectionbuttonOptions = {
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: 'Union', key: 'union',     
+                      tooltip: 'No intersection of polygons', checked : true },
+
+                    { label: 'Intersection', key: 'intersection',     
+                      tooltip: 'Only intersected area shown.', checked : false  },
+
+                    { label: 'Average', key: 'average',      
+                      tooltip: 'Average traveltime in polygons', checked : false },
+                ]
+            };
+
+            // create a new readio button control with the given options
+            var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
+
+            var renderingModeOptions = {
+            buttons : [
+                // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                // and a boolean which indicates if the button is selected by default
+                // labels may contain html
+                { label: 'time', key: false,     
+                  tooltip: 'rendering time', checked : true },
+
+                { label: 'watt', key: true,     
+                  tooltip: 'rendering watts', checked : false  }
+                ]
+            };
+
+            // create a new readio button control with the given options
+            var renderingModeButtons = r360.radioButtonControl(renderingModeOptions);
+
+            var supportLevelOptions = {
+                buttons : [
+                // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                // and a boolean which indicates if the button is selected by default
+                // labels may contain html
+                { label: 'none', key: '0',     
+                  tooltip: '0 Watts support', checked : true },
+
+                {label: 'medium', key: '75',     
+                  tooltip: '75 Watts support', checked : false },
+
+                { label: 'strong', key: '150',     
+                  tooltip: '150 Watts support', checked : false  }
+                ]
+            };
+
+            // create a new readio button control with the given options
+            var supportLevelButtons = r360.radioButtonControl(supportLevelOptions);
+            var intersectionModeButtons = r360.radioButtonControl(intersectionbuttonOptions);
+
+            var elevationOptions = {
+                buttons : [
+                { label: 'Elevation yes', key: true,     
+                  tooltip: '0 Watts support', checked : true },
+
+                {label: 'Elevation no', key: false,     
+                  tooltip: '75 Watts support', checked : false }]
+            };
+
+            var elevationButtons = r360.radioButtonControl(elevationOptions);
+
+
+            // add the newly created control to the map
+            map.addControl(supportLevelButtons);
+
+            // add the newly created control to the map
+            map.addControl(renderingModeButtons);
+            // add the newly created control to the map
+            map.addControl(intersectionModeButtons);
+
+            map.addControl(elevationButtons);
+
+            // create a new readio button control with the given options
+            var travelTypeButtons = r360.radioButtonControl(buttonOptions);
+
+            // add the newly created control to the map
+            map.addControl(travelTypeButtons);
+
+            // bind the action to the change event of the radio travel mode element
+            travelTypeButtons.onChange(function(value){ showPolygons(); });
+
+            var polyOptions = {
+                buttons : [
+                    // each button has a label which is displayed, a key, a tooltip for mouseover events 
+                    // and a boolean which indicates if the button is selected by default
+                    // labels may contain html
+                    { label: 'Color', key: 'normal',     
+                      tooltip: 'Show reachable', checked :  true },
+                    { label: 'Black & White', key: 'inverse',     
+                      tooltip: 'Hide not reachable', checked : false }
+                ],
+                position : 'topright'
+            };
+
+            var polygonOptions    = r360.radioButtonControl(polyOptions);
+            polygonOptions.onChange(function(){ 
+
+                r360.config.defaultPolygonLayerOptions.inverse = !r360.config.defaultPolygonLayerOptions.inverse;
+                showPolygons(); 
+            });
+
+            map.addControl(polygonOptions);
+
+            $('span[lang="de"]').hide();
+
+            // create the layer to add the polygons
+            var routeLayer   = L.featureGroup().addTo(map);
+            var markerLayer  = L.featureGroup().addTo(map);
+            var polygonLayer = r360.route360PolygonLayer().addTo(map);
+
+            // create a marker and add it to the map
+            var homeMarker = L.marker(latlon, { draggable : true }).addTo(map);
+            // showPolygons();
+
+            homeMarker.on('dragend', function(){         showPolygons(); });
+            intersectionModeButtons.onChange(function(){ showPolygons(); });
+            renderingModeButtons.onChange(function(){    showPolygons(); });
+            supportLevelButtons.onChange(function(){     showPolygons(); });
+            elevationButtons.onChange(function(){        showPolygons(); });
+
+            map.on("click", function(e){    
+
+                routeLayer.clearLayers();
+                markerLayer.clearLayers();
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(homeMarker);
+
+                travelOptions.setDate('20150310');
+                travelOptions.setTime('28800');
+
+                travelOptions.setTravelType(travelTypeButtons.getValue());
+                travelOptions.addTarget(L.marker(e.latlng).addTo(markerLayer));
+
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        console.log(route.getTravelTime());
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+            });
+
+            function showPolygons(){
+
+                var travelOptions = r360.travelOptions();
+
+                travelOptions.addSource(homeMarker);
+                travelOptions.setTravelType(travelTypeButtons.getValue());
+                travelOptions.setIntersectionMode(intersectionModeButtons.getValue());
+                travelOptions.setDate('20150125');
+                travelOptions.setTime('35000');
+                travelOptions.setDate('20140825');
+                travelOptions.setTime('39000');
+                travelOptions.setTravelTimes([1800,3600,5400,7200,9000,10800]);
+                travelOptions.setElevationEnabled(elevationButtons.getValue());
+                travelOptions.setRenderWatts(renderingModeButtons.getValue());
+
+
+                if ( renderingModeButtons.getValue() == "watts" ) {
+
+                    travelOptions.setBikeUphill(5);
+                    travelOptions.setBikeDownhill(-2);
+                }
+                else {
+
+                    travelOptions.setBikeUphill(20);
+                    travelOptions.setBikeDownhill(-10);
+                }
+
+                travelOptions.setSupportWatts(supportLevelButtons.getValue());
+                travelOptions.setIntersectionMode(intersectionModeButtons.getValue());
+
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([18000]);
+
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                    polygonLayer.clearAndAddLayers(polygons);
+                });
+            }
+
+            showPolygons();
+
+            function showRoutes(){
+
+                // visualization of junit test cases
+
+                // var travelOptions = r360.travelOptions();
+                // travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
+                // travelOptions.addTarget({lat : 52.52175701517317, lng : 13.377571105957031});
+                // travelOptions.setTravelType('transit');
+                // travelOptions.setDate('20140825');
+                // travelOptions.setTime('39600');
+
+                // // call the service
+                // r360.RouteService.getRoutes(travelOptions, function(routes) {
+                //     _.each(routes, function(route){
+
+                //         route.fadeIn(routeLayer, 500, "travelDistance");
+                //     });
+                // });
+                // 
+                var source = {lat : 52.514000984723936, lng : 13.368666172027586};
+                var target = {lat : 52.513282764498854, lng : 13.35813045501709 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(source);
+                travelOptions.addTarget(target);
+                travelOptions.setTravelType('bike');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+
+                var source = {lat : 52.51815337333538, lng : 13.372678756713867 };
+                var target = {lat : 52.5089601366896, lng : 13.371927738189697 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(source);
+                travelOptions.addTarget(target);
+                travelOptions.setTravelType('car');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+
+                var source = {lat : 52.5167, lng : 13.3833 };
+                var target = {lat : 52.49992172845934, lng : 13.390617370605467 };
+                L.marker(source).addTo(markerLayer)
+                L.marker(target).addTo(markerLayer)
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource(source); 
+                travelOptions.addTarget(target); 
+                travelOptions.setTravelType('walk');
+
+                // call the service
+                r360.RouteService.getRoutes(travelOptions, function(routes) {
+                    _.each(routes, function(route){
+
+                        route.fadeIn(routeLayer, 500, "travelDistance");
+                    });
+                });
+            }
+
+            showRoutes();
+});
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>

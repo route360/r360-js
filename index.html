@@ -1142,9 +1142,11 @@
                                     subject : "Route360° API Key", 
                                     message : generateEmail(result.apiKey, $("#country").val(), $("#00N20000007VCHL").val(), $("#phone").val())
                                 }
-                            );
-
-                            document.getElementById('create-user-form').submit();
+                            ).
+                            .done(function( data ) {
+                                
+                                document.getElementById('create-user-form').submit();                                
+                            });
                         })
                         .fail(function(jqXHR, status, error){
 

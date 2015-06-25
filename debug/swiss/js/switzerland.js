@@ -19,6 +19,8 @@ $(document).ready(function(){
     var maxSources = 3;
     var currentRoute;
     var elevationData = [];
+    var date = '20150115';
+    var time = '20000'
 
     var elevationColors = [{
         label               : "1",
@@ -54,8 +56,8 @@ $(document).ready(function(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl                                  = 'http://api.route360.net/api_switzerland_0.0.2/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://api.route360.net/api_switzerland/';
+    // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;
@@ -197,9 +199,9 @@ $(document).ready(function(){
     map.on('click', function(e){
 
         var index0 = _.indexOf(sourceMarkers, 0);
-        // var index1 = _.indexOf(sourceMarkers, 1);
-        // var index2 = _.indexOf(sourceMarkers, 2);
-        var index1 = -1;var index2 = -1;
+        var index1 = _.indexOf(sourceMarkers, 1);
+        var index2 = _.indexOf(sourceMarkers, 2);
+        // var index1 = -1;var index2 = -1;
 
         // create source marker and make a polygon request
         if (  index0 >= 0 || index1 >= 0 || index2 >= 0 ) {
@@ -208,18 +210,18 @@ $(document).ready(function(){
             createMarker(e.latlng, 'home',  min == 0 ? 'red' : (min == 1 ? 'orange' : 'blue'), sourceLayer, updateSource, 'undefined', min);
             updateSource();
         }
-        // // only so many source markers are allowed
-        else {
+        // only so many source markers are allowed
+        // else {
 
-            targetLayer.clearLayers();
+        //     targetLayer.clearLayers();
 
-            targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
-            if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
-            targetMarker.on('dragend', updateTarget);
-            targetMarker.addTo(targetLayer);
+        //     targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
+        //     if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
+        //     targetMarker.on('dragend', updateTarget);
+        //     targetMarker.addTo(targetLayer);
 
-            updateTarget();
-        }
+        //     updateTarget();
+        // }
     });
 
     /**
@@ -331,8 +333,8 @@ $(document).ready(function(){
             }
         }
 
-        travelOptions.setDate('20150115');
-        travelOptions.setTime('39600');
+        travelOptions.setDate(date);
+        travelOptions.setTime(time);
         travelOptions.setElevationEnabled(true);
         travelOptions.setWaitControl(waitControl);
         travelOptions.addTarget(targetMarker);
@@ -427,8 +429,8 @@ $(document).ready(function(){
             travelOptions.setTravelTimes(travelTimeControl.getValues());
             travelOptions.setWaitControl(waitControl);
             travelOptions.setElevationEnabled(true);
-            travelOptions.setDate('20150115');
-            travelOptions.setTime('39600');
+            travelOptions.setDate(date);
+            travelOptions.setTime(time);
 
             var maxTravelTime = _.max(travelTimeControl.getValues());
 

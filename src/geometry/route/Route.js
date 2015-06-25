@@ -186,23 +186,23 @@ r360.Route = function(travelTime, segments){
             else {
                 
                 if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !_.has(options, 'paintTransfer') )) 
-                    addTransferSegment(segment); 
+                    addTransferSegment(segment, options); 
 
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
         }
 
-        function addTransferSegment(segment){
+        function addTransferSegment(segment, options){
 
-            addCircularMarker(segment.points[0]);     
+            addCircularMarker(segment.points[0], segment, options);     
 
             // if inter station transfer -> involves two stops -> we need a second circle
             if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
-                 addCircularMarker(segment.points[1]);
+                 addCircularMarker(segment.points[1], segment, options);
         }
 
-        function addCircularMarker(latLng) {
+        function addCircularMarker(latLng, segment, options) {
             var marker = L.circleMarker(latLng, { 
                     color:          !_.isUndefined(options) && _.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
                     fillColor:      !_.isUndefined(options) && _.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
@@ -212,6 +212,22 @@ r360.Route = function(travelTime, segments){
                     weight:         !_.isUndefined(options) && _.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
                     radius:         !_.isUndefined(options) && _.has(options, 'transferRadius')     ? options.transferRadius      : 8 
                 });         
+    
+            var popup = !_.isUndefined(options) && _.has(options, 'popup') ? options.popup : "INSERT_TEXT";
+
+            if ( typeof segment !== 'undefined') {
+
+                var variable = !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
+                variable = variable == '' && !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
+
+                popup = popup.replace('INSERT_TEXT', variable);
+            }
+
+            if ( !_.isUndefined(options) && _.has(options, 'popup') ) {
+
+                marker.bindPopup(popup)
+                marker.on('mouseover', function(){ marker.openPopup(); })
+            }
 
             marker.addTo(map);
             marker.bringToFront();

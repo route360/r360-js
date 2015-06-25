@@ -323,5 +323,63 @@ r360.Util = {
         point.x *= 6378137;
         point.y *= 6378137;
         return point;
+    },
+
+    getUserAgent : function(){
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+        if(M[1]=== 'Chrome'){
+            tem= ua.match(/\bOPR\/(\d+)/)
+            if(tem!= null) return 'Opera '+tem[1];
+        }
+        M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+        return M.join(' ');
+    },
+
+    /**
+     * [isAnimated description]
+     * @return {Boolean} [description]
+     */
+    isAnimated: function(){
+        
+        var userAgent = getUserAgent();
+
+        if ( userAgent.indexOf("IE") != -1 )
+            return false;
+        if ( userAgent.indexOf("Safari") != -1 )
+            return false;
+        if ( userAgent.indexOf("Firefox") != -1 )
+            return false;
+        if ( r360.config.defaultPolygonLayerOptions.animate )
+            return true;
+
+        return false;
+    },
+
+    /**
+     * [getTranslation description]
+     * @param  {[type]} offset [description]
+     * @return {[type]}        [description]
+     */
+    getTranslation: function(offset){
+        
+        var userAgent = r360.Util.getUserAgent();
+
+        if ( userAgent.indexOf("IE 9") != -1 )
+            return "transform:translate(" + offset.x + "px," + offset.y + "px)";
+
+        if ( userAgent.indexOf("Safari") != -1 ) 
+            return "-webkit-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        if ( userAgent.indexOf("Firefox") != -1 ) 
+            return "-moz-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        else
+            return "transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
     }
 };

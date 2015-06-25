@@ -18,6 +18,8 @@ r360.RouteSegment = function(segment){
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
     that.transitSegment  = false;
+    that.startname      = segment.startname;
+    that.endname        = segment.endname;
 
     // build the geometry
     _.each(segment.points, function(point){
