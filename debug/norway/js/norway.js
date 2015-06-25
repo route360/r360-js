@@ -164,13 +164,20 @@ $(document).ready(function(){
 
     // get the coordinates from the browser
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position){
+
+        setTimeout(function(){ 
+
+            navigator.geolocation.getCurrentPosition(function(position){
             var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
 
             sourceLayer.clearLayers();
             sourceMarker = createMarker(latlng, 'home', 'red', sourceLayer, updateSource);
             updateSource();    
         });
+    }, 100);
+
+
+        
     }
 
     // ==================================================================================================================================
