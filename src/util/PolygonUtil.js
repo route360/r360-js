@@ -101,6 +101,12 @@ r360.PolygonUtil = {
         return point;
     },
 
+    divide: function(point, quotient){
+        point.x /= quotient;
+        point.y /= quotient;
+        return point;
+    },
+
     /**
      * [roundPoint Rounds a point's x and y coordinate. The method changes the x and y 
      *     values of the given point. If the fractional portion of number (x and y) 
@@ -166,6 +172,50 @@ r360.PolygonUtil = {
         bounds.min.y -= extendY;
 
         return bounds;
+    },
+
+    /**
+     * [prepareMultipolygons description]
+     * @param  {[type]} multiPolygons [description]
+     * @param  {[type]} topRight      [description]
+     * @param  {[type]} topLeft       [description]
+     * @return {[type]}               [description]
+     */
+    prepareMultipolygons : function(multiPolygons, topRight, bottomLeft) {
+
+        var preparedMultiPolygons = [];
+
+        for ( var i = 0; i < multiPolygons.length ; i++){
+            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
+
+                var currentPolygon = multiPolygons[i].polygons[j];
+
+                // project to 4326
+                currentPolygon.project(); 
+                // adjust the bounding box
+                r360.PolygonUtil.updateBoundingBox(currentPolygon, topRight, bottomLeft);
+                // find the multipolygon to which this polygon belongs (travel time matching)
+                r360.PolygonUtil.addPolygonToMultiPolygon(preparedMultiPolygons, currentPolygon); 
+            }
+        }
+        
+        // make sure the multipolygons are sorted by the travel time ascendingly
+        preparedMultiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
+
+        return preparedMultiPolygons;
+    },
+
+    /**
+     * [updateBoundingBox description]
+     * @param  {[type]} polygon [description]
+     * @return {[type]}         [description]
+     */
+    updateBoundingBox : function(polygon, topRight, bottomLeft){
+
+        if ( polygon.topRight.lat   > topRight.lat)    topRight.lat   = polygon.topRight.lat;                
+        if ( polygon.bottomLeft.lat < bottomLeft.lat)  bottomLeft.lat = polygon.bottomLeft.lat;
+        if ( polygon.topRight.lng   > topRight.lng )   topRight.lng   = polygon.topRight.lng;
+        if ( polygon.bottomLeft.lng < bottomLeft.lng ) bottomLeft.lng = polygon.bottomLeft.lng;
     },
 
     /*

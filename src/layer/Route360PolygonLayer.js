@@ -21,13 +21,15 @@ r360.Route360PolygonLayer = L.Class.extend({
         
         this.multiPolygons = []; 
         // set default parameters
-        this.opacity      = r360.config.defaultPolygonLayerOptions.opacity;
-        this.strokeWidth  = r360.config.defaultPolygonLayerOptions.strokeWidth;
-        this.tolerance    = r360.config.defaultPolygonLayerOptions.tolerance;
-        this.extendWidthX = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.extendWidthY = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.topRight     = { lat : -90, lng : -180 };
-        this.bottomLeft   = { lat : -90, lng : +180 };
+        this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
+        this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
+        this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
+        this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+        this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
+        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
+        this.topRight          = { lat : -90, lng : -180 };
+        this.bottomLeft        = { lat : -90, lng : +180 };
         
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
@@ -117,25 +119,8 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     addLayer : function(multiPolygons) {
         
-        // this.resetBoundingBox();
-        this.multiPolygons = [];
-
-        for ( var i = 0; i < multiPolygons.length ; i++){
-            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
-
-                var currentPolygon = multiPolygons[i].polygons[j];
-
-                // project to 4326
-                currentPolygon.project(); 
-                // adjust the bounding box
-                this.updateBoundingBox(currentPolygon);
-                // find the multipolygon to which this polygon belongs (travel time matching)
-                r360.PolygonUtil.addPolygonToMultiPolygon(this.multiPolygons, currentPolygon); 
-            }
-        }
+        this.multiPolygons = r360.PolygonUtil.prepareMultipolygons(multiPolygons, this.topRight, this.bottomLeft);
         
-        // make sure the multipolygons are sorted by the travel time ascendingly
-        this.multiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
         // paint them
         this.draw();
     },
@@ -148,19 +133,6 @@ r360.Route360PolygonLayer = L.Class.extend({
 
         map.addLayer(this);
         return this;
-    },
-    
-    /**
-     * [updateBoundingBox description]
-     * @param  {[type]} polygon [description]
-     * @return {[type]}         [description]
-     */
-    updateBoundingBox:function(polygon){
-
-        if ( polygon.topRight.lat   > this.topRight.lat)    this.topRight.lat   = polygon.topRight.lat;                
-        if ( polygon.bottomLeft.lat < this.bottomLeft.lat)  this.bottomLeft.lat = polygon.bottomLeft.lat;
-        if ( polygon.topRight.lng   > this.topRight.lng )   this.topRight.lng   = polygon.topRight.lng;
-        if ( polygon.bottomLeft.lng < this.bottomLeft.lng ) this.bottomLeft.lng = polygon.bottomLeft.lng;
     },
     
     /**
@@ -222,7 +194,7 @@ r360.Route360PolygonLayer = L.Class.extend({
             this.svgHeight = this.map.getSize().y;
 
             // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-            L.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
+            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
@@ -236,6 +208,12 @@ r360.Route360PolygonLayer = L.Class.extend({
                 this.offset.x += (mapPosition.left - svgPosition.left);
                 this.offset.y += (mapPosition.top - svgPosition.top);
             }
+
+            // console.log("leaflet svg position: ", svgPosition);
+            console.log("leaflet map position: ", mapPosition);
+            // console.log("leaflet off position: ", this.offset);
+            // console.log()
+
 
             // clear layer from previous drawings
             $('#canvas'+ $(this.map._container).attr("id")).empty();
@@ -264,10 +242,10 @@ r360.Route360PolygonLayer = L.Class.extend({
                 offset            : this.offset,
                 svgHeight         : this.svgHeight,
                 svgWidth          : this.svgWidth,
-                backgroundColor   : r360.config.defaultPolygonLayerOptions.backgroundColor,
-                backgroundOpacity : r360.config.defaultPolygonLayerOptions.backgroundOpacity,
-                opacity           : r360.config.defaultPolygonLayerOptions.opacity,
-                strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
+                backgroundColor   : this.backgroundColor,
+                backgroundOpacity : this.backgroundOpacity,
+                opacity           : this.opacity,
+                strokeWidth       : this.strokeWidth
             }
 
             // add the svg string to the container

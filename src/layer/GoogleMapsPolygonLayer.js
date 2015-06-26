@@ -1,19 +1,38 @@
 
 GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
-function GoogleMapsPolygonLayer(bounds, map) {
+function GoogleMapsPolygonLayer(map, polygons, options) {
 
-  // Initialize all properties.
-  this.bounds_ = bounds;
-  this.map_ = map;
+    // set default parameters
+    this.map               = map;
+    this.id                = this.map.getDiv().id
+    this.inverse           = false;
+    this.topRight          = { lat : -90, lng : -180 };
+    this.bottomLeft        = { lat : -90, lng : +180 };
+    this.multiPolygons     = r360.PolygonUtil.prepareMultipolygons(polygons, this.topRight, this.bottomLeft);
+    this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
+    this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
+    this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
+    this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
+    this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
+    this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+    this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
 
-  // Define a property to hold the image's div. We'll
-  // actually create this div upon receipt of the onAdd()
-  // method so we'll leave it null for now.
-  this.div_ = null;
+    // overwrite defaults with optional parameters
+    if ( typeof options != 'undefined' ) {
 
-  // Explicitly call setMap on this overlay.
-  this.setMap(map);
+        if ( typeof options.opacity        != 'undefined') this.opacity      = options.opacity;
+        if ( typeof options.strokeWidth    != 'undefined') this.strokeWidth  = options.strokeWidth;
+        if ( typeof options.inverse        != 'undefined') this.inverse      = options.inverse;
+        if ( typeof options.tolerance      != 'undefined') this.tolerance    = options.tolerance;
+        if ( typeof options.extendWidthX   != 'undefined') this.extendWidthX = options.extendWidthX;
+        if ( typeof options.extendWidthY   != 'undefined') this.extendWidthY = options.extendWidthY;
+    }
+
+    // the div element containing all the data
+    this.element  = null;
+    // this triggers the draw method
+    this.setMap(this.map);
 }
 
 /**
@@ -22,54 +41,126 @@ function GoogleMapsPolygonLayer(bounds, map) {
  */
 GoogleMapsPolygonLayer.prototype.onAdd = function() {
 
-  var div = document.createElement('div');
-  div.style.borderStyle = 'none';
-  div.style.borderWidth = '0px';
-  div.style.position = 'absolute';
+    // create the dom elemenet which hols old the svgs
+    this.element    = document.createElement('div');
+    this.element.id = 'r360-googlemaps-polygon-layer-canvas-in-' + this.id;
 
-  // Create the img element and attach it to the div.
-  var img = document.createElement('img');
-  img.src = this.image_;
-  img.style.width = '100%';
-  img.style.height = '100%';
-  img.style.position = 'absolute';
-  div.appendChild(img);
+    // Add the element to the "overlayLayer" pane.
+    this.getPanes().overlayLayer.appendChild(this.element);  
+};
 
-  this.div_ = div;
+GoogleMapsPolygonLayer.prototype.getMapPixelBounds = function(){
 
-  // Add the element to the "overlayLayer" pane.
-  var panes = this.getPanes();
-  panes.overlayLayer.appendChild(div);
+    var bottomLeft = r360.Util.googleLatlngToPoint(this.map, this.map.getBounds().getSouthWest(), this.map.getZoom());
+    var topRight   = r360.Util.googleLatlngToPoint(this.map, this.map.getBounds().getNorthEast(), this.map.getZoom());
+
+    return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } }; 
+};
+
+GoogleMapsPolygonLayer.prototype.getPixelOrigin = function(){
+
+    var viewHalf = r360.PolygonUtil.divide({ x : this.map.getDiv().offsetWidth, y : this.map.getDiv().offsetHeight }, 2);
+    var center = r360.Util.googleLatlngToPoint(this.map, this.map.getCenter(), this.map.getZoom());
+    
+    return r360.PolygonUtil.roundPoint(r360.PolygonUtil.subtract(center, viewHalf.x, viewHalf.y));
+};
+
+GoogleMapsPolygonLayer.prototype.setInverse = function(inverse){
+
+    console.log('inverse');
+    if ( this.inverse != inverse ) {
+
+        this.inverse = inverse;
+        this.draw();
+    }
+};
+
+GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
+
+    var pixelBounds = r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY);
+
+    var svg = r360.SvgUtil.createSvgData(polygon, { 
+        bounds      : pixelBounds, 
+        scale       : Math.pow(2, this.map.getZoom()) * 256, 
+        tolerance   : this.tolerance, 
+        pixelOrigin : this.getPixelOrigin(),  
+        offset      : this.offset
+    });
+
+    return svg;
 };
 
 GoogleMapsPolygonLayer.prototype.draw = function() {
 
-  // We use the south-west and north-east
-  // coordinates of the overlay to peg it to the correct position and size.
-  // To do this, we need to retrieve the projection from the overlay.
-  var overlayProjection = this.getProjection();
+    if ( this.multiPolygons.length > 0 ) {
+             
+        this.svgWidth  = this.map.getDiv().offsetWidth;
+        this.svgHeight = this.map.getDiv().offsetHeight;
 
-  // Retrieve the south-west and north-east coordinates of this overlay
-  // in LatLngs and convert them to pixel coordinates.
-  // We'll use these coordinates to resize the div.
-  var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
-  var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+        // always place the layer in the top left corner. Later adjustments will be made by svg translate 
+        r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
-  // Resize the image's div to fit the indicated dimensions.
-  var div = this.div_;
-  div.style.left = sw.x + 'px';
-  div.style.top = ne.y + 'px';
-  div.style.width = (ne.x - sw.x) + 'px';
-  div.style.height = (sw.y - ne.y) + 'px';
+        // calculate the offset in between map and svg in order to translate
+        var svgPosition    = $('#svg_' + this.id).offset();
+        var mapPosition    = $(this.map.getDiv()).offset();
+
+        if ( typeof this.offset == 'undefined' )
+            this.offset = { x : 0 , y : 0 };
+
+        // adjust the offset after map panning / zooming
+        if ( typeof svgPosition != 'undefined' ) {
+            this.offset.x += (mapPosition.left - svgPosition.left);
+            this.offset.y += (mapPosition.top  - svgPosition.top);
+        }
+
+        // $('#'+ this.element.id).attr("style", r360.Util.getTranslation(this.offset));
+
+        console.log("google svg position: ", svgPosition);
+        console.log("google map position: ", mapPosition);
+        console.log("google off position: ", this.offset);
+        console.log()
+
+        // clear layer from previous drawings
+        $('#'+ this.element.id).empty();
+
+        var gElements = [];  
+        
+        // go through each multipolygon (represents each travel time)
+        for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+            
+            var multiPolygon = this.multiPolygons[i], svgData = [];
+
+            // add each polygon for the given travel time
+            for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                svgData.push(this.createSvgData(multiPolygon.polygons[j]));
+
+            if ( svgData.length != 0 ) 
+                gElements.push(r360.SvgUtil.getGElement(svgData, {
+                    color             : !this.inverse ? multiPolygon.getColor() : 'black',
+                    opacity           : !this.inverse ? 1                       : multiPolygon.getOpacity(),
+                    strokeWidth       : this.strokeWidth
+                })); 
+        }
+
+        var options = {
+            id                : this.id,
+            offset            : this.offset,
+            svgHeight         : this.svgHeight,
+            svgWidth          : this.svgWidth,
+            backgroundColor   : this.backgroundColor,
+            backgroundOpacity : this.backgroundOpacity,
+            opacity           : this.opacity,
+            strokeWidth       : this.strokeWidth
+        }
+
+        // add the svg string to the container
+        $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+                                                     : r360.SvgUtil.getInverseSvgElement(gElements, options));
+    }
 };
 
-// [START region_removal]
 // The onRemove() method will be called automatically from the API if
 // we ever set the overlay's map property to 'null'.
 GoogleMapsPolygonLayer.prototype.onRemove = function() {
-  this.div_.parentNode.removeChild(this.div_);
-  this.div_ = null;
+    $('#' + this.element.id).empty();
 };
-// [END region_removal]
-
-google.maps.event.addDomListener(window, 'load', initialize);
