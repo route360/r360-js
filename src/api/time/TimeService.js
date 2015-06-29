@@ -46,11 +46,11 @@ r360.TimeService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
