@@ -92,71 +92,79 @@ GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
 
 GoogleMapsPolygonLayer.prototype.draw = function() {
 
-    if ( this.multiPolygons.length > 0 ) {
+    var that = this;
+
+    setTimeout(function(){
+        
+   
+
+    if ( that.multiPolygons.length > 0 ) {
              
-        this.svgWidth  = this.map.getDiv().offsetWidth;
-        this.svgHeight = this.map.getDiv().offsetHeight;
+        that.svgWidth  = that.map.getDiv().offsetWidth;
+        that.svgHeight = that.map.getDiv().offsetHeight;
 
         // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-        r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
+        r360.DomUtil.setPosition(that.element, { x : 0 , y : 0 });
 
         // calculate the offset in between map and svg in order to translate
-        var svgPosition    = $('#svg_' + this.id).offset();
-        var mapPosition    = $(this.map.getDiv()).offset();
+        var svgPosition    = $('#svg_' + that.id).offset();
+        var mapPosition    = $(that.map.getDiv()).offset();
 
-        if ( typeof this.offset == 'undefined' )
-            this.offset = { x : 0 , y : 0 };
+        if ( typeof that.offset == 'undefined' )
+            that.offset = { x : 0 , y : 0 };
 
         // adjust the offset after map panning / zooming
         if ( typeof svgPosition != 'undefined' ) {
-            this.offset.x += (mapPosition.left - svgPosition.left);
-            this.offset.y += (mapPosition.top  - svgPosition.top);
+            that.offset.x += (mapPosition.left - svgPosition.left);
+            that.offset.y += (mapPosition.top  - svgPosition.top);
         }
 
         // $('#'+ this.element.id).attr("style", r360.Util.getTranslation(this.offset));
 
         console.log("google svg position: ", svgPosition);
         console.log("google map position: ", mapPosition);
-        console.log("google off position: ", this.offset);
+        console.log("google off position: ", that.offset);
         console.log()
 
         // clear layer from previous drawings
-        $('#'+ this.element.id).empty();
+        $('#'+ that.element.id).empty();
 
         var gElements = [];  
         
         // go through each multipolygon (represents each travel time)
-        for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+        for ( var i = 0 ; i < that.multiPolygons.length ;  i++){
             
-            var multiPolygon = this.multiPolygons[i], svgData = [];
+            var multiPolygon = that.multiPolygons[i], svgData = [];
 
             // add each polygon for the given travel time
             for ( var j = 0; j < multiPolygon.polygons.length; j++) 
-                svgData.push(this.createSvgData(multiPolygon.polygons[j]));
+                svgData.push(that.createSvgData(multiPolygon.polygons[j]));
 
             if ( svgData.length != 0 ) 
                 gElements.push(r360.SvgUtil.getGElement(svgData, {
-                    color             : !this.inverse ? multiPolygon.getColor() : 'black',
-                    opacity           : !this.inverse ? 1                       : multiPolygon.getOpacity(),
-                    strokeWidth       : this.strokeWidth
+                    color             : !that.inverse ? multiPolygon.getColor() : 'black',
+                    opacity           : !that.inverse ? 1                       : multiPolygon.getOpacity(),
+                    strokeWidth       : that.strokeWidth
                 })); 
         }
 
         var options = {
-            id                : this.id,
-            offset            : this.offset,
-            svgHeight         : this.svgHeight,
-            svgWidth          : this.svgWidth,
-            backgroundColor   : this.backgroundColor,
-            backgroundOpacity : this.backgroundOpacity,
-            opacity           : this.opacity,
-            strokeWidth       : this.strokeWidth
+            id                : that.id,
+            offset            : that.offset,
+            svgHeight         : that.svgHeight,
+            svgWidth          : that.svgWidth,
+            backgroundColor   : that.backgroundColor,
+            backgroundOpacity : that.backgroundOpacity,
+            opacity           : that.opacity,
+            strokeWidth       : that.strokeWidth
         }
 
         // add the svg string to the container
-        $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+        $('#'+ that.element.id).append(!that.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
                                                      : r360.SvgUtil.getInverseSvgElement(gElements, options));
     }
+
+     }, 300);
 };
 
 // The onRemove() method will be called automatically from the API if

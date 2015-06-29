@@ -367,7 +367,7 @@ r360.Util = {
      * @return {[type]}        [description]
      */
     getTranslation: function(offset){
-        
+  
         var userAgent = r360.Util.getUserAgent();
 
         if ( userAgent.indexOf("IE 9") != -1 )

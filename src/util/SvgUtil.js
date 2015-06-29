@@ -148,8 +148,8 @@ r360.SvgUtil = {
             
             point = new L.Point(clippedArray[i][0], clippedArray[i][1]);
 
-            r360.PolygonUtil.subtract(point, options.pixelOrigin.x + options.offset.x, 
-                                             options.pixelOrigin.y + options.offset.y) 
+            r360.PolygonUtil.subtract(point, options.pixelOrigin.x, 
+                                             options.pixelOrigin.y) 
 
             pathData.push( i > 0 ? r360.PolygonUtil.buildPath(point, "L") : r360.PolygonUtil.buildPath(point, "M"));
             lastPoint = point;
