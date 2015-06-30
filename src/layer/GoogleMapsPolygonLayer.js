@@ -84,7 +84,7 @@ GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
         scale       : Math.pow(2, this.map.getZoom()) * 256, 
         tolerance   : this.tolerance, 
         pixelOrigin : this.getPixelOrigin(),  
-        offset      : this.offset
+        offset      : {x:0,y:0}
     });
 
     return svg;
@@ -94,8 +94,6 @@ GoogleMapsPolygonLayer.prototype.draw = function() {
 
     var that = this;
 
-    setTimeout(function(){
-        
    
 
     if ( that.multiPolygons.length > 0 ) {
@@ -118,6 +116,8 @@ GoogleMapsPolygonLayer.prototype.draw = function() {
             that.offset.x += (mapPosition.left - svgPosition.left);
             that.offset.y += (mapPosition.top  - svgPosition.top);
         }
+
+
 
         // $('#'+ this.element.id).attr("style", r360.Util.getTranslation(this.offset));
 
@@ -163,8 +163,6 @@ GoogleMapsPolygonLayer.prototype.draw = function() {
         $('#'+ that.element.id).append(!that.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
                                                      : r360.SvgUtil.getInverseSvgElement(gElements, options));
     }
-
-     }, 300);
 };
 
 // The onRemove() method will be called automatically from the API if
