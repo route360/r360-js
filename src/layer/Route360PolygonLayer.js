@@ -209,12 +209,6 @@ r360.Route360PolygonLayer = L.Class.extend({
                 this.offset.y += (mapPosition.top - svgPosition.top);
             }
 
-            // console.log("leaflet svg position: ", svgPosition);
-            console.log("leaflet map position: ", mapPosition);
-            // console.log("leaflet off position: ", this.offset);
-            // console.log()
-
-
             // clear layer from previous drawings
             $('#canvas'+ $(this.map._container).attr("id")).empty();
 

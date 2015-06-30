@@ -117,15 +117,6 @@ GoogleMapsPolygonLayer.prototype.draw = function() {
             that.offset.y += (mapPosition.top  - svgPosition.top);
         }
 
-
-
-        // $('#'+ this.element.id).attr("style", r360.Util.getTranslation(this.offset));
-
-        console.log("google svg position: ", svgPosition);
-        console.log("google map position: ", mapPosition);
-        console.log("google off position: ", that.offset);
-        console.log()
-
         // clear layer from previous drawings
         $('#'+ that.element.id).empty();
 
