@@ -48,10 +48,24 @@
                     zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
 
                 var colorPolygonLayer = new GoogleMapsPolygonLayer(colorMap, r360.Util.parsePolygons(transitPolygon));
-                google.maps.event.addDomListener(colorMap, 'dragend', function(){ colorPolygonLayer.draw(); });
+                //google.maps.event.addDomListener(colorMap, 'dragend', function(){ colorPolygonLayer.draw(); });
 
-                // var bwPolygonLayer = new GoogleMapsPolygonLayer(bwMap, r360.Util.parsePolygons(transitPolygon), { inverse : true });
-                // google.maps.event.addDomListener(bwMap, 'dragend', function(){ bwPolygonLayer.draw(); });
+                 var bwPolygonLayer = new GoogleMapsPolygonLayer(bwMap, r360.Util.parsePolygons(transitPolygon), { inverse : true });
+                 //google.maps.event.addDomListener(bwMap, 'dragend', function(){ bwPolygonLayer.draw(); });
+
+                 google.maps.event.addListener(bwMap, 'bounds_changed', function () {
+                    google.maps.event.addListenerOnce(bwMap, 'idle', function (e) {
+                            bwPolygonLayer.draw();
+                    });
+                });
+
+                 google.maps.event.addListener(colorMap, 'bounds_changed', function () {
+
+                    google.maps.event.addListenerOnce(colorMap, 'idle', function (e) {
+                        console.log("idle");
+                            colorPolygonLayer.draw();
+                    });
+                });
             }
 
             function initLeaflet() {
@@ -67,9 +81,9 @@
                 var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
                     maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(bwMap);
 
-                // var polygonLayer  = r360.route360PolygonLayer().addTo(bwMap);
-                // polygonLayer.setInverse(true);
-                // polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
+                 var polygonLayer  = r360.route360PolygonLayer().addTo(bwMap);
+                 polygonLayer.setInverse(true);
+                 polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
             }
 
             initGoogle();

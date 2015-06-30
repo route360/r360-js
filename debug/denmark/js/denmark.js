@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
-    // var latlon = [55.675298, 12.565125];
-    var latlon = [52.5167, 13.3833];
+     var latlon = [55.675298, 12.565125];
+    //var latlon = [52.5167, 13.3833];
 
     // add the map and set the initial center to berlin
     var map = L.map('map', {zoomControl : false}).setView(latlon, 12);
@@ -59,7 +59,7 @@ $(document).ready(function(){
     // r360.config.serviceKey                                  = 'KRXn8oesiA4MNxrzMhJx';
     r360.config.serviceUrl                                  = 'http://dev.route360.net/api_denmark/';
     r360.config.serviceUrl                                  = 'http://api.route360.net/api_naturtrip_rc1/';
-    // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;
