@@ -15,7 +15,7 @@ $(document).ready(function(){
     // var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
         maxZoom: 22, attribution: attribution }).addTo(map);
 
-    var maxSources = 3;
+    var maxSources = 1;
     var currentRoute;
     var elevationData = [];
     var date = '20150624';
@@ -55,11 +55,8 @@ $(document).ready(function(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.requestTimeout                              = 60000;
-    r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    // r360.config.serviceKey                                  = 'KRXn8oesiA4MNxrzMhJx';
-    r360.config.serviceUrl                                  = 'http://dev.route360.net/api_denmark/';
-    r360.config.serviceUrl                                  = 'http://api.route360.net/api_naturtrip_rc1/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceKey                                  = 'CRIQPJHN0RCPW0S3JENG';
+    r360.config.serviceUrl                                  = 'http://api.route360.net/api_denmark/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;
@@ -203,7 +200,7 @@ $(document).ready(function(){
         var index0 = _.indexOf(sourceMarkers, 0);
         var index1 = _.indexOf(sourceMarkers, 1);
         var index2 = _.indexOf(sourceMarkers, 2);
-        // var index1 = -1;var index2 = -1;
+        var index1 = -1;var index2 = -1;
 
         // create source marker and make a polygon request
         if (  index0 >= 0 || index1 >= 0 || index2 >= 0 ) {
@@ -213,17 +210,17 @@ $(document).ready(function(){
             updateSource();
         }
         // // only so many source markers are allowed
-        // else {
+        else {
 
-        //     targetLayer.clearLayers();
+            targetLayer.clearLayers();
 
-        //     targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
-        //     if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
-        //     targetMarker.on('dragend', updateTarget);
-        //     targetMarker.addTo(targetLayer);
+            targetMarker = L.marker(e.latlng, { draggable : true, icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })});
+            if ( typeof popup != 'undefined') targetMarker.bindPopup(popup);
+            targetMarker.on('dragend', updateTarget);
+            targetMarker.addTo(targetLayer);
 
-        //     updateTarget();
-        // }
+            updateTarget();
+        }
     });
 
     /**

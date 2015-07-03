@@ -25,7 +25,7 @@ r360.Util = {
      * in seconds. This means that the current hours, minutes and seconds of the current
      * time are added up, e.g.: 12:11 pm: 
      *
-     *      -> (12 * 3600) + (11 * 60) = 43875
+     *      -> (12 * 3600) + (11 * 60) = 43875w
      * 
      * @method getHoursAndMinutesInSeconds
      * 
@@ -130,42 +130,9 @@ r360.Util = {
         var coordinates = new Array();
 
         for ( var i = 0 ; i < latlngs.length ; i++ )
-            // coordinates.push(new L.Point(latlngs[i][1], latlngs[i][0]))
-            coordinates.push(new L.Point(latlngs[i][0], latlngs[i][1]))
+            coordinates.push(new r360.Point(latlngs[i][0], latlngs[i][1]))
 
         return coordinates;
-    },
-
-    /*
-     * deprecated
-     */
-    routeToLeafletPolylines : function(route, options) {
-
-        options = typeof options !== 'undefined' ? options : {};
-
-        var polylines = [];
-
-        _.each(route.getSegments(), function(segment, index){
-
-            if ( segment.getType() == "TRANSFER" ) return;
-
-            var polylineOptions         = {};
-            polylineOptions.color       = _.has(options, 'color') ? options.color : segment.getColor();
-
-            var polylineHaloOptions     = {};
-            polylineHaloOptions.weight  = 7;
-            polylineHaloOptions.color   = "white";
-            
-            // the first and the last segment is walking so we need to dotted lines
-            if ( index == 0 || index == (route.getLength() - 1) ) polylineOptions.dashArray = "1, 8";
-
-            var halo = L.polyline(segment.getPoints(), polylineHaloOptions);
-            var line = L.polyline(segment.getPoints(), polylineOptions);
-
-            polylines.push([halo, line]);
-        });
-
-        return polylines;
     },
 
     /*
@@ -197,12 +164,12 @@ r360.Util = {
     formatReverseGeocoding : function(json) {
 
         var streetAdress = [];
-        if ( _.has(json.address, 'road') )          streetAdress.push(json.address.road);
-        if ( _.has(json.address, 'house_number') )  streetAdress.push(json.address.house_number);
+        if ( r360.has(json.address, 'road') )          streetAdress.push(json.address.road);
+        if ( r360.has(json.address, 'house_number') )  streetAdress.push(json.address.house_number);
 
         var city = [];
-        if ( _.has(json.address, 'postcode') )      city.push(json.address.postcode);
-        if ( _.has(json.address, 'city') )          city.push(json.address.city);
+        if ( r360.has(json.address, 'postcode') )      city.push(json.address.postcode);
+        if ( r360.has(json.address, 'city') )          city.push(json.address.city);
 
         var address = [];
         if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
@@ -267,51 +234,30 @@ r360.Util = {
 
         return routes;
     },
-
-    /*
-     * Convenients method to generate a Leaflet marker with the 
-     * specified marker color. For available colors look at 'dist/images'
-     * 
-     * @method getMarker
-     * @param {Object} [latlon] The coordinate
-     * @param {Number} [latlon.lat] The latitude of the coordinate.
-     * @param {Number} [latlon.lng] The longitude of the coordinate.
-     * @param {Object} [options] The options for the marker
-     * @param {Number} [options.color] The color for the marker icon.
-     */
-    getMarker : function(latlng, options){
-
-        var color = _.has(options, 'color') ? '-' + options.color : '-blue';
-
-        options.icon = L.icon({
-            iconSize     : [25, 41], // size of the icon
-            iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
-            iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
-            
-            shadowSize   : [41, 41], // size of the shadow
-            shadowUrl    : options.iconPath + 'marker-shadow.png',
-            shadowAnchor : [41 / 3, 41], // point of the shadow which will correspond to marker's location
-            
-            popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
-        });
-
-        return L.marker(latlng, options);
-    },
-
+    // 3857 => pixel
     webMercatorToLeaflet : function(point){
+
         point.x /= 6378137;
         point.y /= 6378137;
-        L.CRS.EPSG3857.transformation._transform(point);
+        r360.CRS.EPSG3857.transformation._transform(point);
+        return point;
+    },
+
+    leafletToWebMercator : function(point){
+        
+        point.x *= 6378137;
+        point.y *= 6378137;
+        point = r360.CRS.EPSG3857.transformation.untransform(point);
         return point;
     },
 
     webMercatorToLatLng : function(point, elevation){
 
-        var latlng = L.CRS.EPSG3857.projection.unproject(new L.Point(point.x /= 6378137, point.y /= 6378137));
+        var latlng = r360.CRS.EPSG3857.projection.unproject(new r360.Point(point.x /= 6378137, point.y /= 6378137));
 
         // x,y,z given so we have elevation data
         if ( typeof elevation !== 'undefined' ) 
-            return L.latLng([latlng.lat, latlng.lng, elevation]);
+            return r360.latLng([latlng.lat, latlng.lng, elevation]);
         // no elevation given, just unproject coordinates to lat/lng
         else 
             return latlng;
@@ -319,7 +265,7 @@ r360.Util = {
 
     latLngToWebMercator : function(latlng){
 
-        var point = L.Projection.SphericalMercator.project(latlng);
+        var point = r360.Projection.SphericalMercator.project(latlng);
         point.x *= 6378137;
         point.y *= 6378137;
         return point;
@@ -383,28 +329,28 @@ r360.Util = {
             return "transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
     },
 
-
-    /**
-    * @param {google.maps.Map} map
-    * @param {google.maps.LatLng} latlng
-    * @param {int} z
-    * @return {google.maps.Point}
-    */
-    googleLatlngToPoint : function(map, latlng, z){
-        var normalizedPoint = map.getProjection().fromLatLngToPoint(latlng); // returns x,y normalized to 0~255
-        var scale = Math.pow(2, z);
-        return new google.maps.Point(normalizedPoint.x * scale, normalizedPoint.y * scale); 
+    // round a given number to a given precision
+    formatNum: function (num, digits) {
+        var pow = Math.pow(10, digits || 5);
+        return Math.round(num * pow) / pow;
     },
-    /**
-    * @param {google.maps.Map} map
-    * @param {google.maps.Point} point
-    * @param {int} z
-    * @return {google.maps.LatLng}
-    */
-     googlePointToLatlng : function(map, point, z){
-        var scale = Math.pow(2, z);
-        var normalizedPoint = new google.maps.Point(point.x / scale, point.y / scale);
-        var latlng = map.getProjection().fromPointToLatLng(normalizedPoint);
-        return latlng; 
+
+    isArray : Array.isArray || function (obj) {
+        return (Object.prototype.toString.call(obj) === '[object Array]');
+    },
+
+    // extend an object with properties of one or more other objects
+    extend: function (dest) {
+        var i, j, len, src;
+
+        for (j = 1, len = arguments.length; j < len; j++) {
+            src = arguments[j];
+            for (i in src) {
+                dest[i] = src[i];
+            }
+        }
+        return dest;
     }
 };
+
+r360.extend = r360.Util.extend;

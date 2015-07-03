@@ -33,8 +33,7 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet-src.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
     <script type="text/javascript" src="../../spec/dummydata/transit-polygon.js"></script>
-    <script type="text/javascript" src="../../lib/build/deps.js"></script>
-    <script type="text/javascript" src="../../lib/build/r360-include.js"></script>
+    <script type="text/javascript" src="../../dist/r360.js"></script>
     <script type="text/javascript">
 
         $(document).ready(function(){
@@ -48,46 +47,29 @@
                     zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
 
                 var colorPolygonLayer = new GoogleMapsPolygonLayer(colorMap, r360.Util.parsePolygons(transitPolygon));
-                //google.maps.event.addDomListener(colorMap, 'dragend', function(){ colorPolygonLayer.draw(); });
-
-                 var bwPolygonLayer = new GoogleMapsPolygonLayer(bwMap, r360.Util.parsePolygons(transitPolygon), { inverse : true });
-                 //google.maps.event.addDomListener(bwMap, 'dragend', function(){ bwPolygonLayer.draw(); });
-
-                 google.maps.event.addListener(bwMap, 'bounds_changed', function () {
-                    google.maps.event.addListenerOnce(bwMap, 'idle', function (e) {
-                            bwPolygonLayer.draw();
-                    });
-                });
-
-                 google.maps.event.addListener(colorMap, 'bounds_changed', function () {
-
-                    google.maps.event.addListenerOnce(colorMap, 'idle', function (e) {
-                        console.log("idle");
-                            colorPolygonLayer.draw();
-                    });
-                });
+                var bwPolygonLayer    = new GoogleMapsPolygonLayer(bwMap, r360.Util.parsePolygons(transitPolygon), { inverse : true });
             }
 
-            function initLeaflet() {
+            // function initLeaflet() {
 
-                var colorMap  = L.map('leaflet-color-map').setView([52.5167, 13.3833], 11);
-                var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-                    maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(colorMap);
+            //     var colorMap  = L.map('leaflet-color-map').setView([52.5167, 13.3833], 11);
+            //     var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
+            //         maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(colorMap);
 
-                var polygonLayer  = r360.route360PolygonLayer().addTo(colorMap);
-                polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
+            //     var polygonLayer  = r360.route360PolygonLayer().addTo(colorMap);
+            //     polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
 
-                var bwMap     = L.map('leaflet-bw-map').setView([52.5167, 13.3833], 11);
-                var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-                    maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(bwMap);
+            //     var bwMap     = L.map('leaflet-bw-map').setView([52.5167, 13.3833], 11);
+            //     var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
+            //         maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(bwMap);
 
-                 var polygonLayer  = r360.route360PolygonLayer().addTo(bwMap);
-                 polygonLayer.setInverse(true);
-                 polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
-            }
+            //      var polygonLayer  = r360.route360PolygonLayer().addTo(bwMap);
+            //      polygonLayer.setInverse(true);
+            //      polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
+            // }
 
             initGoogle();
-            initLeaflet();
+            // initLeaflet();
         });
     </script>
   </head>

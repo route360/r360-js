@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (652af50), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (9ec6272), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -405,6 +405,412 @@ r360.config = {
     }
 }
 
+r360.PolygonUtil = {
+
+    /**
+     * [clip clipping like sutherland http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript]
+     * @param  {[type]} subjectPolygon [description]
+     * @param  {[type]} clipPolygon    [description]
+     * @return {[type]}                [description]
+     */
+    clip: function(subjectPolygon, clipPolygon) {
+        
+        var cp1, cp2, s, e;
+        var inside = function (p) {
+            return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+        };
+        var intersection = function () {
+            var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                dp = [ s[0] - e[0], s[1] - e[1] ],
+                n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                n2 = s[0] * e[1] - s[1] * e[0], 
+                n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+            return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+        };
+        var outputList = subjectPolygon;
+        var cp1 = clipPolygon[clipPolygon.length-1];
+        for (j in clipPolygon) {
+            var cp2 = clipPolygon[j];
+            var inputList = outputList;
+            outputList = [];
+            s = inputList[inputList.length - 1]; //last on the input list
+            for (i in inputList) {
+                var e = inputList[i];
+                if (inside(e)) {
+                    if (!inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    outputList.push(e);
+                }
+                else if (inside(s)) {
+                    outputList.push(intersection());
+                }
+                s = e;
+            }
+            cp1 = cp2;
+        }
+        return outputList
+    },
+
+    /**
+     * [isCollinear Checks if the given three points are collinear. Also see 
+     *     https://en.wikipedia.org/wiki/Collinearity. This method uses a tolerance
+     *     factor defined in r360.config.defaultPolygonLayerOptions.tolerance.]
+     *     
+     * @param  {[type]}  p1 [description]
+     * @param  {[type]}  p2 [description]
+     * @param  {[type]}  p3 [description]
+     * @return {Boolean}    [description]
+     */
+    isCollinear: function(p1, p2, p3){
+
+        if(p1.x == p3.x && p1.y == p3.y)
+            return false;
+        if(p1.x == p2.x && p2.x == p3.x)
+            return true;
+        if(p1.y == p2.y && p2.y == p3.y)
+            return true;
+        
+        var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+
+        if ( val < r360.config.defaultPolygonLayerOptions.tolerance  && 
+             val > -r360.config.defaultPolygonLayerOptions.tolerance && 
+             p1.x != p3.x && p1.y != p3.y )
+            return true;
+        
+        return false;
+    },
+
+    /**
+     * [scale Scales a point (x and y coordinate) by the given scale. This method changes
+     *     the values of the given point.]
+     * @param  {[type]} point [the point to be scaled]
+     * @param  {[type]} scale [the scale]
+     * @return {[type]}       [the scaled point]
+     */
+    scale: function(point, scale){
+        point.x *= scale;
+        point.y *= scale;
+        return point;
+    },
+
+    /**
+     * [subtract Subtracts the given x and y coordinate from the cooresponding values of the given point.
+     *     This method changes the values of the given point. ]
+     * @param  {[type]} point [the point to be changed]
+     * @param  {[type]} x     [the x value to be subtracted]
+     * @param  {[type]} y     [the y value to be subtracted]
+     * @return {[type]}       [the subtracted point]
+     */
+    subtract: function(point, x, y){
+        point.x -= x;
+        point.y -= y;
+        return point;
+    },
+
+    divide: function(point, quotient){
+        point.x /= quotient;
+        point.y /= quotient;
+        return point;
+    },
+
+    /**
+     * [roundPoint Rounds a point's x and y coordinate. The method changes the x and y 
+     *     values of the given point. If the fractional portion of number (x and y) 
+     *     is 0.5 or greater, the argument is rounded to the next higher integer. If the 
+     *     fractional portion of number is less than 0.5, the argument is rounded to the 
+     *     next lower integer.]
+     *     
+     * @param  {[type]} point [the point to rounded]
+     * @return {[type]}       [the point to be rounded with integer x and y coordinate]
+     */
+    roundPoint: function(point){
+        point.x = Math.round(point.x);
+        point.y = Math.round(point.y);
+        return point;
+    },
+
+    /**
+     * [buildPath Creates an SVG path. ]
+     * @param  {[type]} point  [The point to add]
+     * @param  {[type]} suffix [The svg suffix for the point]
+     * @return {[type]}        [An array containing the suffix, point.x, point.y]
+     */
+    buildPath:function(point, suffix){
+        
+        return [suffix, Math.round(point.x), Math.round(point.y)];
+    },
+
+    /**
+     * [getEuclidianDistance This method returns the euclidean distance between two points (x and y coordinates).]
+     * @param  {[type]} point1 [the first point]
+     * @param  {[type]} point2 [the second point]
+     * @return {[type]}        [the distance]
+     */
+    getEuclidianDistance: function(point1, point2){
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
+    },
+
+    /**
+     * [getSvgFrame description]
+     * @param  {[type]} width  [description]
+     * @param  {[type]} height [description]
+     * @return {[type]}        [description]
+     */
+    getSvgFrame: function(width, height){
+        return [['M',0, 0], ['L',width, 0], ['L',width, height], ['L',0, height], ['z']];
+    },
+
+    /**
+     * [extendBounds description]
+     * @param  {[type]} bounds       [description]
+     * @param  {[type]} extendWidthX [description]
+     * @param  {[type]} extendWidthY [description]
+     * @return {[type]}              [description]
+     */
+    extendBounds : function(bounds, extendWidthX, extendWidthY) {
+
+        var extendX = Math.ceil(extendWidthX);
+        var extendY = Math.ceil(extendWidthY);
+
+        bounds.max.x += extendX;
+        bounds.min.x -= extendX;
+        bounds.max.y += extendY;
+        bounds.min.y -= extendY;
+
+        return bounds;
+    },
+
+    /**
+     * [prepareMultipolygons description]
+     * @param  {[type]} multiPolygons [description]
+     * @param  {[type]} topRight      [description]
+     * @param  {[type]} topLeft       [description]
+     * @return {[type]}               [description]
+     */
+    prepareMultipolygons : function(multiPolygons, topRight, bottomLeft) {
+
+        var preparedMultiPolygons = [];
+
+        for ( var i = 0; i < multiPolygons.length ; i++){
+            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
+
+                var currentPolygon = multiPolygons[i].polygons[j];
+
+                // project to 4326, TODO remove dependency to leaflet
+                currentPolygon.project(); 
+                // adjust the bounding box
+                r360.PolygonUtil.updateBoundingBox(currentPolygon, topRight, bottomLeft);
+                // find the multipolygon to which this polygon belongs (travel time matching)
+                r360.PolygonUtil.addPolygonToMultiPolygon(preparedMultiPolygons, currentPolygon); 
+            }
+        }
+        
+        // make sure the multipolygons are sorted by the travel time ascendingly
+        preparedMultiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
+
+        return preparedMultiPolygons;
+    },
+
+    /**
+     * [updateBoundingBox description]
+     * @param  {[type]} polygon [description]
+     * @return {[type]}         [description]
+     */
+    updateBoundingBox : function(polygon, topRight, bottomLeft){
+
+        if ( polygon.topRight.lat   > topRight.lat)    topRight.lat   = polygon.topRight.lat;                
+        if ( polygon.topRight.lng   > topRight.lng )   topRight.lng   = polygon.topRight.lng;
+
+        if ( polygon.bottomLeft.lat < bottomLeft.lat)  bottomLeft.lat = polygon.bottomLeft.lat;
+        if ( polygon.bottomLeft.lng < bottomLeft.lng ) bottomLeft.lng = polygon.bottomLeft.lng;
+    },
+
+    /*
+     *
+     */
+    addPolygonToMultiPolygon: function(multiPolygons, polygon){
+
+        var filteredMultiPolygons = _.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
+
+        // multipolygon with polygon's travetime already there
+        if ( filteredMultiPolygons.length > 0 ) filteredMultiPolygons[0].addPolygon(polygon);
+        else {
+
+            var multiPolygon = new r360.multiPolygon();
+            multiPolygon.setTravelTime(polygon.travelTime);
+            multiPolygon.addPolygon(polygon);
+            multiPolygon.setColor(polygon.getColor());
+            multiPolygon.setOpacity(polygon.getOpacity());
+            multiPolygons.push(multiPolygon);
+        }
+    },
+}
+
+r360.SvgUtil = {
+
+    /**
+     * [getGElement description]
+     * @param  {[type]} svgData [description]
+     * @param  {[type]} opacity [description]
+     * @param  {[type]} color   [description]
+     * @param  {[type]} animate [description]
+     * @return {[type]}         [description]
+     */
+    getGElement : function(svgData, options){
+
+        var randomId            = r360.Util.generateId();
+        var initialOpacity      = options.opacity;
+
+        return  "<g id=" + randomId + " style='opacity:" + initialOpacity + "'>"+
+                    "<path style='stroke: " + options.color + "; fill: " + options.color + " ; stroke-opacity: 1; stroke-width: " + options.strokeWidth + "; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
+                "</g>";
+    },
+
+    /**
+     * [getInverseSvgElement description]
+     * @param  {[type]} gElements [description]
+     * @return {[type]}           [description]
+     */
+    getInverseSvgElement: function(gElements, options){
+
+        var svgFrame = r360.PolygonUtil.getSvgFrame(options.svgWidth, options.svgHeight);
+
+        var svgStart = "<div id=svg_"+ options.id + " style='" + r360.Util.getTranslation(options.offset) + ";''><svg"  + 
+                            " height=" + options.svgHeight + 
+                            " width="  + options.svgWidth  + 
+                            " style='fill:" + options.backgroundColor + " ; opacity: "+ options.backgroundOpacity + "; stroke-width: " + options.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
+
+        var newSvg = "<defs>"+
+                        "<mask id='mask_" + options.id + "'>"+
+                            "<path style='fill-opacity:1;stroke: white; fill:white;' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>"+
+                                gElements.join('') + 
+                        "</mask>"+
+                    "</defs>";
+
+        var frame = "<path style='mask: url(#mask_" + options.id + ")' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>";
+
+        return svgStart + frame + newSvg + svgEnd;
+    },
+
+    /**
+     * [getNormalSvgElement description]
+     * @param  {[type]} gElement [description]
+     * @return {[type]}          [description]
+     */
+    getNormalSvgElement: function(gElements, options){
+
+        var svgStart = "<div id=svg_"+ options.id + " style='" + r360.Util.getTranslation(options.offset) + ";''><svg "  + 
+                            " height=" + options.svgHeight + 
+                            " width="  + options.svgWidth  + 
+                            " style='fill:" + options.backgroundColor + " ; opacity: " + options.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
+
+        return svgStart + gElements.join('') + svgEnd;
+    },
+
+    createSvgData : function(polygon, options) {
+
+        var pathData = [];
+
+        var polygonTopRight     = polygon.getProjectedTopRight();
+        var polygonBottomLeft   = polygon.getProjectedBottomLeft();
+
+        r360.PolygonUtil.scale(polygonTopRight, options.scale);
+        r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
+
+        // the outer boundary       
+        if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
+               polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
+            r360.SvgUtil.buildSVGPolygon(pathData, polygon.outerProjectedBoundary, options);
+
+        // the inner boundaries
+        for ( var i = 0 ; i < polygon.innerProjectedBoundaries.length ; i++ ) {
+
+            var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
+            var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
+
+            r360.PolygonUtil.scale(polygonTopRight, options.scale);
+            r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
+
+            if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
+                   polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
+                r360.SvgUtil.buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, options);
+        }
+
+        return pathData;
+    },
+
+    /**
+     * [buildSVGPolygon description]
+     * @param  {[type]} pathData        [description]
+     * @param  {[type]} coordinateArray [description]
+     * @param  {[type]} bounds          [description]
+     * @param  {[type]} scale           [description]
+     * @return {[type]}                 [description]
+     */
+    buildSVGPolygon: function(pathData, coordinateArray, options){
+
+        var projectedPoint, point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
+        var boundArray = [[options.bounds.min.x, options.bounds.min.y], 
+                          [options.bounds.max.x, options.bounds.min.y], 
+                          [options.bounds.max.x, options.bounds.max.y], 
+                          [options.bounds.min.x, options.bounds.max.y]];
+
+        var pointsToClip = [];
+
+        for ( var i = 0 ; i < coordinateArray.length ; i++ ) {
+            projectedPoint  = coordinateArray[i];
+            point           = new L.Point(projectedPoint.x, projectedPoint.y);
+
+            r360.PolygonUtil.scale(point, options.scale);
+            r360.PolygonUtil.roundPoint(point);
+
+            euclidianDistance = (i > 0) ? r360.PolygonUtil.getEuclidianDistance(point2, point) : options.tolerance; 
+
+            if ( euclidianDistance >= options.tolerance ) {
+
+                isCollinear = false;
+
+                if ( pointCount > 2 ) 
+                    isCollinear = r360.PolygonUtil.isCollinear(point1, point2, point);
+
+                if ( isCollinear ) {
+                    pointsToClip[pointsToClip.length-1][0] = point.x;
+                    pointsToClip[pointsToClip.length-1][1] = point.y;
+                }
+                else {
+                    
+                    pointsToClip.push([point.x, point.y]);
+                    point1 = point2;
+                    point2 = point;
+                    pointCount++;
+                }
+            }
+        }
+
+        var clippedArray = r360.PolygonUtil.clip(pointsToClip, boundArray);
+        var lastPoint;
+
+        for ( var i = 0 ; i < clippedArray.length ; i++ ){
+            
+            point = new L.Point(clippedArray[i][0], clippedArray[i][1]);
+
+            r360.PolygonUtil.subtract(point, options.pixelOrigin.x + options.offset.x, 
+                                             options.pixelOrigin.y + options.offset.y) 
+
+            pathData.push( i > 0 ? r360.PolygonUtil.buildPath(point, "L") : r360.PolygonUtil.buildPath(point, "M"));
+            lastPoint = point;
+        }
+        
+        if ( pathData.length > 0 )
+            pathData.push(["z"]); // svgz
+
+        return pathData;
+    },
+}
+
 /*
  *
  */
@@ -730,8 +1136,204 @@ r360.Util = {
         point.x *= 6378137;
         point.y *= 6378137;
         return point;
+    },
+
+    getUserAgent : function(){
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+        if(M[1]=== 'Chrome'){
+            tem= ua.match(/\bOPR\/(\d+)/)
+            if(tem!= null) return 'Opera '+tem[1];
+        }
+        M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+        return M.join(' ');
+    },
+
+    /**
+     * [isAnimated description]
+     * @return {Boolean} [description]
+     */
+    isAnimated: function(){
+        
+        var userAgent = getUserAgent();
+
+        if ( userAgent.indexOf("IE") != -1 )
+            return false;
+        if ( userAgent.indexOf("Safari") != -1 )
+            return false;
+        if ( userAgent.indexOf("Firefox") != -1 )
+            return false;
+        if ( r360.config.defaultPolygonLayerOptions.animate )
+            return true;
+
+        return false;
+    },
+
+    /**
+     * [getTranslation description]
+     * @param  {[type]} offset [description]
+     * @return {[type]}        [description]
+     */
+    getTranslation: function(offset){
+  
+        var userAgent = r360.Util.getUserAgent();
+
+        if ( userAgent.indexOf("IE 9") != -1 )
+            return "transform:translate(" + offset.x + "px," + offset.y + "px)";
+
+        if ( userAgent.indexOf("Safari") != -1 ) 
+            return "-webkit-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        if ( userAgent.indexOf("Firefox") != -1 ) 
+            return "-moz-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        else
+            return "transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+    },
+
+    // round a given number to a given precision
+    formatNum: function (num, digits) {
+        var pow = Math.pow(10, digits || 5);
+        return Math.round(num * pow) / pow;
+    },
+
+    isArray : Array.isArray || function (obj) {
+        return (Object.prototype.toString.call(obj) === '[object Array]');
+    },
+
+    /**
+    * @param {google.maps.Map} map
+    * @param {google.maps.LatLng} latlng
+    * @param {int} z
+    * @return {google.maps.Point}
+    */
+    googleLatlngToPoint : function(map, latlng, z){
+        var normalizedPoint = map.getProjection().fromLatLngToPoint(latlng); // returns x,y normalized to 0~255
+        var scale = Math.pow(2, z);
+        return new google.maps.Point(normalizedPoint.x * scale, normalizedPoint.y * scale); 
+    },
+    /**
+    * @param {google.maps.Map} map
+    * @param {google.maps.Point} point
+    * @param {int} z
+    * @return {google.maps.LatLng}
+    */
+     googlePointToLatlng : function(map, point, z){
+        var scale = Math.pow(2, z);
+        var normalizedPoint = new google.maps.Point(point.x / scale, point.y / scale);
+        var latlng = map.getProjection().fromPointToLatLng(normalizedPoint);
+        return latlng; 
     }
 };
+
+r360.DomUtil = {
+    
+    setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
+
+        /*eslint-disable */
+        el._leaflet_pos = point;
+        /*eslint-enable */
+
+        if (L.Browser.any3d) {
+            r360.DomUtil.setTransform(el, point);
+        } else {
+            el.style.left = point.x + 'px';
+            el.style.top = point.y + 'px';
+        }
+    },
+
+    setTransform: function (el, offset, scale) {
+        var pos = offset || new L.Point(0, 0);
+
+        el.style[r360.DomUtil.TRANSFORM] =
+            'translate3d(' + pos.x + 'px,' + pos.y + 'px' + ',0)' + (scale ? ' scale(' + scale + ')' : '');
+    },
+
+    testProp: function (props) {
+
+        var style = document.documentElement.style;
+
+        for (var i = 0; i < props.length; i++) {
+            if (props[i] in style) {
+                return props[i];
+            }
+        }
+        return false;
+    }
+};
+
+(function () {
+    // prefix style property names
+
+    r360.DomUtil.TRANSFORM = r360.DomUtil.testProp(
+            ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
+
+
+    // // webkitTransition comes first because some browser versions that drop vendor prefix don't do
+    // // the same for the transitionend event, in particular the Android 4.1 stock browser
+
+    // var transition = L.DomUtil.TRANSITION = L.DomUtil.testProp(
+    //         ['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+
+    // L.DomUtil.TRANSITION_END =
+    //         transition === 'webkitTransition' || transition === 'OTransition' ? transition + 'End' : 'transitionend';
+
+
+    // if ('onselectstart' in document) {
+    //     L.DomUtil.disableTextSelection = function () {
+    //         L.DomEvent.on(window, 'selectstart', L.DomEvent.preventDefault);
+    //     };
+    //     L.DomUtil.enableTextSelection = function () {
+    //         L.DomEvent.off(window, 'selectstart', L.DomEvent.preventDefault);
+    //     };
+
+    // } else {
+    //     var userSelectProperty = L.DomUtil.testProp(
+    //         ['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+
+    //     L.DomUtil.disableTextSelection = function () {
+    //         if (userSelectProperty) {
+    //             var style = document.documentElement.style;
+    //             this._userSelect = style[userSelectProperty];
+    //             style[userSelectProperty] = 'none';
+    //         }
+    //     };
+    //     L.DomUtil.enableTextSelection = function () {
+    //         if (userSelectProperty) {
+    //             document.documentElement.style[userSelectProperty] = this._userSelect;
+    //             delete this._userSelect;
+    //         }
+    //     };
+    // }
+
+    // L.DomUtil.disableImageDrag = function () {
+    //     L.DomEvent.on(window, 'dragstart', L.DomEvent.preventDefault);
+    // };
+    // L.DomUtil.enableImageDrag = function () {
+    //     L.DomEvent.off(window, 'dragstart', L.DomEvent.preventDefault);
+    // };
+
+    // L.DomUtil.preventOutline = function (element) {
+    //     L.DomUtil.restoreOutline();
+    //     this._outlineElement = element;
+    //     this._outlineStyle = element.style.outline;
+    //     element.style.outline = 'none';
+    //     L.DomEvent.on(window, 'keydown', L.DomUtil.restoreOutline, this);
+    // };
+    // L.DomUtil.restoreOutline = function () {
+    //     if (!this._outlineElement) { return; }
+    //     this._outlineElement.style.outline = this._outlineStyle;
+    //     delete this._outlineElement;
+    //     delete this._outlineStyle;
+    //     L.DomEvent.off(window, 'keydown', L.DomUtil.restoreOutline, this);
+    // };
+})();
+
 
 /*
  *
@@ -1414,11 +2016,11 @@ r360.PolygonService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1522,6 +2124,165 @@ r360.PolygonService = {
     }
 }
 
+
+r360.PopulationService = {
+
+    cache : {},
+
+    /*
+     *
+     */
+    getPopulationStatistics : function(travelOptions, populationStatistics, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('populationWait'));
+        }
+
+        // we only need the source points for the polygonizing and the polygon travel times
+        var cfg = {}; 
+        cfg.sources = [];
+
+        if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
+        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
+             typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+
+            cfg.polygon = {};
+
+            if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
+            if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
+            if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
+            if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
+        }
+            
+        // add each source point and it's travel configuration to the cfg
+        _.each(travelOptions.getSources(), function(source){
+
+            var src = {
+                lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
+                lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
+                id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
+                tm  : {}
+            };
+
+            var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+
+            // this enables car routing
+            src.tm[travelType] = {};
+
+            // set special routing parameters depending on the travel type
+            if ( travelType == 'transit' ) {
+                
+                src.tm.transit.frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+            }
+            if ( travelType == 'ebike' ) {
+                
+                src.tm.ebike = {};
+                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
+                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
+                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
+            }
+            if ( travelType == 'rentbike' ) {
+                
+                src.tm.rentbike = {};
+                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
+                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
+                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
+                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
+                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
+                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
+            }
+            if ( travelType == 'rentandreturnbike' ) {
+                
+                src.tm.rentandreturnbike = {};
+                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
+                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
+                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
+                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
+                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
+                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
+            }
+            if ( travelType == 'bike' ) {
+                
+                src.tm.bike = {};
+                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
+                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
+                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
+            }
+            if ( travelType == 'walk') {
+                
+                src.tm.walk = {};
+                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
+                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
+                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
+            }
+
+            cfg.sources.push(src);
+        });
+
+        var statistics = [];
+        _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
+
+        if ( !_.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
+
+            // make the request to the Route360° backend 
+            $.ajax({
+                url         : r360.config.serviceUrl + r360.config.serviceVersion + '/population?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey + '&' + statistics.join("&"),
+                timeout     : r360.config.requestTimeout,
+                dataType    : "json",
+                success     : function(result) {
+                    
+                    // hide the please wait control
+                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+
+                    // the new version is an object, old one an array
+                    if ( _.has(result, 'data')  ) {
+
+                        if ( result.code == 'ok' ) {
+
+                            // cache the result
+                            r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result.data;
+                            // call successCallback with returned results
+                            successCallback(result.data);
+                        }
+                        else 
+                            // check if the error callback is defined
+                            if ( _.isFunction(errorCallback) )
+                                errorCallback(result.code, result.message);
+                    }
+                    // fallback for old clients
+                    else {
+
+                        // cache the result
+                        r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
+                        // call successCallback with returned results
+                        successCallback(result);
+                    }
+                },
+                // this only happens if the service is not available, all other errors have to be transmitted in the response
+                error: function(data){ 
+
+                    // hide the please wait control
+                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                    // call error callback if defined
+                    if ( _.isFunction(errorCallback) )
+                        errorCallback("service-not-available", "The population service is currently not available, please try again later."); 
+                }
+            });
+        }
+        else { 
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+            // call callback with returned results
+            successCallback(r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")]);
+        }
+    }
+}
+
 r360.RouteService = {
 
     cache : {},
@@ -1556,12 +2317,11 @@ r360.RouteService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
-                if ( !_.isUndefined(travelOptions.getRecommendations()) ) src.tm.transit.recommendations = travelOptions.getRecommendations();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1725,11 +2485,11 @@ r360.TimeService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1909,1327 +2669,93 @@ r360.OsmService = {
     }
 }
 
+/*
+ * L.CRS is the base object for all defined CRS (Coordinate Reference Systems) in Leaflet.
+ */
 
-r360.PopulationService = {
+L.CRS = {
+    // converts geo coords to pixel ones
+    latLngToPoint: function (latlng, zoom) {
+        var projectedPoint = this.projection.project(latlng),
+            scale = this.scale(zoom);
 
-    cache : {},
+        return this.transformation._transform(projectedPoint, scale);
+    },
 
-    /*
-     *
-     */
-    getPopulationStatistics : function(travelOptions, populationStatistics, successCallback, errorCallback) {
+    // converts pixel coords to geo coords
+    pointToLatLng: function (point, zoom) {
+        var scale = this.scale(zoom),
+            untransformedPoint = this.transformation.untransform(point, scale);
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('populationWait'));
-        }
+        return this.projection.unproject(untransformedPoint);
+    },
 
-        // we only need the source points for the polygonizing and the polygon travel times
-        var cfg = {}; 
-        cfg.sources = [];
+    // converts geo coords to projection-specific coords (e.g. in meters)
+    project: function (latlng) {
+        return this.projection.project(latlng);
+    },
 
-        if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
-             typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+    // converts projected coords to geo coords
+    unproject: function (point) {
+        return this.projection.unproject(point);
+    },
 
-            cfg.polygon = {};
+    // defines how the world scales with zoom
+    scale: function (zoom) {
+        return 256 * Math.pow(2, zoom);
+    },
 
-            if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
-            if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
-            if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
-            if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
-        }
-            
-        // add each source point and it's travel configuration to the cfg
-        _.each(travelOptions.getSources(), function(source){
+    // returns the bounds of the world in projected coords if applicable
+    getProjectedBounds: function (zoom) {
+        if (this.infinite) { return null; }
 
-            var src = {
-                lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
-                tm  : {}
-            };
+        var b = this.projection.bounds,
+            s = this.scale(zoom),
+            min = this.transformation.transform(b.min, s),
+            max = this.transformation.transform(b.max, s);
 
-            var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+        return L.bounds(min, max);
+    },
 
-            // this enables car routing
-            src.tm[travelType] = {};
+    // whether a coordinate axis wraps in a given range (e.g. longitude from -180 to 180); depends on CRS
+    // wrapLng: [min, max],
+    // wrapLat: [min, max],
 
-            // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
-                
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
-            }
-            if ( travelType == 'ebike' ) {
-                
-                src.tm.ebike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'rentbike' ) {
-                
-                src.tm.rentbike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'rentandreturnbike' ) {
-                
-                src.tm.rentandreturnbike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'bike' ) {
-                
-                src.tm.bike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'walk') {
-                
-                src.tm.walk = {};
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
-            }
+    // if true, the coordinate space will be unbounded (infinite in all directions)
+    // infinite: false,
 
-            cfg.sources.push(src);
-        });
+    // wraps geo coords in certain ranges if applicable
+    wrapLatLng: function (latlng) {
+        var lng = this.wrapLng ? L.Util.wrapNum(latlng.lng, this.wrapLng, true) : latlng.lng,
+            lat = this.wrapLat ? L.Util.wrapNum(latlng.lat, this.wrapLat, true) : latlng.lat,
+            alt = latlng.alt;
 
-        var statistics = [];
-        _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
-
-        if ( !_.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
-
-            // make the request to the Route360° backend 
-            $.ajax({
-                url         : r360.config.serviceUrl + r360.config.serviceVersion + '/population?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey + '&' + statistics.join("&"),
-                timeout     : r360.config.requestTimeout,
-                dataType    : "json",
-                success     : function(result) {
-                    
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
-                    // the new version is an object, old one an array
-                    if ( _.has(result, 'data')  ) {
-
-                        if ( result.code == 'ok' ) {
-
-                            // cache the result
-                            r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result.data;
-                            // call successCallback with returned results
-                            successCallback(result.data);
-                        }
-                        else 
-                            // check if the error callback is defined
-                            if ( _.isFunction(errorCallback) )
-                                errorCallback(result.code, result.message);
-                    }
-                    // fallback for old clients
-                    else {
-
-                        // cache the result
-                        r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
-                        // call successCallback with returned results
-                        successCallback(result);
-                    }
-                },
-                // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    // call error callback if defined
-                    if ( _.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The population service is currently not available, please try again later."); 
-                }
-            });
-        }
-        else { 
-
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call callback with returned results
-            successCallback(r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")]);
-        }
+        return L.latLng(lat, lng, alt);
     }
-}
-
-r360.placeAutoCompleteControl = function (options) {
-    return new r360.PlaceAutoCompleteControl(options);
 };
 
-r360.PlaceAutoCompleteControl = L.Control.extend({
-
-    initialize: function(options){
-
-        this.options = JSON.parse(JSON.stringify(r360.config.defaultPlaceAutoCompleteOptions));
-
-        if ( typeof options !== "undefined" ) {
-            
-            if ( _.has(options, 'position'))      this.options.position      = options.position;
-            if ( _.has(options, 'label'))         this.options.label         = options.label;
-            if ( _.has(options, 'country'))       this.options.country       = options.country;
-            if ( _.has(options, 'reset'))         this.options.reset         = options.reset;
-            if ( _.has(options, 'reverse'))       this.options.reverse       = options.reverse;
-            if ( _.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
-            if ( _.has(options, 'width'))         this.options.width         = options.width;
-            if ( _.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
-            if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
-            if ( _.has(options, 'image'))         this.options.image         = options.image;
-            if ( _.has(options, 'index'))         this.options.index         = options.index;
-            if ( _.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
-            if ( _.has(options, 'options')) {
-
-                 this.options.options    = options.options;
-                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
-            }   
-        }
-    },
-
-    toggleOptions : function(container){
-
-        var that = this;
-
-        if ( typeof container == 'undefined' )
-            $('#' + that.options.id + '-options').slideToggle();
-        else 
-            $(container).find('#' + that.options.id + '-options').slideToggle();
-    },
-
-    onAdd: function(map){
-
-        var that = this;
-        var i18n            = r360.config.i18n;   
-        var countrySelector =  "";
-        var nameContainer   = L.DomUtil.create('div', that._container);
-        that.options.map    = map;
-        that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
-
-        // $(nameContainer).addClass("r360-box-shadow");
-
-        map.on("resize", that.onResize.bind(that));          
-
-        // calculate the width in dependency to the number of buttons attached to the field
-        var width = that.options.width;
-        // if ( that.options.reset ) width += 44;
-        // if ( that.options.reverse ) width += 37;
-        var style = 'style="width:'+ width +'px;"';
-
-        that.options.input = 
-            '<div class="input-group autocomplete r360-box-shadow" '+style+'> \
-                <input id="autocomplete-'+that.options.id+'" style="color: black;widthe:'+width+'" \
-                type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
-
-        if ( that.options.image ) {
-
-            that.options.input += 
-                '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
-                    <img style="height:22px;" src="'+that.options.image+'"> \
-                 </span>';
-        }
-
-        var optionsHtml = [];
-        // if ( that.options.options ) {
-
-            that.options.input += 
-                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
-                    <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
-                </span>';
-
-            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadoww" style="color: black;widtth:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
-            optionsHtml.push('  <div class="btn-group text-center">');
-
-            if ( that.options.options && that.options.options.walk ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
-                    + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
-            
-            if ( that.options.options && that.options.options.bike ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span></button>');
-
-            if ( that.options.options && that.options.options.rentbike ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'rentbike' ? 'active' : '') + 
-                    '" travel-type="rentbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
-                        </button>');
-
-            if ( that.options.options && that.options.options.rentandreturnbike ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
-                    '" travel-type="rentandreturnbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
-                        </button>');
-            
-            if ( that.options.options && that.options.options.ebike ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'ebike' ? 'active' : '') + 
-                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span></button>');
-            
-            if ( that.options.options && that.options.options.transit ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'transit' ? 'active' : '') + 
-                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
-            
-            if ( that.options.options && that.options.options.car ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'car' ? 'active' : '') + 
-                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="no">TODO</span><span lang="de">Auto</span></button>');
-            
-            optionsHtml.push('  </div>');
-            optionsHtml.push('</div>');
-        // }
-
-        // add a reset button to the input field
-        // if ( that.options.reset ) {
-
-             that.options.input += 
-                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button id="'+that.options.id+'-reverse-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
-                </span>';
-
-            that.options.input += 
-                '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
-                    <button id="'+that.options.id+'-reset-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
-                </span>';
-        // }
-        // if ( that.options.reverse ) {
-
-           
-        // }
-
-        that.options.input += '</div>';
-        if ( that.options.options ) that.options.input += optionsHtml.join('');
-
-        // add the control to the map
-        $(nameContainer).append(that.options.input);
-
-        $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
-        $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
-        $(nameContainer).find('#' + that.options.id + '-options-button').click(
-            function(){ 
-                // slide in or out on the click of the options button
-                $('#' + that.options.id + '-options').slideToggle();
-            });
-
-        $(nameContainer).find('.travel-type-button').click(function(){
-
-            $(nameContainer).find('.travel-type-button').removeClass('active');
-            $(this).addClass('active');
-
-            if ( that.options.autoHide ) {
-
-                setTimeout(function() {
-                    $('#' + that.options.id + '-options').slideToggle();
-                }, 300);
-            }
-
-            that.options.travelType = $(this).attr('travel-type');
-            that.options.onTravelTypeChange();
-        });
-
-        // no click on the map, if click on container        
-        L.DomEvent.disableClickPropagation(nameContainer);      
-
-        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
-
-        $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
-
-            source: function( request, response ) {
-
-                that.source = this;
-
-                var requestElements = request.term.split(" ");
-                var numbers = new Array();
-                var requestString = "";
-                var numberString = "";
-                    
-                for(var i = 0; i < requestElements.length; i++){
-                    
-                    if(requestElements[i].search(".*[0-9].*") != -1)
-                        numbers.push(requestElements[i]);
-                    else
-                        requestString += requestElements[i] + " ";
-                }
-
-                if ( numbers.length > 0 ) {
-                    numberString += " OR ";
-                    
-                    for(var j = 0; j < numbers.length; j++){
-                        var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
-                        numberString +=  n;
-                    }
-                }
-
-                // delay: 150,
-
-                $.ajax({
-                    url: that.options.serviceUrl, 
-                    dataType: "jsonp",
-                    jsonp: 'json.wrf',
-                    async: false,
-                    data: {
-                      wt:'json',
-                      indent : true,
-                      rows: that.options.maxRows,
-                      qt: 'en',
-                      q:  "(" + requestString + numberString + ")" + countrySelector
-                    }, 
-                    success: function( data ) {
-
-                        var places = new Array();
-                        response( $.map( data.response.docs, function( item ) {
-
-                            if ( item.osm_key == "boundary" ) return;
-
-                            var latlng = item.coordinate.split(',');
-                            var place           = {};
-                            var firstRow        = [];
-                            var secondRow       = [];
-                            place.name          = item.name;
-                            place.city          = item.city;
-                            place.street        = item.street;
-                            place.housenumber   = item.housenumber;
-                            place.country       = item.country;
-                            place.postalCode    = item.postcode;
-                            if (place.name)       firstRow.push(place.name);
-                            if (place.city)       firstRow.push(place.city);
-                            if (place.street)     secondRow.push(place.street);
-                            if (place.housenumber) secondRow.push(place.housenumber);
-                            if (place.postalCode) secondRow.push(place.postalCode);
-                            if (place.city)       secondRow.push(place.city);
-
-                            // only show country if undefined
-                            if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
-
-                            // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
-                            else places.push(firstRow.join() + secondRow.join());
-
-                            return {
-                                label       : firstRow.join(", "),
-                                value       : firstRow.join(", "),
-                                firstRow    : firstRow.join(", "),
-                                secondRow   : secondRow.join(" "),
-                                term        : request.term,
-                                index       : that.options.index,
-                                latlng      : new L.LatLng(latlng[0], latlng[1])
-                            }
-                        }));
-                    }
-                });
-            },
-            minLength: 2,
-              
-            select: function( event, ui ) {
-                that.options.value = ui.item;
-                that.options.onSelect(ui.item);
-            }
-        })
-        .data("ui-autocomplete")._renderItem = function( ul, item ) {
-
-            // this has been copied from here: https://github.com/angular-ui/bootstrap/blob/master/src/typeahead/typeahead.js
-            // thank you angular bootstrap team
-            function escapeRegexp(queryToEscape) {
-                return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-            }
-
-            var highlightedFirstRow = 
-                item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
-
-            var highlightedSecondRow = 
-                item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
-
-            var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
-
-            return $( "<li>" ).append(html).appendTo(ul);
-        };
-        
-        this.onResize(); 
-
-        return nameContainer;
-    },
-
-    onSelect: function(onSelect){
-
-        this.options.onSelect = onSelect;
-    },
-
-    onReset: function(onReset){
-
-        this.options.onReset = onReset;
-    },
-
-    onReverse: function(onReverse){
-       
-       this.options.onReverse = onReverse;
-    },
-
-    onTravelTypeChange: function(onTravelTypeChange){
-
-        this.options.onTravelTypeChange = onTravelTypeChange;
-    },
-
-    updateI18n : function(source) {
-
-        var that = this;
-        $("#autocomplete-" + that.options.id).attr("placeholder", r360.config.i18n.get(source ? 'placeholderSrc' : 'placeholderTrg'));
-        $('#' + that.options.id + '-reverse-button').attr('title', r360.config.i18n.get('reverse'));
-        $('#' + that.options.id + '-reset-button').attr('title', r360.config.i18n.get('reset'));
-        $('#' + that.options.id + '-options-btn').attr('title', r360.config.i18n.get('settings'));
-        
-    },
-
-    reset : function(){
-
-        this.options.value = {};
-        this.setFieldValue("");
-    },
-
-    update : function(latLng, fieldValue) {
-
-        this.setLatLng(latLng);
-        this.setFieldValue(fieldValue);
-    },
-
-    setLatLng : function(latLng) {
-
-        this.options.value.latlng = latLng
-    },
-
-    setFieldValue : function(value){
-
-        var that = this;
-        $("#autocomplete-" + that.options.id).val(value);
-    },
-
-    getFieldValue : function(){
-
-        var that = this;
-        return $("#autocomplete-" + that.options.id).val();
-    },
-
-    getTravelType : function(){
-
-        return this.options.travelType;
-    },
-
-    setValue : function(value){
-        this.options.value = value;
-    },
-
-    getValue : function(){
-        return this.options.value;
-    },
-
-    getIndex : function(){
-        return this.options.index;
-    },
-
-    onResize: function(){
-        
-        var that = this;
-        if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
-        else $(that.options.input).css({'width':''});
-    }
-})
 
 /*
- *
+ * L.CRS.Earth is the base class for all CRS representing Earth.
  */
-r360.TravelStartDateControl = L.Control.extend({
-    
-    options: {
-        position: 'topright',
-        dateFormat: "yy-mm-dd",
-        minDate: 0
-    },
 
-    initialize: function (options) {
-        L.Util.setOptions(this, options);
-    },
+L.CRS.Earth = L.extend({}, L.CRS, {
+    wrapLng: [-180, 180],
 
-    onChange: function (func){
-        this.options.onChange = func;
-    },
+    R: 6378137,
 
-    onAdd: function (map) {
-        var that = this;
-        that.options.map = map;
-       
-        var dateContainer = L.DomUtil.create('div', 'startDatePicker', this._container);
+    // distance between two geographical points using spherical law of cosines approximation
+    distance: function (latlng1, latlng2) {
+        var rad = Math.PI / 180,
+            lat1 = latlng1.lat * rad,
+            lat2 = latlng2.lat * rad,
+            a = Math.sin(lat1) * Math.sin(lat2) +
+                Math.cos(lat1) * Math.cos(lat2) * Math.cos((latlng2.lng - latlng1.lng) * rad);
 
-        that.datepicker = $('<div/>');
-
-        $(dateContainer).append(that.datepicker);
-
-        var options = {
-
-            onSelect: function() { that.options.onChange(that.getValue()); },
-            firstDay: 1
-        }
-
-        var i18n = r360.config.i18n;
-
-        if ( i18n.language != 'en' ) {
-
-            options.monthNames  = i18n.monthNames[i18n.language];
-            options.dayNames    = i18n.dayNames[i18n.language];
-            options.dayNamesMin = i18n.dayNamesMin[i18n.language];
-        }
-
-        $(that.datepicker).datepicker(options);    
-
-        L.DomEvent.disableClickPropagation(dateContainer);         
-       
-        return dateContainer;
-    },
-
-    getValue : function() {   
-        var that = this;
-        var date = $(that.datepicker).datepicker({ dateFormat: 'dd-mm-yy' }).val()
-        var splitDate = date.split('/');
-        var yyyymmdd = splitDate[2] + '' + splitDate[0] + '' + splitDate[1];
-        return yyyymmdd;
+        return this.R * Math.acos(Math.min(a, 1));
     }
 });
 
-r360.travelStartDateControl = function () {
-    return new r360.TravelStartDateControl();
-};
-
-/*
- *
- */
-r360.TravelStartTimeControl = L.Control.extend({
-    options: {
-        position    : 'topright',
-        range       : false,
-        min         : 0,
-        max         : 1440 * 60, // start time is now in seconds
-        step        : 10 * 60, // start time is now in seconds
-        initValue   : 480 * 60, // start time is now in seconds
-        value       : 0
-    },
-
-    /*
-     *
-     */
-    initialize: function (options) {
-
-        this.options.value = r360.Util.getHoursAndMinutesInSeconds();
-        L.Util.setOptions(this, options);
-    },
-
-    /*
-     *
-     */
-    onSlideStop: function (func){
-
-        this.options.slideStop = func;
-    },
-
-    /*
-     *
-     */
-    minToString: function(minutes){
-
-        minutes = minutes / 60;
-        var hours = Math.floor(minutes / 60);
-        var min = minutes - (hours * 60);
-        if ( hours > 24 ) hours -= 24;
-        if ( hours < 10 ) hours = '0' + hours;
-        if ( min < 10 ) min = '0' + min;
-        if ( min == 0 ) min = '00';
-        return ( hours + ':' + min);
-    },
-
-    /*
-     *
-     */
-    onAdd: function (map) {
-
-        var that = this;
-
-        that.options.map = map;
-        that.options.mapId = $(map._container).attr("id");
-
-        map.on("resize", this.onResize.bind(this));
-        // Create a control sliderContainer with a jquery ui slider
-        var sliderContainer = L.DomUtil.create('div', 'startTimeSlider', this._container);
-
-        that.miBox = $('<div/>', {"class" : "mi-box"});
-        that.startTimeInfo = $('<div/>');
-        that.label = $('<span/>');
-        that.slider = $('<div/>');
-
-        $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
-
-        $(that.label).text(r360.config.i18n.get('departure') + ': '+ 
-            that.minToString(this.options.value) + ' ' + r360.Util.getTimeFormat(that.options.value));
-
-        $(that.slider).slider({
-            range:  that.options.range,
-            value:  that.options.value,
-            min:    that.options.min,
-            max:    that.options.max,
-            step:   that.options.step,
-            
-            slide: function (e, ui) {
-
-                $(that.label).text(r360.config.i18n.get('departure') + ': ' +
-                    that.minToString(ui.value) + ' ' + r360.Util.getTimeFormat(ui.value));
-                
-                that.options.value = ui.value;
-            },
-            stop: function(e, ui){
-
-                that.options.slideStop(ui.value);
-            }
-        });
-    
-        this.onResize();
-       /*
-        prevent map click when clicking on slider
-        */
-        L.DomEvent.disableClickPropagation(sliderContainer);  
-
-        return sliderContainer;
-    },
-
-    /*
-     *
-     */
-    onResize: function(){
-
-        if ( this.options.map.getSize().x < 550 ) {
-
-            this.removeAndAddClass(this.miBox, 'leaflet-traveltime-slider-container-max', 'leaflet-traveltime-slider-container-min');
-            this.removeAndAddClass(this.startTimeInfo, 'travel-time-info-max', 'travel-time-info-min');
-            this.removeAndAddClass(this.slider, 'leaflet-traveltime-slider-max', 'leaflet-traveltime-slider-min');
-        }
-        else {
-            this.removeAndAddClass(this.miBox, 'leaflet-traveltime-slider-container-min', 'leaflet-traveltime-slider-container-max');
-            this.removeAndAddClass(this.startTimeInfo, 'travel-time-info-min', 'travel-time-info-max');
-            this.removeAndAddClass(this.slider, 'leaflet-traveltime-slider-min', 'leaflet-traveltime-slider-max');
-        }
-    },
-
-    /*
-     *
-     */
-    removeAndAddClass: function(id,oldClass,newClass){
-
-        $(id).addClass(newClass);
-        $(id).removeClass(oldClass);
-    },
-
-    /*
-     *
-     */
-    getValue : function() {    
-        return this.options.value;
-    }
-});
-
-r360.travelStartTimeControl = function () {
-    return new r360.TravelStartTimeControl();
-};
-
-/*
- *
- */
-r360.TravelTimeControl = L.Control.extend({
-   
-    /**
-      * ...
-      * 
-      * @param {Object} [options] The typical JS options array.
-      * @param {Number} [options.position] 
-      * @param {Number} [options.initValue] 
-      * @param {Number} [options.label] 
-      * @param {Array}  [options.travelTimes] Each element of this arrays has to contain a "time" and a "color" field.
-      *     An example would be: { time : 600  , color : "#006837"}. The color needs to be specified in HEX notation.
-      * @param {Number} [options.icon] 
-      */
-    initialize: function (travelTimeControlOptions) {
-        
-        // use the default options
-        this.options = JSON.parse(JSON.stringify(r360.config.defaultTravelTimeControlOptions));
-
-        // overwrite default options if possible
-        if ( typeof travelTimeControlOptions !== "undefined" ) {
-            
-            if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
-            if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
-            if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
-            if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
-            if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
-            if ( _.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
-        }
-
-        this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
-        this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
-    },
-
-    /*
-     *
-     */
-    onAdd: function (map) {
-        var that = this;
-        this.options.map = map;
-        map.on("resize", this.onResize.bind(this));          
-
-        var sliderColors = "";
-        var percent = 100 / this.options.travelTimes.length;
-        for(var i = 0; i < this.options.travelTimes.length; i++){
-            if(i == 0)
-                sliderColors += '<div style="position: absolute; top: 0; bottom: 0; left: ' + i * percent + '%; right: ' + (100 - (i + 1)* percent )+ '%; background-color: ' + this.options.travelTimes[i].color + '; -moz-border-top-left-radius: 8px;-webkit-border-radius-topleft: 8px; border-top-left-radius: 8px; -moz-border-bottom-left-radius: 8px;-webkit-border-radius-bottomleft: 8px; border-bottom-left-radius: 8px;"></div>';
-            else if(i < this.options.travelTimes.length -1)
-                sliderColors += '<div style="position: absolute; top: 0; bottom: 0; left: ' + i * percent + '%; right: ' + (100 - (i + 1)* percent )+ '%; background-color: ' + this.options.travelTimes[i].color + ';"></div>';
-            else if(i == this.options.travelTimes.length -1)
-                sliderColors += '<div style="position: absolute; top: 0; bottom: 0; left: ' + i * percent + '%; right: ' + (100 - (i + 1)* percent )+ '%; background-color: ' + this.options.travelTimes[i].color + '; -moz-border-top-right-radius: 8px;-webkit-border-radius-topright: 8px; border-top-right-radius: 8px; -moz-border-bottom-right-radius: 8px;-webkit-border-radius-bottomright: 8px; border-bottom-right-radius: 8px;"></div>';
-        }
-
-        // started to remove jQuery dependency here
-        // this.options.miBox = L.DomUtil.create("r360-box", "mi-box");
-        // this.options.travelTimeInfo = L.DomUtil.create("travelTimeInfo");
-        // this.options.travelTimeControl = L.DomUtil.create("travelTimeControl", "no-border");
-        // this.options.travelTimeControlHandle = L.DomUtil.create("travelTimeControlHandle", "ui-slider-handle");
-
-        // this.options.labelSpan = L.DomUtil.create("labelSpan");
-        // this.options.labelSpan.innerHTML = this.options.label;
-
-        // if ( this.options.icon != 'undefined' ) {
-
-        //     this.options.iconHTML = new Image;
-        //     this.options.iconHTML.src = "picture.gif";
-        // }
-
-        // this.options.travelTimeSpan = L.DomUtil.create("travelTimeSpan");
-        // this.options.travelTimeSpan.innerHTML = this.options.initValue;
-        // var unitSpan = L.DomUtil.create("unitSpan");
-        // unitSpan.innerHTML = "min";
-
-
-        // this.options.sliderContainer.innerHTML += this.options.miBox;
-        // this.options.miBox.innerHTML += this.options.travelTimeInfo;
-        // this.options.miBox.innerHTML += this.options.travelTimeControl;
-        // this.options.travelTimeControl.innerHTML =+ travelTimeControlHandle;
-
-        // Create a control sliderContainer with a jquery ui slider
-        this.options.sliderContainer = L.DomUtil.create('div', this._container);
-
-        this.options.miBox = $('<div/>', {"class" : "mi-box"});
-        this.options.travelTimeInfo = $('<div/>');
-        this.options.travelTimeSlider = $('<div/>', {"class" : "no-border"}).append(sliderColors);
-        var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
-        this.options.labelSpan = this.options.label;
-
-        console.log(this.options);
-
-        if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
-
-        this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
-        var unitSpan = $('<span/>', {"text" : this.options.unit});
-
-        $(this.options.sliderContainer).append(this.options.miBox);
-        this.options.miBox.append(this.options.travelTimeInfo);
-        this.options.miBox.append(this.options.travelTimeSlider);
-        this.options.travelTimeSlider.append(travelTimeSliderHandle);
-        this.options.travelTimeInfo.append(this.options.iconHTML).append(this.options.labelSpan).append(": ").append(this.options.travelTimeSpan).append(unitSpan);
-
-        $(this.options.travelTimeSlider).slider({
-            range:  false,
-            value:  that.options.initValue,
-            min:    0,
-            max:    that.options.maxValue,
-            step:   that.options.step,
-            
-            slide: function (e, ui) {
-                if ( ui.value == 0) return false;
-                $(that.options.travelTimeSpan).text(ui.value);
-            },
-            stop: function(e, ui){
-                var travelTimes = new Array()
-                for(var i = 0; i < ui.value; i+= that.options.step)
-                    travelTimes.push(that.options.travelTimes[i/that.options.step]);
-                that.options.onSlideStop(travelTimes);
-            }
-        });
-        this.onResize();
-
-        /*
-        prevent map click when clicking on slider
-        */
-        L.DomEvent.disableClickPropagation(this.options.sliderContainer);  
-
-        return this.options.sliderContainer;
-    },
-
-    /*
-     *
-     */
-    onResize: function(){
-        
-        if ( this.options.map.getSize().x < 550 ){
-            this.removeAndAddClass(this.options.miBox, 'leaflet-traveltime-slider-container-max', 'leaflet-traveltime-slider-container-min');
-            this.removeAndAddClass(this.options.travelTimeInfo, 'travel-time-info-max', 'travel-time-info-min');
-            this.removeAndAddClass(this.options.travelTimeSlider, 'leaflet-traveltime-slider-max', 'leaflet-traveltime-slider-min');
-        }
-        else {
-
-            this.removeAndAddClass(this.options.miBox, 'leaflet-traveltime-slider-container-min', 'leaflet-traveltime-slider-container-max');
-            this.removeAndAddClass(this.options.travelTimeInfo, 'travel-time-info-min', 'travel-time-info-max');
-            this.removeAndAddClass(this.options.travelTimeSlider, 'leaflet-traveltime-slider-min', 'leaflet-traveltime-slider-max');
-        }
-    },
-
-    /*
-     *
-     */
-    removeAndAddClass: function(id,oldClass,newClass){
-        $(id).addClass(newClass);
-        $(id).removeClass(oldClass);
-    },
-
-    /*
-     *
-     */
-    onSlideStop: function (onSlideStop) {
-        var options = this.options;
-        options.onSlideStop = onSlideStop;  
-    },
-
-    /**
-     * [setValue description]
-     * @param {[type]} value [description]
-     */
-    setValue: function(value) {
-
-        $(this.options.travelTimeSlider).slider('value', value);
-        $(this.options.travelTimeSpan).text(value);
-    },
-
-    /*
-     *
-     */
-    getValues : function() {
-        var options = this.options;
-        var travelTimes = new Array()
-
-        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
-            travelTimes.push(options.travelTimes[i/options.step].time);
-            
-        return travelTimes;
-    },
-
-    /**
-     * [getMaxValue Returns the maximum selected value in seconds, 
-     *              internally it used the getValues method and returns the maximum.]
-     *              
-     * @return {[Number]}
-     */ 
-    getMaxValue : function() {
-
-        return _.max(this.getValues());
-    }
-});
-
-r360.travelTimeControl = function (options) {
-    return new r360.TravelTimeControl(options);
-};
-
-r360.waitControl = function (options) {
-    return new L.Control.WaitControl(options);
-};
-
-L.Control.WaitControl = L.Control.extend({
-    
-    options: {
-        position : 'topleft'
-    },
-
-    initialize: function (options) {
-        L.Util.setOptions(this, options);
-    },
-
-    onAdd: function (map) {
-        this.options.map = map;
-        this.options.mapId = $(map._container).attr("id");
-       
-        var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
-        $(waitContainer).append(
-            '<div id="wait-control-'+this.options.mapId+'" class="mi-box waitControl"> \
-                <i class="fa fa-spinner fa-spin"></i> '+ (typeof this.options.text != 'undefined' ? this.options.text : r360.config.i18n.get('wait') ) +  '\
-            </div>');
-
-        return waitContainer;
-    },
-
-    updateText : function(html) {
-
-        $('#wait-control-'+this.options.mapId).html('<i class="fa fa-spinner fa-spin"></i> ' + html);
-        $("span[lang][lang!='"+r360.config.i18n.language+"']").hide();
-    },
-
-    show : function(){
-
-        $('#wait-control-'+this.options.mapId).show();
-    },
-
-    hide : function(){
-        
-        $('#wait-control-'+this.options.mapId).hide();  
-    }
-});
-
-r360.htmlControl = function (options) {
-    return new L.Control.HtmlControl(options);
-};
-
-L.Control.HtmlControl = L.Control.extend({
-    
-    options: {
-        position: 'topleft',
-    },
-
-    initialize: function (options) {
-        L.Util.setOptions(this, options);
-    },
-
-    onAdd: function (map) {
-
-        // in case of multiple maps per page
-        this.options.id  = $(map._container).attr("id") + r360.Util.generateId();
-       
-        var htmlContainer = L.DomUtil.create('div', 'leaflet-control-html');
-        $(htmlContainer).append('<div id="html-control-'+this.options.id+'" class="html-control '+ this.options.classes +'"></div>');
-
-        $(htmlContainer).on('mouseover', function(){ map.scrollWheelZoom.disable(); });
-        $(htmlContainer).on('mouseout' , function(){ map.scrollWheelZoom.enable(); });      
-
-        return htmlContainer;
-    },
-
-    setHtml : function(html) {
-        $('#html-control-'+this.options.id).html(html);        
-    },
-
-    show : function(){
-
-        $('#html-control-'+this.options.id).show();
-    },
-
-    hide : function(){
-        
-        $('#html-control-'+this.options.id).hide();  
-    },
-
-    toggle : function(){
-        
-        $('#html-control-'+this.options.id).toggle();  
-    }
-});
-
-r360.RadioButtonControl = L.Control.extend({
-
-    initialize: function (options) {
-
-        this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
-
-        if ( typeof options !== 'undefined') { 
-            
-            if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
-            if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
-            if ( typeof options.onChange !== 'undefined' ) this.options.onChange = options.onChange;
-        }
-        else alert("No buttons supplied!");
-    },
-
-    onAdd: function (map) {
-
-        var that = this;
-
-        this.options.map    = map;
-        var buttonContainer = L.DomUtil.create('div', this._container);
-        this.options.input  = this.getRadioButtonHTML();
-        $(buttonContainer).append(this.options.input);
-
-        $(this.options.input).buttonset({}).change(function(){
-
-            that.options.checked = $("input[name='r360_radiobuttongroup_" + that.options.buttonGroupId + "']:checked").attr("key");
-            that.options.onChange(that.options.checked);
-        });  
-
-        $(this.options.input).each(function(index){
-
-            $(this).tooltip({
-                open: function( event, ui ) {
-                    $("[lang='de'], [lang='en'], [lang='no']").hide();
-                    $("[lang='"+r360.config.i18n.language+"']").show();
-                },
-                content: function () {
-                      return $(this).attr('title');
-                },
-                position: {
-                    my: "center top+10",
-                    at: "center bottom",
-                    using: function( position, feedback ) {
-                        $( this ).css( position );
-                        $( "<div>" )
-                        .addClass( "arrow top" )
-                        .addClass( feedback.vertical )
-                        .addClass( feedback.horizontal )
-                        .appendTo( this );
-                    }
-                }
-            });
-        }); 
-
-        // prevent map click when clicking on slider
-        L.DomEvent.addListener(buttonContainer, 'click', L.DomEvent.stopPropagation);
-
-        return buttonContainer;
-    },
-
-    onChange: function (func){
-        this.options.onChange = func;      
-    },
-
-    setValue: function(key) {
-
-        $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "']:checked").next().removeClass("ui-state-active");
-        var a = $("input[name='r360_radiobuttongroup_" + this.options.buttonGroupId + "'][key='"+key+"']");
-        a.attr("checked", true);
-        a.addClass('checked');
-        a.next().addClass( "ui-state-active" );
-        this.options.checked = key;
-    },
-
-    getValue: function(){
-
-        return this.options.checked;
-    },
-
-    getRadioButtonHTML: function(){
-
-        var that = this; 
-
-        // generate an ID for the complete button group
-        that.options.buttonGroupId = r360.Util.generateId(5);
-
-        var div = $('<div/>', { id : that.options.buttonGroupId });
-        div.addClass('r360-box-shadow');
-
-        // add each button to the group
-        _.each(that.options.buttons, function(button){
-
-            // generate a unique id for each button
-            var id = r360.Util.generateId();
-
-            var input = $('<input/>', { 
-                "type" : 'radio', 
-                "id"   : 'r360_' + id, 
-                "value": button.key, 
-                "key"  : button.key, 
-                "name" : 'r360_radiobuttongroup_' + that.options.buttonGroupId
-            });
-
-            var label = $('<label/>', { 
-                "for"  : 'r360_' + id, 
-                "html" : button.label
-            });
-
-            // make the button selected (default buttin)
-            if ( button.checked ) {
-
-                that.options.checked = button.key;
-                input.attr({"checked" : "checked"})
-            };
-            // add a tooltip if one was provided
-            if ( typeof button.tooltip != 'undefined' ) 
-                label.attr({"title" : button.tooltip});//
-                //{
-
-            //     label.tooltip({
-            //         content: "asd",
-            //         position: {
-            //             my: "center top+10",
-            //             at: "center bottom",
-            //             using: function( position, feedback ) {
-            //                 $( this ).css( position );
-            //                 $( "<div>" )
-            //                 .addClass( "arrow top" )
-            //                 .addClass( feedback.vertical )
-            //                 .addClass( feedback.horizontal )
-            //                 .appendTo( this );
-            //             }
-            //         }
-            //     });
-            // }
-                
-
-            div.append(input);
-            div.append(label);
-        });
-
-        return div;
-    },
-});
-
-r360.radioButtonControl = function (options) {
-    return new r360.RadioButtonControl(options);
-};
-
-r360.CheckboxButtonControl = L.Control.extend({
-
-    initialize: function (options) {
-
-        this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
-        this.options.checked = {};
-
-        if ( typeof options !== 'undefined') { 
-            
-            if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
-            if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
-            if ( typeof options.onChange !== 'undefined' ) this.options.onChange = options.onChange;
-        }
-        else alert("No buttons supplied!");
-    },
-
-    onAdd: function (map) {
-
-        var that = this;
-
-        this.options.map    = map;
-        var buttonContainer = L.DomUtil.create('div', this._container);
-        this.options.input  = this.getCheckboxButtonHTML();
-        $(buttonContainer).append(this.options.input);
-
-        $(this.options.input).buttonset({}).change(function(){
-
-            $("input:checkbox[name='r360_checkboxbuttongroup_" + that.options.buttonGroupId + "']").each(function() {
-
-                if ( $(this).is(':checked') ) that.options.checked[$(this).attr('key')] = true;
-                else  that.options.checked[$(this).attr('key')] = false;
-            });
-
-            that.options.onChange(that.options.checked);
-        });  
-
-        $(this.options.input).each(function(){
-
-            $(this).tooltip({
-                open: function( event, ui ) {
-                    $("[lang='de'], [lang='en'], [lang='no']").hide();
-                    $("[lang='"+r360.config.i18n.language+"']").show();
-                },
-                content: function () {
-                      return $(this).attr('title');
-                },
-                position: {
-                    my: "center top+10",
-                    at: "center bottom",
-                    using: function( position, feedback ) {
-                        $( this ).css( position );
-                        $( "<div>" )
-                        .addClass( "arrow top" )
-                        .addClass( feedback.vertical )
-                        .addClass( feedback.horizontal )
-                        .appendTo( this );
-                    }
-                }
-            });
-        }); 
-
-        // prevent map click when clicking on slider
-        L.DomEvent.addListener(buttonContainer, 'click', L.DomEvent.stopPropagation);
-
-        return buttonContainer;
-    },
-
-    onChange: function (func){
-
-        this.options.onChange = func;      
-    },
-
-    getValue: function(){
-
-        return this.options.checked;
-    },
-
-    getId: function(){
-
-        return this.id;
-    },
-
-    getCheckboxButtonHTML: function(){
-
-        var that = this; 
-
-        // generate an ID for the complete button group
-        that.options.buttonGroupId = r360.Util.generateId(5);
-        that.id = that.options.buttonGroupId;
-
-        var div = $('<div/>', { id : that.options.buttonGroupId });
-        div.addClass('r360-box-shadow');
-
-        // add each button to the group
-        _.each(that.options.buttons, function(button){
-
-            // generate a unique id for each button
-            var id = r360.Util.generateId();
-
-            var input = $('<input/>', { 
-                "type" : 'checkbox', 
-                "id"   : 'r360_' + id, 
-                "value": button.key, 
-                "key"  : button.key, 
-                "name" : 'r360_checkboxbuttongroup_' + that.options.buttonGroupId
-            });
-
-            var label = $('<label/>', { 
-                "for"  : 'r360_' + id, 
-                "html" : !_.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
-            });
-
-            // make the button selected (default buttin)
-            if ( button.checked ) {
-
-                that.options.checked[button.key] = true;
-                input.attr({"checked" : "checked"})
-            };
-            // add a tooltip if one was provided
-            if ( typeof button.tooltip != 'undefined' ) label.attr({"title" : button.tooltip});
-
-            div.append(input);
-            div.append(label);
-        });
-
-        return div;
-    },
-});
-
-r360.checkboxButtonControl = function (options) {
-    return new r360.CheckboxButtonControl(options);
-};
 
 r360.polygon = function (traveltime, area, outerBoundary) { 
     return new r360.Polygon(traveltime, area, outerBoundary);
@@ -3504,6 +3030,335 @@ r360.MultiPolygon = function() {
 r360.multiPolygon = function () { 
     return new r360.MultiPolygon();
 };
+
+/*
+ * L.Bounds represents a rectangular area on the screen in pixel coordinates.
+ */
+
+L.Bounds = function (a, b) { //(Point, Point) or Point[]
+    if (!a) { return; }
+
+    var points = b ? [a, b] : a;
+
+    for (var i = 0, len = points.length; i < len; i++) {
+        this.extend(points[i]);
+    }
+};
+
+L.Bounds.prototype = {
+    // extend the bounds to contain the given point
+    extend: function (point) { // (Point)
+        point = L.point(point);
+
+        if (!this.min && !this.max) {
+            this.min = point.clone();
+            this.max = point.clone();
+        } else {
+            this.min.x = Math.min(point.x, this.min.x);
+            this.max.x = Math.max(point.x, this.max.x);
+            this.min.y = Math.min(point.y, this.min.y);
+            this.max.y = Math.max(point.y, this.max.y);
+        }
+        return this;
+    },
+
+    getCenter: function (round) { // (Boolean) -> Point
+        return new L.Point(
+                (this.min.x + this.max.x) / 2,
+                (this.min.y + this.max.y) / 2, round);
+    },
+
+    getBottomLeft: function () { // -> Point
+        return new L.Point(this.min.x, this.max.y);
+    },
+
+    getTopRight: function () { // -> Point
+        return new L.Point(this.max.x, this.min.y);
+    },
+
+    getSize: function () {
+        return this.max.subtract(this.min);
+    },
+
+    contains: function (obj) { // (Bounds) or (Point) -> Boolean
+        var min, max;
+
+        if (typeof obj[0] === 'number' || obj instanceof L.Point) {
+            obj = L.point(obj);
+        } else {
+            obj = L.bounds(obj);
+        }
+
+        if (obj instanceof L.Bounds) {
+            min = obj.min;
+            max = obj.max;
+        } else {
+            min = max = obj;
+        }
+
+        return (min.x >= this.min.x) &&
+               (max.x <= this.max.x) &&
+               (min.y >= this.min.y) &&
+               (max.y <= this.max.y);
+    },
+
+    intersects: function (bounds) { // (Bounds) -> Boolean
+        bounds = L.bounds(bounds);
+
+        var min = this.min,
+            max = this.max,
+            min2 = bounds.min,
+            max2 = bounds.max,
+            xIntersects = (max2.x >= min.x) && (min2.x <= max.x),
+            yIntersects = (max2.y >= min.y) && (min2.y <= max.y);
+
+        return xIntersects && yIntersects;
+    },
+
+    overlaps: function (bounds) { // (Bounds) -> Boolean
+        bounds = L.bounds(bounds);
+
+        var min = this.min,
+            max = this.max,
+            min2 = bounds.min,
+            max2 = bounds.max,
+            xOverlaps = (max2.x > min.x) && (min2.x < max.x),
+            yOverlaps = (max2.y > min.y) && (min2.y < max.y);
+
+        return xOverlaps && yOverlaps;
+    },
+
+    isValid: function () {
+        return !!(this.min && this.max);
+    }
+};
+
+L.bounds = function (a, b) { // (Bounds) or (Point, Point) or (Point[])
+    if (!a || a instanceof L.Bounds) {
+        return a;
+    }
+    return new L.Bounds(a, b);
+};
+
+
+/*
+ * r360.Point represents a point with x and y coordinates.
+ */
+
+r360.Point = function (x, y, round) {
+    this.x = (round ? Math.round(x) : x);
+    this.y = (round ? Math.round(y) : y);
+};
+
+r360.Point.prototype = {
+
+    clone: function () {
+        return new r360.Point(this.x, this.y);
+    },
+
+    // non-destructive, returns a new point
+    add: function (point) {
+        return this.clone()._add(r360.point(point));
+    },
+
+    // destructive, used directly for performance in situations where it's safe to modify existing point
+    _add: function (point) {
+        this.x += point.x;
+        this.y += point.y;
+        return this;
+    },
+
+    subtract: function (point) {
+        return this.clone()._subtract(r360.point(point));
+    },
+
+    _subtract: function (point) {
+        this.x -= point.x;
+        this.y -= point.y;
+        return this;
+    },
+
+    divideBy: function (num) {
+        return this.clone()._divideBy(num);
+    },
+
+    _divideBy: function (num) {
+        this.x /= num;
+        this.y /= num;
+        return this;
+    },
+
+    multiplyBy: function (num) {
+        return this.clone()._multiplyBy(num);
+    },
+
+    _multiplyBy: function (num) {
+        this.x *= num;
+        this.y *= num;
+        return this;
+    },
+
+    round: function () {
+        return this.clone()._round();
+    },
+
+    _round: function () {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        return this;
+    },
+
+    floor: function () {
+        return this.clone()._floor();
+    },
+
+    _floor: function () {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        return this;
+    },
+
+    ceil: function () {
+        return this.clone()._ceil();
+    },
+
+    _ceil: function () {
+        this.x = Math.ceil(this.x);
+        this.y = Math.ceil(this.y);
+        return this;
+    },
+
+    distanceTo: function (point) {
+        point = r360.point(point);
+
+        var x = point.x - this.x,
+            y = point.y - this.y;
+
+        return Math.sqrt(x * x + y * y);
+    },
+
+    equals: function (point) {
+        point = r360.point(point);
+
+        return point.x === this.x &&
+               point.y === this.y;
+    },
+
+    contains: function (point) {
+        point = r360.point(point);
+
+        return Math.abs(point.x) <= Math.abs(this.x) &&
+               Math.abs(point.y) <= Math.abs(this.y);
+    },
+
+    toString: function () {
+        return 'Point(' +
+                r360.Utir360.formatNum(this.x) + ', ' +
+                r360.Utir360.formatNum(this.y) + ')';
+    }
+};
+
+r360.point = function (x, y, round) {
+    if (x instanceof r360.Point) {
+        return x;
+    }
+    if (r360.Utir360.isArray(x)) {
+        return new r360.Point(x[0], x[1]);
+    }
+    if (x === undefined || x === null) {
+        return x;
+    }
+    return new r360.Point(x, y, round);
+};
+
+
+/*
+ * L.LatLng represents a geographical point with latitude and longitude coordinates.
+ */
+
+L.LatLng = function (lat, lng, alt) {
+    if (isNaN(lat) || isNaN(lng)) {
+        throw new Error('Invalid LatLng object: (' + lat + ', ' + lng + ')');
+    }
+
+    this.lat = +lat;
+    this.lng = +lng;
+
+    if (alt !== undefined) {
+        this.alt = +alt;
+    }
+};
+
+L.LatLng.prototype = {
+    equals: function (obj, maxMargin) {
+        if (!obj) { return false; }
+
+        obj = L.latLng(obj);
+
+        var margin = Math.max(
+                Math.abs(this.lat - obj.lat),
+                Math.abs(this.lng - obj.lng));
+
+        return margin <= (maxMargin === undefined ? 1.0E-9 : maxMargin);
+    },
+
+    toString: function (precision) {
+        return 'LatLng(' +
+                L.Util.formatNum(this.lat, precision) + ', ' +
+                L.Util.formatNum(this.lng, precision) + ')';
+    },
+
+    distanceTo: function (other) {
+        return L.CRS.Earth.distance(this, L.latLng(other));
+    },
+
+    wrap: function () {
+        return L.CRS.Earth.wrapLatLng(this);
+    },
+
+    toBounds: function (sizeInMeters) {
+        var latAccuracy = 180 * sizeInMeters / 40075017,
+                lngAccuracy = latAccuracy / Math.cos((Math.PI / 180) * this.lat);
+
+        return L.latLngBounds(
+                [this.lat - latAccuracy, this.lng - lngAccuracy],
+                [this.lat + latAccuracy, this.lng + lngAccuracy]);
+    },
+
+    clone: function () {
+        return new L.LatLng(this.lat, this.lng, this.alt);
+    }
+};
+
+
+// constructs LatLng with different signatures
+// (LatLng) or ([Number, Number]) or (Number, Number) or (Object)
+
+L.latLng = function (a, b, c) {
+    if (a instanceof L.LatLng) {
+        return a;
+    }
+    if (L.Util.isArray(a) && typeof a[0] !== 'object') {
+        if (a.length === 3) {
+            return new L.LatLng(a[0], a[1], a[2]);
+        }
+        if (a.length === 2) {
+            return new L.LatLng(a[0], a[1]);
+        }
+        return null;
+    }
+    if (a === undefined || a === null) {
+        return a;
+    }
+    if (typeof a === 'object' && 'lat' in a) {
+        return new L.LatLng(a.lat, 'lng' in a ? a.lng : a.lon, a.alt);
+    }
+    if (b === undefined) {
+        return null;
+    }
+    return new L.LatLng(a, b, c);
+};
+
 
 /*
  *
@@ -4002,660 +3857,5 @@ r360.route = function (travelTime, segments) {
     return new r360.Route(travelTime, segments);
 };
 
-/*
- *
- */
-r360.Route360PolygonLayer = L.Class.extend({
-   
-    /**
-      * This methods initializes the polygon layer's stroke width and polygon opacity.
-      * It uses the default values, and in case the options contain other values, the
-      * default values are overwritten. 
-      *
-      * @method send
-      * 
-      * @param {Object} [options] The typical JS options array.
-      * @param {Number} [options.opacity] Defines the opacity of the polygons. 
-      *     Higher values mean that the polygon is less opaque.
-      * @param {Number} [options.strokeWidth] Defines the strokewidth of the polygons boundaries.
-      *     Since we have degenerated polygons (they can have no area), the stroke width defines the
-      *     thickness of a polygon. Thicker polygons are not as informative as thinner ones.
-      */
-    initialize: function (options) {
-        
-        // set default parameters
-        this.opacity     = r360.config.defaultPolygonLayerOptions.opacity;
-        this.strokeWidth = r360.config.defaultPolygonLayerOptions.strokeWidth;
-        
-        // overwrite defaults with optional parameters
-        if ( typeof options != 'undefined' ) {
-
-            if ( typeof options.opacity     != 'undefined') this.opacity      = options.opacity;
-            if ( typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
-            if ( typeof options.inverse     != 'undefined') this.inverse      = options.inverse;
-        }
-
-        this._multiPolygons = new Array(); 
-
-        navigator.sayswho= (function(){
-            var ua= navigator.userAgent, tem, 
-            M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-            if(/trident/i.test(M[1])){
-                tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
-                return 'IE '+(tem[1] || '');
-            }
-            if(M[1]=== 'Chrome'){
-                tem= ua.match(/\bOPR\/(\d+)/)
-                if(tem!= null) return 'Opera '+tem[1];
-            }
-            M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-            if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
-            return M.join(' ');
-        })();
-    },
-
-    setInverse: function(inverse){
-        this.inverse = inverse;
-    },
-
-    getInverse: function(){
-        return this.inverse;
-    },
-    /* 
-     *
-     */
-    getBoundingBox : function(){
-
-        return new L.LatLngBounds(this._bottomLeft, this._topRight);
-    },
-    
-    /*
-     *
-     */
-    onAdd: function (map) {
-
-        this._map = map;
-        // create a DOM element and put it into one of the map panes
-        this._el = L.DomUtil.create('div', 'my-custom-layer-'+$(map._container).attr("id")+' leaflet-zoom-hide');
-       // $(this._el).css({"opacity": this.opacity});
-        $(this._el).attr("id","canvas" + $(this._map._container).attr("id"));
-        this._map.getPanes().overlayPane.appendChild(this._el);
-
-        // add a viewreset event listener for updating layer's position, do the latter
-        this._map.on('moveend', this._reset, this);
-        this._reset(true);
-
-    },
-
-    fitMap: function(){
-
-        this._map.fitBounds(this.getBoundingBox());
-    },
-
-    /**
-     * [clearAndAddLayers description]
-     * @param  {[type]} sourceToPolygons [description]
-     * @return {[type]}                  [description]
-     */
-    clearAndAddLayers : function(polygons, fitMap){
-
-        this.clearLayers();
-        this.addLayer(polygons);
-
-        if ( typeof fitBounds !== 'undefined' ) this.fitMap();
-
-        return this;
-    },
-    
-    /*
-     *
-     */
-    addLayer:function(sourceToPolygons){        
-        
-        var that    = this;
-        that.redrawCount = 0;
-
-        if(r360.config.logging) var start   = new Date().getTime();
-
-        that._resetBoundingBox();
-        that._multiPolygons = new Array();
-
-        if ( r360.config.logging ) var start_projecting   = new Date().getTime();
-
-        for ( var i = 0; i < sourceToPolygons.length ; i++){
-            for ( var j = 0; j < sourceToPolygons[i].polygons.length ; j++) {
-
-                sourceToPolygons[i].polygons[j].project(); 
-                that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
-                that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
-            }
-        }
-        
-        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-
-        if (r360.config.logging) console.log("adding layers took " + (new Date().getTime() - start));
-
-        that._reset();
-    },
-
-    /*
-     *
-     */
-    _addPolygonToMultiPolygon: function(polygon){
-
-        var multiPolygons = _.filter(this._multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
-
-        // multipolygon with polygon's travetime already there
-        if ( multiPolygons.length > 0 ) multiPolygons[0].addPolygon(polygon);
-        else {
-
-            var mp = new r360.multiPolygon();
-            mp.setTravelTime(polygon.travelTime);
-            mp.addPolygon(polygon);
-            mp.setColor(polygon.getColor());
-            mp.setOpacity(polygon.getOpacity());
-            this._multiPolygons.push(mp);
-        }
-    },
-
-    /*
-     *
-     */
-    _resetBoundingBox: function(){
-        this._latlng = new L.LatLng(-180, 90);
-        this._topRight = new L.latLng(-90,-180);
-        this._bottomLeft = new L.latLng(90, 180);
-    },
-
-    addTo: function (map) {
-        map.addLayer(this);
-        return this;
-    },
-    
-    /*
-     *
-     */
-    _updateBoundingBox:function(polygon){
-
-        var that = this;        
-
-        if ( polygon.topRight.lat   > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
-        if ( polygon.bottomLeft.lat < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
-            
-        if ( polygon.topRight.lng   > that._topRight.lng )      that._topRight.lng   = polygon.topRight.lng;
-        if ( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
-    
-        if ( that._latlng.lat < that._topRight.lat)             that._latlng.lat = that._topRight.lat;
-        if ( that._latlng.lng > that._bottomLeft.lng)           that._latlng.lng = that._bottomLeft.lng;
-    },
-  
-    /*
-     *
-     */
-    onRemove: function (map) {
-
-        // remove layer's DOM elements and listeners
-        map.getPanes().overlayPane.removeChild(this._el);
-        map.off('viewreset', this._reset, this);
-    },
-    
-    /*
-     *
-     */
-    _buildPath:function(point, suffix){
-        
-        var a = new Array();
-
-        a.push(suffix);
-        a.push(Math.round(point.x));
-        a.push(Math.round(point.y));
-        
-        return a;
-    },
-
-    _clipToBounds: function(point, bounds){
-
-        if(point.x > bounds.max.x)
-            point.x = bounds.max.x;
-        else if(point.x < bounds.min.x)
-            point.x = bounds.min.x;
-        if(point.y > bounds.max.y)
-            point.y = bounds.max.y;        
-        else if(point.y < bounds.min.y)
-            point.y = bounds.min.y;
-    },
-
-    /*
-    clipping like sutherland
-    http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript
-    */
-
-    _clip: function(subjectPolygon, clipPolygon) {
-       var cp1, cp2, s, e;
-            var inside = function (p) {
-                return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
-            };
-            var intersection = function () {
-                var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
-                    dp = [ s[0] - e[0], s[1] - e[1] ],
-                    n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
-                    n2 = s[0] * e[1] - s[1] * e[0], 
-                    n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
-                return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
-            };
-            var outputList = subjectPolygon;
-            var cp1 = clipPolygon[clipPolygon.length-1];
-            for (j in clipPolygon) {
-                var cp2 = clipPolygon[j];
-                var inputList = outputList;
-                outputList = [];
-                s = inputList[inputList.length - 1]; //last on the input list
-                for (i in inputList) {
-                    var e = inputList[i];
-                    if (inside(e)) {
-                        if (!inside(s)) {
-                            outputList.push(intersection());
-                        }
-                        outputList.push(e);
-                    }
-                    else if (inside(s)) {
-                        outputList.push(intersection());
-                    }
-                    s = e;
-                }
-                cp1 = cp2;
-            }
-            return outputList
-    },
-
-    _scale: function(point, scale){
-        point.x *= scale;
-        point.y *= scale;
-        return point;
-    },
-
-    _subtract: function(point, x, y){
-        point.x -= x;
-        point.y -= y;
-        return y;
-    },
-
-    _getMaxDiff: function(point1, point2){
-        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
-    },
-
-    _splicePath: function(pathData){
-        if(this._isCollinear())
-
-        if(pathData.length >= 3){
-            if(pathData[pathData.length-1][1] == pathData[pathData.length-2][1] && pathData[pathData.length-2][1] == pathData[pathData.length-3][1]){
-                pathData.splice(pathData.length-2,1)
-            } 
-            else if(pathData[pathData.length-1][2] == pathData[pathData.length-2][2] && pathData[pathData.length-2][2] == pathData[pathData.length-3][2]){
-                pathData.splice(pathData.length-2,1)
-            }
-        }
-    },
-
-    _isCollinear: function(p1, p2, p3){
-
-        if(p1.x == p3.x && p1.y == p3.y)
-            return false;
-        if(p1.x == p2.x && p2.x == p3.x)
-            return true;
-        if(p1.y == p2.y && p2.y == p3.y)
-            return true;
-        
-        var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-
-        if(val < r360.config.defaultPolygonLayerOptions.tolerance && val > -r360.config.defaultPolygonLayerOptions.tolerance
-         && p1.x != p3.x && p1.y != p3.y)
-            return true;
-        return false;
-    },
-
-    _roundPoint: function(p){
-        p.x = Math.round(p.x);
-        p.y = Math.round(p.y);
-        return p;
-    },
-
-    _buildSVGPolygon: function(pathData, coordinateArray, bounds, scale){
-
-        var that = this;
-        var svgM    = "M";
-        var svgL    = "L";  
-        var svgz    = "z";  
-        var maxDiff;
-      
-        var projectedPoint, point, point1, point2, isCollinear, pointCount = 0;
-       
-        var boundArray = [[bounds.min.x, bounds.min.y], [bounds.max.x, bounds.min.y], [bounds.max.x, bounds.max.y], [bounds.min.x, bounds.max.y]];
-
-        var arrayToClip = new Array();
-
-        for(var i = 0; i < coordinateArray.length; i++){
-            projectedPoint  = coordinateArray[i];
-            point           = new L.Point(projectedPoint.x, projectedPoint.y);
-            that._scale(point, scale);
-            that._roundPoint(point);
-
-            if(i > 0) 
-                maxDiff = that._getMaxDiff(point2, point); 
-            else 
-                maxDiff = r360.config.defaultPolygonLayerOptions.tolerance;
-
-            if(maxDiff >= r360.config.defaultPolygonLayerOptions.tolerance){
-
-                isCollinear = false;
-
-                if(pointCount > 2){
-                    isCollinear = that._isCollinear(point1, point2, point);
-                }
-
-                if(isCollinear){
-                    arrayToClip[arrayToClip.length-1][0] = point.x;
-                    arrayToClip[arrayToClip.length-1][1] = point.y;
-                }else{
-                    
-                    arrayToClip.push([point.x, point.y]);
-                    point1 = point2;
-                    point2 = point;
-                    pointCount++;
-                }
-            }
-        }
-
-        var clippedArray = this._clip(arrayToClip, boundArray);
-        var lastPoint;
-
-        for(var i = 0; i < clippedArray.length; i++){
-            projectedPoint = clippedArray[i];
-            point = new L.Point(projectedPoint[0], projectedPoint[1]);
-            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
-            if(i > 0)   
-                pathData.push(that._buildPath(point, svgL));
-            else        
-                pathData.push(that._buildPath(point, svgM));
-            lastPoint = point;
-        }
-        if(pathData.length > 0)
-            pathData.push([svgz]);
-        return pathData;
-    },
-    
-    /*
-     *
-     */
-    _createSVGData: function(polygon){
-
-        var that = this;
-
-        var bounds  = that._map.getPixelBounds();
-        var mapSize = that._map.getSize();
-
-        var extendX = Math.ceil(r360.config.defaultPolygonLayerOptions.strokeWidth/2);
-        var extendY = Math.ceil(r360.config.defaultPolygonLayerOptions.strokeWidth/2);
-
-        bounds.max.x += extendX;
-        bounds.min.x -= extendX;
-
-        bounds.max.y += extendY;
-        bounds.min.y -= extendY;
-
-
-        var scale   = Math.pow(2,that._map._zoom) * 256;
-
-        var pathData = new Array();
-
-        var polygonTopRight     = polygon.getProjectedTopRight();
-        var polygonBottomLeft   = polygon.getProjectedBottomLeft();
-
-        that._scale(polygonTopRight, scale);
-        that._scale(polygonBottomLeft, scale);
-
-        // the outer boundary       
-        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
-            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-
-     
-        // the inner boundaries
-        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
-
-            that.runs ++;
-            var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
-            var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
-
-            that._scale(polygonTopRight, scale);
-            that._scale(polygonBottomLeft, scale);
-
-            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
-                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
-            //    continue;
-
-            that.counter++;
-            //
-        }
-
-       
-           
-        return pathData;
-    },
-
-    /*
-     *
-     */
-    clearLayers: function(){        
-        $('#canvas'+ $(this._map._container).attr("id")).empty();
-        this.initialize();
-    },
-
-    /*
-     *
-     */
-    _reset: function () {
-
-        var that = this;
-
-        var g = new Array();   
-
-        // count the drawings in order to animate only the initial one
-        that.redrawCount++;
- 
-                                    if(r360.config.logging) var start   = new Date().getTime();
-
-        if(this._multiPolygons.length > 0){           
-             
-            var svgData, mp; 
-            var pos         = new L.Point(0,0);    
-            that._svgWidth    = that._map.getSize().x;
-            that._svgHeight   = that._map.getSize().y;
-
-            /*
-            always place the layer in the corner top left. Later adjustments will be made by svg translate 
-            */
-            L.DomUtil.setPosition(this._el, pos);
-
-         
-            // calculate the offset in between map and svg in order to translate
-            var svgHTML        = $('#svg_'+ $(this._map._container).attr("id"));
-            var svgPosition    = svgHTML.offset();
-            var mapPosition    = $(this._map._container).offset();
-
-            
-
-            if(typeof that._offset == 'undefined')
-                that._offset = new L.Point(0,0)
-
-            if(typeof svgPosition != 'undefined'){
-                that._offset.x += (mapPosition.left - svgPosition.left);
-                that._offset.y += (mapPosition.top - svgPosition.top);
-            }
-
-
-            // clear layer from previous drawings
-            $('#canvas'+ $(this._map._container).attr("id")).empty();                      
-            
-            for(var i = 0; i < this._multiPolygons.length; i++){
-                mp      = this._multiPolygons[i];                
-                svgData = new Array();
-
-                                            if(r360.config.logging) var start_svg   = new Date().getTime();
-                for ( var j = 0; j < mp.polygons.length; j++) {
-                    var svg = this._createSVGData(mp.polygons[j]);
-                    // TODO a few too many tiny polygons are created. Needs to be investigated
-                    //if(svg.length > 2)
-                    svgData.push(svg);
-                }
-                                            if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                                    
-
-                if ( svgData.length != 0 ) {
-                    
-                    var color   = mp.getColor();
-                    var opacity = mp.getOpacity();
-                    
-                    if ( r360.config.logging ) 
-                        var start_raphael  = new Date().getTime();
-
-                    var animate = that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate && that._isAnimated() ? true : false;     
-
-                    g.push(!that.inverse ? that._getGElement(svgData, 1, color, animate) : that._getGElement(svgData, opacity, 'black', animate));
-              
-                    if ( r360.config.logging )
-                        console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
-                }
-            }
-
-            var svgString = !that.inverse ? that._getNormalSvgElement(g) : that._getInverseSvgElement(g);
-
-            $('#canvas'+ $(this._map._container).attr("id")).append(svgString);
-        }
-
-        if ( r360.config.logging )
-            console.log("layer resetting tool: " +  (new Date().getTime() - start) + "ms");
-    },
-
-    _isAnimated: function(){
-        if (navigator.sayswho.indexOf("IE") != -1 )
-            return false;
-        if (navigator.sayswho.indexOf("Safari") != -1 )
-            return false;
-        if (navigator.sayswho.indexOf("Firefox") != -1 )
-            return false;
-        if(r360.config.defaultPolygonLayerOptions.animate)
-            return true;
-        return false;
-    },
-
-    _getFrame: function(width, height){
-        var svgFrame = new Array();
-        svgFrame.push(['M',0, 0]);
-        svgFrame.push(['L',width, 0]);
-        svgFrame.push(['L',width, height]);
-        svgFrame.push(['L',0, height]);
-        svgFrame.push(['z']);
-        return svgFrame;
-    },
-
-    _getTranslation: function(){
-        var that = this;
-        if (navigator.sayswho.indexOf("IE 9") != -1 )
-            return "transform:translate("+that._offset.x+"px,"+that._offset.y+"px)";
-        if  (navigator.sayswho.indexOf("Safari") != -1 ) 
-            return "-webkit-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-        if  (navigator.sayswho.indexOf("Firefox") != -1 ) 
-            return "-moz-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-        else
-            return "transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-    },
-
-    _getInverseSvgElement: function(gElement){
-        var that     = this;
-        var svgFrame = this._getFrame(that._svgWidth, that._svgHeight);
-
-        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
-                            " height=" + that._svgHeight + 
-                            " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg></div>";
-
-        var gees = "";
-
-        for(var i = 0; i < gElement.length; i++)
-            gees += gElement[i];
-
-        var newSvg = "<defs>"+
-                        "<mask id='mask_"+ $(this._map._container).attr("id")+"'>"+
-                            "<path style='fill-opacity:1;stroke: white; fill:white;' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>"+
-                            gees + 
-                        "</mask>"+
-                    "</defs>";
-        var frame = "<path style='mask: url(#mask_"+ $(this._map._container).attr("id")+")'d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>";
-
-        return svgStart + frame +  newSvg  +  svgEnd;
-    },
-
-    _getGElement: function(svgData, opacity, color, animate){
-
-        var randomId = r360.Util.generateId();
-        var initialOpacity = opacity;
-        var animationDuration = r360.config.defaultPolygonLayerOptions.animationDuration;
-
-        if(animate){
-            initialOpacity = 0;
-        }
-
-        return  "<g id=" + randomId + " style='opacity:" + initialOpacity + "'>"+
-                    "<path style='stroke: " + color + "; fill: " + color + " ; stroke-opacity: 1; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
-                "</g><animate xlink:href='#" + randomId + "' attributeName='opacity' begin='0s' dur='" + animationDuration + "s' from=" + initialOpacity + " to=" + opacity + " fill='freeze' />";
-    },
-
-    _getNormalSvgElement: function(gElement){
-        var that = this;
-        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
-                            " height=" + that._svgHeight + 
-                            " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg></div>";
-
-        var gees = "";
-
-        for(var i = 0; i < gElement.length; i++)
-            gees += gElement[i];
-
-        return svgStart + gees + svgEnd;
-
-    }
-
-
-});
-
-r360.route360PolygonLayer = function (options) {
-    return new r360.Route360PolygonLayer(options);
-};
-
-
-/*
-not in use anymore:   
-
-// ie8 (vml) gets the holes from smaller polygons. Dirty IE8 hack
-                if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                    if (i < this._multiPolygons.length-1 ) {
-                        for ( var l = 0; l < this._multiPolygons[i+1].polygons.length; l++ ) {
-                            var poly2 = this._multiPolygons[i+1].polygons[l];
-                            svgData.push(this._createSVGData(poly2.outerBoundary));
-                        }
-                    }
-                }
-
-
-                 // Another shabby IE8 hack
-            if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                $('shape').each(function() {
-                    $( this ).css( {"filter": "alpha(opacity=" + that.opacity * 100 + ")"} );
-                });
-            }
-
-*/
-
 }(window, document));
+

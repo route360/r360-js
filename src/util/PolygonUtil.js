@@ -212,10 +212,13 @@ r360.PolygonUtil = {
      */
     updateBoundingBox : function(polygon, topRight, bottomLeft){
 
-        if ( polygon.topRight.lat   > topRight.lat)    topRight.lat   = polygon.topRight.lat;                
-        if ( polygon.bottomLeft.lat < bottomLeft.lat)  bottomLeft.lat = polygon.bottomLeft.lat;
-        if ( polygon.topRight.lng   > topRight.lng )   topRight.lng   = polygon.topRight.lng;
-        if ( polygon.bottomLeft.lng < bottomLeft.lng ) bottomLeft.lng = polygon.bottomLeft.lng;
+        // console.log(polygon.topRight, topRight);
+
+        if ( polygon.topRight.x   > topRight.x)    topRight.x   = polygon.topRight.x;                
+        if ( polygon.topRight.y   > topRight.y )   topRight.y   = polygon.topRight.y;
+
+        if ( polygon.bottomLeft.x < bottomLeft.x)  bottomLeft.x = polygon.bottomLeft.x;
+        if ( polygon.bottomLeft.y < bottomLeft.y ) bottomLeft.y = polygon.bottomLeft.y;
     },
 
     /*
