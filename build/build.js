@@ -5,35 +5,18 @@ var fs = require('fs'),
 
     deps = require('./deps.js').deps;
 
-function getFiles(compsBase32) {
+function getFiles(module) {
 	var memo = {},
 	    comps;
 
-	if (compsBase32) {
-		comps = parseInt(compsBase32, 32).toString(2).split('');
-		console.log('Managing dependencies...');
-	}
+    var moduleDeps = [];
+    if (module == 'core')    moduleDeps = deps.core.src;
+    if (module == 'leaflet') moduleDeps = deps.leaflet.src;
+    if (module == 'google')  moduleDeps = deps.google.src;
 
-	function addFiles(srcs) {
-		for (var j = 0, len = srcs.length; j < len; j++) {
-			memo[srcs[j]] = true;
-		}
-	}
-
-	for (var i in deps) {
-		if (comps) {
-			if (parseInt(comps.pop(), 2) === 1) {
-				console.log(' * ' + i);
-				addFiles(deps[i].src);
-			} else {
-				console.log('   ' + i);
-			}
-		} else {
-			addFiles(deps[i].src);
-		}
-	}
-
-	console.log('');
+    for (var i = 0 ; i < moduleDeps.length ; i++ ) {
+        memo[moduleDeps[i]] = true;
+    }
 
 	var files = [];
 
@@ -73,8 +56,9 @@ function loadSilently(path) {
 function combineFiles(files) {
 	var content = '';
 	for (var i = 0, len = files.length; i < len; i++) {
-		content += fs.readFileSync(files[i], 'utf8') + '\n\n';
+	    content += fs.readFileSync(files[i], 'utf8') + '\n\n';
 	}
+
 	return content;
 }
 
@@ -82,65 +66,99 @@ function bytesToKB(bytes) {
     return (bytes / 1024).toFixed(2) + ' KB';
 };
 
-exports.build = function (callback, version, compsBase32, buildName) {
+function build(callback, version, buildName, module){
 
-	var files = getFiles(compsBase32);
+    var files = getFiles(module);
+    var combinedFiles = combineFiles(files);
+    console.log('Concatenating and compressing ' + files.length + ' files for module ' + module + ' ... ');
 
-	console.log('Concatenating and compressing ' + files.length + ' files...');
+    var oldSrc, srcDelta, pathPart, srcPath, newSrc;
 
-	var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
-	    intro = '(function (window, document, undefined) {',
-	    outro = '}(window, document));',
-	    newSrc = copy + intro + combineFiles(files) + outro,
+    if ( module == 'core' ) {
 
-	    pathPart = 'dist/r360' + (buildName ? '-' + buildName : ''),
-	    srcPath = pathPart + '-src.js',
+        var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
+        intro = '(function (window, document, undefined) {',
+        outro = '}(window, document));\n\n',
+        newSrc = copy + intro + combinedFiles + outro,
 
-	    oldSrc = loadSilently(srcPath),
-	    srcDelta = getSizeDelta(newSrc, oldSrc, true);
+        pathPart = 'dist/r360-core' + (buildName ? '-' + buildName : ''),
+        srcPath = pathPart + '-src.js',
 
-	console.log('\tUncompressed: ' + bytesToKB(newSrc.length) + srcDelta);
+        oldSrc = loadSilently(srcPath),
+        srcDelta = getSizeDelta(newSrc, oldSrc, true);
+    }
+    else if ( module == 'leaflet' ) {
 
-	if (newSrc !== oldSrc) {
-		fs.writeFileSync(srcPath, newSrc);
-		console.log('\tSaved to ' + srcPath);
-	}
+        var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
+        newSrc = copy + combinedFiles,
 
-	var path = pathPart + '.js',
-	    oldCompressed = loadSilently(path),
-	    newCompressed = copy + UglifyJS.minify(newSrc, {
-	        warnings: true,
-	        fromString: true
-	    }).code,
-	    delta = getSizeDelta(newCompressed, oldCompressed);
+        pathPart = 'dist/r360-leaflet' + (buildName ? '-' + buildName : ''),
+        srcPath = pathPart + '-src.js',
 
-	console.log('\tCompressed: ' + bytesToKB(newCompressed.length) + delta);
+        oldSrc = loadSilently(srcPath),
+        srcDelta = getSizeDelta(newSrc, oldSrc, true);
+    }
+    else if ( module == 'google' ) {
+        
+        var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
+        newSrc = copy + combinedFiles,
 
-	var newGzipped,
-	    gzippedDelta = '';
+        pathPart = 'dist/r360-google' + (buildName ? '-' + buildName : ''),
+        srcPath = pathPart + '-src.js',
 
-	function done() {
-		if (newCompressed !== oldCompressed) {
-			fs.writeFileSync(path, newCompressed);
-			console.log('\tSaved to ' + path);
-		}
-		console.log('\tGzipped: ' + bytesToKB(newGzipped.length) + gzippedDelta);
-		callback();
-	}
+        oldSrc = loadSilently(srcPath),
+        srcDelta = getSizeDelta(newSrc, oldSrc, true);
+    }
 
-	zlib.gzip(newCompressed, function (err, gzipped) {
-		if (err) { return; }
-		newGzipped = gzipped;
-		if (oldCompressed && (oldCompressed !== newCompressed)) {
-			zlib.gzip(oldCompressed, function (err, oldGzipped) {
-				if (err) { return; }
-				gzippedDelta = getSizeDelta(gzipped, oldGzipped);
-				done();
-			});
-		} else {
-			done();
-		}
-	});
+    console.log('\tUncompressed: ' + bytesToKB(newSrc.length) + srcDelta);
+
+    if (newSrc !== oldSrc) {
+        fs.writeFileSync(srcPath, newSrc);
+        console.log('\tSaved to ' + srcPath);
+    }
+
+    var path = pathPart + '.js',
+        oldCompressed = loadSilently(path),
+        newCompressed = copy + UglifyJS.minify(newSrc, {
+            warnings: true,
+            fromString: true
+        }).code,
+        delta = getSizeDelta(newCompressed, oldCompressed);
+
+    console.log('\tCompressed: ' + bytesToKB(newCompressed.length) + delta);
+
+    var newGzipped,
+        gzippedDelta = '';
+
+    function done() {
+        if (newCompressed !== oldCompressed) {
+            fs.writeFileSync(path, newCompressed);
+            console.log('\tSaved to ' + path);
+        }
+        console.log('\tGzipped: ' + bytesToKB(newGzipped.length) + gzippedDelta);
+        callback();
+    }
+
+    zlib.gzip(newCompressed, function (err, gzipped) {
+        if (err) { return; }
+        newGzipped = gzipped;
+        if (oldCompressed && (oldCompressed !== newCompressed)) {
+            zlib.gzip(oldCompressed, function (err, oldGzipped) {
+                if (err) { return; }
+                gzippedDelta = getSizeDelta(gzipped, oldGzipped);
+                done();
+            });
+        } else {
+            done();
+        }
+    });
+}
+
+exports.build = function (callback, version, buildName) {
+
+    build(callback, version, buildName, 'core');
+    build(callback, version, buildName, 'google');
+    build(callback, version, buildName, 'leaflet');
 };
 
 exports.test = function(complete, fail) {

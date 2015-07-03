@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (7470f07), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (9ec6272), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -405,6 +405,412 @@ r360.config = {
     }
 }
 
+r360.PolygonUtil = {
+
+    /**
+     * [clip clipping like sutherland http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript]
+     * @param  {[type]} subjectPolygon [description]
+     * @param  {[type]} clipPolygon    [description]
+     * @return {[type]}                [description]
+     */
+    clip: function(subjectPolygon, clipPolygon) {
+        
+        var cp1, cp2, s, e;
+        var inside = function (p) {
+            return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
+        };
+        var intersection = function () {
+            var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
+                dp = [ s[0] - e[0], s[1] - e[1] ],
+                n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
+                n2 = s[0] * e[1] - s[1] * e[0], 
+                n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
+            return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
+        };
+        var outputList = subjectPolygon;
+        var cp1 = clipPolygon[clipPolygon.length-1];
+        for (j in clipPolygon) {
+            var cp2 = clipPolygon[j];
+            var inputList = outputList;
+            outputList = [];
+            s = inputList[inputList.length - 1]; //last on the input list
+            for (i in inputList) {
+                var e = inputList[i];
+                if (inside(e)) {
+                    if (!inside(s)) {
+                        outputList.push(intersection());
+                    }
+                    outputList.push(e);
+                }
+                else if (inside(s)) {
+                    outputList.push(intersection());
+                }
+                s = e;
+            }
+            cp1 = cp2;
+        }
+        return outputList
+    },
+
+    /**
+     * [isCollinear Checks if the given three points are collinear. Also see 
+     *     https://en.wikipedia.org/wiki/Collinearity. This method uses a tolerance
+     *     factor defined in r360.config.defaultPolygonLayerOptions.tolerance.]
+     *     
+     * @param  {[type]}  p1 [description]
+     * @param  {[type]}  p2 [description]
+     * @param  {[type]}  p3 [description]
+     * @return {Boolean}    [description]
+     */
+    isCollinear: function(p1, p2, p3){
+
+        if(p1.x == p3.x && p1.y == p3.y)
+            return false;
+        if(p1.x == p2.x && p2.x == p3.x)
+            return true;
+        if(p1.y == p2.y && p2.y == p3.y)
+            return true;
+        
+        var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
+
+        if ( val < r360.config.defaultPolygonLayerOptions.tolerance  && 
+             val > -r360.config.defaultPolygonLayerOptions.tolerance && 
+             p1.x != p3.x && p1.y != p3.y )
+            return true;
+        
+        return false;
+    },
+
+    /**
+     * [scale Scales a point (x and y coordinate) by the given scale. This method changes
+     *     the values of the given point.]
+     * @param  {[type]} point [the point to be scaled]
+     * @param  {[type]} scale [the scale]
+     * @return {[type]}       [the scaled point]
+     */
+    scale: function(point, scale){
+        point.x *= scale;
+        point.y *= scale;
+        return point;
+    },
+
+    /**
+     * [subtract Subtracts the given x and y coordinate from the cooresponding values of the given point.
+     *     This method changes the values of the given point. ]
+     * @param  {[type]} point [the point to be changed]
+     * @param  {[type]} x     [the x value to be subtracted]
+     * @param  {[type]} y     [the y value to be subtracted]
+     * @return {[type]}       [the subtracted point]
+     */
+    subtract: function(point, x, y){
+        point.x -= x;
+        point.y -= y;
+        return point;
+    },
+
+    divide: function(point, quotient){
+        point.x /= quotient;
+        point.y /= quotient;
+        return point;
+    },
+
+    /**
+     * [roundPoint Rounds a point's x and y coordinate. The method changes the x and y 
+     *     values of the given point. If the fractional portion of number (x and y) 
+     *     is 0.5 or greater, the argument is rounded to the next higher integer. If the 
+     *     fractional portion of number is less than 0.5, the argument is rounded to the 
+     *     next lower integer.]
+     *     
+     * @param  {[type]} point [the point to rounded]
+     * @return {[type]}       [the point to be rounded with integer x and y coordinate]
+     */
+    roundPoint: function(point){
+        point.x = Math.round(point.x);
+        point.y = Math.round(point.y);
+        return point;
+    },
+
+    /**
+     * [buildPath Creates an SVG path. ]
+     * @param  {[type]} point  [The point to add]
+     * @param  {[type]} suffix [The svg suffix for the point]
+     * @return {[type]}        [An array containing the suffix, point.x, point.y]
+     */
+    buildPath:function(point, suffix){
+        
+        return [suffix, Math.round(point.x), Math.round(point.y)];
+    },
+
+    /**
+     * [getEuclidianDistance This method returns the euclidean distance between two points (x and y coordinates).]
+     * @param  {[type]} point1 [the first point]
+     * @param  {[type]} point2 [the second point]
+     * @return {[type]}        [the distance]
+     */
+    getEuclidianDistance: function(point1, point2){
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
+    },
+
+    /**
+     * [getSvgFrame description]
+     * @param  {[type]} width  [description]
+     * @param  {[type]} height [description]
+     * @return {[type]}        [description]
+     */
+    getSvgFrame: function(width, height){
+        return [['M',0, 0], ['L',width, 0], ['L',width, height], ['L',0, height], ['z']];
+    },
+
+    /**
+     * [extendBounds description]
+     * @param  {[type]} bounds       [description]
+     * @param  {[type]} extendWidthX [description]
+     * @param  {[type]} extendWidthY [description]
+     * @return {[type]}              [description]
+     */
+    extendBounds : function(bounds, extendWidthX, extendWidthY) {
+
+        var extendX = Math.ceil(extendWidthX);
+        var extendY = Math.ceil(extendWidthY);
+
+        bounds.max.x += extendX;
+        bounds.min.x -= extendX;
+        bounds.max.y += extendY;
+        bounds.min.y -= extendY;
+
+        return bounds;
+    },
+
+    /**
+     * [prepareMultipolygons description]
+     * @param  {[type]} multiPolygons [description]
+     * @param  {[type]} topRight      [description]
+     * @param  {[type]} topLeft       [description]
+     * @return {[type]}               [description]
+     */
+    prepareMultipolygons : function(multiPolygons, topRight, bottomLeft) {
+
+        var preparedMultiPolygons = [];
+
+        for ( var i = 0; i < multiPolygons.length ; i++){
+            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
+
+                var currentPolygon = multiPolygons[i].polygons[j];
+
+                // project to 4326, TODO remove dependency to leaflet
+                currentPolygon.project(); 
+                // adjust the bounding box
+                r360.PolygonUtil.updateBoundingBox(currentPolygon, topRight, bottomLeft);
+                // find the multipolygon to which this polygon belongs (travel time matching)
+                r360.PolygonUtil.addPolygonToMultiPolygon(preparedMultiPolygons, currentPolygon); 
+            }
+        }
+        
+        // make sure the multipolygons are sorted by the travel time ascendingly
+        preparedMultiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
+
+        return preparedMultiPolygons;
+    },
+
+    /**
+     * [updateBoundingBox description]
+     * @param  {[type]} polygon [description]
+     * @return {[type]}         [description]
+     */
+    updateBoundingBox : function(polygon, topRight, bottomLeft){
+
+        if ( polygon.topRight.lat   > topRight.lat)    topRight.lat   = polygon.topRight.lat;                
+        if ( polygon.topRight.lng   > topRight.lng )   topRight.lng   = polygon.topRight.lng;
+
+        if ( polygon.bottomLeft.lat < bottomLeft.lat)  bottomLeft.lat = polygon.bottomLeft.lat;
+        if ( polygon.bottomLeft.lng < bottomLeft.lng ) bottomLeft.lng = polygon.bottomLeft.lng;
+    },
+
+    /*
+     *
+     */
+    addPolygonToMultiPolygon: function(multiPolygons, polygon){
+
+        var filteredMultiPolygons = _.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
+
+        // multipolygon with polygon's travetime already there
+        if ( filteredMultiPolygons.length > 0 ) filteredMultiPolygons[0].addPolygon(polygon);
+        else {
+
+            var multiPolygon = new r360.multiPolygon();
+            multiPolygon.setTravelTime(polygon.travelTime);
+            multiPolygon.addPolygon(polygon);
+            multiPolygon.setColor(polygon.getColor());
+            multiPolygon.setOpacity(polygon.getOpacity());
+            multiPolygons.push(multiPolygon);
+        }
+    },
+}
+
+r360.SvgUtil = {
+
+    /**
+     * [getGElement description]
+     * @param  {[type]} svgData [description]
+     * @param  {[type]} opacity [description]
+     * @param  {[type]} color   [description]
+     * @param  {[type]} animate [description]
+     * @return {[type]}         [description]
+     */
+    getGElement : function(svgData, options){
+
+        var randomId            = r360.Util.generateId();
+        var initialOpacity      = options.opacity;
+
+        return  "<g id=" + randomId + " style='opacity:" + initialOpacity + "'>"+
+                    "<path style='stroke: " + options.color + "; fill: " + options.color + " ; stroke-opacity: 1; stroke-width: " + options.strokeWidth + "; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
+                "</g>";
+    },
+
+    /**
+     * [getInverseSvgElement description]
+     * @param  {[type]} gElements [description]
+     * @return {[type]}           [description]
+     */
+    getInverseSvgElement: function(gElements, options){
+
+        var svgFrame = r360.PolygonUtil.getSvgFrame(options.svgWidth, options.svgHeight);
+
+        var svgStart = "<div id=svg_"+ options.id + " style='" + r360.Util.getTranslation(options.offset) + ";''><svg"  + 
+                            " height=" + options.svgHeight + 
+                            " width="  + options.svgWidth  + 
+                            " style='fill:" + options.backgroundColor + " ; opacity: "+ options.backgroundOpacity + "; stroke-width: " + options.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
+
+        var newSvg = "<defs>"+
+                        "<mask id='mask_" + options.id + "'>"+
+                            "<path style='fill-opacity:1;stroke: white; fill:white;' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>"+
+                                gElements.join('') + 
+                        "</mask>"+
+                    "</defs>";
+
+        var frame = "<path style='mask: url(#mask_" + options.id + ")' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>";
+
+        return svgStart + frame + newSvg + svgEnd;
+    },
+
+    /**
+     * [getNormalSvgElement description]
+     * @param  {[type]} gElement [description]
+     * @return {[type]}          [description]
+     */
+    getNormalSvgElement: function(gElements, options){
+
+        var svgStart = "<div id=svg_"+ options.id + " style='" + r360.Util.getTranslation(options.offset) + ";''><svg "  + 
+                            " height=" + options.svgHeight + 
+                            " width="  + options.svgWidth  + 
+                            " style='fill:" + options.backgroundColor + " ; opacity: " + options.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
+        var svgEnd   = "</svg></div>";
+
+        return svgStart + gElements.join('') + svgEnd;
+    },
+
+    createSvgData : function(polygon, options) {
+
+        var pathData = [];
+
+        var polygonTopRight     = polygon.getProjectedTopRight();
+        var polygonBottomLeft   = polygon.getProjectedBottomLeft();
+
+        r360.PolygonUtil.scale(polygonTopRight, options.scale);
+        r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
+
+        // the outer boundary       
+        if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
+               polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
+            r360.SvgUtil.buildSVGPolygon(pathData, polygon.outerProjectedBoundary, options);
+
+        // the inner boundaries
+        for ( var i = 0 ; i < polygon.innerProjectedBoundaries.length ; i++ ) {
+
+            var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
+            var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
+
+            r360.PolygonUtil.scale(polygonTopRight, options.scale);
+            r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
+
+            if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
+                   polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
+                r360.SvgUtil.buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, options);
+        }
+
+        return pathData;
+    },
+
+    /**
+     * [buildSVGPolygon description]
+     * @param  {[type]} pathData        [description]
+     * @param  {[type]} coordinateArray [description]
+     * @param  {[type]} bounds          [description]
+     * @param  {[type]} scale           [description]
+     * @return {[type]}                 [description]
+     */
+    buildSVGPolygon: function(pathData, coordinateArray, options){
+
+        var projectedPoint, point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
+        var boundArray = [[options.bounds.min.x, options.bounds.min.y], 
+                          [options.bounds.max.x, options.bounds.min.y], 
+                          [options.bounds.max.x, options.bounds.max.y], 
+                          [options.bounds.min.x, options.bounds.max.y]];
+
+        var pointsToClip = [];
+
+        for ( var i = 0 ; i < coordinateArray.length ; i++ ) {
+            projectedPoint  = coordinateArray[i];
+            point           = new L.Point(projectedPoint.x, projectedPoint.y);
+
+            r360.PolygonUtil.scale(point, options.scale);
+            r360.PolygonUtil.roundPoint(point);
+
+            euclidianDistance = (i > 0) ? r360.PolygonUtil.getEuclidianDistance(point2, point) : options.tolerance; 
+
+            if ( euclidianDistance >= options.tolerance ) {
+
+                isCollinear = false;
+
+                if ( pointCount > 2 ) 
+                    isCollinear = r360.PolygonUtil.isCollinear(point1, point2, point);
+
+                if ( isCollinear ) {
+                    pointsToClip[pointsToClip.length-1][0] = point.x;
+                    pointsToClip[pointsToClip.length-1][1] = point.y;
+                }
+                else {
+                    
+                    pointsToClip.push([point.x, point.y]);
+                    point1 = point2;
+                    point2 = point;
+                    pointCount++;
+                }
+            }
+        }
+
+        var clippedArray = r360.PolygonUtil.clip(pointsToClip, boundArray);
+        var lastPoint;
+
+        for ( var i = 0 ; i < clippedArray.length ; i++ ){
+            
+            point = new L.Point(clippedArray[i][0], clippedArray[i][1]);
+
+            r360.PolygonUtil.subtract(point, options.pixelOrigin.x + options.offset.x, 
+                                             options.pixelOrigin.y + options.offset.y) 
+
+            pathData.push( i > 0 ? r360.PolygonUtil.buildPath(point, "L") : r360.PolygonUtil.buildPath(point, "M"));
+            lastPoint = point;
+        }
+        
+        if ( pathData.length > 0 )
+            pathData.push(["z"]); // svgz
+
+        return pathData;
+    },
+}
+
 /*
  *
  */
@@ -730,8 +1136,195 @@ r360.Util = {
         point.x *= 6378137;
         point.y *= 6378137;
         return point;
+    },
+
+    getUserAgent : function(){
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+        if(/trident/i.test(M[1])){
+            tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+            return 'IE '+(tem[1] || '');
+        }
+        if(M[1]=== 'Chrome'){
+            tem= ua.match(/\bOPR\/(\d+)/)
+            if(tem!= null) return 'Opera '+tem[1];
+        }
+        M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+        if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+        return M.join(' ');
+    },
+
+    /**
+     * [isAnimated description]
+     * @return {Boolean} [description]
+     */
+    isAnimated: function(){
+        
+        var userAgent = getUserAgent();
+
+        if ( userAgent.indexOf("IE") != -1 )
+            return false;
+        if ( userAgent.indexOf("Safari") != -1 )
+            return false;
+        if ( userAgent.indexOf("Firefox") != -1 )
+            return false;
+        if ( r360.config.defaultPolygonLayerOptions.animate )
+            return true;
+
+        return false;
+    },
+
+    /**
+     * [getTranslation description]
+     * @param  {[type]} offset [description]
+     * @return {[type]}        [description]
+     */
+    getTranslation: function(offset){
+  
+        var userAgent = r360.Util.getUserAgent();
+
+        if ( userAgent.indexOf("IE 9") != -1 )
+            return "transform:translate(" + offset.x + "px," + offset.y + "px)";
+
+        if ( userAgent.indexOf("Safari") != -1 ) 
+            return "-webkit-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        if ( userAgent.indexOf("Firefox") != -1 ) 
+            return "-moz-transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+        
+        else
+            return "transform:translate3d(" + offset.x + "px," + offset.y + "px,0px)";
+    },
+
+
+    /**
+    * @param {google.maps.Map} map
+    * @param {google.maps.LatLng} latlng
+    * @param {int} z
+    * @return {google.maps.Point}
+    */
+    googleLatlngToPoint : function(map, latlng, z){
+        var normalizedPoint = map.getProjection().fromLatLngToPoint(latlng); // returns x,y normalized to 0~255
+        var scale = Math.pow(2, z);
+        return new google.maps.Point(normalizedPoint.x * scale, normalizedPoint.y * scale); 
+    },
+    /**
+    * @param {google.maps.Map} map
+    * @param {google.maps.Point} point
+    * @param {int} z
+    * @return {google.maps.LatLng}
+    */
+     googlePointToLatlng : function(map, point, z){
+        var scale = Math.pow(2, z);
+        var normalizedPoint = new google.maps.Point(point.x / scale, point.y / scale);
+        var latlng = map.getProjection().fromPointToLatLng(normalizedPoint);
+        return latlng; 
     }
 };
+
+r360.DomUtil = {
+    
+    setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
+
+        /*eslint-disable */
+        el._leaflet_pos = point;
+        /*eslint-enable */
+
+        if (L.Browser.any3d) {
+            r360.DomUtil.setTransform(el, point);
+        } else {
+            el.style.left = point.x + 'px';
+            el.style.top = point.y + 'px';
+        }
+    },
+
+    setTransform: function (el, offset, scale) {
+        var pos = offset || new L.Point(0, 0);
+
+        el.style[r360.DomUtil.TRANSFORM] =
+            'translate3d(' + pos.x + 'px,' + pos.y + 'px' + ',0)' + (scale ? ' scale(' + scale + ')' : '');
+    },
+
+    testProp: function (props) {
+
+        var style = document.documentElement.style;
+
+        for (var i = 0; i < props.length; i++) {
+            if (props[i] in style) {
+                return props[i];
+            }
+        }
+        return false;
+    }
+};
+
+(function () {
+    // prefix style property names
+
+    r360.DomUtil.TRANSFORM = r360.DomUtil.testProp(
+            ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
+
+
+    // // webkitTransition comes first because some browser versions that drop vendor prefix don't do
+    // // the same for the transitionend event, in particular the Android 4.1 stock browser
+
+    // var transition = L.DomUtil.TRANSITION = L.DomUtil.testProp(
+    //         ['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+
+    // L.DomUtil.TRANSITION_END =
+    //         transition === 'webkitTransition' || transition === 'OTransition' ? transition + 'End' : 'transitionend';
+
+
+    // if ('onselectstart' in document) {
+    //     L.DomUtil.disableTextSelection = function () {
+    //         L.DomEvent.on(window, 'selectstart', L.DomEvent.preventDefault);
+    //     };
+    //     L.DomUtil.enableTextSelection = function () {
+    //         L.DomEvent.off(window, 'selectstart', L.DomEvent.preventDefault);
+    //     };
+
+    // } else {
+    //     var userSelectProperty = L.DomUtil.testProp(
+    //         ['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+
+    //     L.DomUtil.disableTextSelection = function () {
+    //         if (userSelectProperty) {
+    //             var style = document.documentElement.style;
+    //             this._userSelect = style[userSelectProperty];
+    //             style[userSelectProperty] = 'none';
+    //         }
+    //     };
+    //     L.DomUtil.enableTextSelection = function () {
+    //         if (userSelectProperty) {
+    //             document.documentElement.style[userSelectProperty] = this._userSelect;
+    //             delete this._userSelect;
+    //         }
+    //     };
+    // }
+
+    // L.DomUtil.disableImageDrag = function () {
+    //     L.DomEvent.on(window, 'dragstart', L.DomEvent.preventDefault);
+    // };
+    // L.DomUtil.enableImageDrag = function () {
+    //     L.DomEvent.off(window, 'dragstart', L.DomEvent.preventDefault);
+    // };
+
+    // L.DomUtil.preventOutline = function (element) {
+    //     L.DomUtil.restoreOutline();
+    //     this._outlineElement = element;
+    //     this._outlineStyle = element.style.outline;
+    //     element.style.outline = 'none';
+    //     L.DomEvent.on(window, 'keydown', L.DomUtil.restoreOutline, this);
+    // };
+    // L.DomUtil.restoreOutline = function () {
+    //     if (!this._outlineElement) { return; }
+    //     this._outlineElement.style.outline = this._outlineStyle;
+    //     delete this._outlineElement;
+    //     delete this._outlineStyle;
+    //     L.DomEvent.off(window, 'keydown', L.DomUtil.restoreOutline, this);
+    // };
+})();
+
 
 /*
  *
@@ -1414,11 +2007,11 @@ r360.PolygonService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1556,12 +2149,11 @@ r360.RouteService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
-                if ( !_.isUndefined(travelOptions.getRecommendations()) ) src.tm.transit.recommendations = travelOptions.getRecommendations();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1725,11 +2317,11 @@ r360.TimeService = {
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
+            if ( travelType == 'transit' || travelType == 'biketransit' ) {
                 
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
+                src.tm[travelType].frame = {};
+                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
+                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -1909,164 +2501,352 @@ r360.OsmService = {
     }
 }
 
+r360.photonPlaceAutoCompleteControl = function (options) {
+    return new r360.PhotonPlaceAutoCompleteControl(options);
+};
 
-r360.PopulationService = {
+r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
-    cache : {},
+    initialize: function(options){
 
-    /*
-     *
-     */
-    getPopulationStatistics : function(travelOptions, populationStatistics, successCallback, errorCallback) {
+        this.options = JSON.parse(JSON.stringify(r360.config.photonPlaceAutoCompleteOptions));
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('populationWait'));
-        }
-
-        // we only need the source points for the polygonizing and the polygon travel times
-        var cfg = {}; 
-        cfg.sources = [];
-
-        if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' || 
-             typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
-
-            cfg.polygon = {};
-
-            if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
-            if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
-            if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
-            if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
-        }
+        if ( typeof options !== "undefined" ) {
             
-        // add each source point and it's travel configuration to the cfg
-        _.each(travelOptions.getSources(), function(source){
+            if ( _.has(options, 'position'))    this.options.position    = options.position;
+            if ( _.has(options, 'label'))       this.options.label       = options.label;
+            if ( _.has(options, 'country'))     this.options.country     = options.country;
+            if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
+            if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
+            if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
+            if ( _.has(options, 'width'))       this.options.width       = options.width;
+            if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+            if ( _.has(options, 'image'))       this.options.image       = options.image;
+            if ( _.has(options, 'index'))       this.options.index       = options.index;
+            if ( _.has(options, 'options')) {
 
-            var src = {
-                lat : _.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                lng : _.has(source, 'lon') ? source.lon : _.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                id  : _.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
-                tm  : {}
-            };
+                 this.options.options    = options.options;
+                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+            }   
+        }
+    },
 
-            var travelType = _.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
+    onAdd: function(map){
+        
+        var that = this;
+        var i18n            = r360.config.i18n;   
+        var countrySelector =  "";
+        var nameContainer   = L.DomUtil.create('div', that._container);
+        that.options.map    = map;
+        that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
 
-            // this enables car routing
-            src.tm[travelType] = {};
+        map.on("resize", that.onResize.bind(that));          
 
-            // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
-                
-                src.tm.transit.frame = {};
-                if ( !_.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !_.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
-            }
-            if ( travelType == 'ebike' ) {
-                
-                src.tm.ebike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'rentbike' ) {
-                
-                src.tm.rentbike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'rentandreturnbike' ) {
-                
-                src.tm.rentandreturnbike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'bike' ) {
-                
-                src.tm.bike = {};
-                if ( !_.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
-                if ( !_.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
-                if ( !_.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'walk') {
-                
-                src.tm.walk = {};
-                if ( !_.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
-                if ( !_.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
-                if ( !_.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
-            }
+        // calculate the width in dependency to the number of buttons attached to the field
+        var width = that.options.width;
+        // if ( that.options.reset ) width += 44;
+        // if ( that.options.reverse ) width += 37;
+        var style = 'style="width:'+ width +'px;"';
 
-            cfg.sources.push(src);
+        that.options.input = 
+            '<div class="input-group autocomplete" '+style+'> \
+                <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
+                type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
+
+        if ( that.options.image ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
+                    <img style="height:22px;" src="'+that.options.image+'"> \
+                 </span>';
+        }
+
+        var optionsHtml = [];
+        // if ( that.options.options ) {
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
+                </span>';
+
+            optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
+            optionsHtml.push('  <div class="btn-group text-center">');
+
+            if ( that.options.options && that.options.options.walk ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
+                    + (this.options.travelType == 'walk' ? 'active' : '') + 
+                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+            
+            if ( that.options.options && that.options.options.bike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+
+            if ( that.options.options && that.options.options.hirebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
+                    '" travel-type="hirebike"> \
+                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                        </button>');
+            
+            if ( that.options.options && that.options.options.transit ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'transit' ? 'active' : '') + 
+                    '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
+            
+            if ( that.options.options && that.options.options.car ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'car' ? 'active' : '') + 
+                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
+            
+            optionsHtml.push('  </div>');
+            optionsHtml.push('</div>');
+        // }
+
+        // add a reset button to the input field
+        // if ( that.options.reset ) {
+
+             that.options.input += 
+                '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
+                </span>';
+
+            that.options.input += 
+                '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
+                    <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
+                </span>';
+        // }
+        // if ( that.options.reverse ) {
+
+           
+        // }
+
+        that.options.input += '</div>';
+        if ( that.options.options ) that.options.input += optionsHtml.join('');
+
+        // add the control to the map
+        $(nameContainer).append(that.options.input);
+
+        $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
+        $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
+        $(nameContainer).find('#' + that.options.id + '-options-button').click(
+            function(){ 
+                // slide in or out on the click of the options button
+                $('#' + that.options.id + '-options').slideToggle();
+            });
+
+        $(nameContainer).find('.travel-type-button').click(function(){
+
+            $(nameContainer).find('.travel-type-button').removeClass('active');
+            $(this).addClass('active');
+
+            setTimeout(function() {
+                  $('#' + that.options.id + '-options').slideToggle();
+            }, 300);
+
+            that.options.travelType = $(this).attr('travel-type');
+            that.options.onTravelTypeChange();
         });
 
-        var statistics = [];
-        _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
+        // no click on the map, if click on container        
+        L.DomEvent.disableClickPropagation(nameContainer);      
 
-        if ( !_.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
+        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
-            // make the request to the Route360° backend 
-            $.ajax({
-                url         : r360.config.serviceUrl + r360.config.serviceVersion + '/population?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey + '&' + statistics.join("&"),
-                timeout     : r360.config.requestTimeout,
-                dataType    : "json",
-                success     : function(result) {
+        $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
+
+            source: function( request, response ) {
+
+                that.source = this;
+
+                var requestElements = request.term.split(" ");
+                var numbers = new Array();
+                var requestString = "";
+                var numberString = "";
                     
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
-                    // the new version is an object, old one an array
-                    if ( _.has(result, 'data')  ) {
-
-                        if ( result.code == 'ok' ) {
-
-                            // cache the result
-                            r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result.data;
-                            // call successCallback with returned results
-                            successCallback(result.data);
-                        }
-                        else 
-                            // check if the error callback is defined
-                            if ( _.isFunction(errorCallback) )
-                                errorCallback(result.code, result.message);
-                    }
-                    // fallback for old clients
-                    else {
-
-                        // cache the result
-                        r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
-                        // call successCallback with returned results
-                        successCallback(result);
-                    }
-                },
-                // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    // call error callback if defined
-                    if ( _.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The population service is currently not available, please try again later."); 
+                for(var i = 0; i < requestElements.length; i++){
+                    
+                    if(requestElements[i].search(".*[0-9].*") != -1)
+                        numbers.push(requestElements[i]);
+                    else
+                        requestString += requestElements[i] + " ";
                 }
-            });
-        }
-        else { 
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call callback with returned results
-            successCallback(r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")]);
-        }
+                if ( numbers.length > 0 ) {
+                    numberString += " OR ";
+                    
+                    for(var j = 0; j < numbers.length; j++){
+                        var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
+                        numberString +=  n;
+                    }
+                }
+
+                console.log(that.options.map.getCenter());
+
+                $.ajax({
+                    url: that.options.serviceUrl, 
+                    // dataType: "jsonp",
+                    // jsonp: 'json.wrf',
+                    async: false,
+                    data: {
+                      // wt:'json',
+                      // indent : true,
+                      // rows: that.options.maxRows,
+                      // qt: 'en',
+                      // q:  "(" + requestString + numberString + ")" + countrySelector
+                      q : requestString,
+                      limit : that.options.maxRows
+                      // lat : that.options.map.getCenter().lat,
+                      // lon : that.options.map.getCenter().lng
+                    }, 
+                    success: function( data ) {
+
+                        var places = new Array();
+                        response( $.map( data.features, function( feature ) {
+
+                            if ( feature.osm_key == "boundary" ) return;
+
+                            var place           = {};
+                            var firstRow        = [];
+                            var secondRow       = [];
+                            place.name          = feature.properties.name;
+                            place.city          = feature.properties.city;
+                            place.street        = feature.properties.street;
+                            place.housenumber   = feature.properties.housenumber;
+                            place.country       = feature.properties.country;
+                            place.postalCode    = feature.properties.postcode;
+                            if (place.name)       firstRow.push(place.name);
+                            if (place.city)       firstRow.push(place.city);
+                            if (place.street)     secondRow.push(place.street);
+                            if (place.housenumber) secondRow.push(place.housenumber);
+                            if (place.postalCode) secondRow.push(place.postalCode);
+                            if (place.city)       secondRow.push(place.city);
+
+                            // only show country if undefined
+                            // if ( !_.has(that.options, 'country') && place.country ) 
+                                secondRow.push(place.country);
+
+                            // if same looking object is in list already: return 
+                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            else places.push(firstRow.join() + secondRow.join());
+
+                            return {
+                                label       : firstRow.join(", "),
+                                value       : firstRow.join(", "),
+                                firstRow    : firstRow.join(", "),
+                                secondRow   : secondRow.join(" "),
+                                term        : request.term,
+                                index       : that.options.index,
+                                latlng      : new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])
+                            }
+                        }));
+                    }
+                });
+            },
+            minLength: 2,
+              
+            select: function( event, ui ) {
+                that.options.value = ui.item;
+                that.options.onSelect(ui.item);
+            }
+        })
+        .data("ui-autocomplete")._renderItem = function( ul, item ) {
+
+            // this has been copied from here: https://github.com/angular-ui/bootstrap/blob/master/src/typeahead/typeahead.js
+            // thank you angular bootstrap team
+            function escapeRegexp(queryToEscape) {
+                return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+            }
+
+            var highlightedFirstRow = 
+                item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
+
+            var highlightedSecondRow = 
+                item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
+
+            var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
+
+            return $( "<li>" ).append(html).appendTo(ul);
+        };
+        
+        this.onResize();     
+
+        return nameContainer;
+    },
+
+    onSelect: function(onSelect){
+
+        this.options.onSelect = onSelect;
+    },
+
+    onReset: function(onReset){
+
+        this.options.onReset = onReset;
+    },
+
+    onReverse: function(onReverse){
+       
+       this.options.onReverse = onReverse;
+    },
+
+    onTravelTypeChange: function(onTravelTypeChange){
+
+        this.options.onTravelTypeChange = onTravelTypeChange;
+    },
+
+    reset : function(){
+
+        this.options.value = {};
+        this.setFieldValue("");
+    },
+
+    update : function(latLng, fieldValue) {
+
+        this.setLatLng(latLng);
+        this.setFieldValue(fieldValue);
+    },
+
+    setLatLng : function(latLng) {
+
+        this.options.value.latlng = latLng
+    },
+
+    setFieldValue : function(value){
+
+        var that = this;
+        $("#autocomplete-" + that.options.id).val(value);
+    },
+
+    getFieldValue : function(){
+
+        var that = this;
+        return $("#autocomplete-" + that.options.id).val();
+    },
+
+    getTravelType : function(){
+
+        return this.options.travelType;
+    },
+
+    setValue : function(value){
+        this.options.value = value;
+    },
+
+    getValue : function(){
+        return this.options.value;
+    },
+
+    getIndex : function(){
+        return this.options.index;
+    },
+
+    onResize: function(){
+        
+        var that = this;
+        if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
+        else $(that.options.input).css({'width':''});
     }
-}
+})
 
 r360.placeAutoCompleteControl = function (options) {
     return new r360.PlaceAutoCompleteControl(options);
@@ -3525,6 +4305,8 @@ r360.RouteSegment = function(segment){
     that.elevationGain   = segment.elevationGain;
     that.errorMessage;   
     that.transitSegment  = false;
+    that.startname      = segment.startname;
+    that.endname        = segment.endname;
 
     // build the geometry
     _.each(segment.points, function(point){
@@ -3814,23 +4596,23 @@ r360.Route = function(travelTime, segments){
             else {
                 
                 if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !_.has(options, 'paintTransfer') )) 
-                    addTransferSegment(segment); 
-                
+                    addTransferSegment(segment, options); 
+
                 if(++z < that.routeSegments.length)
                     fadePathSegment(z);
             }          
         }
 
-        function addTransferSegment(segment){
+        function addTransferSegment(segment, options){
 
-            addCircularMarker(segment.points[0]);     
+            addCircularMarker(segment.points[0], segment, options);     
 
             // if inter station transfer -> involves two stops -> we need a second circle
             if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
-                 addCircularMarker(segment.points[1]);
+                 addCircularMarker(segment.points[1], segment, options);
         }
 
-        function addCircularMarker(latLng) {
+        function addCircularMarker(latLng, segment, options) {
             var marker = L.circleMarker(latLng, { 
                     color:          !_.isUndefined(options) && _.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
                     fillColor:      !_.isUndefined(options) && _.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
@@ -3840,6 +4622,22 @@ r360.Route = function(travelTime, segments){
                     weight:         !_.isUndefined(options) && _.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
                     radius:         !_.isUndefined(options) && _.has(options, 'transferRadius')     ? options.transferRadius      : 8 
                 });         
+    
+            var popup = !_.isUndefined(options) && _.has(options, 'popup') ? options.popup : "INSERT_TEXT";
+
+            if ( typeof segment !== 'undefined') {
+
+                var variable = !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
+                variable = variable == '' && !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
+
+                popup = popup.replace('INSERT_TEXT', variable);
+            }
+
+            if ( !_.isUndefined(options) && _.has(options, 'popup') ) {
+
+                marker.bindPopup(popup)
+                marker.on('mouseover', function(){ marker.openPopup(); })
+            }
 
             marker.addTo(map);
             marker.bringToFront();
@@ -4005,50 +4803,52 @@ r360.Route360PolygonLayer = L.Class.extend({
       */
     initialize: function (options) {
         
+        this.multiPolygons = []; 
         // set default parameters
-        this.opacity     = r360.config.defaultPolygonLayerOptions.opacity;
-        this.strokeWidth = r360.config.defaultPolygonLayerOptions.strokeWidth;
+        this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
+        this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
+        this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
+        this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+        this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
+        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
+        this.topRight          = { lat : -90, lng : -180 };
+        this.bottomLeft        = { lat : +90, lng : +180 };
         
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
 
-            if ( typeof options.opacity     != 'undefined') this.opacity      = options.opacity;
-            if ( typeof options.strokeWidth != 'undefined') this.strokeWidth  = options.strokeWidth;
-            if ( typeof options.inverse     != 'undefined') this.inverse      = options.inverse;
+            if ( typeof options.opacity        != 'undefined') this.opacity      = options.opacity;
+            if ( typeof options.strokeWidth    != 'undefined') this.strokeWidth  = options.strokeWidth;
+            if ( typeof options.inverse        != 'undefined') this.inverse      = options.inverse;
+            if ( typeof options.tolerance      != 'undefined') this.tolerance    = options.tolerance;
+            if ( typeof options.extendWidthX   != 'undefined') this.extendWidthX = options.extendWidthX;
+            if ( typeof options.extendWidthY   != 'undefined') this.extendWidthY = options.extendWidthY;
         }
-
-        this._multiPolygons = new Array(); 
-
-        navigator.sayswho= (function(){
-            var ua= navigator.userAgent, tem, 
-            M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
-            if(/trident/i.test(M[1])){
-                tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
-                return 'IE '+(tem[1] || '');
-            }
-            if(M[1]=== 'Chrome'){
-                tem= ua.match(/\bOPR\/(\d+)/)
-                if(tem!= null) return 'Opera '+tem[1];
-            }
-            M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
-            if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
-            return M.join(' ');
-        })();
     },
 
+    /**
+     * [setInverse Sets this layer to the inverse representation, meaning only reachable parts are displayed
+     *     and the rest is greyed out.]
+     * @param {[type]} inverse [true or false]
+     */
     setInverse: function(inverse){
         this.inverse = inverse;
     },
 
+    /**
+     * @return {[type]} [returns the current state of this layer]
+     */
     getInverse: function(){
         return this.inverse;
     },
-    /* 
-     *
+
+    /**
+     * [getBoundingBox returns a leaflet boundingbox from the left bottom to the top right of this layer]
+     * @return {[type]} [description]
      */
     getBoundingBox : function(){
-
-        return new L.LatLngBounds(this._bottomLeft, this._topRight);
+        return new L.LatLngBounds(this.bottomLeft, this.topRight);
     },
     
     /*
@@ -4056,27 +4856,35 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     onAdd: function (map) {
 
-        this._map = map;
-        // create a DOM element and put it into one of the map panes
-        this._el = L.DomUtil.create('div', 'my-custom-layer-'+$(map._container).attr("id")+' leaflet-zoom-hide');
-       // $(this._el).css({"opacity": this.opacity});
-        $(this._el).attr("id","canvas" + $(this._map._container).attr("id"));
-        this._map.getPanes().overlayPane.appendChild(this._el);
+        this.map = map;
 
-        // add a viewreset event listener for updating layer's position, do the latter
-        this._map.on('moveend', this._reset, this);
-        this._reset(true);
+        // create a DOM element with a unique ID to have multiple maps on one page
+        this.element = L.DomUtil.create('div', 'r360-leaflet-polygon-layer-' + $(map._container).attr("id") + ' leaflet-zoom-hide');
+        $(this.element).attr("id", "canvas" + $(this.map._container).attr("id"));
+        
+        // we append the layer to the overlay pane at the last position
+        this.map.getPanes().overlayPane.appendChild(this.element);
 
-    },
+        // add a view redraw event listener for updating layer's position
+        // zoom in/out, panning
+        this.map.on('moveend', this.draw, this);
 
-    fitMap: function(){
-
-        this._map.fitBounds(this.getBoundingBox());
+        // repaint layer
+        this.draw();
     },
 
     /**
-     * [clearAndAddLayers description]
-     * @param  {[type]} sourceToPolygons [description]
+     * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
+     * @return {[type]} [description]
+     */
+    fitMap: function(){
+        this.map.fitBounds(this.getBoundingBox());
+    },
+
+    /**
+     * [clearAndAddLayers clears the polygons from this layer and adds the new ones. If fitMap is not undefined we
+     *     also adjust the map bounds/zoom to show the polygons as big as possible.]
+     * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
     clearAndAddLayers : function(polygons, fitMap){
@@ -4084,560 +4892,345 @@ r360.Route360PolygonLayer = L.Class.extend({
         this.clearLayers();
         this.addLayer(polygons);
 
-        if ( typeof fitBounds !== 'undefined' ) this.fitMap();
+        if ( typeof fitMap !== 'undefined' ) this.fitMap();
 
         return this;
     },
     
-    /*
-     *
+    /**
+     * [addLayer description]
+     * @param {[type]} multiPolygons [description]
      */
-    addLayer:function(sourceToPolygons){        
+    addLayer : function(multiPolygons) {
         
-        var that    = this;
-        that.redrawCount = 0;
-
-        if(r360.config.logging) var start   = new Date().getTime();
-
-        that._resetBoundingBox();
-        that._multiPolygons = new Array();
-
-        if ( r360.config.logging ) var start_projecting   = new Date().getTime();
-
-        for ( var i = 0; i < sourceToPolygons.length ; i++){
-            for ( var j = 0; j < sourceToPolygons[i].polygons.length ; j++) {
-
-                sourceToPolygons[i].polygons[j].project(); 
-                that._updateBoundingBox(sourceToPolygons[i].polygons[j]);
-                that._addPolygonToMultiPolygon(sourceToPolygons[i].polygons[j]); 
-            }
-        }
+        this.multiPolygons = r360.PolygonUtil.prepareMultipolygons(multiPolygons, this.topRight, this.bottomLeft);
         
-        that._multiPolygons.sort(function(a,b) { return (b.getTravelTime() - a.getTravelTime()) });
-
-        if (r360.config.logging) console.log("adding layers took " + (new Date().getTime() - start));
-
-        that._reset();
+        // paint them
+        this.draw();
     },
 
-    /*
-     *
+    /**
+     * [addTo Adds this layer to the given map]
+     * @param {[type]} map [the leaflet map on which the layer should be drawn]
      */
-    _addPolygonToMultiPolygon: function(polygon){
-
-        var multiPolygons = _.filter(this._multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
-
-        // multipolygon with polygon's travetime already there
-        if ( multiPolygons.length > 0 ) multiPolygons[0].addPolygon(polygon);
-        else {
-
-            var mp = new r360.multiPolygon();
-            mp.setTravelTime(polygon.travelTime);
-            mp.addPolygon(polygon);
-            mp.setColor(polygon.getColor());
-            mp.setOpacity(polygon.getOpacity());
-            this._multiPolygons.push(mp);
-        }
-    },
-
-    /*
-     *
-     */
-    _resetBoundingBox: function(){
-        this._latlng = new L.LatLng(-180, 90);
-        this._topRight = new L.latLng(-90,-180);
-        this._bottomLeft = new L.latLng(90, 180);
-    },
-
     addTo: function (map) {
+
         map.addLayer(this);
         return this;
     },
     
-    /*
-     *
-     */
-    _updateBoundingBox:function(polygon){
-
-        var that = this;        
-
-        if ( polygon.topRight.lat   > that._topRight.lat)       that._topRight.lat   = polygon.topRight.lat;                
-        if ( polygon.bottomLeft.lat < that._bottomLeft.lat)     that._bottomLeft.lat = polygon.bottomLeft.lat;
-            
-        if ( polygon.topRight.lng   > that._topRight.lng )      that._topRight.lng   = polygon.topRight.lng;
-        if ( polygon.bottomLeft.lng < that._bottomLeft.lng )    that._bottomLeft.lng = polygon.bottomLeft.lng;
-    
-        if ( that._latlng.lat < that._topRight.lat)             that._latlng.lat = that._topRight.lat;
-        if ( that._latlng.lng > that._bottomLeft.lng)           that._latlng.lng = that._bottomLeft.lng;
-    },
-  
-    /*
-     *
+    /**
+     * [onRemove description]
+     * @param  {[type]} map [description]
+     * @return {[type]}     [description]
      */
     onRemove: function (map) {
 
         // remove layer's DOM elements and listeners
-        map.getPanes().overlayPane.removeChild(this._el);
-        map.off('viewreset', this._reset, this);
+        map.getPanes().overlayPane.removeChild(this.element);
+        map.off('viewreset', this.draw, this);
     },
     
-    /*
-     *
+    /**
+     * [createSvgData Creates the SVG representation of a given polygon]
+     * @param  {[type]} polygon [description]
+     * @return {[type]}         [description]
      */
-    _buildPath:function(point, suffix){
-        
-        var a = new Array();
+    createSvgData: function(polygon){
 
-        a.push(suffix);
-        a.push(Math.round(point.x));
-        a.push(Math.round(point.y));
-        
-        return a;
+        var bounds = r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY);
+        return r360.SvgUtil.createSvgData(polygon, { 
+            bounds      : bounds, 
+            scale       : Math.pow(2, this.map._zoom) * 256, 
+            tolerance   : this.tolerance, 
+            pixelOrigin : this.map.getPixelOrigin(),  
+            offset      : this.offset
+        });
     },
 
-    _clipToBounds: function(point, bounds){
-
-        if(point.x > bounds.max.x)
-            point.x = bounds.max.x;
-        else if(point.x < bounds.min.x)
-            point.x = bounds.min.x;
-        if(point.y > bounds.max.y)
-            point.y = bounds.max.y;        
-        else if(point.y < bounds.min.y)
-            point.y = bounds.min.y;
-    },
-
-    /*
-    clipping like sutherland
-    http://rosettacode.org/wiki/Sutherland-Hodgman_polygon_clipping#JavaScript
-    */
-
-    _clip: function(subjectPolygon, clipPolygon) {
-       var cp1, cp2, s, e;
-            var inside = function (p) {
-                return (cp2[0]-cp1[0])*(p[1]-cp1[1]) > (cp2[1]-cp1[1])*(p[0]-cp1[0]);
-            };
-            var intersection = function () {
-                var dc = [ cp1[0] - cp2[0], cp1[1] - cp2[1] ],
-                    dp = [ s[0] - e[0], s[1] - e[1] ],
-                    n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
-                    n2 = s[0] * e[1] - s[1] * e[0], 
-                    n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
-                return [(n1*dp[0] - n2*dc[0]) * n3, (n1*dp[1] - n2*dc[1]) * n3];
-            };
-            var outputList = subjectPolygon;
-            var cp1 = clipPolygon[clipPolygon.length-1];
-            for (j in clipPolygon) {
-                var cp2 = clipPolygon[j];
-                var inputList = outputList;
-                outputList = [];
-                s = inputList[inputList.length - 1]; //last on the input list
-                for (i in inputList) {
-                    var e = inputList[i];
-                    if (inside(e)) {
-                        if (!inside(s)) {
-                            outputList.push(intersection());
-                        }
-                        outputList.push(e);
-                    }
-                    else if (inside(s)) {
-                        outputList.push(intersection());
-                    }
-                    s = e;
-                }
-                cp1 = cp2;
-            }
-            return outputList
-    },
-
-    _scale: function(point, scale){
-        point.x *= scale;
-        point.y *= scale;
-        return point;
-    },
-
-    _subtract: function(point, x, y){
-        point.x -= x;
-        point.y -= y;
-        return y;
-    },
-
-    _getMaxDiff: function(point1, point2){
-        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
-    },
-
-    _splicePath: function(pathData){
-        if(this._isCollinear())
-
-        if(pathData.length >= 3){
-            if(pathData[pathData.length-1][1] == pathData[pathData.length-2][1] && pathData[pathData.length-2][1] == pathData[pathData.length-3][1]){
-                pathData.splice(pathData.length-2,1)
-            } 
-            else if(pathData[pathData.length-1][2] == pathData[pathData.length-2][2] && pathData[pathData.length-2][2] == pathData[pathData.length-3][2]){
-                pathData.splice(pathData.length-2,1)
-            }
-        }
-    },
-
-    _isCollinear: function(p1, p2, p3){
-
-        if(p1.x == p3.x && p1.y == p3.y)
-            return false;
-        if(p1.x == p2.x && p2.x == p3.x)
-            return true;
-        if(p1.y == p2.y && p2.y == p3.y)
-            return true;
-        
-        var val = (p1.x * (p2.y -p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y));
-
-        if(val < r360.config.defaultPolygonLayerOptions.tolerance && val > -r360.config.defaultPolygonLayerOptions.tolerance
-         && p1.x != p3.x && p1.y != p3.y)
-            return true;
-        return false;
-    },
-
-    _roundPoint: function(p){
-        p.x = Math.round(p.x);
-        p.y = Math.round(p.y);
-        return p;
-    },
-
-    _buildSVGPolygon: function(pathData, coordinateArray, bounds, scale){
-
-        var that = this;
-        var svgM    = "M";
-        var svgL    = "L";  
-        var svgz    = "z";  
-        var maxDiff;
-      
-        var projectedPoint, point, point1, point2, isCollinear, pointCount = 0;
-       
-        var boundArray = [[bounds.min.x, bounds.min.y], [bounds.max.x, bounds.min.y], [bounds.max.x, bounds.max.y], [bounds.min.x, bounds.max.y]];
-
-        var arrayToClip = new Array();
-
-        for(var i = 0; i < coordinateArray.length; i++){
-            projectedPoint  = coordinateArray[i];
-            point           = new L.Point(projectedPoint.x, projectedPoint.y);
-            that._scale(point, scale);
-            that._roundPoint(point);
-
-            if(i > 0) 
-                maxDiff = that._getMaxDiff(point2, point); 
-            else 
-                maxDiff = r360.config.defaultPolygonLayerOptions.tolerance;
-
-            if(maxDiff >= r360.config.defaultPolygonLayerOptions.tolerance){
-
-                isCollinear = false;
-
-                if(pointCount > 2){
-                    isCollinear = that._isCollinear(point1, point2, point);
-                }
-
-                if(isCollinear){
-                    arrayToClip[arrayToClip.length-1][0] = point.x;
-                    arrayToClip[arrayToClip.length-1][1] = point.y;
-                }else{
-                    
-                    arrayToClip.push([point.x, point.y]);
-                    point1 = point2;
-                    point2 = point;
-                    pointCount++;
-                }
-            }
-        }
-
-        var clippedArray = this._clip(arrayToClip, boundArray);
-        var lastPoint;
-
-        for(var i = 0; i < clippedArray.length; i++){
-            projectedPoint = clippedArray[i];
-            point = new L.Point(projectedPoint[0], projectedPoint[1]);
-            that._subtract(point, that._map.getPixelOrigin().x + that._offset.x, that._map.getPixelOrigin().y + that._offset.y) 
-            if(i > 0)   
-                pathData.push(that._buildPath(point, svgL));
-            else        
-                pathData.push(that._buildPath(point, svgM));
-            lastPoint = point;
-        }
-        if(pathData.length > 0)
-            pathData.push([svgz]);
-        return pathData;
-    },
-    
-    /*
-     *
+    /**
+     * [getMapPixelBounds description]
+     * @return {[type]} [description]
      */
-    _createSVGData: function(polygon){
+    getMapPixelBounds : function(){
 
-        var that = this;
-
-        var bounds  = that._map.getPixelBounds();
-        var mapSize = that._map.getSize();
-
-        var extendX = Math.ceil(r360.config.defaultPolygonLayerOptions.strokeWidth/2);
-        var extendY = Math.ceil(r360.config.defaultPolygonLayerOptions.strokeWidth/2);
-
-        bounds.max.x += extendX;
-        bounds.min.x -= extendX;
-
-        bounds.max.y += extendY;
-        bounds.min.y -= extendY;
-
-
-        var scale   = Math.pow(2,that._map._zoom) * 256;
-
-        var pathData = new Array();
-
-        var polygonTopRight     = polygon.getProjectedTopRight();
-        var polygonBottomLeft   = polygon.getProjectedBottomLeft();
-
-        that._scale(polygonTopRight, scale);
-        that._scale(polygonBottomLeft, scale);
-
-        // the outer boundary       
-        if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
-            that._buildSVGPolygon(pathData, polygon.outerProjectedBoundary, bounds, scale);
-
-     
-        // the inner boundaries
-        for(var i = 0; i < polygon.innerProjectedBoundaries.length; i++){
-
-            that.runs ++;
-            var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
-            var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
-
-            that._scale(polygonTopRight, scale);
-            that._scale(polygonBottomLeft, scale);
-
-            if(!(polygonBottomLeft.x > bounds.max.x || polygonTopRight.x < bounds.min.x || polygonTopRight.y > bounds.max.y || polygonBottomLeft.y < bounds.min.y))
-                that._buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, bounds, scale);
-            //    continue;
-
-            that.counter++;
-            //
-        }
-
-       
-           
-        return pathData;
+        var bounds = this.map.getPixelBounds();
+        return { max : { x : bounds.max.x, y : bounds.max.y }, min : { x : bounds.min.x, y : bounds.min.y } }; 
     },
 
-    /*
-     *
+    /**
+     * [clearLayers Remove all child nodes of this layer from the DOM and initializes the layer.]
      */
     clearLayers: function(){        
-        $('#canvas'+ $(this._map._container).attr("id")).empty();
+        
+        $('#canvas'+ $(this.map._container).attr("id")).empty();
         this.initialize();
     },
 
     /*
      *
      */
-    _reset: function () {
+    draw: function () {
 
-        var that = this;
-
-        var g = new Array();   
-
-        // count the drawings in order to animate only the initial one
-        that.redrawCount++;
- 
-                                    if(r360.config.logging) var start   = new Date().getTime();
-
-        if(this._multiPolygons.length > 0){           
+        if ( this.multiPolygons.length > 0 ) {
              
-            var svgData, mp; 
-            var pos         = new L.Point(0,0);    
-            that._svgWidth    = that._map.getSize().x;
-            that._svgHeight   = that._map.getSize().y;
+            this.svgWidth  = this.map.getSize().x;
+            this.svgHeight = this.map.getSize().y;
 
-            /*
-            always place the layer in the corner top left. Later adjustments will be made by svg translate 
-            */
-            L.DomUtil.setPosition(this._el, pos);
+            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
+            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
-         
             // calculate the offset in between map and svg in order to translate
-            var svgHTML        = $('#svg_'+ $(this._map._container).attr("id"));
-            var svgPosition    = svgHTML.offset();
-            var mapPosition    = $(this._map._container).offset();
+            var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
+            var mapPosition    = $(this.map._container).offset();
 
-            
+            if ( typeof this.offset == 'undefined' )
+                this.offset = { x : 0 , y : 0 };
 
-            if(typeof that._offset == 'undefined')
-                that._offset = new L.Point(0,0)
-
-            if(typeof svgPosition != 'undefined'){
-                that._offset.x += (mapPosition.left - svgPosition.left);
-                that._offset.y += (mapPosition.top - svgPosition.top);
+            // adjust the offset after map panning / zooming
+            if ( typeof svgPosition != 'undefined' ) {
+                this.offset.x += (mapPosition.left - svgPosition.left);
+                this.offset.y += (mapPosition.top - svgPosition.top);
             }
-
 
             // clear layer from previous drawings
-            $('#canvas'+ $(this._map._container).attr("id")).empty();                      
+            $('#canvas'+ $(this.map._container).attr("id")).empty();
+
+            var gElements = [];  
             
-            for(var i = 0; i < this._multiPolygons.length; i++){
-                mp      = this._multiPolygons[i];                
-                svgData = new Array();
+            // go through each multipolygon (represents each travel time)
+            for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+                
+                var multiPolygon = this.multiPolygons[i], svgData = [];
 
-                                            if(r360.config.logging) var start_svg   = new Date().getTime();
-                for ( var j = 0; j < mp.polygons.length; j++) {
-                    var svg = this._createSVGData(mp.polygons[j]);
-                    // TODO a few too many tiny polygons are created. Needs to be investigated
-                    //if(svg.length > 2)
-                    svgData.push(svg);
-                }
-                                            if(r360.config.logging) console.log("svg creation took: " + (new Date().getTime() - start_svg));                                    
+                // add each polygon for the given travel time
+                for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                    svgData.push(this.createSvgData(multiPolygon.polygons[j]));
 
-                if ( svgData.length != 0 ) {
-                    
-                    var color   = mp.getColor();
-                    var opacity = mp.getOpacity();
-                    
-                    if ( r360.config.logging ) 
-                        var start_raphael  = new Date().getTime();
-
-                    var animate = that.redrawCount <= 2 && r360.config.defaultPolygonLayerOptions.animate && that._isAnimated() ? true : false;     
-
-                    g.push(!that.inverse ? that._getGElement(svgData, 1, color, animate) : that._getGElement(svgData, opacity, 'black', animate));
-              
-                    if ( r360.config.logging )
-                        console.log("raphael creation took: " + (new Date().getTime() - start_raphael) + "  svg path length: " + svgData.length);                    
-                }
+                if ( svgData.length != 0 ) 
+                    gElements.push(r360.SvgUtil.getGElement(svgData, {
+                        color             : !this.inverse ? multiPolygon.getColor() : 'black',
+                        opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
+                        strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
+                    })); 
             }
 
-            var svgString = !that.inverse ? that._getNormalSvgElement(g) : that._getInverseSvgElement(g);
+            var options = {
+                id                : $(this.map._container).attr("id"),
+                offset            : this.offset,
+                svgHeight         : this.svgHeight,
+                svgWidth          : this.svgWidth,
+                backgroundColor   : this.backgroundColor,
+                backgroundOpacity : this.backgroundOpacity,
+                opacity           : this.opacity,
+                strokeWidth       : this.strokeWidth
+            }
 
-            $('#canvas'+ $(this._map._container).attr("id")).append(svgString);
+            // add the svg string to the container
+            $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+                                                                                 : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
-
-        if ( r360.config.logging )
-            console.log("layer resetting tool: " +  (new Date().getTime() - start) + "ms");
-    },
-
-    _isAnimated: function(){
-        if (navigator.sayswho.indexOf("IE") != -1 )
-            return false;
-        if (navigator.sayswho.indexOf("Safari") != -1 )
-            return false;
-        if (navigator.sayswho.indexOf("Firefox") != -1 )
-            return false;
-        if(r360.config.defaultPolygonLayerOptions.animate)
-            return true;
-        return false;
-    },
-
-    _getFrame: function(width, height){
-        var svgFrame = new Array();
-        svgFrame.push(['M',0, 0]);
-        svgFrame.push(['L',width, 0]);
-        svgFrame.push(['L',width, height]);
-        svgFrame.push(['L',0, height]);
-        svgFrame.push(['z']);
-        return svgFrame;
-    },
-
-    _getTranslation: function(){
-        var that = this;
-        if (navigator.sayswho.indexOf("IE 9") != -1 )
-            return "transform:translate("+that._offset.x+"px,"+that._offset.y+"px)";
-        if  (navigator.sayswho.indexOf("Safari") != -1 ) 
-            return "-webkit-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-        if  (navigator.sayswho.indexOf("Firefox") != -1 ) 
-            return "-moz-transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-        else
-            return "transform:translate3d("+that._offset.x+"px,"+that._offset.y+"px,0px)";
-    },
-
-    _getInverseSvgElement: function(gElement){
-        var that     = this;
-        var svgFrame = this._getFrame(that._svgWidth, that._svgHeight);
-
-        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
-                            " height=" + that._svgHeight + 
-                            " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.backgroundOpacity + "; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg></div>";
-
-        var gees = "";
-
-        for(var i = 0; i < gElement.length; i++)
-            gees += gElement[i];
-
-        var newSvg = "<defs>"+
-                        "<mask id='mask_"+ $(this._map._container).attr("id")+"'>"+
-                            "<path style='fill-opacity:1;stroke: white; fill:white;' d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>"+
-                            gees + 
-                        "</mask>"+
-                    "</defs>";
-        var frame = "<path style='mask: url(#mask_"+ $(this._map._container).attr("id")+")'d='" + svgFrame.toString().replace(/\,/g, ' ') + "'/>";
-
-        return svgStart + frame +  newSvg  +  svgEnd;
-    },
-
-    _getGElement: function(svgData, opacity, color, animate){
-
-        var randomId = r360.Util.generateId();
-        var initialOpacity = opacity;
-        var animationDuration = r360.config.defaultPolygonLayerOptions.animationDuration;
-
-        if(animate){
-            initialOpacity = 0;
-        }
-
-        return  "<g id=" + randomId + " style='opacity:" + initialOpacity + "'>"+
-                    "<path style='stroke: " + color + "; fill: " + color + " ; stroke-opacity: 1; stroke-width: " + r360.config.defaultPolygonLayerOptions.strokeWidth + "; fill-opacity:1'd='" + svgData.toString().replace(/\,/g, ' ') + "'/>"+
-                "</g><animate xlink:href='#" + randomId + "' attributeName='opacity' begin='0s' dur='" + animationDuration + "s' from=" + initialOpacity + " to=" + opacity + " fill='freeze' />";
-    },
-
-    _getNormalSvgElement: function(gElement){
-        var that = this;
-        var svgStart = "<div id=svg_"+ $(this._map._container).attr("id") + " style='" + that._getTranslation() + ";''><svg"  + 
-                            " height=" + that._svgHeight + 
-                            " width="  + that._svgWidth  + 
-                            " style='fill:" + r360.config.defaultPolygonLayerOptions.backgroundColor + " ; opacity: "+ r360.config.defaultPolygonLayerOptions.opacity + "; stroke-linejoin:round; stroke-linecap:round; fill-rule: evenodd' xmlns='http://www.w3.org/2000/svg'>"
-        var svgEnd   = "</svg></div>";
-
-        var gees = "";
-
-        for(var i = 0; i < gElement.length; i++)
-            gees += gElement[i];
-
-        return svgStart + gees + svgEnd;
-
     }
-
-
 });
 
 r360.route360PolygonLayer = function (options) {
     return new r360.Route360PolygonLayer(options);
 };
 
+}(window, document));
 
-/*
-not in use anymore:   
+if ( window.google ) {
 
-// ie8 (vml) gets the holes from smaller polygons. Dirty IE8 hack
-                if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                    if (i < this._multiPolygons.length-1 ) {
-                        for ( var l = 0; l < this._multiPolygons[i+1].polygons.length; l++ ) {
-                            var poly2 = this._multiPolygons[i+1].polygons[l];
-                            svgData.push(this._createSVGData(poly2.outerBoundary));
-                        }
-                    }
-                }
+    GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
+    function GoogleMapsPolygonLayer(map, options) {
 
-                 // Another shabby IE8 hack
-            if(navigator.appVersion.indexOf("MSIE 8.") != -1){
-                $('shape').each(function() {
-                    $( this ).css( {"filter": "alpha(opacity=" + that.opacity * 100 + ")"} );
-                });
+        // set default parameters
+        this.map               = map;
+        this.id                = this.map.getDiv().id
+        this.inverse           = false;
+        this.topRight          = { lat : -90, lng : -180 };
+        this.bottomLeft        = { lat : -90, lng : +180 };
+        this.multiPolygons     = [];
+        this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
+        this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
+        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
+        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
+        this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
+        this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+        this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
+
+        // overwrite defaults with optional parameters
+        if ( typeof options != 'undefined' ) {
+
+            if ( typeof options.opacity        != 'undefined') this.opacity      = options.opacity;
+            if ( typeof options.strokeWidth    != 'undefined') this.strokeWidth  = options.strokeWidth;
+            if ( typeof options.inverse        != 'undefined') this.inverse      = options.inverse;
+            if ( typeof options.tolerance      != 'undefined') this.tolerance    = options.tolerance;
+            if ( typeof options.extendWidthX   != 'undefined') this.extendWidthX = options.extendWidthX;
+            if ( typeof options.extendWidthY   != 'undefined') this.extendWidthY = options.extendWidthY;
+        }
+
+        // the div element containing all the data
+        this.element  = null;
+        // this triggers the draw method
+        this.setMap(this.map);
+        // add the listeners for drag end zoom events
+        this.addListener();
+    }
+
+    /**
+     * onAdd is called when the map's panes are ready and the overlay has been
+     * added to the map.
+     */
+    GoogleMapsPolygonLayer.prototype.onAdd = function() {
+
+        // create the dom elemenet which hols old the svgs
+        this.element    = document.createElement('div');
+        this.element.id = 'r360-googlemaps-polygon-layer-canvas-in-' + this.id;
+
+        // Add the element to the "overlayLayer" pane.
+        this.getPanes().overlayLayer.appendChild(this.element);  
+    };
+
+    GoogleMapsPolygonLayer.prototype.getMapPixelBounds = function(){
+
+        var bottomLeft = r360.Util.googleLatlngToPoint(this.map, this.map.getBounds().getSouthWest(), this.map.getZoom());
+        var topRight   = r360.Util.googleLatlngToPoint(this.map, this.map.getBounds().getNorthEast(), this.map.getZoom());
+
+        return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } }; 
+    };
+
+    GoogleMapsPolygonLayer.prototype.getPixelOrigin = function(){
+
+        var viewHalf = r360.PolygonUtil.divide({ x : this.map.getDiv().offsetWidth, y : this.map.getDiv().offsetHeight }, 2);
+        var center = r360.Util.googleLatlngToPoint(this.map, this.map.getCenter(), this.map.getZoom());
+        
+        return r360.PolygonUtil.roundPoint(r360.PolygonUtil.subtract(center, viewHalf.x, viewHalf.y));
+    };
+
+    GoogleMapsPolygonLayer.prototype.setInverse = function(inverse){
+
+        console.log('inverse');
+        if ( this.inverse != inverse ) {
+
+            this.inverse = inverse;
+            this.draw();
+        }
+    };
+
+    GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
+
+        var pixelBounds = r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY);
+
+        var svg = r360.SvgUtil.createSvgData(polygon, { 
+            bounds      : pixelBounds, 
+            scale       : Math.pow(2, this.map.getZoom()) * 256, 
+            tolerance   : this.tolerance, 
+            pixelOrigin : this.getPixelOrigin(),  
+            offset      : {x:0,y:0}
+        });
+
+        return svg;
+    };
+
+    GoogleMapsPolygonLayer.prototype.draw = function() {
+
+        if ( this.multiPolygons.length > 0 ) {
+                 
+            this.svgWidth  = this.map.getDiv().offsetWidth;
+            this.svgHeight = this.map.getDiv().offsetHeight;
+
+            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
+            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
+
+            // calculate the offset in between map and svg in order to translate
+            var svgPosition    = $('#svg_' + this.id).offset();
+            var mapPosition    = $(this.map.getDiv()).offset();
+
+            if ( typeof this.offset == 'undefined' )
+                this.offset = { x : 0 , y : 0 };
+
+            // adjust the offset after map panning / zooming
+            if ( typeof svgPosition != 'undefined' ) {
+                this.offset.x += (mapPosition.left - svgPosition.left);
+                this.offset.y += (mapPosition.top  - svgPosition.top);
             }
 
-*/
+            // clear layer from previous drawings
+            $('#'+ this.element.id).empty();
 
-}(window, document));
+            var gElements = [];  
+            
+            // go through each multipolygon (represents each travel time)
+            for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+                
+                var multiPolygon = this.multiPolygons[i], svgData = [];
+
+                // add each polygon for the given travel time
+                for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                    svgData.push(this.createSvgData(multiPolygon.polygons[j]));
+
+                if ( svgData.length != 0 ) 
+                    gElements.push(r360.SvgUtil.getGElement(svgData, {
+                        color             : !this.inverse ? multiPolygon.getColor() : 'black',
+                        opacity           : !this.inverse ? 1                       : multiPolygon.getOpacity(),
+                        strokeWidth       : this.strokeWidth
+                    })); 
+            }
+
+            var options = {
+                id                : this.id,
+                offset            : this.offset,
+                svgHeight         : this.svgHeight,
+                svgWidth          : this.svgWidth,
+                backgroundColor   : this.backgroundColor,
+                backgroundOpacity : this.backgroundOpacity,
+                opacity           : this.opacity,
+                strokeWidth       : this.strokeWidth
+            }
+
+            // add the svg string to the container
+            $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+                                                         : r360.SvgUtil.getInverseSvgElement(gElements, options));
+        }
+    };
+
+    GoogleMapsPolygonLayer.prototype.update = function(polygons){
+
+        this.topRight          = { lat : -90, lng : -180 };
+        this.bottomLeft        = { lat : -90, lng : +180 };
+        this.multiPolygons     = r360.PolygonUtil.prepareMultipolygons(polygons, this.topRight, this.bottomLeft);
+
+        console.log(this.getMap());
+        
+        this.setMap(this.getMap());
+        this.draw();
+    };
+
+    GoogleMapsPolygonLayer.prototype.addListener = function() {
+
+        var map = this.map;
+        var that = this;
+
+        google.maps.event.addListener(map, 'zoom_changed', function () {
+            that.onRemove();
+            google.maps.event.addListenerOnce(map, 'idle', function () {
+                that.draw();
+            });
+        });
+
+        google.maps.event.addListener(map, 'dragend', function () {
+            google.maps.event.addListenerOnce(map, 'idle', function () {
+                that.draw();
+            });
+        });
+    };
+
+    // The onRemove() method will be called automatically from the API if
+    // we ever set the overlay's map property to 'null'.
+    GoogleMapsPolygonLayer.prototype.onRemove = function() {
+        $('#' + this.element.id).empty();
+    };
+}
+

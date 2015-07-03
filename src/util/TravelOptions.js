@@ -44,10 +44,10 @@ r360.TravelOptions = function(){
             else {
 
                 // validate each source
-                _.each(this.getSources(), function(source){
+                this.getSources().forEach(function(source){
 
-                    if ( !_.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !_.has(source, 'lon') && !_.has(source, 'lng') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
+                    if ( !r360.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
+                    if ( !r360.has(source, 'lon') && !r360.has(source, 'lng') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
                 });
             }
         }
@@ -124,10 +124,10 @@ r360.TravelOptions = function(){
             else {
 
                 // validate each source
-                _.each(this.getTargets(), function(target){
+                this.getTargets().forEach(function(target){
 
-                    if ( !_.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !_.has(target, 'lon') && !_.has(target, 'lng') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
+                    if ( !r360.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
+                    if ( !r360.has(target, 'lon') && !r360.has(target, 'lng') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
                 });
             }
         }

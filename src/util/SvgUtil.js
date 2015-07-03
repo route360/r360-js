@@ -82,8 +82,8 @@ r360.SvgUtil = {
             var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
             var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
 
-            r360.PolygonUtil.scale(polygonTopRight, scale);
-            r360.PolygonUtil.scale(polygonBottomLeft, scale);
+            r360.PolygonUtil.scale(polygonTopRight, options.scale);
+            r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
 
             if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
                    polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
@@ -113,7 +113,9 @@ r360.SvgUtil = {
 
         for ( var i = 0 ; i < coordinateArray.length ; i++ ) {
             projectedPoint  = coordinateArray[i];
-            point           = new L.Point(projectedPoint.x, projectedPoint.y);
+            point           = new r360.Point(projectedPoint.x, projectedPoint.y);
+
+
 
             r360.PolygonUtil.scale(point, options.scale);
             r360.PolygonUtil.roundPoint(point);
@@ -146,7 +148,7 @@ r360.SvgUtil = {
 
         for ( var i = 0 ; i < clippedArray.length ; i++ ){
             
-            point = new L.Point(clippedArray[i][0], clippedArray[i][1]);
+            point = new r360.Point(clippedArray[i][0], clippedArray[i][1]);
 
             r360.PolygonUtil.subtract(point, options.pixelOrigin.x + options.offset.x, 
                                              options.pixelOrigin.y + options.offset.y) 

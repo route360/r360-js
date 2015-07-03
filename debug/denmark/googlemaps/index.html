@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Leaflet vs. Google Maps</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+
+      #google-maps-bw-map, #google-maps-color-map {
+
+        width: 50%;
+        height: 100%;
+        float: left;
+      }
+
+    </style>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet-src.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+    <script src="../lib/r360-src.js"></script>
+    <!-- // <script type="text/javascript" src="../../../build/deps.js"></script> -->
+    <!-- // <script type="text/javascript" src="../../../build/r360-include.js"></script> -->
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            var bwMap, colorMap, markerBW = undefined, markerColor = undefined;
+            r360.config.defaultPolygonLayerOptions.backgroundOpacity = 0.5;
+            r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
+
+            r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                { time : 600 * 1 , color : "#006837", opacity : 0.1 },
+                { time : 600 * 2 , color : "#39B54A", opacity : 0.2 },
+                { time : 600 * 3 , color : "#8CC63F", opacity : 0.3 },
+                { time : 600 * 4 , color : "#F7931E", opacity : 0.4 },
+                { time : 600 * 5 , color : "#F15A24", opacity : 0.5 },
+                { time : 600 * 6 , color : "#C1272D", opacity : 1.0 }
+            ];
+
+            // r360.config.serviceKey                                  = 'KRXn8oesiA4MNxrzMhJx';
+            r360.config.serviceUrl                                  = 'http://api.route360.net/api_denmark/';
+
+            var bwPolygonLayer, colorPolygonLayer;
+
+            function initGoogle() {
+
+                bwMap = new google.maps.Map(document.getElementById('google-maps-bw-map'), { 
+                    zoom: 11, center: new google.maps.LatLng(55.675298, 12.565125), mapTypeId: google.maps.MapTypeId.STREETS });
+
+                colorMap = new google.maps.Map(document.getElementById('google-maps-color-map'), { 
+                    zoom: 11, center: new google.maps.LatLng(55.675298, 12.565125), mapTypeId: google.maps.MapTypeId.STREETS });
+
+                bwPolygonLayer = new GoogleMapsPolygonLayer(bwMap, { inverse : true });
+                colorPolygonLayer = new GoogleMapsPolygonLayer(colorMap);
+
+                google.maps.event.addListener(bwMap, 'click', function(event) {
+
+                    if ( typeof markerBW !== 'undefined' ) markerBW.setMap(null);
+
+                    markerBW = new google.maps.Marker({
+                          position: event.latLng,
+                          map: bwMap
+                    });
+                    showPolygons(event.latLng, bwPolygonLayer);
+                });
+
+                google.maps.event.addListener(colorMap, 'click', function(event) {
+
+                    if ( typeof markerColor !== 'undefined' ) markerColor.setMap(null);
+
+                    markerColor = new google.maps.Marker({
+                          position: event.latLng,
+                          map: colorMap
+                    });
+                    showPolygons(event.latLng, colorPolygonLayer);
+                });
+            }
+
+            function showPolygons(location, layer) {
+
+                var travelOptions = r360.travelOptions();
+                travelOptions.addSource({ lat : location.lat(), lng : location.lng() });            
+                travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
+                travelOptions.setTravelType('transit');
+                travelOptions.setDate('20150624');
+                travelOptions.setTime('39000');
+                var maxTravelTime = _.max(travelOptions.getTravelTimes());
+
+                if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
+                    travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
+                if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
+                    travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
+                if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+                    travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
+
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([_.max(travelOptions.getTravelTimes())]);
+                
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                    
+                    layer.update(polygons);
+                });
+            }
+
+            initGoogle();
+        });
+    </script>
+  </head>
+  <body>
+    <div id="google-maps-color-map"></div>
+    <div id="google-maps-bw-map"></div>
+  </body>
+</html>

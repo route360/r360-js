@@ -132,6 +132,7 @@
                 <div class="col-lg-12 col-lg-oaffset-1 text-centeer">
                     <div>
                         <p><i class="fa fa-caret-right"></i> Generate polygons which represent the area which is reachable from a given source point</p>
+                        <p><i class="fa fa-caret-right"></i> Support for Leaflet and Google Maps</p>
                         <p><i class="fa fa-caret-right"></i> Support for walk, car, bike, E-bike and transit routing</p>
                         <p><i class="fa fa-caret-right"></i> A number of predefined map controls (travel time slider, date and time chooser, travel type chooser, etc.)</p>
                         <p><i class="fa fa-caret-right"></i> Detailed routing information from source to target (travel time, transit trips, etc.)</p>
@@ -682,39 +683,44 @@
     style="border:0;" alt="" /></p></noscript>
     <!-- End Piwik Code -->
 
-    <script src="lib/jquery/jquery-1.10.2.js"></script>
-    <script src="lib/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
     <script src="lib/jquery/jquery.validate.min.js"></script>
-    <!-- // <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet-src.js"></script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="lib/freelancer/classie.js"></script>
     <script src="lib/freelancer/cbpAnimatedHeader.js"></script>
     <script src="lib/freelancer/freelancer.js"></script>
     <script src="lib/prettify/prettify.js"></script>
-    <script src="lib/leaflet/leaflet.js"></script>
-    <script src="lib/underscore/underscore.js"></script>
     <script src="lib/r360/museums_bb.js"></script>
 
     <!-- // <script src="js/r360.js"></script> -->
 
-    <script type="text/javascript" src="lib/build/deps.js"></script>
-    <script type="text/javascript" src="lib/build/r360-include.js"></script>
+    <script type="text/javascript" src="build/deps.js"></script>
+    <script type="text/javascript" src="build/r360-include.js"></script>
 
      <!-- Import Examples -->
-
-    <script src="lib/r360/examples/addPlaceAutoCompleteControl.js"></script>
-    <script src="lib/r360/examples/addTravelStartDateControl.js"></script>
-    <script src="lib/r360/examples/addTravelTimeControl.js"></script>
-    <script src="lib/r360/examples/addTravelTypeControl.js"></script>
-    <script src="lib/r360/examples/filterExample.js"></script>
-    <script src="lib/r360/examples/multipleExample.js"></script>
-    <script src="lib/r360/examples/routingExample.js"></script>
-    <script src="lib/r360/examples/htmlControlExample.js"></script>
     <script src="lib/r360/examples/gettingStartedExample.js"></script>
-    <script src="lib/r360/examples/inverseExample.js"></script>
-    <script src="lib/r360/examples/colorRouteExample.js"></script>
-    <script src="lib/r360/examples/errorHandlingExample.js"></script>
+
+    <!-- <script src="lib/r360/examples/addPlaceAutoCompleteControl.js"></script>
+    // <script src="lib/r360/examples/addTravelStartDateControl.js"></script>
+    // <script src="lib/r360/examples/addTravelTimeControl.js"></script>
+    // <script src="lib/r360/examples/addTravelTypeControl.js"></script>
+    // <script src="lib/r360/examples/filterExample.js"></script>
+    // <script src="lib/r360/examples/multipleExample.js"></script>
+    // <script src="lib/r360/examples/routingExample.js"></script>
+    // <script src="lib/r360/examples/htmlControlExample.js"></script>
+    // <script src="lib/r360/examples/inverseExample.js"></script>
+    // <script src="lib/r360/examples/colorRouteExample.js"></script>
+    // <script src="lib/r360/examples/errorHandlingExample.js"></script> -->
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
@@ -1142,7 +1148,7 @@
                                     subject : "Route360° API Key", 
                                     message : generateEmail(result.apiKey, $("#country").val(), $("#00N20000007VCHL").val(), $("#phone").val())
                                 }
-                            ).
+                            )
                             .done(function( data ) {
                                 
                                 document.getElementById('create-user-form').submit();                                
@@ -1178,6 +1184,16 @@
                     </body></html>";
             }
         });
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-64760125-1', 'auto');
+      ga('send', 'pageview');
+
     </script>
 </body>
 

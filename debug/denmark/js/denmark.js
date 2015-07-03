@@ -55,11 +55,8 @@ $(document).ready(function(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.requestTimeout                              = 60000;
-    r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    // r360.config.serviceKey                                  = 'KRXn8oesiA4MNxrzMhJx';
-    r360.config.serviceUrl                                  = 'http://dev.route360.net/api_denmark/';
-    r360.config.serviceUrl                                  = 'http://api.route360.net/api_naturtrip_rc1/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceKey                                  = 'CRIQPJHN0RCPW0S3JENG';
+    r360.config.serviceUrl                                  = 'http://api.route360.net/api_denmark/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;

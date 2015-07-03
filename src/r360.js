@@ -1,6 +1,22 @@
 
 var r360 = {
-	version: 'v0.0.9'
+	version : 'v0.0.9',
+
+    // Is a given variable undefined?
+    isUndefined : function(obj) {
+        return obj === void 0;
+    },
+    
+    // Shortcut function for checking if an object has a given property directly
+    // on itself (in other words, not on a prototype).
+    has : function(obj, key) {
+        return obj != null && hasOwnProperty.call(obj, key);
+    },
+    
+    // is a given object a function
+    isFunction : function(obj) {
+      return typeof obj == 'function' || false;
+    }
 };
 
 function expose() {
