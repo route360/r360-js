@@ -65,13 +65,13 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     getBoundingBox : function(){
 
-        // var bl = r360.Util.leafletToWebMercator({ x : this.bottomLeft.x, y : this.bottomLeft.y });
-        // var tr = r360.Util.leafletToWebMercator({ x : this.topRight.x,   y : this.topRight.y });
+        var bl = r360.Util.leafletToWebMercator({ x : this.bottomLeft.x, y : this.bottomLeft.y });
+        var tr = r360.Util.leafletToWebMercator({ x : this.topRight.x,   y : this.topRight.y });
 
-        // bl = r360.Util.webMercatorToLatLng(bl);
-        // tr = r360.Util.webMercatorToLatLng(tr);
+        bl = r360.Util.webMercatorToLatLng(bl);
+        tr = r360.Util.webMercatorToLatLng(tr);
 
-        // var bounds = new L.LatLngBounds(L.latLng(bl.lat, bl.lng), L.latLng(tr.lat, tr.lng));
+        var bounds = new L.LatLngBounds(L.latLng(bl.lat, bl.lng), L.latLng(tr.lat, tr.lng));
 
         return bounds;
     },

@@ -91,7 +91,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
      * @author Henning Hollburg <henning.hollburg@gmail.com>
      */
     that.getBoundingBox = function(){
-        return new r360.LatLngBounds(this._bottomLeft, this._topRight)
+        return new r360.Bounds(this.bottomLeft, this.topRight);
     }
 
     that.getProjectedBottomLeft = function(){

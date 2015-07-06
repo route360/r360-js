@@ -110,8 +110,8 @@ r360.Point.prototype = {
 
     toString: function () {
         return 'Point(' +
-                r360.Utir360.formatNum(this.x) + ', ' +
-                r360.Utir360.formatNum(this.y) + ')';
+                r360.Util.formatNum(this.x) + ', ' +
+                r360.Util.formatNum(this.y) + ')';
     }
 };
 
