@@ -184,45 +184,42 @@ r360.Util = {
      *
      */
     parsePolygons : function(polygonsJson) {
-               
-        if ( polygonsJson.error ) 
-            return errorMessage;
-        if ( r360.config.logging) 
-            var start = new Date().getTime();
+        
+        var multiPolygon = [];       
 
-        var polygonList = [];
-
-        for(var i = 0; i < polygonsJson.length; i++){
+        // we get polygons for each source
+        for ( var i = 0 ; i < polygonsJson.length ; i++ ) {
 
             var source          = polygonsJson[i];
-            var sourcePolygons  = { id : source.id , polygons : [] };
 
-            for(var j = 0; j < source.polygons.length; j++){
+            for ( var j = 0; j < source.polygons.length; j++ ) {
 
-                var polygonJson = source.polygons[j];
-                var polygon     = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-
-                var lineString = r360.LineString(r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-
+                // get the polygon infos
+                var polygonJson   = source.polygons[j];
+                // create a polygon with the outer boundary as the initial linestring
+                var polygon       = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.lineString(r360.Util.parseLatLonArray(polygonJson.outerBoundary)));
+                // set color and default to black of not found
                 var color       = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
                 polygon.setColor(!_.isUndefined(color) ? color.color : '#000000');
-                
+                // set opacity and default to 1 if not found
                 var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
                 polygon.setOpacity(!_.isUndefined(opacity) ? opacity.opacity : 1);
+                
+                if ( typeof polygonJson.innerBoundary !== 'undefined' ) {
 
-                for(var k = 0; k < polygonJson.innerBoundary.length; k++){
-                     polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
+                    // add all inner linestrings to polygon
+                    for ( var k = 0 ; k < polygonJson.innerBoundary.length ; k++ ) 
+                        polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
                 }
 
-                sourcePolygons.polygons.push(polygon);
+                r360.PolygonUtil.addPolygonToMultiPolygon(multiPolygon, polygon); 
             }
-            polygonList.push(sourcePolygons);
         }
 
-        if ( r360.config.logging )
-            console.log("Polygon parsing took: " + (new Date().getTime() - start) + "ms");
+        // make sure the multipolygons are sorted by the travel time ascendingly
+        multiPolygon.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
 
-        return polygonList;
+        return multiPolygon;
     },
 
     /*
@@ -241,19 +238,7 @@ r360.Util = {
     },
     // 3857 => pixel
     webMercatorToLeaflet : function(point){
-
-        point.x /= 6378137;
-        point.y /= 6378137;
-        r360.CRS.EPSG3857.transformation._transform(point);
-        return point;
-    },
-
-    leafletToWebMercator : function(point){
-        
-        point.x *= 6378137;
-        point.y *= 6378137;
-        point = r360.CRS.EPSG3857.transformation.untransform(point);
-        return point;
+        return r360.CRS.EPSG3857.transformation._transform(r360.point(point.x / 6378137, point.y / 6378137));
     },
 
     webMercatorToLatLng : function(point, elevation){

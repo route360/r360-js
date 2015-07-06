@@ -19,17 +19,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
       */
     initialize: function (options) {
         
-        this.multiPolygons = []; 
         // set default parameters
         this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
         this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
         this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
         this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
         this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
-        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
-        this.topRight          = new r360.Point(-20026377, -20048967);
-        this.bottomLeft        = new r360.Point(+20026377, +20048967);
+        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor;
+        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity;
 
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
@@ -60,20 +57,21 @@ r360.LeafletPolygonLayer = L.Class.extend({
     },
 
     /**
-     * [getBoundingBox returns a leaflet boundingbox from the left bottom to the top right of this layer]
+     * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
      * @return {[type]} [description]
      */
-    getBoundingBox : function(){
+    getBoundingBox3857 : function(){
 
-        var bl = r360.Util.leafletToWebMercator({ x : this.bottomLeft.x, y : this.bottomLeft.y });
-        var tr = r360.Util.leafletToWebMercator({ x : this.topRight.x,   y : this.topRight.y });
+        return this.multiPolygons[0].getBoundingBox3857();
+    },
 
-        bl = r360.Util.webMercatorToLatLng(bl);
-        tr = r360.Util.webMercatorToLatLng(tr);
+    /**
+     * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
+     * @return {[type]} [description]
+     */
+    getBoundingBox4326 : function(){
 
-        var bounds = new L.LatLngBounds(L.latLng(bl.lat, bl.lng), L.latLng(tr.lat, tr.lng));
-
-        return bounds;
+        return this.multiPolygons[0].getBoundingBox4326();
     },
     
     /*
@@ -103,7 +101,15 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @return {[type]} [description]
      */
     fitMap: function(){
-        this.map.fitBounds(this.getBoundingBox());
+
+        // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
+        // only knows the leaflet version
+        var bounds = this.getBoundingBox4326();
+        var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+
+        console.log(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
+
+        this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
     },
 
     /**
@@ -112,10 +118,10 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(polygons, fitMap){
+    clearAndAddLayers : function(multiPolygons, fitMap){
 
         this.clearLayers();
-        this.addLayer(polygons);
+        this.addLayer(multiPolygons);
 
         if ( typeof fitMap !== 'undefined' ) this.fitMap();
 
@@ -127,11 +133,9 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @param {[type]} multiPolygons [description]
      */
     addLayer : function(multiPolygons) {
-        
-        this.topRight      = new r360.Point(-20026377, -20048967);
-        this.bottomLeft    = new r360.Point(+20026377, +20048967);
-        this.multiPolygons = r360.PolygonUtil.prepareMultipolygons(multiPolygons, this.topRight, this.bottomLeft);
-        
+            
+        this.multiPolygons = multiPolygons;    
+
         // paint them
         this.draw();
     },
@@ -199,7 +203,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     draw: function () {
 
-        if ( this.multiPolygons.length > 0 ) {
+        if ( typeof this.multiPolygons !== 'undefined' ) {
              
             this.svgWidth  = this.map.getSize().x;
             this.svgHeight = this.map.getSize().y;

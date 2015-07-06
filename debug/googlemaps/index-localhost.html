@@ -39,35 +39,27 @@
 
         $(document).ready(function(){
 
-            // var p = r360.CRS.EPSG3857.transformation._transform({ x : 1488218 , y: 6895768  });
-            // console.log(p)
-            // console.log(r360.CRS.EPSG3857.transformation.untransform(p));
+            function initGoogle() {
 
-            // var x = r360.Util.webMercatorToLeaflet({ x : 1488218, y: 6895768 });
-            // console.log(x)
-            // console.log(r360.Util.leafletToWebMercator(x));            
-
-            // console.log(r360.Util.parsePolygons(transitPolygon));
-
-            // function initGoogle() {
-
-            //     var colorMap = new google.maps.Map(document.getElementById('google-maps-color-map'), { 
-            //         zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
+                var colorMap = new google.maps.Map(document.getElementById('google-maps-color-map'), { 
+                    zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
                 
-            //     var bwMap = new google.maps.Map(document.getElementById('google-maps-bw-map'), { 
-            //         zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
+                var bwMap = new google.maps.Map(document.getElementById('google-maps-bw-map'), { 
+                    zoom: 11, center: new google.maps.LatLng(52.5167, 13.3833), mapTypeId: google.maps.MapTypeId.STREETS });
 
-            //     var colorPolygonLayer = new GoogleMapsPolygonLayer(colorMap);
-            //     var bwPolygonLayer    = new GoogleMapsPolygonLayer(bwMap, { inverse : true });
+                var colorPolygonLayer = new GoogleMapsPolygonLayer(colorMap);
+                var bwPolygonLayer    = new GoogleMapsPolygonLayer(bwMap, { inverse : true });
                 
-            //     google.maps.event.addListenerOnce(colorMap, 'idle', function(){
-            //         colorPolygonLayer.update(r360.Util.parsePolygons(transitPolygon));
-            //     });
+                google.maps.event.addListenerOnce(colorMap, 'idle', function(){
+                    colorPolygonLayer.update(r360.Util.parsePolygons(transitPolygon));
+                    colorPolygonLayer.fitMap();
+                });
 
-            //     google.maps.event.addListenerOnce(bwMap, 'idle', function(){
-            //         bwPolygonLayer.update(r360.Util.parsePolygons(transitPolygon))
-            //     });
-            // }
+                google.maps.event.addListenerOnce(bwMap, 'idle', function(){
+                    bwPolygonLayer.update(r360.Util.parsePolygons(transitPolygon))
+                    bwPolygonLayer.fitMap();
+                });
+            }
 
             function initLeaflet() {
 
@@ -75,28 +67,18 @@
                 var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
                     maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(colorMap);
 
-                var polygonLayer  = r360.leafletPolygonLayer().addTo(colorMap);
+                var colorLayer  = r360.leafletPolygonLayer().addTo(colorMap);
+                colorLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon), true);
 
-                var multiPolygon  = r360.Util.parsePolygons(transitPolygon);
-                polygonLayer.clearAndAddLayers(multiPolygon);
+                var bwMap     = L.map('leaflet-bw-map').setView([52.5167, 13.3833], 11);
+                var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
+                    maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(bwMap);
 
-                for(var i = 0; i < multiPolygon.length; i++){
-                    for(var j = 0; j < multiPolygon[i].polygons.length; j++)
-                        console.log(multiPolygon[i].polygons[j].getBoundingBox());
-                }
-
-                //colorMap.fitBounds(multiPolygon[1]);
-
-                // var bwMap     = L.map('leaflet-bw-map').setView([52.5167, 13.3833], 11);
-                // var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-                //     maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(bwMap);
-
-                //  var polygonLayer1  = r360.leafletPolygonLayer().addTo(bwMap);
-                //  polygonLayer1.setInverse(true);
-                //  polygonLayer1.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
+                 var monochromLayer  = r360.leafletPolygonLayer({ inverse : true }).addTo(bwMap);
+                 monochromLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon), true);
             }
 
-            // initGoogle();
+            initGoogle();
             initLeaflet();
         });
     </script>

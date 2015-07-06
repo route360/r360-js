@@ -82,9 +82,7 @@ r360.PolygonUtil = {
      * @return {[type]}       [the scaled point]
      */
     scale: function(point, scale){
-        point.x *= scale;
-        point.y *= scale;
-        return point;
+        return r360.point(point.x * scale, point.y * scale);
     },
 
     /**
@@ -96,15 +94,11 @@ r360.PolygonUtil = {
      * @return {[type]}       [the subtracted point]
      */
     subtract: function(point, x, y){
-        point.x -= x;
-        point.y -= y;
-        return point;
+        return r360.point(point.x - x, point.y - y);
     },
 
     divide: function(point, quotient){
-        point.x /= quotient;
-        point.y /= quotient;
-        return point;
+        return r360.point(point.x / quotient, point.y / quotient);
     },
 
     /**
@@ -172,53 +166,6 @@ r360.PolygonUtil = {
         bounds.min.y -= extendY;
 
         return bounds;
-    },
-
-    /**
-     * [prepareMultipolygons description]
-     * @param  {[type]} multiPolygons [description]
-     * @param  {[type]} topRight      [description]
-     * @param  {[type]} topLeft       [description]
-     * @return {[type]}               [description]
-     */
-    prepareMultipolygons : function(multiPolygons, topRight, bottomLeft) {
-
-        var preparedMultiPolygons = [];
-
-        for ( var i = 0; i < multiPolygons.length ; i++){
-            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
-
-                var currentPolygon = multiPolygons[i].polygons[j];
-
-                // project to 4326
-                currentPolygon.project(); 
-                // adjust the bounding box
-                r360.PolygonUtil.updateBoundingBox(currentPolygon, topRight, bottomLeft);
-                // find the multipolygon to which this polygon belongs (travel time matching)
-                r360.PolygonUtil.addPolygonToMultiPolygon(preparedMultiPolygons, currentPolygon); 
-            }
-        }
-        
-        // make sure the multipolygons are sorted by the travel time ascendingly
-        preparedMultiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
-
-        return preparedMultiPolygons;
-    },
-
-    /**
-     * [updateBoundingBox description]
-     * @param  {[type]} polygon [description]
-     * @return {[type]}         [description]
-     */
-    updateBoundingBox : function(polygon, topRight, bottomLeft){
-
-        // console.log(polygon.topRight, topRight);
-
-        if ( polygon.topRight.x   > topRight.x)    topRight.x   = polygon.topRight.x;                
-        if ( polygon.topRight.y   > topRight.y )   topRight.y   = polygon.topRight.y;
-
-        if ( polygon.bottomLeft.x < bottomLeft.x)  bottomLeft.x = polygon.bottomLeft.x;
-        if ( polygon.bottomLeft.y < bottomLeft.y ) bottomLeft.y = polygon.bottomLeft.y;
     },
 
     /*

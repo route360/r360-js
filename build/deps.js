@@ -3,6 +3,7 @@ var deps = {
         src: ['r360.js',
               'r360-defaults.js',
               'geometry/types/bounds/Bounds.js',
+              'geometry/types/bounds/LatLngBounds.js',
               'geometry/types/point/Point.js',
               'geometry/types/point/LatLng.js',
               'Util/Browser.js',
