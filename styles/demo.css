@@ -10,7 +10,7 @@ header {
 #map-example1, #map-addTravelTimeControlExample, 
 #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-inverseExample,
 #map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample, #map-multipleExample, #map-htmlControlExample, #map-errorHandlingExample,
-#map-colorRouteExample {
+#map-colorRouteExample, #google-maps-color-map, #google-maps-bw-map {
 
     height: 400px;
     margin-bottom: 15px; 

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (9ec6272), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 if ( window.google ) {
@@ -13,8 +13,7 @@ if ( window.google ) {
         this.id                = this.map.getDiv().id;
         this.inverse           = false;
         this.topRight          = { lat : -90, lng : -180 };
-        this.bottomLeft        = { lat : -90, lng : +180 };
-        this.multiPolygons     = [];
+        this.bottomLeft        = { lat : +90, lng : +180 };
         this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
         this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
         this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
@@ -72,6 +71,25 @@ if ( window.google ) {
         return r360.PolygonUtil.roundPoint(r360.PolygonUtil.subtract(center, viewHalf.x, viewHalf.y));
     };
 
+    /**
+     * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
+     * @return {[type]} [description]
+     */
+    GoogleMapsPolygonLayer.prototype.getBoundingBox3857 = function(){
+
+        return this.multiPolygons[0].getBoundingBox3857();
+    },
+
+    /**
+     * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
+     * @return {[type]} [description]
+     */
+    GoogleMapsPolygonLayer.prototype.getBoundingBox4326 = function(){
+
+        return this.multiPolygons[0].getBoundingBox4326();
+    },
+
+
     GoogleMapsPolygonLayer.prototype.setInverse = function(inverse){
 
         if ( this.inverse != inverse ) {
@@ -94,9 +112,27 @@ if ( window.google ) {
         return svg;
     };
 
-    GoogleMapsPolygonLayer.prototype.draw = function() {
+    /**
+     * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
+     * @return {[type]} [description]
+     */
+    GoogleMapsPolygonLayer.prototype.fitMap = function(){
 
-        if ( this.multiPolygons.length > 0 ) {
+        // we have to transform the r360.latLngBounds to google maps bounds since the map object
+        // only knows the leaflet version
+        var bounds = this.getBoundingBox4326();
+        var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+
+        var gmBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(sw.lat, sw.lng),
+            new google.maps.LatLng(ne.lat, ne.lng));
+
+        this.map.fitBounds(gmBounds);
+    };
+
+    GoogleMapsPolygonLayer.prototype.draw = function(test) {
+
+        if ( typeof this.multiPolygons !== 'undefined' ) {
                  
             this.svgWidth  = this.map.getDiv().offsetWidth;
             this.svgHeight = this.map.getDiv().offsetHeight;
@@ -156,11 +192,9 @@ if ( window.google ) {
         }
     };
 
-    GoogleMapsPolygonLayer.prototype.update = function(polygons){
+    GoogleMapsPolygonLayer.prototype.update = function(multiPolygons){
 
-        this.topRight          = { lat : -90, lng : -180 };
-        this.bottomLeft        = { lat : -90, lng : +180 };
-        this.multiPolygons     = r360.PolygonUtil.prepareMultipolygons(polygons, this.topRight, this.bottomLeft);
+        this.multiPolygons = multiPolygons;
         this.draw();
     };
 

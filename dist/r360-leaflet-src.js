@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (9ec6272), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 r360.photonPlaceAutoCompleteControl = function (options) {
@@ -1515,7 +1515,7 @@ r360.checkboxButtonControl = function (options) {
 /*
  *
  */
-r360.Route360PolygonLayer = L.Class.extend({
+r360.LeafletPolygonLayer = L.Class.extend({
    
     /**
       * This methods initializes the polygon layer's stroke width and polygon opacity.
@@ -1533,18 +1533,15 @@ r360.Route360PolygonLayer = L.Class.extend({
       */
     initialize: function (options) {
         
-        this.multiPolygons = []; 
         // set default parameters
         this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
         this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
         this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
         this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
         this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor,
-        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity,
-        this.topRight          = { lat : -90, lng : -180 };
-        this.bottomLeft        = { lat : +90, lng : +180 };
-        
+        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor;
+        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity;
+
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
 
@@ -1574,11 +1571,21 @@ r360.Route360PolygonLayer = L.Class.extend({
     },
 
     /**
-     * [getBoundingBox returns a leaflet boundingbox from the left bottom to the top right of this layer]
+     * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
      * @return {[type]} [description]
      */
-    getBoundingBox : function(){
-        return new L.LatLngBounds(this.bottomLeft, this.topRight);
+    getBoundingBox3857 : function(){
+
+        return this.multiPolygons[0].getBoundingBox3857();
+    },
+
+    /**
+     * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
+     * @return {[type]} [description]
+     */
+    getBoundingBox4326 : function(){
+
+        return this.multiPolygons[0].getBoundingBox4326();
     },
     
     /*
@@ -1608,19 +1615,27 @@ r360.Route360PolygonLayer = L.Class.extend({
      * @return {[type]} [description]
      */
     fitMap: function(){
-        this.map.fitBounds(this.getBoundingBox());
+
+        // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
+        // only knows the leaflet version
+        var bounds = this.getBoundingBox4326();
+        var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+
+        console.log(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
+
+        this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
     },
 
     /**
-     * [clearAndAddLayers clears the polygons from this layer and adds the new ones. If fitMap is not undefined we
+     * [clearAndAddLayers clears the polygons from this layer and adds the new ones. If fitMap is not undefined wesvg
      *     also adjust the map bounds/zoom to show the polygons as big as possible.]
      * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(polygons, fitMap){
+    clearAndAddLayers : function(multiPolygons, fitMap){
 
         this.clearLayers();
-        this.addLayer(polygons);
+        this.addLayer(multiPolygons);
 
         if ( typeof fitMap !== 'undefined' ) this.fitMap();
 
@@ -1632,9 +1647,9 @@ r360.Route360PolygonLayer = L.Class.extend({
      * @param {[type]} multiPolygons [description]
      */
     addLayer : function(multiPolygons) {
-        
-        this.multiPolygons = r360.PolygonUtil.prepareMultipolygons(multiPolygons, this.topRight, this.bottomLeft);
-        
+            
+        this.multiPolygons = multiPolygons;    
+
         // paint them
         this.draw();
     },
@@ -1702,7 +1717,7 @@ r360.Route360PolygonLayer = L.Class.extend({
      */
     draw: function () {
 
-        if ( this.multiPolygons.length > 0 ) {
+        if ( typeof this.multiPolygons !== 'undefined' ) {
              
             this.svgWidth  = this.map.getSize().x;
             this.svgHeight = this.map.getSize().y;
@@ -1763,8 +1778,8 @@ r360.Route360PolygonLayer = L.Class.extend({
     }
 });
 
-r360.route360PolygonLayer = function (options) {
-    return new r360.Route360PolygonLayer(options);
+r360.leafletPolygonLayer = function (options) {
+    return new r360.LeafletPolygonLayer(options);
 };
 
 /*
@@ -1785,7 +1800,7 @@ r360.LeafletUtil = {
      */
     getMarker : function(latlng, options){
 
-        var color = _.has(options, 'color') ? '-' + options.color : '-blue';
+        var color = r360.has(options, 'color') ? '-' + options.color : '-blue';
 
         options.icon = L.icon({
             iconSize     : [25, 41], // size of the icon
@@ -1801,5 +1816,208 @@ r360.LeafletUtil = {
 
         return L.marker(latlng, options);
     },
+
+    fadeIn : function(layer, route, drawingTime, fadingType, options, onClick){
+
+        if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
+        if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
+
+        fadePathSegment(0);        
+
+        function fadePathSegment(z){
+
+            // calculate fading time for segment
+            segment = route.routeSegments[z];
+            percent = fadingType == "travelTime" ? segment.getTravelTime() / route.getTravelTime() : segment.getDistance() / route.getDistance();
+
+            timeToDraw = percent * drawingTime;
+
+            // transfer don't have a linestring, just a point
+            if ( segment.getType() != "TRANSFER" ) {
+                fader(segment, timeToDraw, options, z); 
+            }
+            else {
+                
+                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !r360.has(options, 'paintTransfer') )) 
+                    addTransferSegment(segment, options); 
+
+                if(++z < route.routeSegments.length)
+                    fadePathSegment(z);
+            }          
+        }
+
+        function addTransferSegment(segment, options){
+
+            addCircularMarker(segment.points[0], segment, options);     
+
+            // if inter station transfer -> involves two stops -> we need a second circle
+            if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
+                 addCircularMarker(segment.points[1], segment, options);
+        }
+
+        function addCircularMarker(latLng, segment, options) {
+            var marker = L.circleMarker(latLng, { 
+                    color:          !r360.isUndefined(options) && r360.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
+                    fillColor:      !r360.isUndefined(options) && r360.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    !r360.isUndefined(options) && r360.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1, 
+                    opacity:        !r360.isUndefined(options) && r360.has(options, 'transferOpacity')    ? options.transferOpacity     : 1, 
+                    stroke:         !r360.isUndefined(options) && r360.has(options, 'transferStroke')     ? options.transferStroke      : true, 
+                    weight:         !r360.isUndefined(options) && r360.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
+                    radius:         !r360.isUndefined(options) && r360.has(options, 'transferRadius')     ? options.transferRadius      : 8 
+                });         
+    
+            var popup = !r360.isUndefined(options) && r360.has(options, 'popup') ? options.popup : "INSERT_TEXT";
+
+            if ( typeof segment !== 'undefined') {
+
+                var variable = !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
+                variable = variable == '' && !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
+
+                popup = popup.replace('INSERT_TEXT', variable);
+            }
+
+            if ( !r360.isUndefined(options) && r360.has(options, 'popup') ) {
+
+                marker.bindPopup(popup)
+                marker.on('mouseover', function(){ marker.openPopup(); })
+            }
+
+            marker.addTo(layer);
+            marker.bringToFront();
+        }
+        
+
+        function fader(segment, millis, options, z){
+
+            var polylineOptions         = {};
+            polylineOptions.color       = !r360.isUndefined(options) && r360.has(options, 'color')    ? options.color   : segment.getColor();
+            polylineOptions.opacity     = !r360.isUndefined(options) && r360.has(options, 'opacity' ) ? options.opacity : 0.8;
+            polylineOptions.weight      = !r360.isUndefined(options) && r360.has(options, 'weight' )  ? options.weight  : 5;
+
+            if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK") )  {
+                
+                polylineOptions.color     = !r360.isUndefined(options) && r360.has(options, 'walkColor' )     ? options.walkColor     : '#006F35';
+                polylineOptions.weight    = !r360.isUndefined(options) && r360.has(options, 'walkWeight' )    ? options.walkWeight : 7;
+                polylineOptions.dashArray = !r360.isUndefined(options) && r360.has(options, 'walkDashArray' ) ? options.walkDashArray : "1, 10";
+            }
+
+            var polylineHaloOptions     = {};
+            polylineHaloOptions.weight  = !r360.isUndefined(options) && r360.has(options, 'haloWeight' )  ? options.haloWeight  : 10;
+            polylineHaloOptions.opacity = !r360.isUndefined(options) && r360.has(options, 'haloOpacity' ) ? options.haloOpacity : 0.7;
+            polylineHaloOptions.color   = !r360.isUndefined(options) && r360.has(options, 'haloColor')    ? options.haloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D';
+
+            // 15ms for one peace. So if we want do draw the segment in 1 sec we need 66 pieces
+            var pieces      = millis / 15;
+            var choppedLine = chopLineString(segment.getPoints(), pieces);
+            var haloLine    = L.polyline(choppedLine[0], polylineHaloOptions).addTo(layer);
+            var polyLine    = L.polyline(choppedLine[0], polylineOptions).addTo(layer);
+
+            // add event listener
+            haloLine.on('click', onClick);
+            polyLine.on('click', onClick);
+
+            fadeLine(polyLine, haloLine, choppedLine, 1, z)
+        };
+
+        /*
+        function is recalling itself every 25ms
+        if you want the line to be drawn in one second you need to add a chopped line in (roughly) 40 pieces
+        When line is drawn fadePathSegment is called in order to draw the next segment. 
+        */
+
+        function fadeLine(polyLine, haloLine, choppedLine, i, z){
+
+            var latlngs = polyLine.getLatLngs();
+
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
+                latlngs.push(choppedLine[i][j])
+            
+            
+            if ( latlngs.length != 0 ) {
+                haloLine.setLatLngs(latlngs);
+                polyLine.setLatLngs(latlngs);
+            } 
+
+            if ( ++i < choppedLine.length ) {
+                setTimeout(function(){ 
+                    fadeLine(polyLine, haloLine, choppedLine, i, z); 
+                }, 15);
+            }else{               
+                if(++z < route.routeSegments.length)
+                   fadePathSegment(z);
+            }
+        }
+
+        /*
+        chops a linestring in a chosen number of equal pieces
+        */
+
+        function chopLineString(latlngs, pieces){
+
+            var length          = 0;
+            var steps           = 1 / pieces;        
+            var percentSoFar    = 0;
+            var segmentDistance;
+            var segmentPercent;
+            var newLatLngs  = new Array();
+           
+            for(var i = 1; i < latlngs.length; i++){
+                length += latlngs[i-1].distanceTo(latlngs[i]);
+            }
+
+            var part        = new Array(); 
+
+            for(var i = 0; i < latlngs.length -1; i++){
+
+                
+                part.push(latlngs[i]);
+               
+                segmentDistance  = latlngs[i].distanceTo(latlngs[i + 1]);
+                segmentPercent   = segmentDistance / length;
+                percentSoFar    += segmentPercent;
+
+                if(percentSoFar >= steps){
+                    while(percentSoFar >= steps){
+                        percent = ((steps - (percentSoFar - segmentPercent))/segmentPercent);
+                        part.push(interpolatePoint(latlngs[i],latlngs[i + 1],percent));
+                        steps += 1 / pieces;
+
+                        newLatLngs.push(part);
+                        part        = new Array();
+                    } 
+                }
+            }
+
+            newLatLngs.push(part);
+            part    = new Array();
+            part.push(latlngs[latlngs.length -1]);
+            newLatLngs.push(part);
+            return newLatLngs;
+        };
+
+        function interpolatePoint(latlng1, latlng2, percent){
+
+            var project, unproject, tempmap;
+
+            /*
+                ugly hack. shall be redone when working with projected coordinates
+            */
+            if(typeof layer.project != "undefined"){
+                tempmap = layer;
+            }else{
+                tempmap = layer._map;
+            }
+            var p1 = tempmap.project(latlng1);
+            var p2 = tempmap.project(latlng2);
+
+            var xNew = (p2.x - p1.x) * percent + p1.x;
+            var yNew = (p2.y - p1.y) * percent + p1.y;
+            var newPoint = new r360.point(xNew, yNew);
+
+            var latlng = tempmap.unproject(L.point(newPoint.x, newPoint.y));
+
+            return latlng;          
+        };
+    }
 };
 

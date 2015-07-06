@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.0.9 (9ec6272), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -532,6 +532,183 @@ r360.bounds = function (a, b) { // (Bounds) or (Point, Point) or (Point[])
 
 
 /*
+ * r360.LatLngBounds represents a rectangular area on the map in geographical coordinates.
+ */
+
+r360.LatLngBounds = function (southWest, northEast) { // (LatLng, LatLng) or (LatLng[])
+    if (!southWest) { return; }
+
+    var latlngs = northEast ? [southWest, northEast] : southWest;
+
+    for (var i = 0, len = latlngs.length; i < len; i++) {
+        this.extend(latlngs[i]);
+    }
+};
+
+r360.LatLngBounds.prototype = {
+
+    // extend the bounds to contain the given point or bounds
+    extend: function (obj) { // (LatLng) or (LatLngBounds)
+        var sw = this._southWest,
+            ne = this._northEast,
+            sw2, ne2;
+
+        if (obj instanceof r360.LatLng) {
+            sw2 = obj;
+            ne2 = obj;
+
+        } else if (obj instanceof r360.LatLngBounds) {
+            sw2 = obj._southWest;
+            ne2 = obj._northEast;
+
+            if (!sw2 || !ne2) { return this; }
+
+        } else {
+            return obj ? this.extend(r360.latLng(obj) || r360.latLngBounds(obj)) : this;
+        }
+
+        if (!sw && !ne) {
+            this._southWest = new r360.LatLng(sw2.lat, sw2.lng);
+            this._northEast = new r360.LatLng(ne2.lat, ne2.lng);
+        } else {
+            sw.lat = Math.min(sw2.lat, sw.lat);
+            sw.lng = Math.min(sw2.lng, sw.lng);
+            ne.lat = Math.max(ne2.lat, ne.lat);
+            ne.lng = Math.max(ne2.lng, ne.lng);
+        }
+
+        return this;
+    },
+
+    // extend the bounds by a percentage
+    pad: function (bufferRatio) { // (Number) -> LatLngBounds
+        var sw = this._southWest,
+            ne = this._northEast,
+            heightBuffer = Math.abs(sw.lat - ne.lat) * bufferRatio,
+            widthBuffer = Math.abs(sw.lng - ne.lng) * bufferRatio;
+
+        return new r360.LatLngBounds(
+                new r360.LatLng(sw.lat - heightBuffer, sw.lng - widthBuffer),
+                new r360.LatLng(ne.lat + heightBuffer, ne.lng + widthBuffer));
+    },
+
+    getCenter: function () { // -> LatLng
+        return new r360.LatLng(
+                (this._southWest.lat + this._northEast.lat) / 2,
+                (this._southWest.lng + this._northEast.lng) / 2);
+    },
+
+    getSouthWest: function () {
+        return this._southWest;
+    },
+
+    getNorthEast: function () {
+        return this._northEast;
+    },
+
+    getNorthWest: function () {
+        return new r360.LatLng(this.getNorth(), this.getWest());
+    },
+
+    getSouthEast: function () {
+        return new r360.LatLng(this.getSouth(), this.getEast());
+    },
+
+    getWest: function () {
+        return this._southWest.lng;
+    },
+
+    getSouth: function () {
+        return this._southWest.lat;
+    },
+
+    getEast: function () {
+        return this._northEast.lng;
+    },
+
+    getNorth: function () {
+        return this._northEast.lat;
+    },
+
+    contains: function (obj) { // (LatLngBounds) or (LatLng) -> Boolean
+        if (typeof obj[0] === 'number' || obj instanceof r360.LatLng) {
+            obj = r360.latLng(obj);
+        } else {
+            obj = r360.latLngBounds(obj);
+        }
+
+        var sw = this._southWest,
+            ne = this._northEast,
+            sw2, ne2;
+
+        if (obj instanceof r360.LatLngBounds) {
+            sw2 = obj.getSouthWest();
+            ne2 = obj.getNorthEast();
+        } else {
+            sw2 = ne2 = obj;
+        }
+
+        return (sw2.lat >= sw.lat) && (ne2.lat <= ne.lat) &&
+               (sw2.lng >= sw.lng) && (ne2.lng <= ne.lng);
+    },
+
+    intersects: function (bounds) { // (LatLngBounds) -> Boolean
+        bounds = r360.latLngBounds(bounds);
+
+        var sw = this._southWest,
+            ne = this._northEast,
+            sw2 = bounds.getSouthWest(),
+            ne2 = bounds.getNorthEast(),
+
+            latIntersects = (ne2.lat >= sw.lat) && (sw2.lat <= ne.lat),
+            lngIntersects = (ne2.lng >= sw.lng) && (sw2.lng <= ne.lng);
+
+        return latIntersects && lngIntersects;
+    },
+
+    overlaps: function (bounds) { // (LatLngBounds) -> Boolean
+        bounds = r360.latLngBounds(bounds);
+
+        var sw = this._southWest,
+            ne = this._northEast,
+            sw2 = bounds.getSouthWest(),
+            ne2 = bounds.getNorthEast(),
+
+            latOverlaps = (ne2.lat > sw.lat) && (sw2.lat < ne.lat),
+            lngOverlaps = (ne2.lng > sw.lng) && (sw2.lng < ne.lng);
+
+        return latOverlaps && lngOverlaps;
+    },
+
+    toBBoxString: function () {
+        return [this.getWest(), this.getSouth(), this.getEast(), this.getNorth()].join(',');
+    },
+
+    equals: function (bounds) { // (LatLngBounds)
+        if (!bounds) { return false; }
+
+        bounds = r360.latLngBounds(bounds);
+
+        return this._southWest.equals(bounds.getSouthWest()) &&
+               this._northEast.equals(bounds.getNorthEast());
+    },
+
+    isValid: function () {
+        return !!(this._southWest && this._northEast);
+    }
+};
+
+//TODO International date line?
+
+r360.latLngBounds = function (a, b) { // (LatLngBounds) or (LatLng, LatLng)
+    if (!a || a instanceof r360.LatLngBounds) {
+        return a;
+    }
+    return new r360.LatLngBounds(a, b);
+};
+
+
+/*
  * r360.Point represents a point with x and y coordinates.
  */
 
@@ -643,8 +820,8 @@ r360.Point.prototype = {
 
     toString: function () {
         return 'Point(' +
-                r360.Utir360.formatNum(this.x) + ', ' +
-                r360.Utir360.formatNum(this.y) + ')';
+                r360.Util.formatNum(this.x) + ', ' +
+                r360.Util.formatNum(this.y) + ')';
     }
 };
 
@@ -995,9 +1172,7 @@ r360.PolygonUtil = {
      * @return {[type]}       [the scaled point]
      */
     scale: function(point, scale){
-        point.x *= scale;
-        point.y *= scale;
-        return point;
+        return r360.point(point.x * scale, point.y * scale);
     },
 
     /**
@@ -1009,15 +1184,11 @@ r360.PolygonUtil = {
      * @return {[type]}       [the subtracted point]
      */
     subtract: function(point, x, y){
-        point.x -= x;
-        point.y -= y;
-        return point;
+        return r360.point(point.x - x, point.y - y);
     },
 
     divide: function(point, quotient){
-        point.x /= quotient;
-        point.y /= quotient;
-        return point;
+        return r360.point(point.x / quotient, point.y / quotient);
     },
 
     /**
@@ -1085,51 +1256,6 @@ r360.PolygonUtil = {
         bounds.min.y -= extendY;
 
         return bounds;
-    },
-
-    /**
-     * [prepareMultipolygons description]
-     * @param  {[type]} multiPolygons [description]
-     * @param  {[type]} topRight      [description]
-     * @param  {[type]} topLeft       [description]
-     * @return {[type]}               [description]
-     */
-    prepareMultipolygons : function(multiPolygons, topRight, bottomLeft) {
-
-        var preparedMultiPolygons = [];
-
-        for ( var i = 0; i < multiPolygons.length ; i++){
-            for ( var j = 0; j < multiPolygons[i].polygons.length ; j++) {
-
-                var currentPolygon = multiPolygons[i].polygons[j];
-
-                // project to 4326, TODO remove dependency to leaflet
-                currentPolygon.project(); 
-                // adjust the bounding box
-                r360.PolygonUtil.updateBoundingBox(currentPolygon, topRight, bottomLeft);
-                // find the multipolygon to which this polygon belongs (travel time matching)
-                r360.PolygonUtil.addPolygonToMultiPolygon(preparedMultiPolygons, currentPolygon); 
-            }
-        }
-        
-        // make sure the multipolygons are sorted by the travel time ascendingly
-        preparedMultiPolygons.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
-
-        return preparedMultiPolygons;
-    },
-
-    /**
-     * [updateBoundingBox description]
-     * @param  {[type]} polygon [description]
-     * @return {[type]}         [description]
-     */
-    updateBoundingBox : function(polygon, topRight, bottomLeft){
-
-        if ( polygon.topRight.lat   > topRight.lat)    topRight.lat   = polygon.topRight.lat;                
-        if ( polygon.topRight.lng   > topRight.lng )   topRight.lng   = polygon.topRight.lng;
-
-        if ( polygon.bottomLeft.lat < bottomLeft.lat)  bottomLeft.lat = polygon.bottomLeft.lat;
-        if ( polygon.bottomLeft.lng < bottomLeft.lng ) bottomLeft.lng = polygon.bottomLeft.lng;
     },
 
     /*
@@ -1216,33 +1342,33 @@ r360.SvgUtil = {
         return svgStart + gElements.join('') + svgEnd;
     },
 
+    /**
+     * [createSvgData description]
+     * @param  {[type]} polygon [description]
+     * @param  {[type]} options [description]
+     * @return {[type]}         [description]
+     */
     createSvgData : function(polygon, options) {
 
         var pathData = [];
 
-        var polygonTopRight     = polygon.getProjectedTopRight();
-        var polygonBottomLeft   = polygon.getProjectedBottomLeft();
-
-        r360.PolygonUtil.scale(polygonTopRight, options.scale);
-        r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
+        var topRight     = r360.PolygonUtil.scale(polygon.getTopRightDecimal(), options.scale);
+        var bottomLeft   = r360.PolygonUtil.scale(polygon.getBottomLeftDecimal(), options.scale);
 
         // the outer boundary       
-        if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
-               polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
-            r360.SvgUtil.buildSVGPolygon(pathData, polygon.outerProjectedBoundary, options);
+        if ( !(bottomLeft.x > options.bounds.max.x || topRight.x < options.bounds.min.x || 
+               topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
+            r360.SvgUtil.buildSVGPolygon(pathData, polygon.getOuterBoundary().getCoordinates(), options);
 
         // the inner boundaries
-        for ( var i = 0 ; i < polygon.innerProjectedBoundaries.length ; i++ ) {
+        for ( var i = 0 ; i < polygon.getInnerBoundary().length ; i++ ) {
 
-            var polygonTopRight     = polygon.innerProjectedBoundaries[i].getProjectedTopRight();
-            var polygonBottomLeft   = polygon.innerProjectedBoundaries[i].getProjectedBottomLeft();
+            var topRight     = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getTopRightDecimal(), options.scale);
+            var bottomLeft   = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getBottomLeftDecimal(), options.scale);
 
-            r360.PolygonUtil.scale(polygonTopRight, options.scale);
-            r360.PolygonUtil.scale(polygonBottomLeft, options.scale);
-
-            if ( !(polygonBottomLeft.x > options.bounds.max.x || polygonTopRight.x < options.bounds.min.x || 
-                   polygonTopRight.y > options.bounds.max.y   || polygonBottomLeft.y < options.bounds.min.y ))
-                r360.SvgUtil.buildSVGPolygon(pathData, polygon.innerProjectedBoundaries[i].points, options);
+            if ( !(bottomLeft.x > options.bounds.max.x || topRight.x < options.bounds.min.x || 
+                   topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
+                r360.SvgUtil.buildSVGPolygon(pathData, polygon.getInnerBoundary()[i].getCoordinates(), options);
         }
 
         return pathData;
@@ -1267,13 +1393,8 @@ r360.SvgUtil = {
         var pointsToClip = [];
 
         for ( var i = 0 ; i < coordinateArray.length ; i++ ) {
-            projectedPoint  = coordinateArray[i];
-            point           = new r360.Point(projectedPoint.x, projectedPoint.y);
-
-
-
-            r360.PolygonUtil.scale(point, options.scale);
-            r360.PolygonUtil.roundPoint(point);
+            
+            point = r360.PolygonUtil.scale(r360.point(coordinateArray[i].x, coordinateArray[i].y), options.scale);
 
             euclidianDistance = (i > 0) ? r360.PolygonUtil.getEuclidianDistance(point2, point) : options.tolerance; 
 
@@ -1303,10 +1424,9 @@ r360.SvgUtil = {
 
         for ( var i = 0 ; i < clippedArray.length ; i++ ){
             
-            point = new r360.Point(clippedArray[i][0], clippedArray[i][1]);
-
-            r360.PolygonUtil.subtract(point, options.pixelOrigin.x + options.offset.x, 
-                                             options.pixelOrigin.y + options.offset.y) 
+            point = r360.PolygonUtil.subtract(r360.point(clippedArray[i][0], clippedArray[i][1]), 
+                                                options.pixelOrigin.x + options.offset.x, 
+                                                options.pixelOrigin.y + options.offset.y) 
 
             pathData.push( i > 0 ? r360.PolygonUtil.buildPath(point, "L") : r360.PolygonUtil.buildPath(point, "M"));
             lastPoint = point;
@@ -1346,7 +1466,7 @@ r360.Util = {
      * in seconds. This means that the current hours, minutes and seconds of the current
      * time are added up, e.g.: 12:11 pm: 
      *
-     *      -> (12 * 3600) + (11 * 60) = 43875
+     *      -> (12 * 3600) + (11 * 60) = 43875w
      * 
      * @method getHoursAndMinutesInSeconds
      * 
@@ -1505,40 +1625,42 @@ r360.Util = {
      *
      */
     parsePolygons : function(polygonsJson) {
-               
-        if ( polygonsJson.error ) return errorMessage;
-        if ( r360.config.logging) var start   = new Date().getTime();
+        
+        var multiPolygon = [];       
 
-        var polygonList = [];
+        // we get polygons for each source
+        for ( var i = 0 ; i < polygonsJson.length ; i++ ) {
 
-        _.each(polygonsJson, function(source){
+            var source          = polygonsJson[i];
 
-            var sourcePolygons = { id : source.id , polygons : [] };
+            for ( var j = 0; j < source.polygons.length; j++ ) {
 
-            _.each(source.polygons, function (polygonJson) {
-
-                var polygon = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.Util.parseLatLonArray(polygonJson.outerBoundary));
-
-                var color = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                // get the polygon infos
+                var polygonJson   = source.polygons[j];
+                // create a polygon with the outer boundary as the initial linestring
+                var polygon       = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.lineString(r360.Util.parseLatLonArray(polygonJson.outerBoundary)));
+                // set color and default to black of not found
+                var color       = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
                 polygon.setColor(!_.isUndefined(color) ? color.color : '#000000');
-                
+                // set opacity and default to 1 if not found
                 var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
                 polygon.setOpacity(!_.isUndefined(opacity) ? opacity.opacity : 1);
                 
-                _.each(polygonJson.innerBoundary, function (innerBoundary) {
-                    polygon.addInnerBoundary(r360.Util.parseLatLonArray(innerBoundary));
-                });
+                if ( typeof polygonJson.innerBoundary !== 'undefined' ) {
 
-                sourcePolygons.polygons.push(polygon);
-            });
+                    // add all inner linestrings to polygon
+                    for ( var k = 0 ; k < polygonJson.innerBoundary.length ; k++ ) 
+                        polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
+                }
 
-            polygonList.push(sourcePolygons);
-        });
+                r360.PolygonUtil.addPolygonToMultiPolygon(multiPolygon, polygon); 
+            }
+        }
 
-        if ( r360.config.logging )
-            console.log("Polygon parsing took: " + (new Date().getTime() - start) + "ms");
+        // make sure the multipolygons are sorted by the travel time ascendingly
+        multiPolygon.sort(function(a,b) { return b.getTravelTime() - a.getTravelTime(); });
 
-        return polygonList;
+        return multiPolygon;
     },
 
     /*
@@ -1557,17 +1679,12 @@ r360.Util = {
     },
     // 3857 => pixel
     webMercatorToLeaflet : function(point){
-
-        point.x /= 6378137;
-        point.y /= 6378137;
-        r360.CRS.EPSG3857.transformation._transform(point);
-
-        return point;
+        return r360.CRS.EPSG3857.transformation._transform(r360.point(point.x / 6378137, point.y / 6378137));
     },
 
     webMercatorToLatLng : function(point, elevation){
 
-        var latlng = r360.CRS.EPSG3857.projection.unproject(new r360.Point(point.x /= 6378137, point.y /= 6378137));
+        var latlng = r360.CRS.EPSG3857.projection.unproject(new r360.Point(point.x, point.y));
 
         // x,y,z given so we have elevation data
         if ( typeof elevation !== 'undefined' ) 
@@ -3226,185 +3343,147 @@ r360.polygon = function (traveltime, area, outerBoundary) {
  */
 r360.Polygon = function(traveltime, area, outerBoundary) {
 
-    var that = this;
-    
-    // default min/max values
-    that.topRight         = new r360.latLng(-90,-180);
-    that.bottomLeft       = new r360.latLng(90, 180);
-
-    that.travelTime       = traveltime;
-    that.area             = area;
-    that.color;
-
-    that.outerBoundary    = outerBoundary;
-    
-    that.innerBoundaries  = new Array();
-    that.innerProjectedBoundaries = new Array();
+    this.travelTime  = traveltime;
+    this.area        = area;
+    this.color       = 'black';
+    this.opacity     = 0.5;
+    this.lineStrings = [outerBoundary];
+    this.bounds      = undefined;
 
     /**
-     *
+     * [setTravelTime description]
+     * @param {[type]} travelTime [description]
      */
-    that.setOuterBoundary = function(outerBoundary){
-        that.outerBoundary = outerBoundary;
-    }
-
-    that.projectOuterBoundary = function(){
-        
-        that.outerProjectedBoundary = new Array();
-        
-        for ( var i = 0 ; i < that.outerBoundary.length ; i++) 
-            that.outerProjectedBoundary.push(r360.Util.webMercatorToLeaflet(that.outerBoundary[i]));
+    this.setTravelTime = function(travelTime){
+        this.travelTime = travelTime;
     }
 
     /**
-     * [project description]
+     * [getTravelTime description]
      * @return {[type]} [description]
      */
-    that.project = function(){
-        that.projectOuterBoundary();
+    this.getTravelTime = function(){
+        return this.travelTime;
     }
 
-    /**
-     *
-     */  
-    that.addInnerBoundary = function(innerBoundary){
-        
-        var innerProjectedBoundary = {};
-
-        innerProjectedBoundary.projectedBottomLeft  = new r360.Point(20026377, 20048967);
-        innerProjectedBoundary.projectedTopRight    = new r360.Point(-20026377, -20048967);
-
-        // calculate the bounding box
-        for ( var i = innerBoundary.length - 1 ; i >= 0 ; i--) {
-            
-            if ( innerBoundary[i].x > innerProjectedBoundary.projectedTopRight.x)   innerProjectedBoundary.projectedTopRight.x   = innerBoundary[i].x;
-            if ( innerBoundary[i].y > innerProjectedBoundary.projectedTopRight.y)   innerProjectedBoundary.projectedTopRight.y   = innerBoundary[i].y;
-            if ( innerBoundary[i].x < innerProjectedBoundary.projectedBottomLeft.x) innerProjectedBoundary.projectedBottomLeft.x = innerBoundary[i].x;
-            if ( innerBoundary[i].y < innerProjectedBoundary.projectedBottomLeft.y) innerProjectedBoundary.projectedBottomLeft.y = innerBoundary[i].y;
-        }
-
-        innerProjectedBoundary.topRight   = r360.Util.webMercatorToLatLng(new r360.Point(innerProjectedBoundary.projectedTopRight.x, innerProjectedBoundary.projectedTopRight.y));
-        innerProjectedBoundary.bottomLeft = r360.Util.webMercatorToLatLng(new r360.Point(innerProjectedBoundary.projectedBottomLeft.x, innerProjectedBoundary.projectedBottomLeft.y));
-
-        innerProjectedBoundary.projectedBottomLeft = r360.Util.webMercatorToLeaflet(innerProjectedBoundary.projectedBottomLeft);
-        innerProjectedBoundary.projectedTopRight   = r360.Util.webMercatorToLeaflet(innerProjectedBoundary.projectedTopRight);
-
-        innerProjectedBoundary.points = new Array();
-        that.innerProjectedBoundaries.push(innerProjectedBoundary);
-        
-        for ( var j = 0; j < innerBoundary.length; j++)
-            innerProjectedBoundary.points.push(r360.Util.webMercatorToLeaflet(innerBoundary[j]));
-
-        innerProjectedBoundary.getProjectedBottomLeft = function() {
-            return new r360.Point(this.projectedBottomLeft.x, this.projectedBottomLeft.y);
-        }
-
-        innerProjectedBoundary.getProjectedTopRight = function(){
-            return new r360.Point(this.projectedTopRight.x, this.projectedTopRight.y);
-        }
-    }
-
-    /**
-     * @return {LatLngBounds} the leaflet bounding box
-     * @author Daniel Gerber <daniel.gerber@icloud.com>
-     * @author Henning Hollburg <henning.hollburg@gmail.com>
+        /**
+     * [getColor description]
+     * @return {[type]} [description]
      */
-    that.getBoundingBox = function(){
-        return new r360.LatLngBounds(this._bottomLeft, this._topRight)
-    }
-
-    that.getProjectedBottomLeft = function(){
-        return new r360.Point(that.projectedBottomLeft.x, that.projectedBottomLeft.y);
-    }
-
-    that.getProjectedTopRight = function(){
-        return new r360.Point(that.projectedTopRight.x, that.projectedTopRight.y);
+    this.getColor = function(){
+        return this.color;
     }
 
     /**
-     *
+     * [setColor description]
+     * @param {[type]} color [description]
      */
-    that.setBoundingBox = function() { 
-
-        this.projectedBottomLeft  = new r360.Point(20026377, 20048967);
-        this.projectedTopRight    = new r360.Point(-20026377, -20048967);
-
-        // calculate the bounding box
-        for ( var i = this.outerBoundary.length - 1 ; i >= 0 ; i--) {
-            
-            if ( this.outerBoundary[i].x > this.projectedTopRight.x)    this.projectedTopRight.x   = this.outerBoundary[i].x;
-            if ( this.outerBoundary[i].y > this.projectedTopRight.y)    this.projectedTopRight.y   = this.outerBoundary[i].y;
-            if ( this.outerBoundary[i].x < this.projectedBottomLeft.x)  this.projectedBottomLeft.x = this.outerBoundary[i].x;
-            if ( this.outerBoundary[i].y < this.projectedBottomLeft.y)  this.projectedBottomLeft.y = this.outerBoundary[i].y;
-        }
-
-        this.topRight   = r360.Util.webMercatorToLatLng(new r360.Point(this.projectedTopRight.x, this.projectedTopRight.y));
-        this.bottomLeft = r360.Util.webMercatorToLatLng(new r360.Point(this.projectedBottomLeft.x, this.projectedBottomLeft.y));
-
-        this.projectedTopRight   = r360.Util.webMercatorToLeaflet(this.projectedTopRight);
-        this.projectedBottomLeft = r360.Util.webMercatorToLeaflet(this.projectedBottomLeft);
-    }
-    
-    that.setBoundingBox();
-
-    /**
-     *
-     */
-    that.getColor = function(){
-        return that.color;
-    }
-
-    /**
-     *
-     */
-    that.setTravelTime = function(travelTime){
-        that.travelTime = travelTime;
-    }
-
-    /**
-     *
-     */
-    that.getTravelTime = function(){
-        return that.travelTime;
-    }
-
-    /**
-     *
-     */
-    that.setColor = function(color){
-        that.color = color;
+    this.setColor = function(color){
+        this.color = color;
     }
 
     /**
      * [setOpacity description]
      * @param {[type]} opacity [description]
      */
-    that.setOpacity = function(opacity){
-        that.opacity = opacity;
+    this.setOpacity = function(opacity){
+        this.opacity = opacity;
     }
 
     /**
      * [getOpacity description]
      * @return {[type]} [description]
      */
-    that.getOpacity =function(){
-        return that.opacity;
-    }
-
-    /**
-     * [setArea description]
-     * @param {[type]} area [description]
-     */
-    that.setArea = function(area){
-        that.area = area;
+    this.getOpacity =function(){
+        return this.opacity;
     }
 
     /**
      * [getArea description]
      * @return {[type]} [description]
      */
-    that.getArea = function(){
-        return that.area;
+    this.getArea = function(){
+        return this.area;
+    }
+
+    /**
+     * [setArea description]
+     * @param {[type]} area [description]
+     */
+    this.setArea = function(area){
+        this.area = area;
+    }
+
+    /**
+     * [getOuterBoundary description]
+     * @return {[type]} [description]
+     */
+    this.getOuterBoundary = function() {
+        return this.lineStrings[0];
+    }
+
+    /**
+     * [getInnerBoundary description]
+     * @return {[type]} [description]
+     */
+    this.getInnerBoundary = function() {
+        return this.lineStrings.slice(1);
+    }
+
+    /**
+     * [getTopRight4326 description]
+     * @return {[type]} [description]
+     */
+    this.getTopRight4326 = function(){
+        return this.getOuterBoundary().getTopRight4326();
+    }
+
+    /**
+     * [getTopRight3857 description]
+     * @return {[type]} [description]
+     */
+    this.getTopRight3857 = function(){
+        return this.getOuterBoundary().getTopRight3857();   
+    }
+
+    /**
+     * [getTopRightDecimal description]
+     * @return {[type]} [description]
+     */
+    this.getTopRightDecimal = function(){
+        return this.getOuterBoundary().getTopRightDecimal();
+    }
+
+    /**
+     * [getBottomLeft4326 description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeft4326 = function(){
+        return this.getOuterBoundary().getBottomLeft4326();
+    }
+
+    /**
+     * [getBottomLeft3857 description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeft3857 = function(){
+        return this.getOuterBoundary().getBottomLeft3857();
+    }
+
+    /**
+     * [getBottomLeftDecimal description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeftDecimal = function(){
+        return this.getOuterBoundary().getBottomLeftDecimal();
+    }
+
+    /**
+     * [addInnerBoundary description]
+     * @param {[type]} innerBoundary [description]
+     */
+    this.addInnerBoundary = function(innerBoundary){
+        this.lineStrings.push(innerBoundary);
     }
 }
 
@@ -3413,81 +3492,184 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
  */
 r360.MultiPolygon = function() {
     
-    this._topRight   = new r360.latLng(-90,-180);
-    this._bottomLeft = new r360.latLng(90, 180);
     this.travelTime;
     this.color;
-    this.polygons    = new Array();
+    this.polygons      = new Array();
 
-    /*
-     *
+    // default min/max values
+    this.topRight_3857          = new r360.Point(-20026377, -20048967);
+    this.bottomLeft_3857        = new r360.Point(+20026377, +20048967);
+
+    /**
+     * [addPolygon description]
+     * @param {[type]} polygon [description]
      */
     this.addPolygon = function(polygon){
         this.polygons.push(polygon);
+
+        if ( polygon.getOuterBoundary().getTopRight3857().x > this.topRight_3857.x)     this.topRight_3857.x   = polygon.getOuterBoundary().getTopRight3857().x;
+        if ( polygon.getOuterBoundary().getTopRight3857().y > this.topRight_3857.y)     this.topRight_3857.y   = polygon.getOuterBoundary().getTopRight3857().y;
+        if ( polygon.getOuterBoundary().getBottomLeft3857().x < this.bottomLeft_3857.x) this.bottomLeft_3857.x = polygon.getOuterBoundary().getBottomLeft3857().x;
+        if ( polygon.getOuterBoundary().getBottomLeft3857().y < this.bottomLeft_3857.y) this.bottomLeft_3857.y = polygon.getOuterBoundary().getBottomLeft3857().y;
     }
 
+    /**
+     * [getBoundingBox3857 description]
+     * @return {[type]} [description]
+     */
+    this.getBoundingBox3857 = function() {
 
+        return r360.bounds(this.bottomLeft_3857, this.topRight_3857);
+    }
+
+    this.getBoundingBox4326 = function() {
+
+        return r360.latLngBounds(r360.Util.webMercatorToLatLng(this.bottomLeft_3857), r360.Util.webMercatorToLatLng(this.topRight_3857));
+    }
+
+    /**
+     * [setOpacity description]
+     * @param {[type]} opacity [description]
+     */
     this.setOpacity = function(opacity){
         this.opacity = opacity;
     }
 
+    /**
+     * [getOpacity description]
+     * @return {[type]} [description]
+     */
     this.getOpacity = function(){
         return this.opacity;
     }
 
-    /*
-     *
+    /**
+     * [setColor description]
+     * @param {[type]} color [description]
      */
     this.setColor = function(color){
         this.color = color;
     }
 
-    /*
-     *
+    /**
+     * [getColor description]
+     * @return {[type]} [description]
      */
     this.getColor = function(){
         return this.color;
     }
 
-    /*
-     *
+    /**
+     * [getTravelTime description]
+     * @return {[type]} [description]
      */
     this.getTravelTime = function(){
         return this.travelTime;
     }
 
-    /*
-     *
+    /**
+     * [setTravelTime description]
+     * @param {[type]} travelTime [description]
      */
     this.setTravelTime = function(travelTime){
         this.travelTime = travelTime;
-    }
-
-    /*
-     *
-     */
-    this.getBoundingBox = function(){
-        return new r360.LatLngBounds(this._bottomLeft, this._topRight)
-    }
-
-    /*
-     *
-     */
-    this.setBoundingBox = function(){
-
-        this.polygons.forEach(function(polygon){
-
-            if (polygon._topRight.lat   > this._topRight.lat)   this._topRight.lat   = polygon._topRight.lat;
-            if (polygon._bottomLeft.lat < this._bottomLeft.lat) this._bottomLeft.lat = polygon._bottomLeft.lat;
-            if (polygon._topRight.lng   > this._topRight.lng)   this._topRight.lng   = polygon._topRight.lng;
-            if (polygon._bottomLeft.lng < this._bottomLeft.lng) this._bottomLeft.lng = polygon._bottomLeft.lng;
-        });
     }
 };
 
 r360.multiPolygon = function () { 
     return new r360.MultiPolygon();
 };
+
+r360.lineString = function (coordinateArray) { 
+    return new r360.LineString(coordinateArray);
+};
+
+r360.LineString = function(coordinateArray) {
+
+    // default min/max values
+    this.topRight_3857          = new r360.Point(-20026377, -20048967);
+    this.bottomLeft_3857        = new r360.Point(+20026377, +20048967);
+
+    // coordinates in leaflets own system
+    this.coordinates = [];
+
+    for ( var i = coordinateArray.length -1 ; i >= 0 ; i--) {
+    	if ( coordinateArray[i].x > this.topRight_3857.x)   this.topRight_3857.x   = coordinateArray[i].x;
+        if ( coordinateArray[i].y > this.topRight_3857.y)   this.topRight_3857.y   = coordinateArray[i].y;
+        if ( coordinateArray[i].x < this.bottomLeft_3857.x) this.bottomLeft_3857.x = coordinateArray[i].x;
+        if ( coordinateArray[i].y < this.bottomLeft_3857.y) this.bottomLeft_3857.y = coordinateArray[i].y;
+    }
+
+    // TODO refactore, this can be done in a single iteration of the array
+    for ( var i = 0; i < coordinateArray.length; i++ ) {
+    	this.coordinates.push(r360.Util.webMercatorToLeaflet(coordinateArray[i]));
+    }
+
+    /**
+     * [getTopRight4326 description]
+     * @return {[type]} [description]
+     */
+    this.getTopRight4326 = function(){
+        return r360.Util.webMercatorToLatLng(new r360.Point(this.topRight_3857.x, this.topRight_3857.y));
+    }
+
+    /**
+     * [getTopRight3857 description]
+     * @return {[type]} [description]
+     */
+    this.getTopRight3857 = function(){
+        return this.topRight_3857;   
+    }
+
+    /**
+     * [getTopRightDecimal description]
+     * @return {[type]} [description]
+     */
+    this.getTopRightDecimal = function(){
+        return r360.Util.webMercatorToLeaflet(this.topRight_3857);   
+    }
+
+    /**
+     * [getBottomLeft4326 description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeft4326 = function(){
+        return r360.Util.webMercatorToLatLng(new r360.Point(this.bottomLeft_3857.x, this.bottomLeft_3857.y));
+    }
+
+    /**
+     * [getBottomLeft3857 description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeft3857 = function(){
+        return this.bottomLeft_3857;
+    }
+
+    /**
+     * [getBottomLeftDecimal description]
+     * @return {[type]} [description]
+     */
+    this.getBottomLeftDecimal = function(){
+        return r360.Util.webMercatorToLeaflet(this.bottomLeft_3857);   
+    }
+
+    /**
+     * [getCoordinates description]
+     * @return {[type]} [description]
+     */
+    this.getCoordinates = function(){
+    	return this.coordinates;
+    }
+
+    /**
+     * [getCoordinate description]
+     * @param  {[type]} index [description]
+     * @return {[type]}       [description]
+     */
+    this.getCoordinate = function(index){
+    	return this.coordinate[index];
+    }
+}
 
 /*
  *
