@@ -76,9 +76,16 @@
                     maxZoom: 22, attribution: "Powered by leaflet and openstreetmaps" }).addTo(colorMap);
 
                 var polygonLayer  = r360.leafletPolygonLayer().addTo(colorMap);
-                polygonLayer.clearAndAddLayers(r360.Util.parsePolygons(transitPolygon));
 
-                colorMap.fitBounds(polygonLayer.getBoundingBox());
+                var multiPolygon  = r360.Util.parsePolygons(transitPolygon);
+                polygonLayer.clearAndAddLayers(multiPolygon);
+
+                for(var i = 0; i < multiPolygon.length; i++){
+                    for(var j = 0; j < multiPolygon[i].polygons.length; j++)
+                        console.log(multiPolygon[i].polygons[j].getBoundingBox());
+                }
+
+                //colorMap.fitBounds(multiPolygon[1]);
 
                 // var bwMap     = L.map('leaflet-bw-map').setView([52.5167, 13.3833], 11);
                 // var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {

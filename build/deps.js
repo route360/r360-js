@@ -24,6 +24,7 @@ var deps = {
               'geometry/crs/CRS.EPSG3857.js',
               'geometry/types/polygon/Polygon.js',
               'geometry/types/polygon/MultiPolygon.js',
+              'geometry/types/linestring/LineString.js',
               'geometry/types/route/RouteSegment.js',
               'geometry/types/route/RouteSegment.js',
               'geometry/types/route/Route.js'
