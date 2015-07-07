@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d8a1061), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.0.9',
+	version : 'v0.2.1',
 
     // Is a given variable undefined?
     isUndefined : function(obj) {

@@ -1,8 +1,8 @@
 /*
- Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d8a1061), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
-r360.photonPlaceAutoCompleteControl = function (options) {
+(function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
     return new r360.PhotonPlaceAutoCompleteControl(options);
 };
 
@@ -1023,8 +1023,6 @@ r360.TravelTimeControl = L.Control.extend({
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
         this.options.labelSpan = this.options.label;
 
-        console.log(this.options);
-
         if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
@@ -1621,8 +1619,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
         var bounds = this.getBoundingBox4326();
         var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-        console.log(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
-
         this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
     },
 
@@ -1721,9 +1717,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
              
             this.svgWidth  = this.map.getSize().x;
             this.svgHeight = this.map.getSize().y;
-
-            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
@@ -2020,4 +2013,6 @@ r360.LeafletUtil = {
         };
     }
 };
+
+}(window, document));
 

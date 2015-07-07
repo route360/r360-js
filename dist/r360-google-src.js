@@ -1,8 +1,10 @@
 /*
- Route360° JavaScript API v0.0.9 (a3a25a8), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d8a1061), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 if ( window.google ) {
+
+    console.log("google is defined");
 
     GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
@@ -46,6 +48,8 @@ if ( window.google ) {
      * added to the map.
      */
     GoogleMapsPolygonLayer.prototype.onAdd = function() {
+
+        console.log('onAdd');
 
         // create the dom elemenet which hols old the svgs
         this.element    = document.createElement('div');
@@ -132,13 +136,10 @@ if ( window.google ) {
 
     GoogleMapsPolygonLayer.prototype.draw = function(test) {
 
-        if ( typeof this.multiPolygons !== 'undefined' ) {
+        if ( typeof this.multiPolygons !== 'undefined' && this.element != null ) {
                  
             this.svgWidth  = this.map.getDiv().offsetWidth;
             this.svgHeight = this.map.getDiv().offsetHeight;
-
-            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_' + this.id).offset();
@@ -227,6 +228,9 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
         $('#' + this.element.id).empty();
     };
+}
+else {
+    console.log("google is not defined");
 }
 
 r360.GoogleMapsUtil = {

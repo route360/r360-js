@@ -107,8 +107,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
         var bounds = this.getBoundingBox4326();
         var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-        console.log(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
-
         this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
     },
 
@@ -207,9 +205,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
              
             this.svgWidth  = this.map.getSize().x;
             this.svgHeight = this.map.getSize().y;
-
-            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
