@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (d8a1061), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (4557c16), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1360,15 +1360,19 @@ r360.SvgUtil = {
                topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
             r360.SvgUtil.buildSVGPolygon(pathData, polygon.getOuterBoundary().getCoordinates(), options);
 
+        var innerBoundary = polygon.getInnerBoundary();
+
         // the inner boundaries
-        for ( var i = 0 ; i < polygon.getInnerBoundary().length ; i++ ) {
+        for ( var i = 0 ; i < innerBoundary.length ; i++ ) {
 
-            var topRight     = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getTopRightDecimal(), options.scale);
-            var bottomLeft   = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getBottomLeftDecimal(), options.scale);
+            console.log(innerBoundary[i])
 
-            if ( !(bottomLeft.x > options.bounds.max.x || topRight.x < options.bounds.min.x || 
-                   topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
-                r360.SvgUtil.buildSVGPolygon(pathData, polygon.getInnerBoundary()[i].getCoordinates(), options);
+            var topRightInner     = r360.PolygonUtil.scale(innerBoundary[i].getTopRightDecimal(), options.scale);
+            var bottomLeftInner   = r360.PolygonUtil.scale(innerBoundary[i].getBottomLeftDecimal(), options.scale);
+
+            if ( !(bottomLeftInner.x > options.bounds.max.x || topRightInner.x < options.bounds.min.x || 
+                   topRightInner.y > options.bounds.max.y   || bottomLeftInner.y < options.bounds.min.y ))
+                r360.SvgUtil.buildSVGPolygon(pathData, innerBoundary[i].getCoordinates(), options);
         }
 
         return pathData;
@@ -1650,7 +1654,7 @@ r360.Util = {
 
                     // add all inner linestrings to polygon
                     for ( var k = 0 ; k < polygonJson.innerBoundary.length ; k++ ) 
-                        polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
+                        polygon.addInnerBoundary(r360.lineString(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k])));
                 }
 
                 r360.PolygonUtil.addPolygonToMultiPolygon(multiPolygon, polygon); 

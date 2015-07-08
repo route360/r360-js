@@ -28,7 +28,8 @@
     <script src="jquery-ui-1.10.4.min.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
-    <script src="r360-src.js"></script>
+    <script src="r360-core-src.js"></script>
+    <script src="r360-leaflet-src.js"></script>
 
      <script type="text/javascript">
         $(document).ready(function(){
@@ -43,10 +44,7 @@
             // initialising the base map. To change the base map just change following
             // lines as described by cloudmade, mapbox etc..
             // note that mapbox is a paided service
-            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
-                    maxZoom: 18,
-                    attribution: attribution
-            }).addTo(map);
+            L.tileLayer('http://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
 
             // set the service key, this is a demo key
             // please contact us and request your own key
@@ -57,9 +55,7 @@
             var marker = L.marker(latlon).addTo(map);
 
             // create the layer to add the polygons
-            var polygonLayer = r360.route360PolygonLayer();
-            // add it to the map
-            map.addLayer(polygonLayer);
+            var polygonLayer = r360.leafletPolygonLayer().addTo(map);
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials
@@ -77,7 +73,6 @@
                 // add the returned polygons to the polygon layer 
                 // and zoom the map to fit the polygons perfectly
                 polygonLayer.clearAndAddLayers(polygons, true);
-                
             });
         });
     </script>

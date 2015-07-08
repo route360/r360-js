@@ -1,7 +1,5 @@
 if ( window.google ) {
 
-    console.log("google is defined");
-
     GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
     function GoogleMapsPolygonLayer(map, options) {
@@ -44,8 +42,6 @@ if ( window.google ) {
      * added to the map.
      */
     GoogleMapsPolygonLayer.prototype.onAdd = function() {
-
-        console.log('onAdd');
 
         // create the dom elemenet which hols old the svgs
         this.element    = document.createElement('div');
@@ -224,7 +220,4 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
         $('#' + this.element.id).empty();
     };
-}
-else {
-    console.log("google is not defined");
 }
