@@ -193,7 +193,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
     clearLayers: function(){        
         
         $('#canvas'+ $(this.map._container).attr("id")).empty();
-        this.initialize();
     },
 
     setStrokeWidth: function(strokeWidth){        
