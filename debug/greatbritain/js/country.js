@@ -413,7 +413,8 @@ $(document).ready(function(){
             $('.routeModus2').css('border', "1px solid rgba(" + hexToRgb(elevationColors[2].strokeColor).join(', ') + ", " +  elevationColors[2].strokeColorOpacity + ")");
         }, function(code, message){
 
-            console.log(code, message);
+            if ( 'travel-time-exceeded' == code ) 
+                alert("The travel time to the given target exceeds the server limit.");
         });
     };
 

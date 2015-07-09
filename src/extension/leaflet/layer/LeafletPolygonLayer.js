@@ -196,8 +196,11 @@ r360.LeafletPolygonLayer = L.Class.extend({
         this.initialize();
     },
 
+    /**
+     * [setStrokeWidth description]
+     * @param {[type]} strokeWidth [description]
+     */
     setStrokeWidth: function(strokeWidth){        
-        
         this.strokeWidth = strokeWidth;
     },
 
