@@ -193,7 +193,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
     clearLayers: function(){        
         
         $('#canvas'+ $(this.map._container).attr("id")).empty();
-        this.initialize();
+    },
+
+    /**
+     * [setStrokeWidth description]
+     * @param {[type]} strokeWidth [description]
+     */
+    setStrokeWidth: function(strokeWidth){        
+        this.strokeWidth = strokeWidth;
     },
 
     /*
@@ -237,7 +244,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
-                        strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
+                        strokeWidth       : this.strokeWidth
                     })); 
             }
 
@@ -250,7 +257,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 backgroundOpacity : this.backgroundOpacity,
                 opacity           : this.opacity,
                 strokeWidth       : this.strokeWidth
-            }
+            };
 
             // add the svg string to the container
             $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 

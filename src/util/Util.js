@@ -209,7 +209,7 @@ r360.Util = {
 
                     // add all inner linestrings to polygon
                     for ( var k = 0 ; k < polygonJson.innerBoundary.length ; k++ ) 
-                        polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
+                        polygon.addInnerBoundary(r360.lineString(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k])));
                 }
 
                 r360.PolygonUtil.addPolygonToMultiPolygon(multiPolygon, polygon); 

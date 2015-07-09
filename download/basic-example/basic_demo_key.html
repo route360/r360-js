@@ -28,7 +28,8 @@
     <script src="jquery-ui-1.10.4.min.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
-    <script src="r360-src.js"></script>
+    <script src="r360-core-src.js"></script>
+    <script src="r360-leaflet-src.js"></script>
 
      <script type="text/javascript">
         $(document).ready(function(){
@@ -54,9 +55,7 @@
             var marker = L.marker(latlon).addTo(map);
 
             // create the layer to add the polygons
-            var polygonLayer = r360.route360PolygonLayer();
-            // add it to the map
-            map.addLayer(polygonLayer);
+            var polygonLayer = r360.leafletPolygonLayer().addTo(map);
 
             // you need to define some options for the polygon service
             // for more travel options check out the other tutorials

@@ -79,15 +79,17 @@ r360.SvgUtil = {
                topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
             r360.SvgUtil.buildSVGPolygon(pathData, polygon.getOuterBoundary().getCoordinates(), options);
 
+        var innerBoundary = polygon.getInnerBoundary();
+
         // the inner boundaries
-        for ( var i = 0 ; i < polygon.getInnerBoundary().length ; i++ ) {
+        for ( var i = 0 ; i < innerBoundary.length ; i++ ) {
 
-            var topRight     = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getTopRightDecimal(), options.scale);
-            var bottomLeft   = r360.PolygonUtil.scale(polygon.getInnerBoundary()[i].getBottomLeftDecimal(), options.scale);
+            var topRightInner     = r360.PolygonUtil.scale(innerBoundary[i].getTopRightDecimal(), options.scale);
+            var bottomLeftInner   = r360.PolygonUtil.scale(innerBoundary[i].getBottomLeftDecimal(), options.scale);
 
-            if ( !(bottomLeft.x > options.bounds.max.x || topRight.x < options.bounds.min.x || 
-                   topRight.y > options.bounds.max.y   || bottomLeft.y < options.bounds.min.y ))
-                r360.SvgUtil.buildSVGPolygon(pathData, polygon.getInnerBoundary()[i].getCoordinates(), options);
+            if ( !(bottomLeftInner.x > options.bounds.max.x || topRightInner.x < options.bounds.min.x || 
+                   topRightInner.y > options.bounds.max.y   || bottomLeftInner.y < options.bounds.min.y ))
+                r360.SvgUtil.buildSVGPolygon(pathData, innerBoundary[i].getCoordinates(), options);
         }
 
         return pathData;
