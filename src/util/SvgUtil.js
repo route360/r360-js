@@ -84,8 +84,6 @@ r360.SvgUtil = {
         // the inner boundaries
         for ( var i = 0 ; i < innerBoundary.length ; i++ ) {
 
-            console.log(innerBoundary[i])
-
             var topRightInner     = r360.PolygonUtil.scale(innerBoundary[i].getTopRightDecimal(), options.scale);
             var bottomLeftInner   = r360.PolygonUtil.scale(innerBoundary[i].getBottomLeftDecimal(), options.scale);
 

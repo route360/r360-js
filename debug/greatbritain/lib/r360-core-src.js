@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (4557c16), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1652,7 +1652,7 @@ r360.Util = {
 
                     // add all inner linestrings to polygon
                     for ( var k = 0 ; k < polygonJson.innerBoundary.length ; k++ ) 
-                        polygon.addInnerBoundary(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k]));
+                        polygon.addInnerBoundary(r360.lineString(r360.Util.parseLatLonArray(polygonJson.innerBoundary[k])));
                 }
 
                 r360.PolygonUtil.addPolygonToMultiPolygon(multiPolygon, polygon); 
