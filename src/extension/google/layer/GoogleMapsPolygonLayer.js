@@ -128,13 +128,10 @@ if ( window.google ) {
 
     GoogleMapsPolygonLayer.prototype.draw = function(test) {
 
-        if ( typeof this.multiPolygons !== 'undefined' ) {
+        if ( typeof this.multiPolygons !== 'undefined' && this.element != null ) {
                  
             this.svgWidth  = this.map.getDiv().offsetWidth;
             this.svgHeight = this.map.getDiv().offsetHeight;
-
-            // always place the layer in the top left corner. Later adjustments will be made by svg translate 
-            r360.DomUtil.setPosition(this.element, { x : 0 , y : 0 });
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_' + this.id).offset();

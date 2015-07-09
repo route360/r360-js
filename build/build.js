@@ -90,7 +90,9 @@ function build(callback, version, buildName, module){
     else if ( module == 'leaflet' ) {
 
         var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
-        newSrc = copy + combinedFiles,
+        intro = '(function (window, document, undefined) {',
+        outro = '}(window, document));\n\n',
+        newSrc = copy + intro + combinedFiles + outro,
 
         pathPart = 'dist/r360-leaflet' + (buildName ? '-' + buildName : ''),
         srcPath = pathPart + '-src.js',
@@ -112,10 +114,10 @@ function build(callback, version, buildName, module){
 
     console.log('\tUncompressed: ' + bytesToKB(newSrc.length) + srcDelta);
 
-    if (newSrc !== oldSrc) {
+    // if (newSrc !== oldSrc) {
         fs.writeFileSync(srcPath, newSrc);
         console.log('\tSaved to ' + srcPath);
-    }
+    // }
 
     var path = pathPart + '.js',
         oldCompressed = loadSilently(path),
@@ -131,33 +133,48 @@ function build(callback, version, buildName, module){
         gzippedDelta = '';
 
     function done() {
-        if (newCompressed !== oldCompressed) {
+        // if (newCompressed !== oldCompressed) {
             fs.writeFileSync(path, newCompressed);
             console.log('\tSaved to ' + path);
-        }
+        // }
         console.log('\tGzipped: ' + bytesToKB(newGzipped.length) + gzippedDelta);
         callback();
     }
 
+    // compress the new version
     zlib.gzip(newCompressed, function (err, gzipped) {
         if (err) { return; }
         newGzipped = gzipped;
-        if (oldCompressed && (oldCompressed !== newCompressed)) {
+        // if (oldCompressed && (oldCompressed !== newCompressed)) {
+            // compress the old version
             zlib.gzip(oldCompressed, function (err, oldGzipped) {
                 if (err) { return; }
                 gzippedDelta = getSizeDelta(gzipped, oldGzipped);
-                done();
+
+                fs.writeFileSync(path, newCompressed);
+                console.log('\tSaved to ' + path);
+                console.log('\tGzipped: ' + bytesToKB(newGzipped.length) + gzippedDelta);
+                // done();
             });
-        } else {
-            done();
-        }
+        // } else {
+        //     done();
+        // }
     });
 }
 
 exports.build = function (callback, version, buildName) {
 
+    // fs.unlink('dist/r360-core.js');
+    // fs.unlink('dist/r360-core-src.js');
+    // fs.unlink('dist/r360-leaflet.js');
+    // fs.unlink('dist/r360-leaflet-src.js');
+    // fs.unlink('dist/r360-google.js');
+    // fs.unlink('dist/r360-google-src.js');
+
     build(callback, version, buildName, 'core');
+    console.log('---------------------------------------------------------');
     build(callback, version, buildName, 'google');
+    console.log('---------------------------------------------------------');
     build(callback, version, buildName, 'leaflet');
 };
 

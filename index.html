@@ -202,7 +202,28 @@
                 <h2>Getting started</h2>
                 <hr class="star-primary">
             </div>
-            <p style="text-align:justify;">The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. <br> The API is free of charge and can be altered and forked as you wish. Since this API makes requests to the Route360° Webservice you need to contact us to get your application key. We provide a development version of the Route360° Webservice, which can be used for development purposes only, but we do not guarantee service uptime at any point.</p>
+            <p style="text-align:justify;">The Route360° JavaScript API is a modern open-source JavaScript library designed for mobile-friendly interactive maps. It currently supports Leaflet as well as Google Maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH. <br> The API is free of charge and can be altered and forked as you wish. Since this API makes requests to the Route360° Webservice you need to contact us to get your application key. We provide a development version of the Route360° Webservice, which can be used for development purposes only, but we do not guarantee service uptime at any point.</p>
+            <h3>Separation of Route360° Libraries</h3>
+            <div class="container">
+                <div class="col-md-4">
+                    <div class="bs-callout bs-callout-info">
+                        <h4>r360-core</h4>
+                        <p>The <i>r360-core.js</i> (concatenated and minified) and the <i>r360-core-src.js</i> (human readable), contain all the neccessary classes to parse the result from the Route360° service to generate the polygon SVG. It has no dependency to any mapping library (Leaflet or Google Maps).</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bs-callout bs-callout-info">
+                        <h4>r360-leaflet</h4>
+                        <p>The <i>r360-leaflet.js</i> (concatenated and minified) and the <i>r360-leaflet-src.js</i> (human readable), contain all the neccessary classes to to display the polygons on a Leaflet map. Addionally all the map controls examplified in the examples section below are contained in this library. You have to also include the leaflet.js and leaflet.css files.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bs-callout bs-callout-info">
+                        <h4>r360-google</h4>
+                        <p>The <i>r360-google.js</i> (concatenated and minified) and the <i>r360-google-src.js</i> (human readable), contain all the neccessary classes to to display the polygons on a Google Maps map. You have to also include the the Google Maps API V3 library.</p>
+                    </div>
+                </div>
+            </div>
             <h3>Download the source or release</h3>
             <p>
                 You can download a working example here. All you need to do, is to enter your API key at the specified point in the <i>basic.html</i> file. You can now open the <i>basic.html</i> in any browser.
@@ -214,25 +235,31 @@
             <p>You can install the libray using bower, just enter <code>bower install route360 --save</code>.</p>
             <div class="bs-callout bs-callout-info">
                 <h4>Where is the code?</h4>
-                    <p>The <i>r360.js</i> (concatenated and minified) and the <i>r360-src.js</i> (human readable), as well as the <i>r360.css</i> are located in the <b>dist</b> directory of the downloaded release.</p>
+                    <p>The <i>r360-[core|leaflet|google].js</i> (concatenated and minified) and the <i>r360-[core|leaflet|google]-src.js</i> (human readable), as well as the <i>r360.css</i> are located in the <b>dist</b> directory of the downloaded release.</p>
             </div>
             <h3>Lets add some polygons</h3>
             <p>This basic example shows you how to add a marker to the map and display reachability polygons from this location. Note that we do not set a travel mode, this defaults to 'walk' for now.</p>
             <p>First we need to import all the necessary javascript and css files. You should download the latest Route360° JS API from the <a href="https://github.com/route360/r360-js/tree/master/dist">repository</a>. For jQuery and jQuery UI we strongly advise you to use the <a href="http://jquery-ui-bootstrap.github.io/jquery-ui-bootstrap/">jQuery UI Bootstrap</a> library. Leaflet can be found <a href="http://leafletjs.com/">here</a>.</p>
 <pre class="prettyprint">
-&lt;!--all the css stuff --&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;lib/leaflet/leaflet.css&quot;/&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;lib/jquery/jquery-ui-1.9.2.custom.css&quot;/&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;css/r360.css&quot;/&gt;
 &lt;!--  we need jquery and jquery ui (bootstrap version) --&gt;
 &lt;script src=&quot;lib/jquery/jquery-1.8.3.min.js&quot;&gt;&lt;/script&gt;
 &lt;script src=&quot;lib/jquery/jquery-ui-1.9.2.custom.min.js&quot;&gt;&lt;/script&gt;
-&lt;!--  leaflet is used as the base map technology --&gt;
-&lt;script src=&quot;lib/leaflet/leaflet.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;lib/jquery/jquery-ui-1.9.2.custom.css&quot;/&gt;
 &lt;!--  our favourite utility belt --&gt;
 &lt;script src=&quot;js/underscore.js&quot;&gt;&lt;/script&gt;
+
+&lt;!--  in case you want to use Leaflet --&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;lib/leaflet/leaflet.css&quot;/&gt;
+&lt;script src=&quot;lib/leaflet/leaflet.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;r360-leaflet.js&quot;&gt;&lt;/script&gt;
+
+&lt;!--  in case you want to use Google Maps --&gt;
+&lt;script src=&quot;https://maps.googleapis.com/maps/api/js?v=3.exp&amp;signed_in=true&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;r360-google.js&quot;&gt;&lt;/script&gt;
+
 &lt;!-- last but not least, our library --&gt;
-&lt;script src=&quot;r360.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;css/r360.css&quot;/&gt;
+&lt;script src=&quot;r360-core.js&quot;&gt;&lt;/script&gt;
 </pre>
             <pre class="prettyprint" id='gettingstarted-code'>
             </pre>
@@ -343,7 +370,8 @@
             <div class="row">
                 <div class="col-lg-2">
                     <ul id="tutorial-menu" class="nav nav-pills nav-stacked">
-                        <li class=""><a id="travelTimecontrol-nav" href="#travelTimecontrol">Travel time control</a></li>
+                        <li><a id="googlemaps-nav" href="#googlemaps">Google Maps</a></li>
+                        <li><a id="travelTimecontrol-nav" href="#travelTimecontrol">Travel time control</a></li>
                         <li><a id="traveltypecontrol-nav" href="#traveltypecontrol">Travel type control</a></li>
                         <li><a id="travelstartdatecontrol-nav" href="#travelstartdatecontrol">Travel date and time of day control</a></li>
                         <li><a id="strokewidthcontrol-nav" href="#strokewidthcontrol">Stroke width</a></li>
@@ -697,7 +725,7 @@
     <script src="lib/leaflet/leaflet.js"></script>
     <script src="lib/underscore/underscore.js"></script>
     <script src="lib/r360/museums_bb.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
 
     <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     // <script src="lib/jquery/jquery-ui-1.10.4.min.js"></script>
@@ -718,10 +746,18 @@
     // <script src="lib/prettify/prettify.js"></script>
     // <script src="lib/r360/museums_bb.js"></script> -->
 
-    <!-- // <script src="js/r360.js"></script> -->
+    <script src="dist/r360-core.js"></script>
+    <script src="dist/r360-leaflet.js"></script>
+    <script src="dist/r360-google.js"></script>
 
+<<<<<<< HEAD
     <script type="text/javascript" src="build/deps.js"></script>
     <script type="text/javascript" src="build/r360-include.js"></script>
+=======
+    <!-- <script type="text/javascript" src="build/deps.js"></script>
+    <script type="text/javascript" src="build/r360-include.js"></script> -->
+
+>>>>>>> d3a5bed83f23cf6dcfd77d42825561a16f2318f9
      <!-- Import Examples -->
     <script src="lib/r360/examples/gettingStartedExample.js"></script>
 
@@ -737,7 +773,11 @@
     <script src="lib/r360/examples/inverseExample.js"></script>
     <script src="lib/r360/examples/colorRouteExample.js"></script>
     <script src="lib/r360/examples/errorHandlingExample.js"></script>
+<<<<<<< HEAD
     addStrokeWidthControl.js
+=======
+    <script src="lib/r360/examples/googlemapsExample.js"></script>
+>>>>>>> d3a5bed83f23cf6dcfd77d42825561a16f2318f9
 
     <!-- Code for example 1 -->
     <script type="text/javascript">
@@ -749,7 +789,216 @@
         });
     </script>
 
+<<<<<<< HEAD
     <script src="page.js"></script>
+=======
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            $('#polygonservice-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygonservice-nav').parent().addClass('active');
+                $('#api-content').html($('#polygonservice-api').html());
+            });
+            $('#routeservice-nav').click(function(){
+
+                $('#api-menu > li').removeClass('active');
+                $('#routeservice-nav').parent().addClass('active');
+                $('#api-content').html($('#routeservice-api').html());
+            });
+            $('#timeservice-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#timeservice-nav').parent().addClass('active');
+                $('#api-content').html($('#timeservice-api').html());
+            });
+            $('#controls-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#controls-nav').parent().addClass('active');
+                $('#api-content').html($('#controls-api').html());
+            });
+            $('#polygons-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygons-nav').parent().addClass('active');
+                $('#api-content').html($('#polygons-api').html());
+            });
+            $('#routes-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#routes-nav').parent().addClass('active');
+                $('#api-content').html($('#routes-api').html());
+            });
+            $('#polygonlayer-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#polygonlayer-nav').parent().addClass('active');
+                $('#api-content').html($('#polygonlayer-api').html());
+            });
+            $('#util-nav').click(function(){
+                $('#api-menu > li').removeClass('active');
+                $('#util-nav').parent().addClass('active');
+                $('#api-content').html($('#util-api').html());
+            });
+
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+
+    var mapOne = L.map('map-one').setView([47.050314, 8.307765], 13);
+    var mapTwo = L.map('map-two').setView([47.050314, 8.307765], 13);
+    var attribution = "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors | designed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a> | <a href='https://www.mapbox.com/'>MapBox</a>";
+
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(mapOne);
+    L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0e455ea3/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(mapTwo);
+
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------
+    
+            $('#googlemaps-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#googlemaps-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding polygons to Google Maps</h3> \
+                        <p class="text-justify lead">The methodology to insert polygons to Google Maps is very similar to the one with Leaflet! You need to insert <code>r360-google.js</code> \
+                            library to your imports (after the <code>r360-core.js</code>). In this example \
+                            we will add a regular colored and a monochrom version of the travel time polygons to \
+                            two different maps. You can click on each map and the corresponding polygons will be \
+                            updated. \
+                        </p> \
+                        <div id="google-maps-color-map"></div> \
+                        <div id="google-maps-bw-map"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="googlemapsExample"></pre>');
+
+                googlemapsExample();
+                $('#googlemapsExample').text(googlemapsExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+
+            $('#travelTimecontrol-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#travelTimecontrol-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding a travel time control</h3> \
+                        <p class="text-justify lead">In this tutorial, we will show you how to add a <code>TravelTimeControl</code> to the map and add behaviour to it, so that users can select different travel times and the map is automatically updated with larger or smaller (timely speaking) polygons. This tutorial builds up on the getting started section, so if you haven\'t done this already, go ahead and show some polygons! In any case, enjoy!</p> \
+                        <div id="map-addTravelTimeControlExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="addTravelTimeControlExample"></pre>');
+
+                addTravelTimeControl();
+                $('#addTravelTimeControlExample').text(addTravelTimeControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#traveltypecontrol-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#traveltypecontrol-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding a travel type control</h3> \
+                        <p class="text-justify lead">In this tutorial, we will show you how to add a <code>RadioButtonControl</code> to the map and add behaviour to it, so that users can select different travel type, like bike, car or walk, and the map is automatically updated with the calculated polygons. You can use this <code>RadioButtonControl</code> for anything you want, e.g. select different travel speeds for fast or slow bikers.</p> \
+                        <div id="map-addTravelTypeControlExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="addTravelTypeControlExample"></pre>');
+
+                addTravelTypeControl();
+                $('#addTravelTypeControlExample').text(addTravelTypeControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#travelstartdatecontrol-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#travelstartdatecontrol-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding a travel start date and time control for public transportation</h3> \
+                        <p class="text-justify lead">I this tutorial, we will examplify how to display polygons for public transportation. Since public transportation is time and date dependent, it follows a given schedule, we need a way to select the time and date the user wants to travel. There are two controls, the  <code>TravelStartTimeControl</code> and <code>TravelStartDateControl</code> which are able to do just that. Since those polygon request, especially for routing times close to 2 hours, might take some time, we also add a <code>WaitControl</code> to the map. So here is the result of this tutorial: </p> \
+                        <div id="map-addTravelStartDateControlExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="addTravelStartDateControlExample"></pre>');
+
+                addTravelStartDateControl();
+                $('#addTravelStartDateControlExample').text(addTravelStartDateControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#geocodingcontrol-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#geocodingcontrol-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding place autocompletion for variable source points</h3> \
+                        <p class="text-justify lead">In this tutorial we will show you how to use the Route360° geocoding service to be able to let users enter for example there home address. We will add a <code>PlaceAutoCompleteControl</code> to the map and bind an action to add or move the marker as well as clearing already shown polygons. The <code>PlaceAutoCompleteControl</code> also offers the ability to add to buttons to it. One button is used to delete already made user inputs and the other should be used to switch source and target for a routing request. The latter will be covered in another tutorial. We will also show you how to update the input field in case the user drags a marker on the map. This can be done through reverse geocoding, which the Route360° API makes really easy.<br/>To not loose track which autocomplete belongs to which marker on the map, we also show how you can use a marker image to visualize the connection.</p><p class="text-justify lead">This service is based on <code>Photon</code>, an open source geocoder built for OpenStreetMap data that you can setup yourself. Checkout and star the project on <a href="https://github.com/komoot/photon">github</a>!</p> \
+                        <div id="map-addPlaceAutoCompleteControlExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="addPlaceAutoCompleteControlExample"></pre>');
+
+                addPlaceAutoCompleteControl();
+                $('#addPlaceAutoCompleteControlExample').text(addPlaceAutoCompleteControl.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#routing-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#routing-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Routing to targets</h3> \
+                        <p class="text-justify lead">In this tutorial we will show you how you can use the <code>RouteService</code> to get routing information for a specific target. You can even specify a list of targets and the service will return you travel information for all of them. Please note that you can specify different routing result granularity levels (see API documentation). We will use the default level in this example. To summerize, we will add a source and two target markers and use public transportation to get from A to B. We will also add a little circle if people have to switch rides on their travel.</p> \
+                        <div id="map-routingExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="routingExample"></pre>');
+
+                routingExample();
+                $('#routingExample').text(routingExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#filter-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#filter-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Filter points of interest by travel time</h3> \
+                        <p class="text-justify lead">In this tutorial we will show you how you can use the <code>TimeService</code> to filter a list of your entities by travel time, starting from a source location. In our case we will use all museums from OpenStreetMaps which have a none empty <i>name</i> and <i>website</i>. The marker for these museums will be scaled with respect to the travel time from the source. With this feature users can instantly see which points of interest are closest to them, with respect to the actual travel time and not just beeline. Note that this would not be possible with traditional routing services like Google Maps, since you would have to make one request per place of interest.</p> \
+                        <div id="map-filterExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="filterExample"></pre>');
+
+                filterExample();
+                $('#filterExample').text(filterExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#multiple-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#multiple-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Multiple travel time polygons</h3> \
+                        <p class="text-justify lead">Sometimes it might be useful to visual multiple travel time polygons on the same map. For example consider the use case where three friends want to meet in a certain beer pouring establishment, a.k.a bar or pub. You can select three different starting points and get polygons for all three points in a single request. Additionally you can select the method on how the server intersects the polygons. With this method you can generate polygons which only show areas that all users can reach in a given time. Please see the <code>PolygonService API</code> for a complete list of available intersection methods.</p> \
+                        <div id="map-multipleExample"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="multipleExample"></pre>');
+
+                multipleExample();
+                $('#multipleExample').text(multipleExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+            $('#inverse-nav').click(function(){
+>>>>>>> d3a5bed83f23cf6dcfd77d42825561a16f2318f9
 
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -1,13 +1,18 @@
 {
     "name": "r360",
-    "version": "0.1.3",
+    "version": "0.2.2",
     "authors": [
         "gerber@motionintelligence.net",
         "hollburg@motionintelligence.net"
     ],
     "description": "Route360° JavaScript API",
     "main": [
-        "dist/r360.js",
+        "dist/r360-core.js",
+        "dist/r360-core-src.js",
+        "dist/r360-leaflet.js",
+        "dist/r360-leaflet-src.js",
+        "dist/r360-google.js",
+        "dist/r360-google-src.js",
         "dist/r360.css",
         "dist/jquery-ui-1.10.0.custom.css",
         "dist/images/marker-icon-red.png",
