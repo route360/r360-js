@@ -10,12 +10,7 @@ header {
 #map-example1, #map-addTravelTimeControlExample, 
 #map-addTravelTypeControlExample, #map-addTravelStartDateControlExample, #map-inverseExample,
 #map-addPlaceAutoCompleteControlExample, #map-routingExample, #map-filterExample, #map-multipleExample, #map-htmlControlExample, #map-errorHandlingExample,
-<<<<<<< HEAD
-#map-colorRouteExample,#map-addStrokeWidthControlExample {
-=======
-#map-colorRouteExample, #google-maps-color-map, #google-maps-bw-map {
->>>>>>> d3a5bed83f23cf6dcfd77d42825561a16f2318f9
-
+#map-colorRouteExample,#map-addStrokeWidthControlExample, #google-maps-color-map, #google-maps-bw-map {
     height: 400px;
     margin-bottom: 15px; 
 }
