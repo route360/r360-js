@@ -59,6 +59,30 @@
 // ----------------------------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------------
 
+             $('#googlemaps-nav').click(function(){
+
+                $('#tutorial-menu > li').removeClass('active');
+                $('#googlemaps-nav').parent().addClass('active');
+
+                $('#tutorial-content').html(' \
+                        <h3>Adding polygons to Google Maps</h3> \
+                        <p class="text-justify lead">The methodology to insert polygons to Google Maps is very similar to the one with Leaflet! You need to insert <code>r360-google.js</code> \
+                            library to your imports (after the <code>r360-core.js</code>). In this example \
+                            we will add a regular colored and a monochrom version of the travel time polygons to \
+                            two different maps. You can click on each map and the corresponding polygons will be \
+                            updated. \
+                        </p> \
+                        <div id="google-maps-color-map"></div> \
+                        <div id="google-maps-bw-map"></div> \
+                        <p class="text-justify lead">And the code with explanations:</p> \
+                        <pre class="prettyprint" id="googlemapsExample"></pre>');
+
+                googlemapsExample();
+                $('#googlemapsExample').text(googlemapsExample.toString());
+                !function ($) { $(function(){ window.prettyPrint && prettyPrint() })}(window.jQuery);
+            });
+
+
             $('#travelTimecontrol-nav').click(function(){
 
                 $('#tutorial-menu > li').removeClass('active');
