@@ -57,8 +57,8 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.requestTimeout                              = 60000;
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl                                  = 'http://api.route360.net/api_denmark/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'https://api.route360.net/api_dev/';
+    //r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     // r360.config.defaultPolygonLayerOptions.animate          = false;
     r360.config.defaultPolygonLayerOptions.inverse          = true;
@@ -339,6 +339,8 @@ $(document).ready(function(){
         travelOptions.setElevationEnabled(true);
         travelOptions.setWaitControl(waitControl);
         travelOptions.addTarget(targetMarker);
+
+        console.log(travelOptions);
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
 
