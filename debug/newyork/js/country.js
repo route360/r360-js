@@ -53,7 +53,12 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.requestTimeout                              = 5000;
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
+<<<<<<< HEAD:debug/greatbritain/js/greatbritain.js
+    r360.config.serviceUrl                                  = 'https://api.route360.net/api_dev/';
+    //r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+=======
     r360.config.serviceUrl                                  = cities.nyc.serviceUrl;
+>>>>>>> d3a5bed83f23cf6dcfd77d42825561a16f2318f9:debug/newyork/js/country.js
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
@@ -359,6 +364,8 @@ $(document).ready(function(){
         travelOptions.setElevationEnabled(true);
         travelOptions.setWaitControl(waitControl);
         travelOptions.addTarget(targetMarker);
+
+        console.log(travelOptions);
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
 
