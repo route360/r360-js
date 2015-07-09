@@ -437,35 +437,38 @@ $(document).ready(function(){
                 }
             }
 
-            travelOptions.setIntersectionMode(intersectionButtons.getValue());
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-            travelOptions.setWaitControl(waitControl);
-            travelOptions.setElevationEnabled(true);
-            travelOptions.setDate(date);
-            travelOptions.setTime(time);
+            if ( travelOptions.getSources().length > 0 ) {
 
-            var maxTravelTime = _.max(travelTimeControl.getValues());
+                travelOptions.setIntersectionMode(intersectionButtons.getValue());
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setWaitControl(waitControl);
+                travelOptions.setElevationEnabled(true);
+                travelOptions.setDate(date);
+                travelOptions.setTime(time);
 
-            if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
-                travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
-            if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
-                travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
-            if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
-                travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
+                var maxTravelTime = _.max(travelTimeControl.getValues());
 
-            if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
-            
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
+                    travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
+                if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
+                    travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
+                if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+                    travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
-                polygonLayer.clearAndAddLayers(polygons);
-                polygonLayer.fitMap();
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
                 
-            }, function(error) {
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
-                alert("Sorry... an error occured. Please try again!");
-            });
+                    polygonLayer.clearAndAddLayers(polygons);
+                    polygonLayer.fitMap();
+                    
+                }, function(error) {
+
+                    alert("Sorry... an error occured. Please try again!");
+                });
+            }
         }
     }
 
