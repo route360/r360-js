@@ -10,8 +10,7 @@ $(document).ready(function(){
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service mi.0ad4304c
-    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-    // var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
+    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.94c056dc/{z}/{x}/{y}.png', {
         maxZoom: 22, attribution: attribution }).addTo(map);
 
     var maxSources = 1;
@@ -415,6 +414,8 @@ $(document).ready(function(){
 
             if ( 'travel-time-exceeded' == code ) 
                 alert("The travel time to the given target exceeds the server limit.");
+            if ( 'could-not-connect-point-to-network' == code ) 
+                alert("We could not connect the target point to the network.");
         });
     };
 
@@ -443,35 +444,38 @@ $(document).ready(function(){
                 }
             }
 
-            travelOptions.setIntersectionMode(intersectionButtons.getValue());
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-            travelOptions.setWaitControl(waitControl);
-            travelOptions.setElevationEnabled(true);
-            travelOptions.setDate(date);
-            travelOptions.setTime(time);
+            if ( travelOptions.getSources().length > 0 ) {
 
-            var maxTravelTime = _.max(travelTimeControl.getValues());
+                travelOptions.setIntersectionMode(intersectionButtons.getValue());
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setWaitControl(waitControl);
+                travelOptions.setElevationEnabled(true);
+                travelOptions.setDate(date);
+                travelOptions.setTime(time);
 
-            if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
-                travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
-            if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
-                travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
-            if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
-                travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
+                var maxTravelTime = _.max(travelTimeControl.getValues());
 
-            if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
+                if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
+                    travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
+                if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
+                    travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
+                if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+                    travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
-                polygonLayer.clearAndAddLayers(polygons);
-                polygonLayer.fitMap();
-                
-            }, function(error) {
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
 
-                alert("Sorry... an error occured. Please try again!");
-            });
+                    polygonLayer.clearAndAddLayers(polygons);
+                    polygonLayer.fitMap();
+                    
+                }, function(error) {
+
+                    alert("Sorry... an error occured. Please try again!");
+                });
+            }
         }
     }
 

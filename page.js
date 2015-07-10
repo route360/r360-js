@@ -142,7 +142,7 @@
                     $('#tutorial-content').html(' \
                         <h3>Adding a polygon stroke width control</h3> \
                         <p class="text-justify lead">In this tutorial, we will show you how to modify a <code>TravelTimeControl</code> to set the stroke width of the polygons. This element is mainly for development and testing purposes. Sometimes the default stroke width may cause a too unacurate visualizazion of travel times. Using a <code>StrokeWidthControl</code>, you are able to fine-tune the value to fit your needs.</p> \
-                        <div class="alert alert-warning">We recommend to only use values <b>&gt10px</b> in live enviroments. Otherwise rendering issues may occur.</div> \
+                        <div class="alert alert-danger" style="background-color: ">We recommend to only use values <b>&gt10px</b> in live enviroments. Otherwise rendering issues may occur.</div> \
                         <div id="map-addStrokeWidthControlExample"></div> \
                         <p class="text-justify lead">And the code with explanations:</p> \
                         <pre class="prettyprint" id="addStrokeWidthControlExample"></pre>');

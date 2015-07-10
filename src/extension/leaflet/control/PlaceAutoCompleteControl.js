@@ -116,6 +116,11 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
                     '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
+
+            if ( that.options.options && that.options.options.biketransit ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    '" travel-type="biketransit"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span> + <span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '

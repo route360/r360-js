@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (a590077), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -467,11 +467,6 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
                     '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
-
-            if ( that.options.options && that.options.options.biketransit ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="biketransit"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span> + <span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
@@ -1710,14 +1705,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
     clearLayers: function(){        
         
         $('#canvas'+ $(this.map._container).attr("id")).empty();
-    },
-
-    /**
-     * [setStrokeWidth description]
-     * @param {[type]} strokeWidth [description]
-     */
-    setStrokeWidth: function(strokeWidth){        
-        this.strokeWidth = strokeWidth;
+        this.initialize();
     },
 
     /*
@@ -1761,7 +1749,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
-                        strokeWidth       : this.strokeWidth
+                        strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
                     })); 
             }
 
@@ -1774,7 +1762,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 backgroundOpacity : this.backgroundOpacity,
                 opacity           : this.opacity,
                 strokeWidth       : this.strokeWidth
-            };
+            }
 
             // add the svg string to the container
             $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
