@@ -19,12 +19,14 @@
     <script src="jquery-1.10.2.js"></script>
     <script src="leaflet.js"></script>
     <script src="underscore.js"></script>
-    <script src="r360-src.js"></script>
+    <script src="../../dist/r360-core-src.js"></script>
+    <script src="../../dist/r360-leaflet-src.js"></script>
 
      <script type="text/javascript">
         $(document).ready(function(){
 
-            var latlon = [45.073, 7.685];
+            //var latlon = [45.073, 7.685];
+            var latlon = [52.5167, 13.3833];
 
             // add the map and set the initial center to berlin
             var map = L.map('map').setView(latlon, 13);
@@ -45,27 +47,36 @@
             // set the service key, this is a demo key
             // please contact us and request your own key
             r360.config.serviceKey = 'YWtKiQB7MiZETbCoVsG6';
-            r360.config.serviceUrl = 'http://api.route360.net/api_turin/';
+            r360.config.serviceUrl = 'http://localhost:8080/api/';
 
             // create a marker and add it to the map
-            var marker = L.marker(latlon, { draggable : true }).addTo(map);
-            paintPolygons();
+            
+           
 
-            marker.on('dragend', function(){
+          
 
-                paintPolygons();    
+            var markerArray = new Array();
+
+
+            map.on('click', function(e){
+                markerArray.push(L.marker(e.latlng, { draggable : true }).addTo(map));
+                paintPolygons();
             });
+
+            var polygonLayer = r360.leafletPolygonLayer().addTo(map);
 
             function paintPolygons(){
 
-                // create the layer to add the polygons
-                var polygonLayer = r360.route360PolygonLayer().addTo(map);
+            
 
                 // you need to define some options for the polygon service
                 // for more travel options check out the other tutorials
                 var travelOptions = r360.travelOptions();
                 // we only have one source which is the marker we just added
-                travelOptions.addSource(marker);
+                for(var i = 0; i < markerArray.length; i++)
+                    travelOptions.addSource(markerArray[i]);
+
+                
                 travelOptions.setTravelType('bike');
                 // we want to have polygons for 5 to 30 minutes
                 travelOptions.setTravelTimes([300, 600,900, 1200, 1500, 1800]);
