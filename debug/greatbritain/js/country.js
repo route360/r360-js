@@ -462,6 +462,9 @@ $(document).ready(function(){
                 if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
                     travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
+
+                travelOptions.setMinPolygonHoleSize(100000);
+
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
                     travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 

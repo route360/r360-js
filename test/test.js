@@ -4,7 +4,7 @@ $(document).ready(function(){
     r360.config.requestTimeout = 5000;
 
 
-    http://dev.route360.net/api_greatbritain/v1/route?cfg=%7B%22sources%22%3A%5B%7B%22lat%22%3A51.51280224425956%2C%22lng%22%3A-0.11398315429687499%2C%22id%22%3A%22%22%2C%22tm%22%3A%7B%22car%22%3A%7B%22frame%22%3A%7B%22time%22%3A%2239000%22%2C%22date%22%3A%2220150701%22%7D%7D%7D%7D%5D%2C%22targets%22%3A%5B%7B%22lat%22%3A53.39203053281581%2C%22lng%22%3A-1.2795639038085938%2C%22id%22%3A%22%22%7D%5D%2C%22pathSerializer%22%3A%22compact%22%2C%22elevation%22%3Atrue%7D&cb=jQuery1102020896841352805495_1436513829535&key=uhWrWpUhyZQy8rPfiC7X&_=1436513829605
+    http://dev.route360.net/api_greatbritain/v1/route?cfg=%7B%22sources%22%3A%5B%7B%22lat%22%3A51.51280224425956%2C%22lng%22%3A-0.11398315429687499%2C%22id%22%3A%22%22%2C%22tm%22%3A%7B%22transit%22%3A%7B%22frame%22%3A%7B%22time%22%3A%2239000%22%2C%22date%22%3A%2220150701%22%7D%7D%7D%7D%5D%2C%22targets%22%3A%5B%7B%22lat%22%3A53.39203053281581%2C%22lng%22%3A-1.2795639038085938%2C%22id%22%3A%22%22%7D%5D%2C%22pathSerializer%22%3A%22compact%22%2C%22elevation%22%3Atrue%7D&cb=jQuery1102020896841352805495_1436513829535&key=uhWrWpUhyZQy8rPfiC7X&_=1436513829605
 
     var polygonRequests = [{
             type : 'polygon',
