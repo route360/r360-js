@@ -50,7 +50,7 @@ $(document).ready(function(){
     var sourceLayer   = L.featureGroup().addTo(map);
     var rentalLayer   = L.featureGroup().addTo(map);
     var targetLayer   = L.featureGroup().addTo(map);
-    var polygonLayer  = r360.route360PolygonLayer().addTo(map);
+    var polygonLayer  = r360.leafletPolygonLayer().addTo(map);
 
     // set the service key, this is a demo key
     // please contact us and request your own key
@@ -64,7 +64,7 @@ $(document).ready(function(){
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
     polygonLayer.setInverse(true);
 
-    var options = { bike : true, walk : true, car : true, transit : true, init : 'car' };
+    var options = { bike : true, walk : true, car : true, transit : true, biketransit : true, init : 'biketransit' };
 
     // define which options the user is going to have
     for ( var i = 0 ; i < maxSources ; i++ ) {
@@ -437,11 +437,10 @@ $(document).ready(function(){
             
             // call the service
             r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
-                polygonLayer.clearAndAddLayers(polygons);
 
-                map.fitBounds(polygonLayer.getBoundingBox());
-                
-            }, function(error) {
+                polygonLayer.clearAndAddLayers(polygons, true);
+            }, 
+            function(error) {
 
                 alert("Sorry... an error occured. Please try again!");
             });
