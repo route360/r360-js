@@ -5,12 +5,12 @@ $(document).ready(function(){
     // add the map and set the initial center to berlin
     var map = L.map('map', {zoomControl : false}).setView([cities[0].lat, cities[0].lng], 12);
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://gtfs.geops.ch/' target='_blank'>Geops.ch</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://www.gbrail.info/' target='_blank'>GB Rail</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service mi.0ad4304c
-    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.94c056dc/{z}/{x}/{y}.png', {
+    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
         maxZoom: 22, attribution: attribution }).addTo(map);
 
     var maxSources = 1;
@@ -53,8 +53,8 @@ $(document).ready(function(){
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.requestTimeout                              = 5000;
-    r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl                                  = 'http://dev.route360.net/api_greatbritain/';
+    r360.config.serviceKey                                  = '3JXWPHEPZRQJJIOAK3ZH';
+    r360.config.serviceUrl                                  = 'http://api.route360.net/api_britishisles/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
@@ -128,12 +128,12 @@ $(document).ready(function(){
     map.addControl(waitControl);
 
     r360.config.defaultTravelTimeControlOptions.travelTimes = [
-        { time : 600 * 2 , color : "#006837", opacity : 1.0 },
-        { time : 600 * 4 , color : "#39B54A", opacity : 1.0 },
-        { time : 600 * 6 , color : "#8CC63F", opacity : 1.0 },
-        { time : 600 * 8 , color : "#F7931E", opacity : 1.0 },
-        { time : 600 * 10 , color : "#F15A24", opacity : 1.0 },
-        { time : 600 * 12 , color : "#C1272D", opacity : 1.0 }
+        { time : 600 * 1 , color : "#006837", opacity : 1.0 },
+        { time : 600 * 2 , color : "#39B54A", opacity : 1.0 },
+        { time : 600 * 3 , color : "#8CC63F", opacity : 1.0 },
+        { time : 600 * 4 , color : "#F7931E", opacity : 1.0 },
+        { time : 600 * 5 , color : "#F15A24", opacity : 1.0 },
+        { time : 600 * 6 , color : "#C1272D", opacity : 1.0 }
     ];
 
     var travelTimeControl       = r360.travelTimeControl({
@@ -188,7 +188,7 @@ $(document).ready(function(){
         });
     };
 
-    test();
+    // test();
 
     // what happens if action is performed
     polygonButtons.onChange(function(){ 
@@ -202,7 +202,7 @@ $(document).ready(function(){
     
     // add to map
     map.addControl(travelTimeControl);
-    map.addControl(intersectionButtons);
+    // map.addControl(intersectionButtons);
     map.addControl(polygonButtons);
 
     $('span[lang="de"]').hide();
@@ -461,9 +461,6 @@ $(document).ready(function(){
                     travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
                 if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
                     travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
-
-
-                travelOptions.setMinPolygonHoleSize(100000);
 
                 if ( r360.config.defaultPolygonLayerOptions.inverse ) 
                     travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);

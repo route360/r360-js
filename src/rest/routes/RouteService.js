@@ -2,16 +2,7 @@ r360.RouteService = {
 
     cache : {},
 
-    /*
-     *
-     */
-    getRoutes : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
+    getCfg : function(travelOptions) {
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),
@@ -37,6 +28,7 @@ r360.RouteService = {
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -94,6 +86,22 @@ r360.RouteService = {
                 id  : r360.has(target, 'id')  ? target.id  : '',
             });
         });
+
+        return cfg;
+    },
+
+    /*
+     *
+     */
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
+        }
+
+        
 
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 

@@ -64,7 +64,21 @@ $(document).ready(function(){
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
     polygonLayer.setInverse(true);
 
-    var options = { bike : true, walk : true, car : true, transit : true, biketransit : true, init : 'biketransit' };
+    var options = { 
+        bike        : true, 
+        walk        : true, 
+        car         : true, 
+        transit     : true, 
+        biketransit : true, 
+        init        : 'biketransit',
+        labels : {
+            bike : '<span class="fa fa-bicycle travel-type-icon"></span>',
+            walk : '<span class="fa fa-male travel-type-icon"></span>',
+            car : '<span class="fa fa-car travel-type-icon"></span>',
+            transit : '<span class="fa fa-bus travel-type-icon"></span>',
+            biketransit : '<span class="fa fa-bicycle travel-type-icon"></span> + <span class="fa fa-bus travel-type-icon"></span>',
+        }
+    };
 
     // define which options the user is going to have
     for ( var i = 0 ; i < maxSources ; i++ ) {
@@ -184,7 +198,7 @@ $(document).ready(function(){
     map.addControl(intersectionButtons);
     map.addControl(polygonButtons);
 
-    $('span[lang="de"]').hide();
+    // $('span[lang="de"]').hide();
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------

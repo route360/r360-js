@@ -3,16 +3,7 @@ r360.PolygonService = {
 
     cache : {},
 
-    /*
-     *
-     */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
+    getCfg : function(travelOptions){
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
@@ -98,7 +89,21 @@ r360.PolygonService = {
             cfg.sources.push(src);
         });
 
-        if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
+        return cfg;
+    },
+
+    /*
+     *
+     */
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
+
+        if ( !r360.has(r360.PolygonService.cache, JSON.stringify(getCfg(travelOptions))) ) {
 
             // make the request to the Route360° backend 
             $.ajax({

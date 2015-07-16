@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (a590077), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (6c8b476), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -423,6 +423,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                  </span>';
         }
 
+        console.log(that.options);
+
         var optionsHtml = [];
         // if ( that.options.options ) {
 
@@ -434,49 +436,68 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadoww" style="color: black;widtth:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
+            var walkLabel = '<span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.walk ) walkLabel = that.options.options.labels.walk;
+
+            var bikeLabel = '<span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.bike ) bikeLabel = that.options.options.labels.bike;
+
+            var carLabel = '<span class="fa fa-car"></span> <span lang="en">Car</span><span lang="no">TODO</span><span lang="de">Auto</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.car ) carLabel = that.options.options.labels.car;
+
+            var walkTransitLabel = '<span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.transit ) walkTransitLabel = that.options.options.labels.transit;
+
+            var bikeTransitLabel = '<span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span> + <span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.biketransit ) bikeTransitLabel = that.options.options.labels.biketransit;
+
+            var rentbikeLabel = '<span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.rentbike ) rentbikeLabel = that.options.options.labels.rentbike;
+
+            var rentandreturnbikeLabel = '<span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.rentandreturnbike ) rentandreturnbikeLabel = that.options.options.labels.rentandreturnbike;
+
+            var ebikeLabel = '<span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span>';
+            if ( r360.has(that.options.options, 'labels') && that.options.options.labels.ebike ) ebikeLabel = that.options.options.labels.ebike;
+
             if ( that.options.options && that.options.options.walk ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
-                    + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' + (this.options.travelType == 'walk' ? 'active' : '') + 
+                    '" travel-type="walk">' + walkLabel+ '</button>');
             
             if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span></button>');
+                    '" travel-type="bike">' + bikeLabel + '</button>');
 
             if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentbike' ? 'active' : '') + 
-                    '" travel-type="rentbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
-                        </button>');
+                    '" travel-type="rentbike">'+rentbikeLabel+'</button>');
 
             if ( that.options.options && that.options.options.rentandreturnbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
-                    '" travel-type="rentandreturnbike"> \
-                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
-                        </button>');
+                    '" travel-type="rentandreturnbike">'+ rentandreturnbikeLabel +'</button>');
             
             if ( that.options.options && that.options.options.ebike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'ebike' ? 'active' : '') + 
-                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span></button>');
+                    '" travel-type="ebike">'+ebikeLabel+'</button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'transit' ? 'active' : '') + 
-                    '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
+                    '" travel-type="transit">'+walkTransitLabel+'</button>');
 
             if ( that.options.options && that.options.options.biketransit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="biketransit"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span> + <span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
+                    '" travel-type="biketransit">'+bikeTransitLabel+'</button>');
             
             if ( that.options.options && that.options.options.car ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'car' ? 'active' : '') + 
-                    '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="no">TODO</span><span lang="de">Auto</span></button>');
+                    '" travel-type="car">'+carLabel+'</button>');
             
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
