@@ -103,7 +103,9 @@ r360.PolygonService = {
             travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
         }
 
-        if ( !r360.has(r360.PolygonService.cache, JSON.stringify(getCfg(travelOptions))) ) {
+        var cfg = r360.PolygonService.getCfg(travelOptions);
+
+        if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend 
             $.ajax({

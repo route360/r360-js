@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (f5e6e31), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2464,7 +2464,16 @@ r360.PolygonService = {
 
     cache : {},
 
-    getCfg : function(travelOptions){
+    /*
+     *
+     */
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
@@ -2549,22 +2558,6 @@ r360.PolygonService = {
 
             cfg.sources.push(src);
         });
-
-        return cfg;
-    },
-
-    /*
-     *
-     */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
-
-        var cfg = r360.PolygonService.getCfg(travelOptions);
 
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
@@ -2786,7 +2779,16 @@ r360.RouteService = {
 
     cache : {},
 
-    getCfg : function(travelOptions) {
+    /*
+     *
+     */
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
+        }
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),
@@ -2812,7 +2814,6 @@ r360.RouteService = {
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
-                if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -2870,22 +2871,6 @@ r360.RouteService = {
                 id  : r360.has(target, 'id')  ? target.id  : '',
             });
         });
-
-        return cfg;
-    },
-
-    /*
-     *
-     */
-    getRoutes : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
-
-        var cfg = r360.RouteService.getCfg(travelOptions);
 
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
@@ -2948,7 +2933,13 @@ r360.TimeService = {
 
     cache : {},
 
-    getCfg : function(travelOptions) {
+    getRouteTime : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
+        }
 
         var cfg = { 
             sources : [], targets : [],
@@ -2979,8 +2970,6 @@ r360.TimeService = {
                 id  : r360.has(source, 'id')  ? source.id  : '',
                 tm  : {}
             };
-
-            if ( src.id == '' ) src.id = src.lat + ';' + src.lng;
 
             var travelType = r360.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
 
@@ -3043,30 +3032,13 @@ r360.TimeService = {
         // configure targets for routing
         travelOptions.getTargets().forEach(function(target){
 
-            var target = {
+            cfg.targets.push({
 
                 lat : r360.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                 lng : r360.has(target, 'lon') ? target.lon : r360.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                 id  : r360.has(target, 'id')  ? target.id  : '',
-            };
-
-            if ( target.id == '' ) target.id = target.lat + ';' + target.lng;
-
-            cfg.targets.push(target);
+            });
         });
-
-        return cfg;
-    },
-
-    getRouteTime : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
-        }
-
-        var cfg = r360.TimeService.getCfg(travelOptions);
 
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
