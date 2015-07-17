@@ -3,7 +3,16 @@ r360.PolygonService = {
 
     cache : {},
 
-    getCfg : function(travelOptions){
+    /*
+     *
+     */
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
