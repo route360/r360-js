@@ -18,7 +18,7 @@ $(document).ready(function(){
     var maxSources = 1;
     var currentRoute;
     var elevationData = [];
-    var date = '20150701';
+    var date = '20150713';
     var time = '39000';
 
     var elevationColors = [{
@@ -356,7 +356,7 @@ $(document).ready(function(){
             _.each(routes, function(route, index){
 
                 currentRoute = route;
-                route.fadeIn(routeLayer, 500, "travelDistance", { color : elevationColors[index].strokeColor, haloColor : "#ffffff" });
+                r360.LeafletUtil.fadeIn(routeLayer, route, 500, "travelDistance", { color : elevationColors[index].strokeColor, haloColor : "#ffffff" });
 
                 html +=
                     '<tr style="margin-top:5px;">\
