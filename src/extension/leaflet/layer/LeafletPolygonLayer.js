@@ -195,11 +195,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
         $('#canvas'+ $(this.map._container).attr("id")).empty();
     },
 
-    /**
-     * [setStrokeWidth description]
-     * @param {[type]} strokeWidth [description]
-     */
     setStrokeWidth: function(strokeWidth){        
+        
         this.strokeWidth = strokeWidth;
     },
 

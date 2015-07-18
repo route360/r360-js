@@ -98,6 +98,22 @@ r360.PolygonService = {
             cfg.sources.push(src);
         });
 
+        return cfg;
+    },
+
+    /*
+     *
+     */
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
+
+        var cfg = r360.PolygonService.getCfg(travelOptions);
+
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend 

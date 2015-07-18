@@ -2,13 +2,7 @@ r360.TimeService = {
 
     cache : {},
 
-    getRouteTime : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
-        }
+    getCfg : function(travelOptions) {
 
         var cfg = { 
             sources : [], targets : [],
@@ -39,6 +33,8 @@ r360.TimeService = {
                 id  : r360.has(source, 'id')  ? source.id  : '',
                 tm  : {}
             };
+
+            if ( src.id == '' ) src.id = src.lat + ';' + src.lng;
 
             var travelType = r360.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
 
@@ -101,13 +97,30 @@ r360.TimeService = {
         // configure targets for routing
         travelOptions.getTargets().forEach(function(target){
 
-            cfg.targets.push({
+            var target = {
 
                 lat : r360.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                 lng : r360.has(target, 'lon') ? target.lon : r360.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                 id  : r360.has(target, 'id')  ? target.id  : '',
-            });
+            };
+
+            if ( target.id == '' ) target.id = target.lat + ';' + target.lng;
+
+            cfg.targets.push(target);
         });
+
+        return cfg;
+    },
+
+    getRouteTime : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
+        }
+
+        var cfg = r360.TimeService.getCfg(travelOptions);
 
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 

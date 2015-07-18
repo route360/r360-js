@@ -95,6 +95,22 @@ r360.RouteService = {
             });
         });
 
+        return cfg;
+    },
+
+    /*
+     *
+     */
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
+        }
+
+        var cfg = r360.RouteService.getCfg(travelOptions);
+
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend 
