@@ -1,15 +1,104 @@
 $(document).ready(function(){
 
     // add the map and set the initial center to berlin
-    var map = L.map('map', {zoomControl : false}).setView([59.909254694737534, 10.74737548828125], 12);
+    var map = L.map('map', {zoomControl : false}).setView([48.86181000, 2.34679000], 12);
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://www.gbrail.info/' target='_blank'>GB Rail</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='https://code.google.com/p/googletransitdatafeed/wiki/PublicFeeds' target='_blank'>Paris</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service mi.0ad4304c
     var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
         maxZoom: 22, attribution: attribution }).addTo(map);
+
+    // creating the checkboxes
+    var poiTypeButtons = r360.checkboxButtonControl({
+        buttons : [
+            { icon: '<i class="fa fa-university"></i>',  label : "Piscine",                 key: "swimmingPool",            checked : false },
+            { icon: '<i class="fa fa-ticket"></i> ',     label : "Court de tennis",         key: "tennisCourt",             checked : false  },
+            { icon: '<i class="fa fa-film"></i> ',       label : "Salle de sport",          key: "multiSportsIndoorHall",   checked : false  },
+            { icon: '<i class="fa fa-book"></i> ',       label : "Terrain de football",     key: "footBallField",       checked : false  }
+        ],
+        position : 'bottomleft',
+        onChange : showMarkers
+    });
+
+    map.addControl(poiTypeButtons);
+
+    // creating one layer for all markers
+    var sportsFacilitiesLayer   = L.featureGroup().addTo(map);
+
+    // get json features
+    var features = sports.features;
+
+    // defining markers for every type of sports facility
+    var swimmingPoolIcon            = L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' });
+    var tennisCourtIcon             = L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'red' });
+    var multiSportsIndoorHallIcon   = L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'blue' });
+    var footBallFieldIcon           = L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'orange' });
+
+    function showMarkers(){
+
+        sportsFacilitiesLayer.clearLayers();
+
+        var poiTypeOptions = poiTypeButtons.options.checked;
+
+        // iterate through all features
+        for(var i = 0; i < features.length; i++){
+
+            // coordinates need to be turned around. Otherwise we end up east of africa
+            var ll = [features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]];
+
+            // type 1 = swimming pool
+            if(features[i].properties["Code Famille"] == 1 && poiTypeOptions.swimmingPool){                
+                L.marker(ll, {icon: swimmingPoolIcon}).addTo(sportsFacilitiesLayer)
+                .bindPopup( 
+                    "<h4> " + features[i].properties["Nom de l'installation"] + "</h4>" +
+                    "<table>" +
+                    "<tr><td> Nom de l’équipement: </td><td>"   + features[i].properties["Nom de l'équipement"] + "</td></tr>" +
+                    "<tr><td> Type d’équipement: </td><td>"     + features[i].properties["Type d'équipement"] + "</td></tr>" +
+                    "<tr><td> Longueur du bassin: </td><td>"    + features[i].properties["Longueur du Bassin"] + "</td></tr>" +
+                    "</table>");
+            }
+
+            // type 5 = tennis court
+            if(features[i].properties["Code Famille"] == 5 && poiTypeOptions.tennisCourt){
+                L.marker(ll, {icon: tennisCourtIcon}).addTo(sportsFacilitiesLayer)
+                 .bindPopup( 
+                    "<h4> " + features[i].properties["Nom de l'installation"] + "</h4>" +
+                    "<table>" +
+                    "<tr><td> Nom de l’équipement: </td><td>"   + features[i].properties["Nom de l'équipement"] + "</td></tr>" +
+                    "<tr><td> Type d’équipement: </td><td>"     + features[i].properties["Type d'équipement"] + "</td></tr>" +
+                    "</table>");
+            }
+
+            // type 19 = multisports indoor hall
+            if(features[i].properties["Code Famille"] == 19 && poiTypeOptions.multiSportsIndoorHall){
+                L.marker(ll, {icon: multiSportsIndoorHallIcon}).addTo(sportsFacilitiesLayer)
+                .bindPopup( 
+                    "<h4> " + features[i].properties["Nom de l'installation"] + "</h4>" +
+                    "<table>" +
+                    "<tr><td> Nom de l’équipement: </td><td>"   + features[i].properties["Nom de l'équipement"] + "</td></tr>" +
+                    "<tr><td> Type d’équipement: </td><td>"     + features[i].properties["Type d'équipement"] + "</td></tr>" +
+                    "</table>");
+            }
+
+            // type 28 = football field
+            if(features[i].properties["Code Famille"] == 28 && poiTypeOptions.footBallField){
+                L.marker(ll, {icon: footBallFieldIcon}).addTo(sportsFacilitiesLayer)
+                .bindPopup( 
+                    "<h4> " + features[i].properties["Nom de l'installation"] + "</h4>" +
+                    "<table>" +
+                    "<tr><td> Nom de l’équipement: </td><td>"   + features[i].properties["Nom de l'équipement"] + "</td></tr>" +
+                    "<tr><td> Type d’équipement: </td><td>"     + features[i].properties["Type d'équipement"] + "</td></tr>" +
+                    "<tr><td> Type de terrain: </td><td>"    + features[i].properties["Type de terrain"] + "</td></tr>" +
+                    "</table>");
+            }
+        }
+
+    };
+
+
 
     var maxSources = 1;
     var currentRoute;
@@ -52,9 +141,9 @@ $(document).ready(function(){
     // please contact us and request your own key
     r360.config.requestTimeout                              = 5000;
     r360.config.serviceKey                                  = '7LBINW7PEBZEF25L744F';
-     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
+    r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl                                  = 'http://dev.route360.net/api_norway/';
-     r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode.route360.net/solr/select?"; 
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode.route360.net/nominatim/';
