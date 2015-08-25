@@ -33,6 +33,10 @@ r360.MultiPolygon = function() {
         return r360.bounds(this.bottomLeft_3857, this.topRight_3857);
     }
 
+    /**
+     * [getBoundingBox4326 description]
+     * @return {[type]} [description]
+     */
     this.getBoundingBox4326 = function() {
 
         return r360.latLngBounds(r360.Util.webMercatorToLatLng(this.bottomLeft_3857), r360.Util.webMercatorToLatLng(this.topRight_3857));
@@ -52,6 +56,25 @@ r360.MultiPolygon = function() {
      */
     this.getOpacity = function(){
         return this.opacity;
+    }
+
+    /**
+     * [getArea description]
+     * @return {[type]} [description]
+     */
+    this.getArea = function(){
+
+        var area = 0;
+        this.polygons.forEach(function(polygon){ area += polygon.getArea(); });
+        return area;
+    }
+
+    /**
+     * [getPolygons description]
+     * @return {[type]} [description]
+     */
+    this.getPolygons = function(){
+        return this.polygons;
     }
 
     /**

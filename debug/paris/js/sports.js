@@ -1,4 +1,4 @@
-var sports = {
+var places = {
    "type": "FeatureCollection",
    "features": [
   {

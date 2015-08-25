@@ -30,6 +30,8 @@ r360.TravelOptions = function(){
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
     this.maxRoutingTime     = undefined;
+    this.serviceUrl         = undefined;
+    this.serviceKey         = undefined;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(isRouteRequest){
@@ -369,6 +371,46 @@ r360.TravelOptions = function(){
     this.getRecommendations = function(){
 
         return this.recommendations;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getServiceUrl = function(){
+
+        return this.serviceUrl;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getServiceKey = function(){
+
+        return this.serviceKey;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setServiceKey = function(serviceKey){
+
+        this.serviceKey = serviceKey;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setServiceUrl = function(serviceUrl){
+
+        this.serviceUrl = serviceUrl;
     }
     
     /*

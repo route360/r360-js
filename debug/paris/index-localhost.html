@@ -52,20 +52,34 @@
             padding: 0px;
         }
 
-    </style>
+        table, th, td {
+            border: 1px solid;
+            border-collapse: collapse;
+            border-color: #eee;
+        }
+        th, td {
+            padding: 15px;
+        }
 
+        tr:nth-child(even) {
+            background-color: #eee;
+        }
+        tr:nth-child(odd) {
+            background-color:#fff;
+        }
+
+    </style>
     <!-- scripts -->
-    <script type="text/javascript" src="lib/jquery-1.10.2.js"></script>
-    <script type="text/javascript" src="lib/jquery-ui-1.10.4.min.js"></script>
-    <script type="text/javascript" src="lib/leaflet.js"></script>
-    <script type="text/javascript" src='lib/ChartnoLabels.min.js'></script>
-    <script type="text/javascript" src="lib/underscore.js"></script>
+    <script src="lib/jquery-1.10.2.js"></script>
+    <script src="lib/jquery-ui-1.10.4.min.js"></script>
+    <script src="lib/leaflet.js"></script>
+    <script src="lib/underscore.js"></script>
     <script type="text/javascript" src="../../build/deps.js"></script>
     <script type="text/javascript" src="../../build/r360-include.js"></script>
-    <script type="text/javascript" src="js/country.js"></script>
+    <script src="js/cities.js"></script>
+    <script src="js/sports.js"></script>
+    <script src="js/country.js"></script>
     <script type="text/javascript" src="lib/leaflet.awesome-markers.min.js"></script>
-    <script type="text/javascript" src="js/test.js"></script>
-
 </head>
 <body>
     <div id="map"></div>

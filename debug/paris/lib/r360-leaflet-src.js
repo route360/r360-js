@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (c426fca), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -1705,7 +1705,11 @@ r360.LeafletPolygonLayer = L.Class.extend({
     clearLayers: function(){        
         
         $('#canvas'+ $(this.map._container).attr("id")).empty();
-        this.initialize();
+    },
+
+    setStrokeWidth: function(strokeWidth){        
+        
+        this.strokeWidth = strokeWidth;
     },
 
     /*
@@ -1715,8 +1719,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof this.multiPolygons !== 'undefined' ) {
              
-            this.svgWidth  = this.map.getSize().x;
-            this.svgHeight = this.map.getSize().y;
+            this.svgWidth  = this.map.getSize().x + this.extendWidthX;
+            this.svgHeight = this.map.getSize().y + this.extendWidthY;
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
@@ -1727,8 +1731,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
             // adjust the offset after map panning / zooming
             if ( typeof svgPosition != 'undefined' ) {
-                this.offset.x += (mapPosition.left - svgPosition.left);
-                this.offset.y += (mapPosition.top - svgPosition.top);
+                this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX/2;
+                this.offset.y += (mapPosition.top - svgPosition.top) - this.extendWidthY/2;
             }
 
             // clear layer from previous drawings
@@ -1749,7 +1753,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
-                        strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
+                        strokeWidth       : this.strokeWidth
                     })); 
             }
 
@@ -1762,7 +1766,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 backgroundOpacity : this.backgroundOpacity,
                 opacity           : this.opacity,
                 strokeWidth       : this.strokeWidth
-            }
+            };
 
             // add the svg string to the container
             $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 

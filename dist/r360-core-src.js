@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 ("db915ec"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (c426fca), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1859,6 +1859,8 @@ r360.TravelOptions = function(){
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
     this.maxRoutingTime     = undefined;
+    this.serviceUrl         = undefined;
+    this.serviceKey         = undefined;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(isRouteRequest){
@@ -2199,6 +2201,46 @@ r360.TravelOptions = function(){
 
         return this.recommendations;
     }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getServiceUrl = function(){
+
+        return this.serviceUrl;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.getServiceKey = function(){
+
+        return this.serviceKey;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setServiceKey = function(serviceKey){
+
+        this.serviceKey = serviceKey;
+    }
+    
+    /*
+     *
+     *
+     *
+     */
+    this.setServiceUrl = function(serviceUrl){
+
+        this.serviceUrl = serviceUrl;
+    }
     
     /*
      *
@@ -2464,16 +2506,7 @@ r360.PolygonService = {
 
     cache : {},
 
-    /*
-     *
-     */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
+    getCfg : function(travelOptions){
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
@@ -2565,7 +2598,7 @@ r360.PolygonService = {
     /*
      *
      */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback, method) {
 
         // swho the please wait control
         if ( travelOptions.getWaitControl() ) {
@@ -2577,11 +2610,35 @@ r360.PolygonService = {
 
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
+            var options = r360.PolygonService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback, typeof method == 'undefined' ? 'GET' : method);
+
             // make the request to the Route360° backend 
-            $.ajax({
+            // use GET as fallback, otherwise use the supplied option
+            $.ajax(options);
+        }
+        else { 
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+            // call successCallback with returned results
+            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+        }
+    },
+
+    /**
+     * [getAjaxOptions description]
+     * @param  {[type]} travelOptions   [description]
+     * @param  {[type]} successCallback [description]
+     * @param  {[type]} errorCallback   [description]
+     * @return {[type]}                 [description]
+     */
+    getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback, method) {
+
+        var options = {
                 url         : r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
+                type        : method,
                 success     : function(result) {
 
                     // hide the please wait control
@@ -2620,15 +2677,16 @@ r360.PolygonService = {
                     if ( r360.isFunction(errorCallback) )
                         errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
                 }
-            });
-        }
-        else { 
+            };
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call successCallback with returned results
-            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+        if ( method == 'POST' ) {
+
+            options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
+            options.data        = JSON.stringify(cfg);
+            options.contentType = 'application/json';
         }
+
+        return options;
     }
 }
 
@@ -2798,13 +2856,7 @@ r360.RouteService = {
     /*
      *
      */
-    getRoutes : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
+    getCfg : function(travelOptions){
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),
@@ -2830,6 +2882,7 @@ r360.RouteService = {
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -3569,6 +3622,10 @@ r360.MultiPolygon = function() {
         return r360.bounds(this.bottomLeft_3857, this.topRight_3857);
     }
 
+    /**
+     * [getBoundingBox4326 description]
+     * @return {[type]} [description]
+     */
     this.getBoundingBox4326 = function() {
 
         return r360.latLngBounds(r360.Util.webMercatorToLatLng(this.bottomLeft_3857), r360.Util.webMercatorToLatLng(this.topRight_3857));
@@ -3588,6 +3645,25 @@ r360.MultiPolygon = function() {
      */
     this.getOpacity = function(){
         return this.opacity;
+    }
+
+    /**
+     * [getArea description]
+     * @return {[type]} [description]
+     */
+    this.getArea = function(){
+
+        var area = 0;
+        this.polygons.forEach(function(polygon){ area += polygon.getArea(); });
+        return area;
+    }
+
+    /**
+     * [getPolygons description]
+     * @return {[type]} [description]
+     */
+    this.getPolygons = function(){
+        return this.polygons;
     }
 
     /**

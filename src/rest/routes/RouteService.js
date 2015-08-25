@@ -5,13 +5,7 @@ r360.RouteService = {
     /*
      *
      */
-    getRoutes : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
+    getCfg : function(travelOptions){
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),

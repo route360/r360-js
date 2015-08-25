@@ -3,16 +3,7 @@ r360.PolygonService = {
 
     cache : {},
 
-    /*
-     *
-     */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
+    getCfg : function(travelOptions){
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
@@ -104,7 +95,7 @@ r360.PolygonService = {
     /*
      *
      */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback, method) {
 
         // swho the please wait control
         if ( travelOptions.getWaitControl() ) {
@@ -116,11 +107,35 @@ r360.PolygonService = {
 
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
+            var options = r360.PolygonService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback, typeof method == 'undefined' ? 'GET' : method);
+
             // make the request to the Route360° backend 
-            $.ajax({
+            // use GET as fallback, otherwise use the supplied option
+            $.ajax(options);
+        }
+        else { 
+
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+            // call successCallback with returned results
+            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+        }
+    },
+
+    /**
+     * [getAjaxOptions description]
+     * @param  {[type]} travelOptions   [description]
+     * @param  {[type]} successCallback [description]
+     * @param  {[type]} errorCallback   [description]
+     * @return {[type]}                 [description]
+     */
+    getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback, method) {
+
+        var options = {
                 url         : r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
+                type        : method,
                 success     : function(result) {
 
                     // hide the please wait control
@@ -159,14 +174,16 @@ r360.PolygonService = {
                     if ( r360.isFunction(errorCallback) )
                         errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
                 }
-            });
-        }
-        else { 
+            };
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call successCallback with returned results
-            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+        if ( method == 'POST' ) {
+
+            options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
+            options.data        = JSON.stringify(cfg);
+            options.contentType = 'application/json';
+            options.async       = false;
         }
+
+        return options;
     }
 }
