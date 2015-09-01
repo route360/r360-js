@@ -136,7 +136,7 @@ $(document).ready(function(){
             if ( feature.properties["Code Famille"] == 1 && poiTypeOptions.swimmingPool ){                
                 
                 sources.push(L.marker(latlng, {icon: swimmingPoolIcon}).addTo(sportsFacilitiesLayer).bindPopup( 
-                        "<h4> " + feature.properties["Nom de l'installation"] + ")</h4>" +
+                        "<h4> " + feature.properties["Nom de l'installation"] + "</h4>" +
                         "<table>" +
                         "<tr><td> Nom de l’équipement: </td><td>"   + feature.properties["Nom de l'équipement"] + "</td></tr>" +
                         "<tr><td> Type d’équipement: </td><td>"     + feature.properties["Type d'équipement"] + "</td></tr>" +
@@ -148,7 +148,7 @@ $(document).ready(function(){
             if ( feature.properties["Code Famille"] == 5 && poiTypeOptions.tennisCourt ){
 
                 sources.push(L.marker(latlng, {icon: tennisCourtIcon}).addTo(sportsFacilitiesLayer).bindPopup( 
-                    "<h4> " + feature.properties["Nom de l'installation"] + ")</h4>" +
+                    "<h4> " + feature.properties["Nom de l'installation"] + "</h4>" +
                     "<table>" +
                     "<tr><td> Nom de l’équipement: </td><td>"   + feature.properties["Nom de l'équipement"] + "</td></tr>" +
                     "<tr><td> Type d’équipement: </td><td>"     + feature.properties["Type d'équipement"] + "</td></tr>" +
@@ -159,7 +159,7 @@ $(document).ready(function(){
             if( feature.properties["Code Famille"] == 19 && poiTypeOptions.multiSportsIndoorHall){
 
                 sources.push(L.marker(latlng, {icon: multiSportsIndoorHallIcon}).addTo(sportsFacilitiesLayer).bindPopup( 
-                    "<h4> " + feature.properties["Nom de l'installation"] + ")</h4>" +
+                    "<h4> " + feature.properties["Nom de l'installation"] + "</h4>" +
                     "<table>" +
                     "<tr><td> Nom de l’équipement: </td><td>"   + feature.properties["Nom de l'équipement"] + "</td></tr>" +
                     "<tr><td> Type d’équipement: </td><td>"     + feature.properties["Type d'équipement"] + "</td></tr>" +
