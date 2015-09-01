@@ -180,6 +180,30 @@ r360.Util = {
         return address.join(', ');
     },
 
+    /**
+     * [formatPhotonReverseGeocoding description]
+     * @param  {[type]} place [description]
+     * @return {[type]}       [description]
+     */
+    formatPhotonReverseGeocoding : function(place) {
+
+        var streetAdress = [];
+        if ( r360.has(place, 'street') )       streetAdress.push(place.street);
+        if ( r360.has(place, 'housenumber') )  streetAdress.push(place.housenumber);
+
+        var city = [];
+        if ( r360.has(place, 'postcode') )     city.push(place.postcode);
+        if ( r360.has(place, 'city') )         city.push(place.city);
+
+        var address = [];
+        if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
+        if ( city.length > 0)           address.push(city.join(', '));
+
+        if ( streetAdress.length == 0 && city.length == 0 ) address.push("Reverse geocoding not possible.");
+
+        return address.join(', ');
+    },
+
     /*
      *
      */

@@ -14,6 +14,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'label'))       this.options.label       = options.label;
             if ( _.has(options, 'country'))     this.options.country     = options.country;
             if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
+            if ( _.has(options, 'serviceUrl'))  this.options.serviceUrl       = options.serviceUrl;
             if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
             if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
             if ( _.has(options, 'width'))       this.options.width       = options.width;
@@ -158,27 +159,25 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                 var requestElements = request.term.split(" ");
                 var numbers = new Array();
-                var requestString = "";
+                var requestString = request.term + "";
                 var numberString = "";
                     
-                for(var i = 0; i < requestElements.length; i++){
+                // for(var i = 0; i < requestElements.length; i++){
                     
-                    if(requestElements[i].search(".*[0-9].*") != -1)
-                        numbers.push(requestElements[i]);
-                    else
-                        requestString += requestElements[i] + " ";
-                }
+                //     if(requestElements[i].search(".*[0-9].*") != -1)
+                //         numbers.push(requestElements[i]);
+                //     else
+                //         requestString += requestElements[i] + " ";
+                // }
 
-                if ( numbers.length > 0 ) {
-                    numberString += " OR ";
+                // if ( numbers.length > 0 ) {
+                //     numberString += " OR ";
                     
-                    for(var j = 0; j < numbers.length; j++){
-                        var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
-                        numberString +=  n;
-                    }
-                }
-
-                console.log(that.options.map.getCenter());
+                //     for(var j = 0; j < numbers.length; j++){
+                //         var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
+                //         numberString +=  n;
+                //     }
+                // }
 
                 $.ajax({
                     url: that.options.serviceUrl, 

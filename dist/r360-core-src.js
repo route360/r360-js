@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (c426fca), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (55c4f86), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1623,6 +1623,30 @@ r360.Util = {
         return address.join(', ');
     },
 
+    /**
+     * [formatPhotonReverseGeocoding description]
+     * @param  {[type]} place [description]
+     * @return {[type]}       [description]
+     */
+    formatPhotonReverseGeocoding : function(place) {
+
+        var streetAdress = [];
+        if ( r360.has(place, 'street') )       streetAdress.push(place.street);
+        if ( r360.has(place, 'housenumber') )  streetAdress.push(place.housenumber);
+
+        var city = [];
+        if ( r360.has(place, 'postcode') )     city.push(place.postcode);
+        if ( r360.has(place, 'city') )         city.push(place.city);
+
+        var address = [];
+        if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
+        if ( city.length > 0)           address.push(city.join(', '));
+
+        if ( streetAdress.length == 0 && city.length == 0 ) address.push("Reverse geocoding not possible.");
+
+        return address.join(', ');
+    },
+
     /*
      *
      */
@@ -2684,6 +2708,7 @@ r360.PolygonService = {
             options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
+            options.async       = false;
         }
 
         return options;
