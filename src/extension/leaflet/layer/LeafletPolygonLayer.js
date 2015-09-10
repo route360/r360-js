@@ -192,6 +192,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     clearLayers: function(){        
         
+        this.multiPolygons = undefined;
         $('#canvas'+ $(this.map._container).attr("id")).empty();
     },
 

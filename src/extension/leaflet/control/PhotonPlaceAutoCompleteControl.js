@@ -159,7 +159,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                 var requestElements = request.term.split(" ");
                 var numbers = new Array();
-                var requestString = request.term + "";
+                var requestString = request.term;
                 var numberString = "";
                     
                 // for(var i = 0; i < requestElements.length; i++){
