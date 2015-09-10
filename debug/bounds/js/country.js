@@ -66,14 +66,14 @@ $(document).ready(function(){
 //--------SOUTHEAST USA + MEXIKO
 
     var southWest = L.latLng(10, -100);
-    var northEast = L.latLng(36, -40);
+    var northEast = L.latLng(36, -10);
     var bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map);
 
     //--------- plus overlap
 
     southWest = L.latLng(10, -104);
-    northEast = L.latLng(39, -40);
+    northEast = L.latLng(39, -10);
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map);
 
@@ -110,14 +110,14 @@ $(document).ready(function(){
 //--------NORTHEAST USA + CANADA 
 
     southWest = L.latLng(36, -100);
-    northEast = L.latLng(84, -40);
+    northEast = L.latLng(84, -10);
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#ff0000", weight: 1}).addTo(map);
 
     //--------- plus overlap
 
     southWest = L.latLng(33, -106);
-    northEast = L.latLng(84, -40);
+    northEast = L.latLng(84, -10);
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#ff0000", weight: 1}).addTo(map);
 
