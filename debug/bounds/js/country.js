@@ -86,6 +86,8 @@ $(document).ready(function(){
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#0078ff", weight: 1}).addTo(map);
 
+    //--------- plus overlap
+
     southWest = L.latLng(10, -179);
     northEast = L.latLng(39, -96);
     bounds = L.latLngBounds(southWest, northEast);
@@ -98,6 +100,8 @@ $(document).ready(function(){
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#00ff00", weight: 1}).addTo(map);
 
+    //--------- plus overlap
+
     southWest = L.latLng(33, -179);
     northEast = L.latLng(84, -94);
     bounds = L.latLngBounds(southWest, northEast);
@@ -109,6 +113,8 @@ $(document).ready(function(){
     northEast = L.latLng(84, -40);
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#ff0000", weight: 1}).addTo(map);
+
+    //--------- plus overlap
 
     southWest = L.latLng(33, -106);
     northEast = L.latLng(84, -40);
