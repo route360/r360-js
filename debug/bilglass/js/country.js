@@ -1,10 +1,13 @@
 // do not change these values
 // this is a predefined travel day & time
-var date = '20150717';
-var time = '39000';
+var date = '20150910';
+var time = '29000';
 
 // all the visible markers are collected in this array
 var sources  = [];
+
+// all the temporary visible markers are collected in this array
+var tempSources = [];
 
 // timeout after which an error message is shown in milliseconds
 r360.config.requestTimeout = 10000;
@@ -19,19 +22,26 @@ var map = L.map('map', {
     zoomControl : false,
     scrollWheelZoom : true,
     contextmenu: true,
-    contextmenuWidth: 140,
-    contextmenuItems: [{
-        text: 'new Marker here',
-        callback: newTempMarker
-    }]}).setView([65.4354527, 16.1535915], 5);
-// attribution to give credit to OSM map data and VBB for public transportation 
-var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://opendatasoft.com' target='_blank'>OpenDataSoft</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    contextmenuWidth: 160,
+    contextmenuItems: [
+        {
+            text: 'New Bilglass marker',
+            callback: newTempBilglassMarker
+        },
+        {
+            text: 'New partner marker',
+            callback: newTempPartnerMarker
+        },
+        {
+            text: 'New competitor marker',
+            callback: newTempCompetitorMarker
+        }]}).setView([65.4354527, 16.1535915], 5);
 
-var mapStyleId = 'mi.0ad4304c';
-// note that mapbox is a paided service 
-var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/'+mapStyleId+'/{z}/{x}/{y}.png', { maxZoom: 22, attribution: attribution }).addTo(map);
-
-// define the travel time slider and 6 five minute intervals 
+// attribution to give credit to OSM map data and public transportation
+var attribution ="<a href='http://www.mapquest.com/' target='_blank'>© MapQuest © OpenStreetMap</a> | Transit Data © <a href='http://opendatasoft.com' target='_blank'>OpenDataSoft</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+// map tile from mapquest
+var tileLayer = L.tileLayer('http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', { maxZoom: 22, attribution: attribution }).addTo(map);
+// define the travel time slider and 6 five minute intervals
 r360.config.defaultTravelTimeControlOptions.travelTimes = [
     { time : 600 * 1 , color : "#006837", opacity : 1.0 },
     { time : 600 * 2 , color : "#39B54A", opacity : 1.0 },
@@ -100,23 +110,20 @@ var shopLayerGroup = L.featureGroup().addTo(map);
 var tempLayer = L.featureGroup().addTo(map);
 
 // and one layer for the polygons
-var polygonLayer          = r360.leafletPolygonLayer({inverse : false}).addTo(map);
+var polygonLayer          = r360.leafletPolygonLayer({inverse : false, extendWidthX: 1000, extendWidthY: 1000}).addTo(map);
 
 // defining markers for every type of sports facility, prefix stands for the used marker symbol font
 var bilglassIcon            = L.AwesomeMarkers.icon({ icon: 'ion-home',              prefix : 'ion', markerColor: 'blue' });
 var partnerIcon             = L.AwesomeMarkers.icon({ icon: 'ion-heart',         prefix : 'ion', markerColor: 'orange' });
 var competitorIcon          = L.AwesomeMarkers.icon({ icon: 'ion-alert-circled', prefix : 'ion', markerColor: 'red' });
-var tempIcon                = L.AwesomeMarkers.icon({ icon: 'ion-home',              prefix : 'ion', markerColor: 'green' });
 
 // add the controls to the map
-map.addControl(L.control.zoom({ position : 'bottomright' }));
 var waitControl = r360.waitControl({ position : 'bottomright' });
 map.addControl(waitControl);
+map.addControl(L.control.zoom({ position : 'bottomright' }));
 
 $('span[lang="de"]').hide();
 $('span[lang="no"]').hide();
-
-var tempSources = [];
 
 
 // ==================================================================================================================================
@@ -150,8 +157,10 @@ function showMarkers(){
                 icon: bilglassIcon,
                 contextmenu: true,
                 contextmenuItems: [{
-                    text: 'delete',
-                    callback: deleteMarker
+                    // Add the context menu and bind marker delete function
+                    text: 'Delete marker',
+                    callback: deleteMarker,
+                    index: 0,
                 }, {
                     separator: true,
                     index: 1
@@ -171,8 +180,10 @@ function showMarkers(){
                 icon: partnerIcon,
                 contextmenu: true,
                 contextmenuItems: [{
-                    text: 'delete',
-                    callback: deleteMarker
+                    // Add the context menu and bind marker delete function
+                    text: 'Delete marker',
+                    callback: deleteMarker,
+                    index: 0,
                 }, {
                     separator: true,
                     index: 1
@@ -185,15 +196,17 @@ function showMarkers(){
                     "</table>"));
         }
 
-        // type 19 = multisports indoor hall
+        // Competitors
         if( feature.properties["company"] != "Riis Bilglass" && feature.properties["company"] != "Riis Bilglass Servicepartner"  && poiTypeOptions.competitor){
 
             sources.push(L.marker(latlng, {
                 icon: competitorIcon,
                 contextmenu: true,
                 contextmenuItems: [{
-                    text: 'delete',
-                    callback: deleteMarker
+                    // Add the context menu and bind marker delete function
+                    text: 'Delete marker',
+                    callback: deleteMarker,
+                    index: 0,
                 }, {
                     separator: true,
                     index: 1
@@ -212,6 +225,16 @@ function showMarkers(){
     getPolygons();
 };
 
+// helper var for marker deletion
+var lastRelatedTarget;
+
+// listener to save context marker to lastRelatedTarget when context menu is shown
+map.on("contextmenu.show", function(e){
+    console.log(e.relatedTarget);
+  lastRelatedTarget = e.relatedTarget;
+});
+
+// delete marker from sources
 function deleteMarker(e) {
     console.log("remove" + lastRelatedTarget);
     shopLayerGroup.removeLayer(lastRelatedTarget);
@@ -225,6 +248,7 @@ function deleteMarker(e) {
     getPolygons();
 }
 
+// delete marker from tempSources
 function deleteTempMarker(e) {
     console.log("remove" + lastRelatedTarget);
     shopLayerGroup.removeLayer(lastRelatedTarget);
@@ -238,20 +262,33 @@ function deleteTempMarker(e) {
     getPolygons();
 }
 
-var lastRelatedTarget;
+// new bilglass marker
+function newTempBilglassMarker(e) {
+    var icon = L.AwesomeMarkers.icon({ icon: 'ion-home', prefix : 'ion', markerColor: 'green' });
+    newTempMarker(e,icon);
+}
 
-map.on("contextmenu.show", function(e){
-    console.log(e.relatedTarget);
-  lastRelatedTarget = e.relatedTarget;
-});
+// new service partner marker
+function newTempPartnerMarker(e) {
+    var icon = L.AwesomeMarkers.icon({ icon: 'ion-heart', prefix : 'ion', markerColor: 'green' });
+    newTempMarker(e,icon);
+}
 
-function newTempMarker(e) {
+// new competitor marker
+function newTempCompetitorMarker(e) {
+    var icon = L.AwesomeMarkers.icon({ icon: 'ion-alert-circled', prefix : 'ion', markerColor: 'green' });
+    newTempMarker(e,icon);
+}
+
+// function to create new markers
+function newTempMarker(e,icon) {
     tempSources.push(L.marker(e.latlng, {
-                icon: tempIcon,
+                icon: icon,
                 contextmenu: true,
                 contextmenuItems: [{
-                    text: 'delete',
-                    callback: deleteTempMarker
+                    text: 'Delete marker',
+                    callback: deleteTempMarker,
+                    index: 0
                 }, {
                     separator: true,
                     index: 1
@@ -272,14 +309,14 @@ function newTempMarker(e) {
  */
 function getPolygons(){
 
-    console.log(tempSources);
-
+    // merge static and temp sources
     var allSources = sources.concat(tempSources);
 
+    // clear everything
     polygonLayer.clearLayers();
 
     // just a safety precaution to not send a faulty request
-    if ( sources.length == 0 ) {
+    if ( allSources.length == 0 ) {
         return;
     }
     var travelOptions = r360.travelOptions();
@@ -295,7 +332,7 @@ function getPolygons(){
     travelOptions.setDate(date);
     travelOptions.setTime(time);
     // square meter of areas that are shown as hole, no need to change
-    travelOptions.setMinPolygonHoleSize(500000);
+    travelOptions.setMinPolygonHoleSize(travelTimeControl.getMaxValue() * 50000);
 
     // call the service
     r360.PolygonService.getTravelTimePolygons(
@@ -306,7 +343,7 @@ function getPolygons(){
 
             // remove the old polygon and add the new one
             // and zoom as far in as possible (see the whole polygon)
-            polygonLayer.clearAndAddLayers(polygons, true);
+            polygonLayer.clearAndAddLayers(polygons, false);
         }, 
         // what should happen if something does not work as expected
         function(error) {
