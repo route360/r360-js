@@ -38,7 +38,7 @@ var map = L.map('map', {
         }]}).setView([65.4354527, 16.1535915], 5);
 
 // attribution to give credit to OSM map data and public transportation
-var attribution ="<a href='http://www.mapquest.com/' target='_blank'>© MapQuest © OpenStreetMap</a> | Transit Data © <a href='http://opendatasoft.com' target='_blank'>OpenDataSoft</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+var attribution ="<a href='http://www.mapquest.com/' target='_blank'>© MapQuest © OpenStreetMap</a> | Transit Data © <a href='https://ruter.no/' target='_blank'>Ruter</a> (Oslo) © <a href='https://www.kolumbus.no/en/' target='_blank'>Kolumbus</a> (Stavanger) | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 // map tile from mapquest
 var tileLayer = L.tileLayer('http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', { maxZoom: 22, attribution: attribution }).addTo(map);
 // define the travel time slider and 6 five minute intervals
