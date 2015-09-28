@@ -121,7 +121,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
         this.clearLayers();
         this.addLayer(multiPolygons);
 
-        if ( typeof fitMap !== 'undefined' ) this.fitMap();
+        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap();
 
         return this;
     },

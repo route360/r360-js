@@ -29,6 +29,7 @@ r360.TravelOptions = function(){
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
+    this.polygonSerializer  = 'json';
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
@@ -343,6 +344,15 @@ r360.TravelOptions = function(){
         return this.pathSerializer;
     }
 
+    /**
+     * [getPolygonSerializer description]
+     * @return {[type]} [description]
+     */
+    this.getPolygonSerializer = function(){
+
+        return this.polygonSerializer;
+    }
+
     /*
      *
      *
@@ -451,6 +461,11 @@ r360.TravelOptions = function(){
     this.setPathSerializer = function(pathSerializer){
 
         this.pathSerializer = pathSerializer;
+    }
+
+    this.setPolygonSerializer = function(polygonSerializer){
+
+        this.polygonSerializer = polygonSerializer;
     }
 
     

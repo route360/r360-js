@@ -13,8 +13,10 @@ $(document).ready(function(){
     r360.config.requestTimeout = 10000;
     // set the service key
     r360.config.serviceKey     = 'VG298MNJIQXB3VR1URPA';
+    r360.config.serviceKey     = 'uhWrWpUhyZQy8rPfiC7X';
     // the url of the route360 service
     r360.config.serviceUrl     = 'http://api2-eu.route360.net/france/';
+    r360.config.serviceUrl     = 'http://localhost:8080/api/';
     L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 
     // add the map and set the initial center to paris
@@ -107,6 +109,37 @@ $(document).ready(function(){
 
     $('span[lang="de"]').hide();
     $('span[lang="no"]').hide();
+
+    map.on('click', function(e){
+
+        var travelOptions = r360.travelOptions();
+        // get the selected travel type
+        travelOptions.setTravelType(travelTypeButtons.getValue());
+        // set all the places which matched the selected buttons
+        travelOptions.addSource({ lat : e.latlng.lat, lng : e.latlng.lng});
+
+        L.marker({ lat : e.latlng.lat, lng : e.latlng.lng}, {icon: tennisCourtIcon}).addTo(map);
+
+        // get all the travel times from the travel time slider
+        travelOptions.setTravelTimes(travelTimeControl.getValues());
+        // show the waiting div on the map
+        travelOptions.setWaitControl(waitControl);
+        // set date and time
+        travelOptions.setDate(date);
+        travelOptions.setTime(time);
+        // square meter of areas that are shown as hole, no need to change
+        travelOptions.setMinPolygonHoleSize(500000);
+
+        // call the service
+        r360.PolygonService.getTravelTimePolygons(travelOptions, 
+            // what should happen if everything works as expected
+            function(polygons){
+
+                // remove the old polygon and add the new one
+                // and zoom as far in as possible (see the whole polygon)
+                polygonLayer.clearAndAddLayers(polygons, true);
+            });
+    })
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
@@ -220,7 +253,7 @@ $(document).ready(function(){
 
                 // remove the old polygon and add the new one
                 // and zoom as far in as possible (see the whole polygon)
-                polygonLayer.clearAndAddLayers(polygons, true);
+                // polygonLayer.clearAndAddLayers(polygons, true);
             }, 
             // what should happen if something does not work as expected
             function(error) {

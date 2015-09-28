@@ -188,6 +188,7 @@ r360.Util = {
     formatPhotonReverseGeocoding : function(place) {
 
         var streetAdress = [];
+        if ( r360.has(place, 'name') )         streetAdress.push(place.name);
         if ( r360.has(place, 'street') )       streetAdress.push(place.street);
         if ( r360.has(place, 'housenumber') )  streetAdress.push(place.housenumber);
 

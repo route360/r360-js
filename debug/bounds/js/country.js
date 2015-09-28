@@ -65,10 +65,10 @@ $(document).ready(function(){
 
 //--------SOUTHEAST USA + MEXIKO
 
-    var southWest = L.latLng(10, -100);
-    var northEast = L.latLng(36, -10);
-    var bounds = L.latLngBounds(southWest, northEast);
-    L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map);
+    // var southWest = L.latLng(10, -100);
+    // var northEast = L.latLng(36, -10);
+    // var bounds = L.latLngBounds(southWest, northEast);
+    // L.rectangle(bounds, {color: "#ff7800", weight: 1}).addTo(map);
 
     //--------- plus overlap
 
@@ -79,12 +79,12 @@ $(document).ready(function(){
 
 
 
-//--------SOUTHWEST USA + MEXIKO   
+    //--------SOUTHWEST USA + MEXIKO   
 
-    southWest = L.latLng(10, -179);
-    northEast = L.latLng(36, -100);
-    bounds = L.latLngBounds(southWest, northEast);
-    L.rectangle(bounds, {color: "#0078ff", weight: 1}).addTo(map);
+    // southWest = L.latLng(10, -179);
+    // northEast = L.latLng(36, -100);
+    // bounds = L.latLngBounds(southWest, northEast);
+    // L.rectangle(bounds, {color: "#0078ff", weight: 1}).addTo(map);
 
     //--------- plus overlap
 
@@ -93,12 +93,12 @@ $(document).ready(function(){
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#0078ff", weight: 1}).addTo(map);
 
-//--------NORTHWEST USA + CANADA 
+    //--------NORTHWEST USA + CANADA 
 
-    southWest = L.latLng(36, -179);
-    northEast = L.latLng(84, -100);
-    bounds = L.latLngBounds(southWest, northEast);
-    L.rectangle(bounds, {color: "#00ff00", weight: 1}).addTo(map);
+    // southWest = L.latLng(36, -179);
+    // northEast = L.latLng(84, -100);
+    // bounds = L.latLngBounds(southWest, northEast);
+    // L.rectangle(bounds, {color: "#00ff00", weight: 1}).addTo(map);
 
     //--------- plus overlap
 
@@ -107,12 +107,12 @@ $(document).ready(function(){
     bounds = L.latLngBounds(southWest, northEast);
     L.rectangle(bounds, {color: "#00ff00", weight: 1}).addTo(map);
 
-//--------NORTHEAST USA + CANADA 
+    //--------NORTHEAST USA + CANADA 
 
-    southWest = L.latLng(36, -100);
-    northEast = L.latLng(84, -10);
+    // southWest = L.latLng(36, -100);
+    // northEast = L.latLng(84, -10);
     bounds = L.latLngBounds(southWest, northEast);
-    L.rectangle(bounds, {color: "#ff0000", weight: 1}).addTo(map);
+    // L.rectangle(bounds, {color: "#ff0000", weight: 1}).addTo(map);
 
     //--------- plus overlap
 

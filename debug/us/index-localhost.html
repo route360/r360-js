@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route360° Example Application</title>
+    <meta charset="UTF-8">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="styles/leaflet.css"/>
+    <link rel="stylesheet" href="styles/r360.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/jquery-ui-1.10.0.custom.css"/>
+    <link rel="stylesheet" href="styles/leaflet.awesome-markers.css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="fonts/map-icons/css/map-icons.css" rel="stylesheet" type="text/css">
+
+    <style>
+        html, body, #map {
+
+            width: 100%;
+            height: 100%;
+        }
+
+        input {
+
+            width: 250px !important;
+        }
+
+        .waitControl {
+
+            display: none;
+        }
+
+        .r360-autocomplete {
+
+            height: 36px;
+        }
+
+        .table td, th {
+           text-align: center;   
+        }
+
+        .routeModus {
+
+            width: 50px;
+            height: 35px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding: 0px;
+        }
+
+        #logo {
+
+            padding: 10px;
+            -webkit-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+            -moz-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+            box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.75);
+            border-radius: 5px 5px 5px 5px;
+            -moz-border-radius: 5px 5px 5px 5px;
+            -webkit-border-radius: 5px 5px 5px 5px;
+            border: 0px solid #000000;
+            background-color: white;
+            background-color: rgba(230,230,230,0.85);
+            bottom: 0px; 
+            margin-left: 10px; 
+            margin-bottom: 10px; 
+            z-index: 1000; 
+            position: absolute; 
+            max-height: 80px;
+        }
+
+    </style>
+
+    <!-- scripts -->
+    <script src="lib/jquery-1.10.2.js"></script>
+    <script src="lib/jquery-ui-1.10.4.min.js"></script>
+    <script src="lib/leaflet.js"></script>
+    <script src="lib/underscore.js"></script>
+    <script type="text/javascript" src="../../build/deps.js"></script>
+    <script type="text/javascript" src="../../build/r360-include.js"></script>
+    <script src="lib/jquery.noty.packaged.js"></script>
+    <script src="js/cities.js"></script>
+    <script src="js/country.js"></script>
+    <script type="text/javascript" src="lib/leaflet.awesome-markers.min.js"></script>
+</head>
+<body>
+    <div id="map">
+        <a href="https://developers.route360.net" target="_blank"><img id="logo" src="images/mi_logo.png"></a>
+    </div>
+</body>
+</html>

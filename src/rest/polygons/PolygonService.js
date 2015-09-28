@@ -17,6 +17,7 @@ r360.PolygonService = {
 
             if ( !r360.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
             if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+            if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )  cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
             if ( !r360.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
             if ( !r360.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();

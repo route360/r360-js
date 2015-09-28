@@ -1,26 +1,26 @@
 $(document).ready(function(){
 
-     // var latlon = [55.675298, 12.565125];
-    var latlon = [52.5167, 13.3833];
+    var city = cities.vancouver;
+    var city = cities.berlin;
 
     // add the map and set the initial center to berlin
-    var map = L.map('map', {zoomControl : false}).setView(latlon, 12);
+    var map = L.map('map', {zoomControl : false}).setView([city.lat, city.lng], 12);
     // attribution to give credit to OSM map data and VBB for public transportation 
-    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://gtfs.geops.ch/' target='_blank'>Geops.ch</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
+    var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://www.gbrail.info/' target='_blank'>GB Rail</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service mi.0ad4304c
     var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-    // var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.h220d1ec/{z}/{x}/{y}.png', {
         maxZoom: 22, attribution: attribution }).addTo(map);
 
     var maxSources = 1;
     var currentRoute;
     var elevationData = [];
-    var date = '20150713';
-    var time = '39000';
-
+    var date = '20150813';
+    var time = '39600';
+    var date = '20140825';
+    var time = '39600';
     var elevationColors = [{
         label               : "1",
         fillColor           : "#d43e2a",
@@ -51,20 +51,18 @@ $(document).ready(function(){
     var rentalLayer   = L.featureGroup().addTo(map);
     var targetLayer   = L.featureGroup().addTo(map);
     var polygonLayer  = r360.leafletPolygonLayer().addTo(map);
-
     // set the service key, this is a demo key
     // please contact us and request your own key
-    r360.config.requestTimeout                              = 60000;
-    r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
-    r360.config.serviceUrl                                  = 'http://api.route360.net/api_denmark/';
-    r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.requestTimeout                              = 500000;
+    r360.config.serviceKey                                  = city.key;
+    r360.config.serviceUrl                                  = city.serviceUrl;
+    r360.config.serviceUrl                                  = "http://localhost:8080/api/";
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
-    // r360.config.defaultPolygonLayerOptions.animate          = false;
-    r360.config.defaultPolygonLayerOptions.inverse          = true;
+    r360.config.defaultPolygonLayerOptions.inverse          = false;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
-    polygonLayer.setInverse(true);
+    polygonLayer.setInverse(false);
 
-    var options = { bike : true, walk : true, car : true, transit : true, biketransit : true, init : 'biketransit' };
+    var options = { bike : true, walk : true, car : true, transit : true, init : 'walk' };
 
     // define which options the user is going to have
     for ( var i = 0 ; i < maxSources ; i++ ) {
@@ -132,12 +130,12 @@ $(document).ready(function(){
     map.addControl(waitControl);
 
     r360.config.defaultTravelTimeControlOptions.travelTimes = [
-        { time : 600 * 2, color : "#006837", opacity : 1.0 },
-        { time : 600 * 4, color : "#39B54A", opacity : 1.0 },
-        { time : 600 * 6, color : "#8CC63F", opacity : 1.0 },
-        { time : 600 * 8, color : "#F7931E", opacity : 1.0 },
-        { time : 600 * 10, color : "#F15A24", opacity : 1.0 },
-        { time : 600 * 12, color : "#C1272D", opacity : 1.0 }
+        { time : 1200 * 1 * 0.25 , color : "#006837", opacity : 1.0 },
+        { time : 1200 * 2 * 0.25 , color : "#39B54A", opacity : 1.0 },
+        { time : 1200 * 3 * 0.25 , color : "#8CC63F", opacity : 1.0 },
+        { time : 1200 * 4 * 0.25 , color : "#F7931E", opacity : 1.0 },
+        { time : 1200 * 5 * 0.25 , color : "#F15A24", opacity : 1.0 },
+        { time : 1200 * 6 * 0.25 , color : "#C1272D", opacity : 1.0 }
     ];
 
     var travelTimeControl       = r360.travelTimeControl({
@@ -145,7 +143,7 @@ $(document).ready(function(){
         position    : 'topright', // this is the position in the map
         label       : 'Travel time', // the label, customize for i18n
         unit        : 'min',
-        initValue   : 120 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
+        initValue   : 20 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
     });
 
     var intersectionButtons = r360.radioButtonControl({
@@ -164,10 +162,35 @@ $(document).ready(function(){
             // each button has a label which is displayed, a key, a tooltip for mouseover events 
             // and a boolean which indicates if the button is selected by default
             // labels may contain html
-            { label: '<span class=""></span> Color', key: 'color',   checked : false  },
-            { label: '<span class=""></span> B/W',   key: 'inverse', checked : true }
+            { label: '<span class=""></span> Color', key: 'color',   checked : true  },
+            { label: '<span class=""></span> B/W',   key: 'inverse', checked : false }
         ]
     });
+
+    function test(){
+
+        var strokeWidths = [];
+        for ( var i = 0 ; i < 101 ; i++ ) {
+            strokeWidths.push({ time : i * 60, color : "grey" });
+        }
+
+        var strokeWidthsControl       = r360.travelTimeControl({
+            travelTimes : strokeWidths,
+            position    : 'topright', // this is the position in the map
+            label       : 'Stroke width', // the label, customize for i18n
+            unit        : 'px',
+            initValue   : 30 // the inital value has to match a time from travelTimes, e.g.: 40m == 2400s
+        });
+
+        map.addControl(strokeWidthsControl);
+        strokeWidthsControl.onSlideStop(function(){
+
+            r360.config.defaultPolygonLayerOptions.strokeWidth = _.max(strokeWidthsControl.getValues()) / 60;
+            updateSource();
+        });
+    };
+
+    // test();
 
     // what happens if action is performed
     polygonButtons.onChange(function(){ 
@@ -181,10 +204,11 @@ $(document).ready(function(){
     
     // add to map
     map.addControl(travelTimeControl);
-    map.addControl(intersectionButtons);
+    // map.addControl(intersectionButtons);
     map.addControl(polygonButtons);
 
     $('span[lang="de"]').hide();
+    $('span[lang="no"]').hide();
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
@@ -208,6 +232,7 @@ $(document).ready(function(){
 
             var min = _.min(_.without([index0, index1, index2], -1));
             createMarker(e.latlng, 'home',  min == 0 ? 'red' : (min == 1 ? 'orange' : 'blue'), sourceLayer, updateSource, 'undefined', min);
+            // createMarker([52.53224576102008, 13.360444755304684], 'home',  min == 0 ? 'red' : (min == 1 ? 'orange' : 'blue'), sourceLayer, updateSource, 'undefined', min);
             updateSource();
         }
         // // only so many source markers are allowed
@@ -223,6 +248,22 @@ $(document).ready(function(){
             updateTarget();
         }
     });
+
+    function asd() {
+
+        var travelOptions = r360.travelOptions();
+        travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062});
+        travelOptions.addTarget({lat : 52.52175701517317,  lng : 13.377571105957031});
+        travelOptions.setDate(20140825);
+        travelOptions.setTime(39600);
+        travelOptions.setTravelType('transit');
+
+        r360.RouteService.getRoutes(travelOptions, function(routes) {
+
+            r360.LeafletUtil.fadeIn(routeLayer, routes[0], 500, "travelDistance", { color : elevationColors[0].strokeColor, haloColor : "#ffffff" });
+        });
+    };
+    asd();
 
     /**
      * [updateAutocomplete Updates the label and latlng value of an autocomplete component, by a reverse geocoding request to nominatim.]
@@ -388,6 +429,12 @@ $(document).ready(function(){
             $('.routeModus0').css('border', "1px solid rgba(" + hexToRgb(elevationColors[0].strokeColor).join(', ') + ", " +  elevationColors[0].strokeColorOpacity + ")");
             $('.routeModus1').css('border', "1px solid rgba(" + hexToRgb(elevationColors[1].strokeColor).join(', ') + ", " +  elevationColors[1].strokeColorOpacity + ")");
             $('.routeModus2').css('border', "1px solid rgba(" + hexToRgb(elevationColors[2].strokeColor).join(', ') + ", " +  elevationColors[2].strokeColorOpacity + ")");
+        }, function(code, message){
+
+            if ( 'travel-time-exceeded' == code ) 
+                alert("The travel time to the given target exceeds the server limit.");
+            if ( 'could-not-connect-point-to-network' == code ) 
+                alert("We could not connect the target point to the network.");
         });
     };
 
@@ -407,43 +454,52 @@ $(document).ready(function(){
 
             var travelOptions = r360.travelOptions();
 
-            for ( var i = 0 ; i < maxSources ; i++ ) {
-                if ( typeof sourceMarkers[i] != 'number' ) {
+            // for ( var i = 0 ; i < maxSources ; i++ ) {
+            //     if ( typeof sourceMarkers[i] != 'number' ) {
 
-                    var sourceMarker        = sourceMarkers[i];
-                    sourceMarker.travelType = autoCompletes[i].getTravelType();
-                    travelOptions.addSource(sourceMarker);            
-                }
-            }
+            //         var sourceMarker        = sourceMarkers[i];
+            //         sourceMarker.travelType = autoCompletes[i].getTravelType();
+            //         travelOptions.addSource(sourceMarker);            
+            //     }
+            // }
 
-            travelOptions.setIntersectionMode(intersectionButtons.getValue());
-            travelOptions.setTravelTimes(travelTimeControl.getValues());
-            travelOptions.setWaitControl(waitControl);
-            travelOptions.setElevationEnabled(true);
-            travelOptions.setDate(date);
-            travelOptions.setTime(time);
-
-            var maxTravelTime = _.max(travelTimeControl.getValues());
-
-            if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
-                travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
-            if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
-                travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
-            if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
-                travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
-
-            if ( r360.config.defaultPolygonLayerOptions.inverse ) 
-                travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
+            travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062, travelType : 'transit'});
             
-            // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+            if ( travelOptions.getSources().length > 0 ) {
 
-                polygonLayer.clearAndAddLayers(polygons, true);
-            }, 
-            function(error) {
 
-                alert("Sorry... an error occured. Please try again!");
-            });
+                travelOptions.setIntersectionMode(intersectionButtons.getValue());
+                travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setWaitControl(waitControl);
+                travelOptions.setElevationEnabled(true);
+                travelOptions.setDate(date);
+                travelOptions.setTime(time);
+
+                var maxTravelTime = _.max(travelTimeControl.getValues());
+
+                if ( maxTravelTime == 1200 || maxTravelTime == 2400 )
+                    travelOptions.setMinPolygonHoleSize(10 * 1000 * 1000);
+                if ( maxTravelTime == 3600 || maxTravelTime == 4800 )
+                    travelOptions.setMinPolygonHoleSize(100 * 1000 * 1000);
+                if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
+                    travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
+
+                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                    travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
+
+                // call the service
+                r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+
+                    polygonLayer.clearAndAddLayers(polygons);
+                    polygonLayer.fitMap();
+                    
+                }, function(error) {
+
+                    console.log(error);
+                    alert("Sorry... an error occured. Please try again!");
+                }, 
+                'GET');
+            }
         }
     }
 
