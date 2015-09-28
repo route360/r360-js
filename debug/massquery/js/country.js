@@ -64,6 +64,55 @@ $(document).ready(function(){
 
     r360.config.defaultPolygonLayerOptions.tolerance = 15
 
+
+    /*  
+
+    Massquery stub
+    var longWest = 12.207132;
+    var longEast = 12.570526;
+
+    var latSouth = 55.641308;
+    var latNorth = 55.80866;
+
+    var rows = 2;
+    var cols = 2;
+
+    
+    var longDelta = longEast - longWest;
+    var latDelta = latNorth - latSouth;
+
+
+    var longInterval = longDelta / rows;
+    var latInterval = latDelta / cols;
+
+    latLng = [rows * cols];
+
+    markers = new Array();
+
+    var delay = 1000;
+
+    for(var i = 0; i < rows; i++){
+
+        for(var j = 0; j < cols; j++){
+
+            latLng[i*j] = new L.latLng(latSouth + (latInterval) * j ,longWest + (longInterval) * i);
+
+            var ll = latLng[i*j];
+
+            setTimeout(function(ll){
+                alert(ll);
+                L.marker(ll, {icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })})
+                .addTo(map)
+            }, delay += 1000);
+
+        
+
+        }
+
+    }
+
+ */
+
     
    /* var longWest = 12.207132;
     var longEast = 12.570526;
