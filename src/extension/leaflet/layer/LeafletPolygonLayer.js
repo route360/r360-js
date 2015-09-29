@@ -219,7 +219,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 this.offset = { x : 0 , y : 0 };
 
             // adjust the offset after map panning / zooming
-            if ( typeof svgPosition != 'undefined' ) {
+            if ( svgPosition ) {
                 this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX/2;
                 this.offset.y += (mapPosition.top - svgPosition.top) - this.extendWidthY/2;
             }
