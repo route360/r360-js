@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (bef1379), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (442ca8c), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1883,6 +1883,8 @@ r360.TravelOptions = function(){
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
+    this.polygonSerializer  = 'json';
+    this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
@@ -2197,6 +2199,15 @@ r360.TravelOptions = function(){
         return this.pathSerializer;
     }
 
+    /**
+     * [getPolygonSerializer description]
+     * @return {[type]} [description]
+     */
+    this.getPolygonSerializer = function(){
+
+        return this.polygonSerializer;
+    }
+
     /*
      *
      *
@@ -2305,6 +2316,11 @@ r360.TravelOptions = function(){
     this.setPathSerializer = function(pathSerializer){
 
         this.pathSerializer = pathSerializer;
+    }
+
+    this.setPolygonSerializer = function(polygonSerializer){
+
+        this.polygonSerializer = polygonSerializer;
     }
 
     
@@ -2520,6 +2536,18 @@ r360.TravelOptions = function(){
     this.getSupportWatts = function(){
         return this.supportWatts;
     }
+
+    this.disablePointReduction = function(){
+        this.pointReduction = false;
+    }
+
+    this.enablePointReduction = function(){
+        this.pointReduction = true;
+    }
+
+    this.isPointReductionEnabled = function(){
+        return this.pointReduction;
+    }
 };
 
 r360.travelOptions = function () { 
@@ -2543,11 +2571,13 @@ r360.PolygonService = {
 
             cfg.polygon = {};
 
-            if ( !r360.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
-            if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
-            if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
+            if ( !r360.isUndefined(travelOptions.getTravelTimes()) )           cfg.polygon.values             = travelOptions.getTravelTimes();
+            if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+            if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
+            if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
+            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )           cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
+            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
+            if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
             
         // add each source point and it's travel configuration to the cfg

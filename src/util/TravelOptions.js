@@ -30,6 +30,7 @@ r360.TravelOptions = function(){
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
     this.polygonSerializer  = 'json';
+    this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
@@ -680,6 +681,18 @@ r360.TravelOptions = function(){
      */
     this.getSupportWatts = function(){
         return this.supportWatts;
+    }
+
+    this.disablePointReduction = function(){
+        this.pointReduction = false;
+    }
+
+    this.enablePointReduction = function(){
+        this.pointReduction = true;
+    }
+
+    this.isPointReductionEnabled = function(){
+        return this.pointReduction;
     }
 };
 

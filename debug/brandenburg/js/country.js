@@ -263,6 +263,7 @@ $(document).ready(function(){
             r360.LeafletUtil.fadeIn(routeLayer, routes[0], 500, "travelDistance", { color : elevationColors[0].strokeColor, haloColor : "#ffffff" });
         });
     };
+
     asd();
 
     /**
@@ -470,8 +471,11 @@ $(document).ready(function(){
 
                 travelOptions.setIntersectionMode(intersectionButtons.getValue());
                 travelOptions.setTravelTimes(travelTimeControl.getValues());
+                travelOptions.setTravelTimes([300]);
                 travelOptions.setWaitControl(waitControl);
                 travelOptions.setElevationEnabled(true);
+                // travelOptions.disablePointReduction();
+                // travelOptions.setPolygonSerializer('geojson');
                 travelOptions.setDate(date);
                 travelOptions.setTime(time);
 
