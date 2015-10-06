@@ -114,7 +114,7 @@ $(document).ready(function(){
  */
 
     
-   /* var longWest = 12.207132;
+    var longWest = 12.207132;
     var longEast = 12.570526;
 
     var latSouth = 55.641308;
@@ -167,7 +167,7 @@ $(document).ready(function(){
         console.log(sources);
     });
 
-    */
+    
 
     polygonLayer.setInverse(true);
 

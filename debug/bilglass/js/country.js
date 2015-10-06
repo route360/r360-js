@@ -14,7 +14,7 @@ r360.config.requestTimeout = 10000;
 // set the service key
 r360.config.serviceKey     = 'uhWrWpUhyZQy8rPfiC7X';
 // the url of the route360 service
-r360.config.serviceUrl     = 'https://dev.route360.net/norway/';
+r360.config.serviceUrl     = 'https://api1-eu.route360.net/norway/';
 L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 
 // add the map and set the initial center to paris

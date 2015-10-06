@@ -14,7 +14,7 @@ $(document).ready(function(){
     var maxSources = 1;
     var currentRoute;
     var elevationData = [];
-    var date = '20150812';
+    var date = '20150915';
     var time = '39000';
 
     var elevationColors = [{
