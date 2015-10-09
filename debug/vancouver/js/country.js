@@ -55,6 +55,7 @@ $(document).ready(function(){
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl                                  = 'http://dev.route360.net/api_norway/';
     r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://api1-eu.route360.net/denmark/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode.route360.net/solr/select?"; 
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode.route360.net/nominatim/';
@@ -456,6 +457,7 @@ $(document).ready(function(){
                 travelOptions.setTravelTimes(travelTimeControl.getValues());
                 travelOptions.setWaitControl(waitControl);
                 travelOptions.setElevationEnabled(false);
+                travelOptions.setPolygonSerializer("geojson");
                 travelOptions.setDate(date);
                 travelOptions.setTime(time);
 

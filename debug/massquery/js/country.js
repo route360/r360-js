@@ -114,8 +114,8 @@ $(document).ready(function(){
  */
 
     
-    var longWest = 12.207132;
-    var longEast = 12.570526;
+    var longWest = 12.205132;
+    var longEast = 12.575526;
 
     var latSouth = 55.641308;
     var latNorth = 55.80866;
@@ -141,8 +141,8 @@ $(document).ready(function(){
 
             latLng[i*j] = new L.latLng(latSouth + (latInterval) * j ,longWest + (longInterval) * i);
 
-            markers.push(L.marker(latLng[i*j], {icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })})
-                .addTo(map));
+            markers.push(L.marker(latLng[i*j], {icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'green' })}));
+                //.addTo(map));
 
         }
 
