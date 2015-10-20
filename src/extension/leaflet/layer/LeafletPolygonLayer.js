@@ -100,14 +100,15 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {[type]} [description]
      */
-    fitMap: function(){
+    fitMap: function(options){
 
         // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
         // only knows the leaflet version
         var bounds = this.getBoundingBox4326();
         var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-        this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
+        this.map.fitBounds(
+            L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})), options);
     },
 
     /**
@@ -116,12 +117,12 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(multiPolygons, fitMap){
+    clearAndAddLayers : function(multiPolygons, fitMap, options){
 
         this.clearLayers();
         this.addLayer(multiPolygons);
 
-        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap();
+        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
 
         return this;
     },

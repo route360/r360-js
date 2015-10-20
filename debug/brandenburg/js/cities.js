@@ -18,6 +18,13 @@ var cities = {
         lat         : 52.5167,
         lng         : 13.3833
     },
+    vienna : {
+        name        : 'Vienna', 
+        serviceUrl  : 'http://api2-eu.route360.net/austria/',
+        key         : 'uhWrWpUhyZQy8rPfiC7X',
+        lat         : 48.184401125107684,
+        lng         : 16.39434814453125
+    },
     vancouver : {
         name        : 'Vancouver (Canada)', 
         serviceUrl  : 'http://api-us.route360.net/canada/',

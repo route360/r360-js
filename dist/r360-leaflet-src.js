@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (442ca8c), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (55d00e6), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -1611,14 +1611,15 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {[type]} [description]
      */
-    fitMap: function(){
+    fitMap: function(options){
 
         // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
         // only knows the leaflet version
         var bounds = this.getBoundingBox4326();
         var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-        this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
+        this.map.fitBounds(
+            L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})), options);
     },
 
     /**
@@ -1627,12 +1628,12 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(multiPolygons, fitMap){
+    clearAndAddLayers : function(multiPolygons, fitMap, options){
 
         this.clearLayers();
         this.addLayer(multiPolygons);
 
-        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap();
+        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
 
         return this;
     },
@@ -1730,7 +1731,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 this.offset = { x : 0 , y : 0 };
 
             // adjust the offset after map panning / zooming
-            if ( typeof svgPosition != 'undefined' ) {
+            if ( svgPosition ) {
                 this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX/2;
                 this.offset.y += (mapPosition.top - svgPosition.top) - this.extendWidthY/2;
             }
@@ -1778,6 +1779,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
 r360.leafletPolygonLayer = function (options) {
     return new r360.LeafletPolygonLayer(options);
 };
+
 
 /*
  *
