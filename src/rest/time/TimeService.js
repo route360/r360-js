@@ -166,9 +166,15 @@ r360.TimeService = {
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
+                    if ( r360.isFunction(errorCallback) ) {
+
+                        if ( data.status == 403 ) 
+                            errorCallback("not-authorized", data.responseText); 
+                        else 
+                            errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
+                    }
                 }
             });
         }

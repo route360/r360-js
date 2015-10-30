@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (55d00e6), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (3f026f9), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2728,9 +2728,15 @@ r360.PolygonService = {
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+                    
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
+                    if ( r360.isFunction(errorCallback) ) {
+
+                        if ( data.status == 403 ) 
+                            errorCallback("not-authorized", data.responseText); 
+                        else 
+                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
+                    }
                 }
             };
 
@@ -3050,13 +3056,19 @@ r360.RouteService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data, test){ 
+                error: function(data){ 
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
+                    if ( r360.isFunction(errorCallback) ) {
+
+                        if ( data.status == 403 ) 
+                            errorCallback("not-authorized", data.responseText); 
+                        else 
+                            errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
+                    }
                 }
             });
         }
@@ -3238,9 +3250,15 @@ r360.TimeService = {
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
+                    if ( r360.isFunction(errorCallback) ) {
+
+                        if ( data.status == 403 ) 
+                            errorCallback("not-authorized", data.responseText); 
+                        else 
+                            errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
+                    }
                 }
             });
         }

@@ -143,13 +143,19 @@ r360.RouteService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data, test){ 
+                error: function(data){ 
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
+                    if ( r360.isFunction(errorCallback) ) {
+
+                        if ( data.status == 403 ) 
+                            errorCallback("not-authorized", data.responseText); 
+                        else 
+                            errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
+                    }
                 }
             });
         }
