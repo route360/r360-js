@@ -6,10 +6,7 @@
         "jan.silbersiepe@motionintelligence.net"
     ],
     "description": "Route360° JavaScript API",
-    "main": [
-        "dist/r360-src.js",
-        "dist/r360.css"
-    ],
+    "main": "dist/r360-src.js",
     "keywords": [
         "r360",
         "route360",
