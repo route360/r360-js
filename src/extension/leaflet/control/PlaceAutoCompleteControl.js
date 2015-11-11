@@ -10,22 +10,22 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         if ( typeof options !== "undefined" ) {
             
-            if ( _.has(options, 'position'))      this.options.position      = options.position;
-            if ( _.has(options, 'label'))         this.options.label         = options.label;
-            if ( _.has(options, 'country'))       this.options.country       = options.country;
-            if ( _.has(options, 'reset'))         this.options.reset         = options.reset;
-            if ( _.has(options, 'reverse'))       this.options.reverse       = options.reverse;
-            if ( _.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
-            if ( _.has(options, 'width'))         this.options.width         = options.width;
-            if ( _.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
-            if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
-            if ( _.has(options, 'image'))         this.options.image         = options.image;
-            if ( _.has(options, 'index'))         this.options.index         = options.index;
-            if ( _.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
-            if ( _.has(options, 'options')) {
+            if ( r360.has(options, 'position'))      this.options.position      = options.position;
+            if ( r360.has(options, 'label'))         this.options.label         = options.label;
+            if ( r360.has(options, 'country'))       this.options.country       = options.country;
+            if ( r360.has(options, 'reset'))         this.options.reset         = options.reset;
+            if ( r360.has(options, 'reverse'))       this.options.reverse       = options.reverse;
+            if ( r360.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
+            if ( r360.has(options, 'width'))         this.options.width         = options.width;
+            if ( r360.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
+            if ( r360.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
+            if ( r360.has(options, 'image'))         this.options.image         = options.image;
+            if ( r360.has(options, 'index'))         this.options.index         = options.index;
+            if ( r360.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
+            if ( r360.has(options, 'options')) {
 
                  this.options.options    = options.options;
-                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+                 this.options.travelType = r360.has(this.options.options, 'init') ? this.options.options.init : 'walk';
             }   
         }
     },
@@ -177,7 +177,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
 
-        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
+        if ( r360.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
         $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
 
@@ -246,10 +246,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             if (place.city)       secondRow.push(place.city);
 
                             // only show country if undefined
-                            if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
+                            if ( !r360.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
                             // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            if ( r360.contains(places, firstRow.join() + secondRow.join()) ) return; 
                             else places.push(firstRow.join() + secondRow.join());
 
                             return {

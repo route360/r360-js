@@ -89,7 +89,7 @@ r360.RadioButtonControl = L.Control.extend({
         div.addClass('r360-box-shadow');
 
         // add each button to the group
-        _.each(that.options.buttons, function(button){
+        r360.each(that.options.buttons, function(button){
 
             // generate a unique id for each button
             var id = r360.Util.generateId();

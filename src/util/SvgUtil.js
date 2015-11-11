@@ -105,7 +105,7 @@ r360.SvgUtil = {
      */
     buildSVGPolygon: function(pathData, coordinateArray, options){
 
-        var projectedPoint, point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
+        var point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
         var boundArray = [[options.bounds.min.x, options.bounds.min.y], 
                           [options.bounds.max.x, options.bounds.min.y], 
                           [options.bounds.max.x, options.bounds.max.y], 

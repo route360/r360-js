@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 ("19fdfde"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (543477b), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -14,21 +14,21 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
         if ( typeof options !== "undefined" ) {
             
-            if ( _.has(options, 'position'))    this.options.position    = options.position;
-            if ( _.has(options, 'label'))       this.options.label       = options.label;
-            if ( _.has(options, 'country'))     this.options.country     = options.country;
-            if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
-            if ( _.has(options, 'serviceUrl'))  this.options.serviceUrl       = options.serviceUrl;
-            if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
-            if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
-            if ( _.has(options, 'width'))       this.options.width       = options.width;
-            if ( _.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
-            if ( _.has(options, 'image'))       this.options.image       = options.image;
-            if ( _.has(options, 'index'))       this.options.index       = options.index;
-            if ( _.has(options, 'options')) {
+            if ( r360.has(options, 'position'))    this.options.position    = options.position;
+            if ( r360.has(options, 'label'))       this.options.label       = options.label;
+            if ( r360.has(options, 'country'))     this.options.country     = options.country;
+            if ( r360.has(options, 'reset'))       this.options.reset       = options.reset;
+            if ( r360.has(options, 'serviceUrl'))  this.options.serviceUrl       = options.serviceUrl;
+            if ( r360.has(options, 'reverse'))     this.options.reverse     = options.reverse;
+            if ( r360.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
+            if ( r360.has(options, 'width'))       this.options.width       = options.width;
+            if ( r360.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
+            if ( r360.has(options, 'image'))       this.options.image       = options.image;
+            if ( r360.has(options, 'index'))       this.options.index       = options.index;
+            if ( r360.has(options, 'options')) {
 
                  this.options.options    = options.options;
-                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+                 this.options.travelType = r360.has(this.options.options, 'init') ? this.options.options.init : 'walk';
             }   
         }
     },
@@ -153,7 +153,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
 
-        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
+        if ( r360.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
         $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
 
@@ -161,10 +161,10 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                 that.source = this;
 
-                var requestElements = request.term.split(" ");
-                var numbers = new Array();
+                //var requestElements = request.term.split(" ");
+                //var numbers = new Array();
                 var requestString = request.term;
-                var numberString = "";
+                //var numberString = "";
                     
                 // for(var i = 0; i < requestElements.length; i++){
                     
@@ -223,11 +223,11 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                             if (place.city)       secondRow.push(place.city);
 
                             // only show country if undefined
-                            // if ( !_.has(that.options, 'country') && place.country ) 
+                            // if ( !r360.has(that.options, 'country') && place.country ) 
                                 secondRow.push(place.country);
 
                             // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            if ( r360.contains(places, firstRow.join() + secondRow.join()) ) return; 
                             else places.push(firstRow.join() + secondRow.join());
 
                             return {
@@ -360,22 +360,22 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         if ( typeof options !== "undefined" ) {
             
-            if ( _.has(options, 'position'))      this.options.position      = options.position;
-            if ( _.has(options, 'label'))         this.options.label         = options.label;
-            if ( _.has(options, 'country'))       this.options.country       = options.country;
-            if ( _.has(options, 'reset'))         this.options.reset         = options.reset;
-            if ( _.has(options, 'reverse'))       this.options.reverse       = options.reverse;
-            if ( _.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
-            if ( _.has(options, 'width'))         this.options.width         = options.width;
-            if ( _.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
-            if ( _.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
-            if ( _.has(options, 'image'))         this.options.image         = options.image;
-            if ( _.has(options, 'index'))         this.options.index         = options.index;
-            if ( _.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
-            if ( _.has(options, 'options')) {
+            if ( r360.has(options, 'position'))      this.options.position      = options.position;
+            if ( r360.has(options, 'label'))         this.options.label         = options.label;
+            if ( r360.has(options, 'country'))       this.options.country       = options.country;
+            if ( r360.has(options, 'reset'))         this.options.reset         = options.reset;
+            if ( r360.has(options, 'reverse'))       this.options.reverse       = options.reverse;
+            if ( r360.has(options, 'placeholder'))   this.options.placeholder   = options.placeholder;
+            if ( r360.has(options, 'width'))         this.options.width         = options.width;
+            if ( r360.has(options, 'maxRows'))       this.options.maxRows       = options.maxRows;
+            if ( r360.has(options, 'showOnStartup')) this.options.showOnStartup = options.showOnStartup;
+            if ( r360.has(options, 'image'))         this.options.image         = options.image;
+            if ( r360.has(options, 'index'))         this.options.index         = options.index;
+            if ( r360.has(options, 'autoHide'))      this.options.autoHide      = options.autoHide;
+            if ( r360.has(options, 'options')) {
 
                  this.options.options    = options.options;
-                 this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
+                 this.options.travelType = r360.has(this.options.options, 'init') ? this.options.options.init : 'walk';
             }   
         }
     },
@@ -527,7 +527,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         // no click on the map, if click on container        
         L.DomEvent.disableClickPropagation(nameContainer);      
 
-        if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
+        if ( r360.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
         $(nameContainer).find("#autocomplete-" + that.options.id).autocomplete({
 
@@ -596,10 +596,10 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             if (place.city)       secondRow.push(place.city);
 
                             // only show country if undefined
-                            if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
+                            if ( !r360.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
                             // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            if ( r360.contains(places, firstRow.join() + secondRow.join()) ) return; 
                             else places.push(firstRow.join() + secondRow.join());
 
                             return {
@@ -956,15 +956,15 @@ r360.TravelTimeControl = L.Control.extend({
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
-            if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
-            if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
-            if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
-            if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
-            if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
-            if ( _.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
+            if ( r360.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
+            if ( r360.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
+            if ( r360.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
+            if ( r360.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
+            if ( r360.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
+            if ( r360.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
         }
 
-        this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
+        this.options.maxValue   = r360.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
         this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
     },
 
@@ -1022,7 +1022,7 @@ r360.TravelTimeControl = L.Control.extend({
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
         this.options.labelSpan = this.options.label;
 
-        if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
+        if ( r360.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
         var unitSpan = $('<span/>', {"text" : this.options.unit});
@@ -1126,7 +1126,7 @@ r360.TravelTimeControl = L.Control.extend({
      */ 
     getMaxValue : function() {
 
-        return _.max(this.getValues());
+        return r360.max(this.getValues());
     }
 });
 
@@ -1317,7 +1317,7 @@ r360.RadioButtonControl = L.Control.extend({
         div.addClass('r360-box-shadow');
 
         // add each button to the group
-        _.each(that.options.buttons, function(button){
+        r360.each(that.options.buttons, function(button){
 
             // generate a unique id for each button
             var id = r360.Util.generateId();
@@ -1470,7 +1470,7 @@ r360.CheckboxButtonControl = L.Control.extend({
         div.addClass('r360-box-shadow');
 
         // add each button to the group
-        _.each(that.options.buttons, function(button){
+        r360.each(that.options.buttons, function(button){
 
             // generate a unique id for each button
             var id = r360.Util.generateId();
@@ -1485,7 +1485,7 @@ r360.CheckboxButtonControl = L.Control.extend({
 
             var label = $('<label/>', { 
                 "for"  : 'r360_' + id, 
-                "html" : !_.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
+                "html" : !r360.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
             });
 
             // make the button selected (default buttin)
@@ -1869,8 +1869,8 @@ r360.LeafletUtil = {
 
             if ( typeof segment !== 'undefined') {
 
-                var variable = !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
-                variable = variable == '' && !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
+                var variable = !r360.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
+                variable = variable == '' && !r360.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
 
                 popup = popup.replace('INSERT_TEXT', variable);
             }
@@ -1996,7 +1996,7 @@ r360.LeafletUtil = {
 
         function interpolatePoint(latlng1, latlng2, percent){
 
-            var project, unproject, tempmap;
+            var tempmap;
 
             /*
                 ugly hack. shall be redone when working with projected coordinates

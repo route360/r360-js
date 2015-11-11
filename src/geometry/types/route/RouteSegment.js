@@ -32,7 +32,7 @@ r360.RouteSegment = function(segment){
     // for transit segments like depature station and route short sign
     if ( segment.isTransit ) {
 
-        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType});
+        var colorObject     = r360.findWhere(r360.config.routeTypes, {routeType : segment.routeType});
         that.color          = typeof colorObject != 'undefined' && r360.has(colorObject, 'color')     ? colorObject.color : 'RED';
         that.haloColor      = typeof colorObject != 'undefined' && r360.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
         that.transitSegment = true;
@@ -46,7 +46,7 @@ r360.RouteSegment = function(segment){
     }
     else {
 
-        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.type});
+        var colorObject     = r360.findWhere(r360.config.routeTypes, {routeType : segment.type});
         that.color          = typeof colorObject != 'undefined' && r360.has(colorObject, 'color')     ? colorObject.color : 'RED';
         that.haloColor      = typeof colorObject != 'undefined' && r360.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
     }

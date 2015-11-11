@@ -92,7 +92,7 @@ r360.CheckboxButtonControl = L.Control.extend({
         div.addClass('r360-box-shadow');
 
         // add each button to the group
-        _.each(that.options.buttons, function(button){
+        r360.each(that.options.buttons, function(button){
 
             // generate a unique id for each button
             var id = r360.Util.generateId();
@@ -107,7 +107,7 @@ r360.CheckboxButtonControl = L.Control.extend({
 
             var label = $('<label/>', { 
                 "for"  : 'r360_' + id, 
-                "html" : !_.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
+                "html" : !r360.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
             });
 
             // make the button selected (default buttin)

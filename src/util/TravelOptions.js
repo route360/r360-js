@@ -58,7 +58,7 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Sources are not of type array!');
 
         // is the given travel type supported
-        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
+        if ( !r360.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
             this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
         else {
 
@@ -103,7 +103,7 @@ r360.TravelOptions = function(){
             }
             else {
 
-                if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
+                if ( r360.filter(this.getTravelTimes(), function(entry){ return typeof entry !== 'number'; }).length > 0 )
                     this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
             }
         }
@@ -138,7 +138,7 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Targets are not of type array!');
 
         // is the given path serializer supported
-        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
             this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
 
         // false if we found errors
@@ -155,7 +155,7 @@ r360.TravelOptions = function(){
         this.isValidRouteServiceOptions();
 
         // is the given path serializer supported
-        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
             this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
 
         // false if we found errors

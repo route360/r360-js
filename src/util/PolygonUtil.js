@@ -173,7 +173,7 @@ r360.PolygonUtil = {
      */
     addPolygonToMultiPolygon: function(multiPolygons, polygon){
 
-        var filteredMultiPolygons = _.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
+        var filteredMultiPolygons = r360.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
 
         // multipolygon with polygon's travetime already there
         if ( filteredMultiPolygons.length > 0 ) filteredMultiPolygons[0].addPolygon(polygon);

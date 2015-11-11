@@ -1,26 +1,90 @@
 /*
- Route360° JavaScript API v0.2.1 ("19fdfde"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (543477b), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
 	version : 'v0.2.1',
 
-    // Is a given variable undefined?
-    isUndefined : function(obj) {
-        return obj === void 0;
-    },
-    
-    // Shortcut function for checking if an object has a given property directly
-    // on itself (in other words, not on a prototype).
-    has : function(obj, key) {
-        return obj != null && hasOwnProperty.call(obj, key);
-    },
-    
-    // is a given object a function
-    isFunction : function(obj) {
-      return typeof obj == 'function' || false;
+  // Is a given variable undefined?
+  isUndefined : function(obj) {
+      return obj === void 0;
+  },
+  
+  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  has : function(obj, key) {
+      return obj != null && hasOwnProperty.call(obj, key);
+  },
+  
+  // is a given object a function
+  isFunction : function(obj) {
+    return typeof obj == 'function' || false;
+  },
+
+  findWhere : function(array, attr) {
+    var result = undefined;
+    array.some(function(elem,index,array){
+      var match = false;
+      for(var index in attr) {
+        match = (r360.has(elem,index) && elem[index] === attr[index]) ? true : false;
+      }
+      if (match) {
+        result = elem;
+        return true;
+      }
+    });
+    return result;
+  },
+
+  filter : function(array,predicate) {
+    var results = [];
+    array.forEach(function(elem,index,array){
+      if (predicate(elem, index, array)) results.push(elem);
+    });
+    return results;
+  }, 
+
+  contains : function(array,item) {
+    return array.indexOf(item) > -1;
+  },
+
+  each : function(array,cb) {
+    array.forEach(function(elem,index,array){
+      cb(elem,index,array);
+    });
+  },
+
+  max : function(array, iteratee, context) {
+    var result = -Infinity, lastComputed = -Infinity,
+        value, computed;
+    if (iteratee == null || (typeof iteratee == 'number' && typeof array[0] != 'arrayect') && array != null) {
+      for (var i = 0, length = array.length; i < length; i++) {
+        value = array[i];
+        if (value != null && value > result) {
+          result = value;
+        }
+      }
+    } else {
+      r360.each(array, function(elem, index, array) {
+        computed = iteratee(elem, index, array);
+        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
+          result = elem;
+          lastComputed = computed;
+        }
+      });
     }
+    return result;
+  },
+
+  keys : function(obj) {
+    if (typeof obj !== 'Object') return [];
+    if (Object.keys(obj)) return Object.keys(obj);
+    var keys = [];
+    for (var key in obj) if (r360.has(obj, key)) keys.push(key);
+    return keys;
+  }
+
 };
 
 function expose() {
@@ -375,7 +439,7 @@ r360.config = {
         switchLanguage : function() {
 
             var selector = [];
-            _.each(r360.config.i18n.configuredLanguages, function(language){
+            r360.each(r360.config.i18n.configuredLanguages, function(language){
                 selector.push("[lang='"+language+"']"); 
             });
 
@@ -386,7 +450,7 @@ r360.config = {
         getSpan : function(key) {
 
             var translation = "";    
-            _.each(_.keys(r360.config.i18n[key]), function(language){
+            r360.each(r360.keys(r360.config.i18n[key]), function(language){
                 translation += '<span lang="'+language+'">'+r360.config.i18n[key][language]+'</span>';
             })
 
@@ -396,10 +460,10 @@ r360.config = {
         getSpan : function(key, variables) {
 
             var translation = "";    
-            _.each(_.keys(r360.config.i18n[key]), function(language){
+            r360.each(r360.keys(r360.config.i18n[key]), function(language){
 
                 var template = r360.config.i18n[key][language];
-                _.each(variables, function(variable){
+                r360.each(variables, function(variable){
                     template = template.replace("{}", variable);
                 })
 
@@ -412,7 +476,7 @@ r360.config = {
         get : function(key){
 
             var translation;
-            _.each(_.keys(r360.config.i18n), function(aKey){
+            r360.each(r360.keys(r360.config.i18n), function(aKey){
                 if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
             })
 
@@ -1263,7 +1327,7 @@ r360.PolygonUtil = {
      */
     addPolygonToMultiPolygon: function(multiPolygons, polygon){
 
-        var filteredMultiPolygons = _.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
+        var filteredMultiPolygons = r360.filter(multiPolygons, function(multiPolygon){ return multiPolygon.getTravelTime() == polygon.travelTime; });
 
         // multipolygon with polygon's travetime already there
         if ( filteredMultiPolygons.length > 0 ) filteredMultiPolygons[0].addPolygon(polygon);
@@ -1386,7 +1450,7 @@ r360.SvgUtil = {
      */
     buildSVGPolygon: function(pathData, coordinateArray, options){
 
-        var projectedPoint, point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
+        var point, point1, point2, isCollinear, euclidianDistance, pointCount = 0;
         var boundArray = [[options.bounds.min.x, options.bounds.min.y], 
                           [options.bounds.max.x, options.bounds.min.y], 
                           [options.bounds.max.x, options.bounds.max.y], 
@@ -1558,9 +1622,9 @@ r360.Util = {
         var id       = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        _.each(_.range(length ? length : 10), function(){
+        for (var i = 0; i < (length ? length : 10); i++) {
             id += possible.charAt(Math.floor(Math.random() * possible.length));
-        })
+        }
 
         return id;
     },
@@ -1667,11 +1731,11 @@ r360.Util = {
                 // create a polygon with the outer boundary as the initial linestring
                 var polygon       = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.lineString(r360.Util.parseLatLonArray(polygonJson.outerBoundary)));
                 // set color and default to black of not found
-                var color       = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
-                polygon.setColor(!_.isUndefined(color) ? color.color : '#000000');
+                var color       = r360.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                polygon.setColor(!r360.isUndefined(color) ? color.color : '#000000');
                 // set opacity and default to 1 if not found
-                var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
-                polygon.setOpacity(!_.isUndefined(opacity) ? opacity.opacity : 1);
+                var opacity = r360.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
+                polygon.setOpacity(!r360.isUndefined(opacity) ? opacity.opacity : 1);
                 
                 if ( typeof polygonJson.innerBoundary !== 'undefined' ) {
 
@@ -1912,7 +1976,7 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Sources are not of type array!');
 
         // is the given travel type supported
-        if ( !_.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
+        if ( !r360.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
             this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
         else {
 
@@ -1957,7 +2021,7 @@ r360.TravelOptions = function(){
             }
             else {
 
-                if ( _.reject(this.getTravelTimes(), function(entry){ return typeof entry == 'number'; }).length > 0 )
+                if ( r360.filter(this.getTravelTimes(), function(entry){ return typeof entry !== 'number'; }).length > 0 )
                     this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
             }
         }
@@ -1992,7 +2056,7 @@ r360.TravelOptions = function(){
         else this.getErrors().push('Targets are not of type array!');
 
         // is the given path serializer supported
-        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
             this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
 
         // false if we found errors
@@ -2009,7 +2073,7 @@ r360.TravelOptions = function(){
         this.isValidRouteServiceOptions();
 
         // is the given path serializer supported
-        if ( !_.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
+        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
             this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
 
         // false if we found errors
@@ -2852,7 +2916,7 @@ r360.PopulationService = {
         });
 
         var statistics = [];
-        _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
+        r360.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
 
         if ( !r360.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
 
@@ -3902,7 +3966,7 @@ r360.RouteSegment = function(segment){
     // for transit segments like depature station and route short sign
     if ( segment.isTransit ) {
 
-        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.routeType});
+        var colorObject     = r360.findWhere(r360.config.routeTypes, {routeType : segment.routeType});
         that.color          = typeof colorObject != 'undefined' && r360.has(colorObject, 'color')     ? colorObject.color : 'RED';
         that.haloColor      = typeof colorObject != 'undefined' && r360.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
         that.transitSegment = true;
@@ -3916,7 +3980,7 @@ r360.RouteSegment = function(segment){
     }
     else {
 
-        var colorObject     = _.findWhere(r360.config.routeTypes, {routeType : segment.type});
+        var colorObject     = r360.findWhere(r360.config.routeTypes, {routeType : segment.type});
         that.color          = typeof colorObject != 'undefined' && r360.has(colorObject, 'color')     ? colorObject.color : 'RED';
         that.haloColor      = typeof colorObject != 'undefined' && r360.has(colorObject, 'haloColor') ? colorObject.haloColor : 'WHITE';
     }
@@ -4127,8 +4191,7 @@ r360.Route = function(travelTime, segments){
 
     that.setElevationDifferences = function() {
 
-        var previousHeight   = undefined; 
-        var sourceHeight, targetHeight;
+        var previousHeight   = undefined;
 
         for ( var i = that.points.length - 1; i >= 0 ; i-- ) {
 

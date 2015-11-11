@@ -21,10 +21,7 @@
     ],
     "dependencies": {
         "leaflet"       : "0.7.3",
-        "bootstrap"     : "3.1.1",
         "jquery"        : "1.10.2",
-        "underscore"    : "1.6.0",
-        "font-awesome"  : "4.1.0",
         "jquery-ui"     : "1.10.4"
     },
     "homepage": "http://developers.route360.net/",
