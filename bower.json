@@ -7,10 +7,8 @@
     ],
     "description": "Route360° JavaScript API",
     "main": [
-        "dist/r360-core.js",
-        "dist/r360-leaflet.js",
-        "dist/r360-google.js",
-        "dist/r360.css",
+        "dist/r360-src.js",
+        "dist/r360.css"
     ],
     "keywords": [
         "r360",
@@ -21,8 +19,7 @@
     ],
     "dependencies": {
         "leaflet"       : "0.7.3",
-        "jquery"        : "1.10.2",
-        "jquery-ui"     : "1.10.4"
+        "jquery"        : "1.10.2"
     },
     "homepage": "http://developers.route360.net/",
     "ignore": [

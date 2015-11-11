@@ -81,31 +81,7 @@ function build(callback, version, buildName, module){
         outro = '}(window, document));\n\n',
         newSrc = copy + intro + combinedFiles + outro,
 
-        pathPart = 'dist/r360-core' + (buildName ? '-' + buildName : ''),
-        srcPath = pathPart + '-src.js',
-
-        oldSrc = loadSilently(srcPath),
-        srcDelta = getSizeDelta(newSrc, oldSrc, true);
-    }
-    else if ( module == 'leaflet' ) {
-
-        var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
-        intro = '(function (window, document, undefined) {',
-        outro = '}(window, document));\n\n',
-        newSrc = copy + intro + combinedFiles + outro,
-
-        pathPart = 'dist/r360-leaflet' + (buildName ? '-' + buildName : ''),
-        srcPath = pathPart + '-src.js',
-
-        oldSrc = loadSilently(srcPath),
-        srcDelta = getSizeDelta(newSrc, oldSrc, true);
-    }
-    else if ( module == 'google' ) {
-        
-        var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
-        newSrc = copy + combinedFiles,
-
-        pathPart = 'dist/r360-google' + (buildName ? '-' + buildName : ''),
+        pathPart = 'dist/r360' + (buildName ? '-' + buildName : ''),
         srcPath = pathPart + '-src.js',
 
         oldSrc = loadSilently(srcPath),
@@ -173,9 +149,9 @@ exports.build = function (callback, version, buildName) {
 
     build(callback, version, buildName, 'core');
     console.log('---------------------------------------------------------');
-    build(callback, version, buildName, 'google');
-    console.log('---------------------------------------------------------');
-    build(callback, version, buildName, 'leaflet');
+    // build(callback, version, buildName, 'google');
+    // console.log('---------------------------------------------------------');
+    // build(callback, version, buildName, 'leaflet');
 };
 
 exports.test = function(complete, fail) {

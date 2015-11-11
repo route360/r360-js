@@ -28,33 +28,13 @@ var deps = {
               'geometry/types/linestring/LineString.js',
               'geometry/types/route/RouteSegment.js',
               'geometry/types/route/RouteSegment.js',
-              'geometry/types/route/Route.js'
+              'geometry/types/route/Route.js',
+              'extension/leaflet/layer/LeafletPolygonLayer.js',
+              'extension/leaflet/util/LeafletUtil.js',
+              'extension/google/layer/GoogleMapsPolygonLayer.js',
+              'extension/google/util/GoogleMapsUtil.js'
         ],
         desc: 'This package contains all classes which are not dependent on any online map library like leaflet or google maps. '
-    }
-    ,
-    google : {
-        src : [ 'extension/google/layer/GoogleMapsPolygonLayer.js',
-                'extension/google/util/GoogleMapsUtil.js'  
-         ],
-        desc: 'Contains stuff which is needed to display polygons on a Google Map',
-    }
-    ,
-    leaflet : {
-        src: ['extension/leaflet/control/PhotonPlaceAutoCompleteControl.js',
-              'extension/leaflet/control/PlaceAutoCompleteControl.js',
-              'extension/leaflet/control/TravelStartDateControl.js',
-              'extension/leaflet/control/TravelStartTimeControl.js',
-              'extension/leaflet/control/TravelTimeControl.js',
-              'extension/leaflet/control/WaitControl.js',
-              'extension/leaflet/control/HtmlControl.js',
-              'extension/leaflet/control/RadioButtonControl.js',
-              'extension/leaflet/control/CheckboxButtonControl.js',
-              'extension/leaflet/layer/LeafletPolygonLayer.js',
-              'extension/leaflet/util/LeafletUtil.js'
-             ],
-        desc: 'Contains GUI elements ',
-        heading: ''
     }
 };
 
