@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    var city = cities.sanfran;
+    var city = cities.berlin;
 
     // add the map and set the initial center to berlin
     var map = L.map('map', {zoomControl : false}).setView([city.lat, city.lng], 10);
@@ -56,13 +56,13 @@ $(document).ready(function(){
     r360.config.serviceKey                                  = city.key;
     r360.config.serviceUrl                                  = city.serviceUrl;
     // r360.config.serviceUrl                                  = 'http://api2-eu.route360.net/france/';
-    // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
+    r360.config.serviceUrl                                  = 'http://service.route360.net/xxx/';
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://photon.komoot.de/api/"; 
     polygonLayer.setInverse(false);
 
     var options = { bike : true, walk : true, car : true, transit : true, init : 'transit' };
 
-    var autoComplete = r360.photonPlaceAutoCompleteControl({ serviceUrl : 'http://photon.komoot.de/api/', placeholder : 'Select source!', reset : true, index : 0, reverse : false, image : 'images/source'+0+'.png', options : options});
+    var autoComplete = r360.photonPlaceAutoCompleteControl({ serviceUrl : 'https://photon.komoot.de/api/', placeholder : 'Select source!', reset : true, index : 0, reverse : false, image : 'images/source'+0+'.png', options : options});
 
     sourceMarker = createMarker([city.lat, city.lng], 'home', 'red', sourceLayer, updateSource, 'undefined');
 

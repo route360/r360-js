@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (19fdfde), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -18,7 +18,6 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             if ( _.has(options, 'label'))       this.options.label       = options.label;
             if ( _.has(options, 'country'))     this.options.country     = options.country;
             if ( _.has(options, 'reset'))       this.options.reset       = options.reset;
-            if ( _.has(options, 'serviceUrl'))  this.options.serviceUrl       = options.serviceUrl;
             if ( _.has(options, 'reverse'))     this.options.reverse     = options.reverse;
             if ( _.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
             if ( _.has(options, 'width'))       this.options.width       = options.width;
@@ -163,25 +162,27 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                 var requestElements = request.term.split(" ");
                 var numbers = new Array();
-                var requestString = request.term;
+                var requestString = "";
                 var numberString = "";
                     
-                // for(var i = 0; i < requestElements.length; i++){
+                for(var i = 0; i < requestElements.length; i++){
                     
-                //     if(requestElements[i].search(".*[0-9].*") != -1)
-                //         numbers.push(requestElements[i]);
-                //     else
-                //         requestString += requestElements[i] + " ";
-                // }
+                    if(requestElements[i].search(".*[0-9].*") != -1)
+                        numbers.push(requestElements[i]);
+                    else
+                        requestString += requestElements[i] + " ";
+                }
 
-                // if ( numbers.length > 0 ) {
-                //     numberString += " OR ";
+                if ( numbers.length > 0 ) {
+                    numberString += " OR ";
                     
-                //     for(var j = 0; j < numbers.length; j++){
-                //         var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
-                //         numberString +=  n;
-                //     }
-                // }
+                    for(var j = 0; j < numbers.length; j++){
+                        var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
+                        numberString +=  n;
+                    }
+                }
+
+                console.log(that.options.map.getCenter());
 
                 $.ajax({
                     url: that.options.serviceUrl, 
@@ -1611,15 +1612,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {[type]} [description]
      */
-    fitMap: function(options){
+    fitMap: function(){
 
         // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
         // only knows the leaflet version
         var bounds = this.getBoundingBox4326();
         var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-        this.map.fitBounds(
-            L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})), options);
+        this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})));
     },
 
     /**
@@ -1628,12 +1628,12 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @param  {[type]} multiPolygons [description]
      * @return {[type]}                  [description]
      */
-    clearAndAddLayers : function(multiPolygons, fitMap, options){
+    clearAndAddLayers : function(multiPolygons, fitMap){
 
         this.clearLayers();
         this.addLayer(multiPolygons);
 
-        if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
+        if ( typeof fitMap !== 'undefined' ) this.fitMap();
 
         return this;
     },
@@ -1704,13 +1704,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     clearLayers: function(){        
         
-        this.multiPolygons = undefined;
         $('#canvas'+ $(this.map._container).attr("id")).empty();
-    },
-
-    setStrokeWidth: function(strokeWidth){        
-        
-        this.strokeWidth = strokeWidth;
+        this.initialize();
     },
 
     /*
@@ -1720,8 +1715,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof this.multiPolygons !== 'undefined' ) {
              
-            this.svgWidth  = this.map.getSize().x + this.extendWidthX;
-            this.svgHeight = this.map.getSize().y + this.extendWidthY;
+            this.svgWidth  = this.map.getSize().x;
+            this.svgHeight = this.map.getSize().y;
 
             // calculate the offset in between map and svg in order to translate
             var svgPosition    = $('#svg_'+ $(this.map._container).attr("id")).offset();
@@ -1731,9 +1726,9 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 this.offset = { x : 0 , y : 0 };
 
             // adjust the offset after map panning / zooming
-            if ( svgPosition ) {
-                this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX/2;
-                this.offset.y += (mapPosition.top - svgPosition.top) - this.extendWidthY/2;
+            if ( typeof svgPosition != 'undefined' ) {
+                this.offset.x += (mapPosition.left - svgPosition.left);
+                this.offset.y += (mapPosition.top - svgPosition.top);
             }
 
             // clear layer from previous drawings
@@ -1754,7 +1749,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
-                        strokeWidth       : this.strokeWidth
+                        strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
                     })); 
             }
 
@@ -1767,7 +1762,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
                 backgroundOpacity : this.backgroundOpacity,
                 opacity           : this.opacity,
                 strokeWidth       : this.strokeWidth
-            };
+            }
 
             // add the svg string to the container
             $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
@@ -1779,7 +1774,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
 r360.leafletPolygonLayer = function (options) {
     return new r360.LeafletPolygonLayer(options);
 };
-
 
 /*
  *

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (19fdfde), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (d3a5bed), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1623,31 +1623,6 @@ r360.Util = {
         return address.join(', ');
     },
 
-    /**
-     * [formatPhotonReverseGeocoding description]
-     * @param  {[type]} place [description]
-     * @return {[type]}       [description]
-     */
-    formatPhotonReverseGeocoding : function(place) {
-
-        var streetAdress = [];
-        if ( r360.has(place, 'name') )         streetAdress.push(place.name);
-        if ( r360.has(place, 'street') )       streetAdress.push(place.street);
-        if ( r360.has(place, 'housenumber') )  streetAdress.push(place.housenumber);
-
-        var city = [];
-        if ( r360.has(place, 'postcode') )     city.push(place.postcode);
-        if ( r360.has(place, 'city') )         city.push(place.city);
-
-        var address = [];
-        if ( streetAdress.length > 0 )  address.push(streetAdress.join(' '));
-        if ( city.length > 0)           address.push(city.join(', '));
-
-        if ( streetAdress.length == 0 && city.length == 0 ) address.push("Reverse geocoding not possible.");
-
-        return address.join(', ');
-    },
-
     /*
      *
      */
@@ -1883,11 +1858,7 @@ r360.TravelOptions = function(){
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
-    this.polygonSerializer  = 'json';
-    this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
-    this.serviceUrl         = undefined;
-    this.serviceKey         = undefined;
     this.waitControl;
 
     this.isValidPolygonServiceOptions = function(isRouteRequest){
@@ -2199,15 +2170,6 @@ r360.TravelOptions = function(){
         return this.pathSerializer;
     }
 
-    /**
-     * [getPolygonSerializer description]
-     * @return {[type]} [description]
-     */
-    this.getPolygonSerializer = function(){
-
-        return this.polygonSerializer;
-    }
-
     /*
      *
      *
@@ -2236,46 +2198,6 @@ r360.TravelOptions = function(){
     this.getRecommendations = function(){
 
         return this.recommendations;
-    }
-
-    /*
-     *
-     *
-     *
-     */
-    this.getServiceUrl = function(){
-
-        return this.serviceUrl;
-    }
-
-    /*
-     *
-     *
-     *
-     */
-    this.getServiceKey = function(){
-
-        return this.serviceKey;
-    }
-    
-    /*
-     *
-     *
-     *
-     */
-    this.setServiceKey = function(serviceKey){
-
-        this.serviceKey = serviceKey;
-    }
-    
-    /*
-     *
-     *
-     *
-     */
-    this.setServiceUrl = function(serviceUrl){
-
-        this.serviceUrl = serviceUrl;
     }
     
     /*
@@ -2316,11 +2238,6 @@ r360.TravelOptions = function(){
     this.setPathSerializer = function(pathSerializer){
 
         this.pathSerializer = pathSerializer;
-    }
-
-    this.setPolygonSerializer = function(polygonSerializer){
-
-        this.polygonSerializer = polygonSerializer;
     }
 
     
@@ -2536,18 +2453,6 @@ r360.TravelOptions = function(){
     this.getSupportWatts = function(){
         return this.supportWatts;
     }
-
-    this.disablePointReduction = function(){
-        this.pointReduction = false;
-    }
-
-    this.enablePointReduction = function(){
-        this.pointReduction = true;
-    }
-
-    this.isPointReductionEnabled = function(){
-        return this.pointReduction;
-    }
 };
 
 r360.travelOptions = function () { 
@@ -2559,7 +2464,16 @@ r360.PolygonService = {
 
     cache : {},
 
-    getCfg : function(travelOptions){
+    /*
+     *
+     */
+    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
+        }
 
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {}; 
@@ -2571,13 +2485,11 @@ r360.PolygonService = {
 
             cfg.polygon = {};
 
-            if ( !r360.isUndefined(travelOptions.getTravelTimes()) )           cfg.polygon.values             = travelOptions.getTravelTimes();
-            if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
-            if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
-            if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )           cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
-            if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
+            if ( !r360.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
+            if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
+            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
+            if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
             
         // add each source point and it's travel configuration to the cfg
@@ -2647,53 +2559,13 @@ r360.PolygonService = {
             cfg.sources.push(src);
         });
 
-        return cfg;
-    },
-
-    /*
-     *
-     */
-    getTravelTimePolygons : function(travelOptions, successCallback, errorCallback, method) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
-
-        var cfg = r360.PolygonService.getCfg(travelOptions);
-
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
 
-            var options = r360.PolygonService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback, typeof method == 'undefined' ? 'GET' : method);
-
             // make the request to the Route360° backend 
-            // use GET as fallback, otherwise use the supplied option
-            $.ajax(options);
-        }
-        else { 
-
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call successCallback with returned results
-            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
-        }
-    },
-
-    /**
-     * [getAjaxOptions description]
-     * @param  {[type]} travelOptions   [description]
-     * @param  {[type]} successCallback [description]
-     * @param  {[type]} errorCallback   [description]
-     * @return {[type]}                 [description]
-     */
-    getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback, method) {
-
-        var options = {
+            $.ajax({
                 url         : r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
-                type        : method,
                 success     : function(result) {
 
                     // hide the please wait control
@@ -2728,27 +2600,19 @@ r360.PolygonService = {
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) ) {
-
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
-                    }
+                    if ( r360.isFunction(errorCallback) )
+                        errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
                 }
-            };
-
-        if ( method == 'POST' ) {
-
-            options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
-            options.data        = JSON.stringify(cfg);
-            options.contentType = 'application/json';
-            options.async       = false;
+            });
         }
+        else { 
 
-        return options;
+            // hide the please wait control
+            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
+            // call successCallback with returned results
+            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+        }
     }
 }
 
@@ -2918,7 +2782,13 @@ r360.RouteService = {
     /*
      *
      */
-    getCfg : function(travelOptions){
+    getRoutes : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
+        }
 
         var cfg = { sources : [], targets : [], 
             pathSerializer : travelOptions.getPathSerializer(),
@@ -2944,7 +2814,6 @@ r360.RouteService = {
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
-                if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
                 
@@ -3003,22 +2872,6 @@ r360.RouteService = {
             });
         });
 
-        return cfg;
-    },
-
-    /*
-     *
-     */
-    getRoutes : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
-
-        var cfg = r360.RouteService.getCfg(travelOptions);
-
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend 
@@ -3056,19 +2909,13 @@ r360.RouteService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
+                error: function(data, test){ 
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) ) {
-
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
-                    }
+                    if ( r360.isFunction(errorCallback) )
+                        errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
                 }
             });
         }
@@ -3086,7 +2933,13 @@ r360.TimeService = {
 
     cache : {},
 
-    getCfg : function(travelOptions) {
+    getRouteTime : function(travelOptions, successCallback, errorCallback) {
+
+        // swho the please wait control
+        if ( travelOptions.getWaitControl() ) {
+            travelOptions.getWaitControl().show();
+            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
+        }
 
         var cfg = { 
             sources : [], targets : [],
@@ -3117,8 +2970,6 @@ r360.TimeService = {
                 id  : r360.has(source, 'id')  ? source.id  : '',
                 tm  : {}
             };
-
-            if ( src.id == '' ) src.id = src.lat + ';' + src.lng;
 
             var travelType = r360.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
 
@@ -3181,30 +3032,13 @@ r360.TimeService = {
         // configure targets for routing
         travelOptions.getTargets().forEach(function(target){
 
-            var target = {
+            cfg.targets.push({
 
                 lat : r360.has(target, 'lat') ? target.lat : target.getLatLng().lat,
                 lng : r360.has(target, 'lon') ? target.lon : r360.has(target, 'lng') ? target.lng : target.getLatLng().lng,
                 id  : r360.has(target, 'id')  ? target.id  : '',
-            };
-
-            if ( target.id == '' ) target.id = target.lat + ';' + target.lng;
-
-            cfg.targets.push(target);
+            });
         });
-
-        return cfg;
-    },
-
-    getRouteTime : function(travelOptions, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
-        }
-
-        var cfg = r360.TimeService.getCfg(travelOptions);
 
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
@@ -3250,15 +3084,9 @@ r360.TimeService = {
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
-                    if ( r360.isFunction(errorCallback) ) {
-
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
-                    }
+                    if ( r360.isFunction(errorCallback) )
+                        errorCallback("service-not-available", "The time service is currently not available, please try again later."); 
                 }
             });
         }
@@ -3696,10 +3524,6 @@ r360.MultiPolygon = function() {
         return r360.bounds(this.bottomLeft_3857, this.topRight_3857);
     }
 
-    /**
-     * [getBoundingBox4326 description]
-     * @return {[type]} [description]
-     */
     this.getBoundingBox4326 = function() {
 
         return r360.latLngBounds(r360.Util.webMercatorToLatLng(this.bottomLeft_3857), r360.Util.webMercatorToLatLng(this.topRight_3857));
@@ -3719,25 +3543,6 @@ r360.MultiPolygon = function() {
      */
     this.getOpacity = function(){
         return this.opacity;
-    }
-
-    /**
-     * [getArea description]
-     * @return {[type]} [description]
-     */
-    this.getArea = function(){
-
-        var area = 0;
-        this.polygons.forEach(function(polygon){ area += polygon.getArea(); });
-        return area;
-    }
-
-    /**
-     * [getPolygons description]
-     * @return {[type]} [description]
-     */
-    this.getPolygons = function(){
-        return this.polygons;
     }
 
     /**
