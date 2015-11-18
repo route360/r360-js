@@ -135,8 +135,7 @@ r360.Route = function(travelTime, segments){
 
     that.setElevationDifferences = function() {
 
-        var previousHeight   = undefined; 
-        var sourceHeight, targetHeight;
+        var previousHeight   = undefined;
 
         for ( var i = that.points.length - 1; i >= 0 ; i-- ) {
 

@@ -98,7 +98,7 @@ r360.PopulationService = {
         });
 
         var statistics = [];
-        _.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
+        r360.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
 
         if ( !r360.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
 

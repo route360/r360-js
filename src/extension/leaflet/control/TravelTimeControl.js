@@ -22,15 +22,15 @@ r360.TravelTimeControl = L.Control.extend({
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
             
-            if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
-            if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
-            if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
-            if ( _.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
-            if ( _.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
-            if ( _.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
+            if ( r360.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
+            if ( r360.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
+            if ( r360.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
+            if ( r360.has(travelTimeControlOptions, "label") )       this.options.label        = travelTimeControlOptions.label;
+            if ( r360.has(travelTimeControlOptions, "travelTimes") ) this.options.travelTimes  = travelTimeControlOptions.travelTimes;
+            if ( r360.has(travelTimeControlOptions, "icon") )        this.options.icon         = travelTimeControlOptions.icon;
         }
 
-        this.options.maxValue   = _.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
+        this.options.maxValue   = r360.max(this.options.travelTimes, function(travelTime){ return travelTime.time; }).time / 60;
         this.options.step       = (this.options.travelTimes[1].time - this.options.travelTimes[0].time)/60;
     },
 
@@ -88,7 +88,7 @@ r360.TravelTimeControl = L.Control.extend({
         var travelTimeSliderHandle = $('<div/>', {"class" : "ui-slider-handle"});
         this.options.labelSpan = this.options.label;
 
-        if ( _.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
+        if ( r360.has(this.options, 'icon') && this.options.icon !== 'undefined' ) this.options.iconHTML = $('<img/>', {"src" : this.options.icon})
 
         this.options.travelTimeSpan = $('<span/>', {"text" : this.options.initValue });
         var unitSpan = $('<span/>', {"text" : this.options.unit});
@@ -192,7 +192,7 @@ r360.TravelTimeControl = L.Control.extend({
      */ 
     getMaxValue : function() {
 
-        return _.max(this.getValues());
+        return r360.max(this.getValues());
     }
 });
 

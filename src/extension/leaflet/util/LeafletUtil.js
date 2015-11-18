@@ -86,8 +86,8 @@ r360.LeafletUtil = {
 
             if ( typeof segment !== 'undefined') {
 
-                var variable = !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
-                variable = variable == '' && !_.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
+                var variable = !r360.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.startname) ? segment.startname : '';
+                variable = variable == '' && !r360.contains(['walk', 'transit', 'source', 'target', 'bike', 'car'], segment.endname) ? segment.endname : variable;
 
                 popup = popup.replace('INSERT_TEXT', variable);
             }
@@ -213,7 +213,7 @@ r360.LeafletUtil = {
 
         function interpolatePoint(latlng1, latlng2, percent){
 
-            var project, unproject, tempmap;
+            var tempmap;
 
             /*
                 ugly hack. shall be redone when working with projected coordinates

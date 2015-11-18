@@ -1,21 +1,31 @@
 $(document).ready(function(){
 
+
     // add the map and set the initial center to berlin
-    var map = L.map('map', {zoomControl : false}).setView([59.909254694737534, 10.74737548828125], 12);
+    var map = L.map('map', {zoomControl : false}).setView([49.28438,-123.12035], 12);
+
+
+    var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+});
+
+
+
+map.addLayer(layer);
     // attribution to give credit to OSM map data and VBB for public transportation 
     var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://www.gbrail.info/' target='_blank'>GB Rail</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
     // lines as described by cloudmade, mapbox etc..
     // note that mapbox is a paided service mi.0ad4304c
-    var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
-        maxZoom: 22, attribution: attribution }).addTo(map);
+    //var tileLayer = L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', {
+    //    maxZoom: 22, attribution: attribution }).addTo(map);
 
     var maxSources = 1;
     var currentRoute;
     var elevationData = [];
-    var date = '20150915';
-    var time = '39000';
+    var date = '20151021';
+    var time = '28800';
 
     var elevationColors = [{
         label               : "1",
@@ -48,6 +58,14 @@ $(document).ready(function(){
     var targetLayer   = L.featureGroup().addTo(map);
     var polygonLayer  = r360.leafletPolygonLayer().addTo(map);
 
+
+ 
+
+     
+
+
+
+
     // set the service key, this is a demo key
     // please contact us and request your own key
     r360.config.requestTimeout                              = 5000;
@@ -55,7 +73,10 @@ $(document).ready(function(){
     r360.config.serviceKey                                  = 'uhWrWpUhyZQy8rPfiC7X';
     r360.config.serviceUrl                                  = 'http://dev.route360.net/api_norway/';
     r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
-    r360.config.serviceUrl                                  = 'http://api1-eu.route360.net/denmark/';
+    //r360.config.serviceUrl                                  = 'http://api1-eu.route360.net/denmark/';
+    //r360.config.serviceUrl                                  = 'http://dev.route360.net/xxx/';
+
+    //r360.config.serviceUrl                                  = "https://api1-eu.route360.net/norway/";
     r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode.route360.net/solr/select?"; 
     r360.config.defaultPolygonLayerOptions.inverse          = true;
     r360.config.nominatimUrl                                = 'http://geocode.route360.net/nominatim/';
@@ -64,10 +85,397 @@ $(document).ready(function(){
     r360.config.defaultPolygonLayerOptions.tolerance = 15
 
 
+    var totalSize = 90; // bei zehn Feldern und zwei Routen
+    var resultSet = [totalSize];
+
+     for(var i = 0; i < totalSize; i++){
+        resultSet[i] = {r360time: 0, googletime : 0, startname: 'null', targetname: 'null'};
+    }
+   
+
+   
+
+    getRandomCoordinatesInBoundingBox = function(csv, size){
+
+        var res = csv.split(",");
+        var longWest = parseFloat(res[0]);
+        var longEast = parseFloat(res[2]);
+        var latSouth = parseFloat(res[1]);
+        var latNorth = parseFloat(res[3]);    
+    
+        var longDelta = longEast - longWest;
+        var latDelta = latNorth - latSouth;
+
+        var latLngs = [size];
+
+
+
+        for(var i = 0; i < size; i++){
+            latLngs[i] = new L.latLng(latSouth + latDelta * Math.random(),longWest + longDelta * Math.random());
+        }
+
+        return latLngs;
+    }
+
+
+    getR360Time = function(latLngSource, latLngTarget, sourcename, targetname, numberOfRoutes) {
+        var travelOptions = r360.travelOptions();
+        travelOptions.addSource(latLngSource);
+        travelOptions.addTarget(latLngTarget);
+        travelOptions.setTravelType('car');    
+        r360.RouteService.getRoutes(travelOptions, function(routes) {
+        for(var i = 0; i < routes.length; i++){
+            var seconds = routes[i].getTravelTime();
+            var time = r360.Util.secondsToHoursAndMinutes(routes[i].getTravelTime());
+            var dist = routes[i].getDistance().toFixed(2);
+            resultSet[numberOfRoutes].r360time = seconds;
+            resultSet[numberOfRoutes].startname = sourcename;
+            resultSet[numberOfRoutes].targetname = targetname;
+            r360.LeafletUtil.fadeIn(routeLayer, routes[i], 500, "travelDistance", { color : "#ff00ff", haloColor : "#ffffff" });
+
+            //console.log("r360time: " + seconds + " FROM: " + sourcename + " TO: " + targetname )
+            }
+        });
+    };
+
+    getGoogleTime = function(latLngSource, latLngTarget, sourcename, targetname, numberOfRoutes) {
+
+        var source = latLngSource.lat + "," +  latLngSource.lng;
+        var target = latLngTarget.lat + "," +  latLngTarget.lng;
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRequest = {
+            origin: source,
+            destination: target,
+            travelMode: google.maps.DirectionsTravelMode.DRIVING,
+            unitSystem: google.maps.UnitSystem.METRIC
+        };
+
+        directionsService.route(directionsRequest,
+          function(response, status)
+          {
+            if (status == google.maps.DirectionsStatus.OK)
+            {
+                resultSet[numberOfRoutes].googletime = response.routes[0].legs[0].duration.value;
+            }
+            else
+              $("#error").append("Unable to retrieve your route<br />");
+        }
+        );
+    };
+
+    /*
+    var abbotsford = "-123.3435,49.0235,-122.135,49.568";    
+    var latLngSourcesAbbotsFord     = getRandomCoordinatesInBoundingBox(abbotsford, 100);
+
+    for(var i = 0; i < latLngSourcesAbbotsFord.length; i++){
+         L.circleMarker( latLngSourcesAbbotsFord[i]).addTo(map);
+    }*/
+   
+
+
+    
+
+   
+    
+
+    var abbotsford = "-122.361603,49.019409,-122.24968,49.079713";
+    var downtown = "-123.106956,49.214906,-122.995033,49.274973";
+    var westvancouver = "-123.182487,49.230154,-123.139572,49.270493";
+    var northVancouver = "-123.132362,49.324227,-123.035374,49.342013";
+    var surrey = "-122.883196,49.163522,-122.835045,49.204813";
+    var langley = "-122.69484,49.101859,-122.646689,49.133318";
+    var steveston = "-123.184247,49.135676,-123.136096,49.167114";
+    var squamish = "-123.138971,49.734549,-123.115196,49.742731";
+    var chilliwack = "-121.972275,49.15544,-121.928329,49.177664";
+    var northdelta = "-122.916756,49.135115,-122.87281,49.157348";
+
+  
+    var size = 2;
+
+    var latLngSourcesAbbotsFord     = getRandomCoordinatesInBoundingBox(abbotsford, size);
+    var latLngTargetsDowntown       = getRandomCoordinatesInBoundingBox(downtown, size);
+    var latLngTargetsWestvancouver  = getRandomCoordinatesInBoundingBox(westvancouver, size);
+    var latLngTargetsNorthVancouver = getRandomCoordinatesInBoundingBox(northVancouver, size);
+    var latLngTargetsSurrey         = getRandomCoordinatesInBoundingBox(surrey, size);
+    var latLngTargetsLangley        = getRandomCoordinatesInBoundingBox(langley, size);
+    var latLngTargetsSteveston      = getRandomCoordinatesInBoundingBox(steveston, size);
+    var latLngTargetsSqamish        = getRandomCoordinatesInBoundingBox(squamish, size);
+    var latLngTargetsChilliwack     = getRandomCoordinatesInBoundingBox(chilliwack, size);
+    var latLngTargetsNorthdelta     = getRandomCoordinatesInBoundingBox(northdelta, size);
+
+    var coordinateArray = [
+        latLngSourcesAbbotsFord,
+        latLngTargetsDowntown,
+        latLngTargetsWestvancouver,
+        latLngTargetsNorthVancouver,
+        latLngTargetsSurrey,
+        latLngTargetsLangley,
+        latLngTargetsSteveston,
+        latLngTargetsSqamish,
+        latLngTargetsChilliwack,
+        latLngTargetsNorthdelta
+    ];
+
+    var nameArray = [
+        "AbbotsFord",
+        "Downtown",
+        "Westvancouver",
+        "northVancouver",
+        "Surrey",
+        "Langley",
+        "steveston",
+        "squamish",
+        "chilliwack",
+        "northdelta"
+    ]
+
+    
+    // abbotsfor to downtown
+
+    for(var i = 0; i < size; i++){
+        var marker = L.marker(latLngSourcesAbbotsFord[i], {icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'red' })});
+        marker.addTo(map);
+    }
+
+    function doSetTimeOut(sourcelLatLng, targetLatLng, sourcename, targetname, millis, numberOfRoutes){
+        setTimeout(function(){
+            getR360Time(sourcelLatLng, targetLatLng, sourcename, targetname, numberOfRoutes);
+            getGoogleTime(sourcelLatLng, targetLatLng, sourcename, targetname, numberOfRoutes);
+        }, millis);
+    };
+
+    var numberOfRoutes = 0;
+    // for every zone
+    for(var i = 0; i < coordinateArray.length - 1; i++){
+        // for every point in zone
+        for(var j = 0; j < coordinateArray[i].length; j++){
+
+            var sourcelLatLng = coordinateArray[i][j];
+            var marker = L.marker(sourcelLatLng, {icon: L.AwesomeMarkers.icon({ icon: 'flag-checkered', prefix : 'fa', markerColor: 'red' })});
+            marker.addTo(map);
+            // routing from nth point of zone to each other nth point of other zones
+            for(var k = i + 1; k < coordinateArray.length; k++){
+                
+                var targetLatLng = coordinateArray[k][j];
+                doSetTimeOut(sourcelLatLng, targetLatLng, nameArray[i], nameArray[k], numberOfRoutes * 1000, numberOfRoutes);
+                numberOfRoutes++;
+            }
+        }
+    }
+
+    setTimeout(function(){
+
+        var totalr360   = 0;
+        var totalGoogle = 0;
+
+        var r360fails = 0;
+        var googleFails = 0;
+
+        for(var i = 0; i < resultSet.length; i++){
+
+
+            totalr360   += resultSet[i].r360time;
+            totalGoogle += resultSet[i].googletime;
+
+            if(resultSet[i].r360time == 0){
+                r360fails++;
+                console.log("r360 failed from " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+                continue;
+            }
+
+            if(resultSet[i].googletime == 0){
+                googleFails++;
+                console.log("google failed from " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+                continue;
+            }
+
+            var diff    = resultSet[i].googletime - resultSet[i].r360time;
+            var percent = (resultSet[i].r360time/resultSet[i].googletime) * 100
+            
+            console.log("google time: " + resultSet[i].googletime + " \t r360time: " + resultSet[i].r360time  + " \tdiff: " + diff + " \tr360 is " + percent + " \tof Google \tFrom " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+
+        }
+
+      
+
+        var totalDiff = totalGoogle - totalr360;
+        var totalPercent = (totalr360 / totalGoogle) * 100;
+
+        console.log("TotalRoute360: " + totalr360 + " TotalGoogle: " + totalGoogle + " totalDiff " +  totalDiff + " totalPercent " + totalPercent);
+        console.log("google failed: " + googleFails + " r360 failed: " + r360fails);
+        console.log("------------PRINTING THOSE WITH AT LEAST 10% DIFFERENCE---------")
+
+        var countMore = 0;
+        var countLess = 0;
+
+          for(var i = 0; i < resultSet.length; i++){
+
+
+           
+
+            if(resultSet[i].r360time == 0){
+                r360fails++;
+                console.log("r360 failed from " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+                continue;
+            }
+
+            if(resultSet[i].googletime == 0){
+                googleFails++;
+                console.log("google failed from " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+                continue;
+            }
+
+            var diff    = resultSet[i].googletime - resultSet[i].r360time;
+            var percent = (resultSet[i].r360time/resultSet[i].googletime) * 100
+
+            if(percent < 90 || percent > 110){
+                console.log("google time: " + resultSet[i].googletime + " \t r360time: " + resultSet[i].r360time  + " \tdiff: " + diff + " \tr360 is " + percent + " \tof Google \tFrom " + resultSet[i].startname + " \tto: " + resultSet[i].targetname);
+                if(percent < 90)
+                    countLess++;
+                else
+                    countMore++;
+
+            }
+           
+        }
+        console.log("-TOTAL AMOUNT: " + resultSet.length + " -----IN TOTAL.." + (countLess + countMore) + " LESS THAN 90%:  " + countLess + "   MORE THAN 110%:   " + countMore);
+
+    }, (numberOfRoutes * 1000) + 2500);
+
+    
+
+
+
+/*
+
+    for(var i = 0; i < 5; i++){
+
+        getR360Time(latLngSourcesAbbotsFord, latLngTargetsDowntown, resultSet, i, i);
+        getGoogleTime(latLngSourcesAbbotsFord, latLngTargetsDowntown, resultSet, i, i);
+
+    }
+
+        setTimeout(function(){
+
+            for(var i = 5; i < 10; i++){
+
+            getR360Time(latLngTargetsWestvancouver, latLngTargetsNorthVancouver, resultSet, i - 5, i);
+            getGoogleTime(latLngTargetsWestvancouver, latLngTargetsNorthVancouver, resultSet, i -5, i);
+
+            }
+        },1500);
+
+        setTimeout(function(){
+
+            for(var i = 10; i < 15; i++){
+            getR360Time(latLngTargetsSurrey, latLngTargetsLangley, resultSet, i - 10, i);
+            getGoogleTime(latLngTargetsSurrey, latLngTargetsLangley, resultSet, i - 10, i);
+
+              }
+        }, 3000);
+
+        setTimeout(function(){
+
+               for(var i = 15; i < 20; i++){ 
+            getR360Time(latLngTargetsSteveston, latLngTargetsSqamish, resultSet, i -15, i);
+            getGoogleTime(latLngTargetsSteveston, latLngTargetsSqamish, resultSet, i -15, i);
+        }
+        }, 4500);
+        
+        setTimeout(function(){    
+              for(var i = 20; i < 25; i++){
+            getR360Time(latLngTargetsChilliwack, latLngTargetsNorthdelta, resultSet, i -20, i);
+            getGoogleTime(latLngTargetsChilliwack, latLngTargetsNorthdelta, resultSet, i -20, i);
+        }
+        }, 6000);
+    
+
+    setTimeout(function(){
+
+        var totalr360 = 0;
+        var totalGoogle = 0;
+
+        for(var i = 0; i < totalSize; i++){
+
+            if(i == 0)
+                console.log("abbotsford to downtown")
+            if(i == 5)
+                console.log("west vancouver to north vancouver")
+            if(i == 10)
+                console.log("surrey to langley")
+            if(i == 15)
+                console.log("steveston to squamish")
+            if(i == 24)
+                console.log("chilliwack to northdelta")
+
+            if(resultSet[i].r360time == 0){
+                console.log("r360 = 0");
+                continue;
+            }
+
+            if(resultSet[i].googletime == 0){
+                console.log("googletime = 0");
+                continue;
+            }
+
+            totalr360   += resultSet[i].r360time;
+            totalGoogle += resultSet[i].googletime;
+
+
+
+            var diff    = resultSet[i].googletime - resultSet[i].r360time;
+            var percent = (resultSet[i].r360time/resultSet[i].googletime) * 100
+            console.log("google time: " + resultSet[i].googletime + " \t r360time: " + resultSet[i].r360time  + " \tdiff: " + diff + " \tr360 is " + percent + " \tof Google");
+        }
+
+        var totalDiff = totalGoogle - totalr360;
+        var totalPercent = (totalr360 / totalGoogle) * 100;
+
+        console.log("TotalRoute360: " + totalr360 + " TotalGoogle: " + totalGoogle + " totalDiff " +  totalDiff + " totalPercent " + totalPercent);
+
+
+    }, 8000);
+
+
+
+*/
+   
+
+
+
+
+
+
+
+
+
+/*
+    var ll_18thAve = new L.LatLng(49.229689,-122.927012);
+    var ll_W14thAve = new L.LatLng(49.260158,-123.190763);
+    var ll_7188Kingsway = new L.LatLng(49.218156,-122.955237);
+    var ll_6038Kingsway = new L.LatLng( 49.220464,-122.975908);
+    var ll_AustinRoad = new L.LatLng(49.251674,-122.896105);
+    var ll_Macdonald = new L.LatLng(49.257312,-123.168078);
+    var ll_Alma = new L.LatLng(49.263847,-123.186073);
+    var ll_Sprott = new L.LatLng(49.250002,-122.970675);
+
+*/
+
+
+   
+
+
+    
+
+    
+
+
+
 
     polygonLayer.setInverse(true);
 
-    var options = { bike : true, walk : true, car : true, transit : true, init : 'car' };
+    var options = { bike : true, walk : true, car : true, transit : true, init : 'biketransit', biketransit : true };
 
     // define which options the user is going to have
     for ( var i = 0 ; i < maxSources ; i++ ) {
@@ -457,7 +865,7 @@ $(document).ready(function(){
                 travelOptions.setTravelTimes(travelTimeControl.getValues());
                 travelOptions.setWaitControl(waitControl);
                 travelOptions.setElevationEnabled(false);
-                travelOptions.setPolygonSerializer("geojson");
+                //travelOptions.setPolygonSerializer("geojson");
                 travelOptions.setDate(date);
                 travelOptions.setTime(time);
 

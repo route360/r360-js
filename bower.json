@@ -1,27 +1,16 @@
 {
     "name": "r360",
-    "version": "0.2.3",
     "authors": [
         "gerber@motionintelligence.net",
-        "hollburg@motionintelligence.net"
+        "hollburg@motionintelligence.net",
+        "jan.silbersiepe@motionintelligence.net"
     ],
     "description": "Route360° JavaScript API",
     "main": [
         "dist/r360-core.js",
-        "dist/r360-core-src.js",
         "dist/r360-leaflet.js",
-        "dist/r360-leaflet-src.js",
         "dist/r360-google.js",
-        "dist/r360-google-src.js",
         "dist/r360.css",
-        "dist/jquery-ui-1.10.0.custom.css",
-        "dist/images/marker-icon-red.png",
-        "dist/images/marker-icon-blue.png",
-        "dist/images/marker-icon-purple.png",
-        "dist/images/marker-icon-green.png",
-        "dist/images/marker-icon-orange.png",
-        "dist/images/marker-icon.png",
-        "dist/images/ui-bg_glass_75_ffffff_1x400.png"
     ],
     "keywords": [
         "r360",
@@ -32,10 +21,7 @@
     ],
     "dependencies": {
         "leaflet"       : "0.7.3",
-        "bootstrap"     : "3.1.1",
         "jquery"        : "1.10.2",
-        "underscore"    : "1.6.0",
-        "font-awesome"  : "4.1.0",
         "jquery-ui"     : "1.10.4"
     },
     "homepage": "http://developers.route360.net/",

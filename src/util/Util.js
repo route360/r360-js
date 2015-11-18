@@ -115,9 +115,9 @@ r360.Util = {
         var id       = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        _.each(_.range(length ? length : 10), function(){
+        for (var i = 0; i < (length ? length : 10); i++) {
             id += possible.charAt(Math.floor(Math.random() * possible.length));
-        })
+        }
 
         return id;
     },
@@ -224,11 +224,11 @@ r360.Util = {
                 // create a polygon with the outer boundary as the initial linestring
                 var polygon       = r360.polygon(polygonJson.travelTime, polygonJson.area, r360.lineString(r360.Util.parseLatLonArray(polygonJson.outerBoundary)));
                 // set color and default to black of not found
-                var color       = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
-                polygon.setColor(!_.isUndefined(color) ? color.color : '#000000');
+                var color       = r360.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() });
+                polygon.setColor(!r360.isUndefined(color) ? color.color : '#000000');
                 // set opacity and default to 1 if not found
-                var opacity = _.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
-                polygon.setOpacity(!_.isUndefined(opacity) ? opacity.opacity : 1);
+                var opacity = r360.findWhere(r360.config.defaultTravelTimeControlOptions.travelTimes, { time : polygon.getTravelTime() })
+                polygon.setOpacity(!r360.isUndefined(opacity) ? opacity.opacity : 1);
                 
                 if ( typeof polygonJson.innerBoundary !== 'undefined' ) {
 
