@@ -10,7 +10,7 @@
         "dist/r360-core.js",
         "dist/r360-leaflet.js",
         "dist/r360-google.js",
-        "dist/r360.css",
+        "dist/r360.css"
     ],
     "keywords": [
         "r360",
