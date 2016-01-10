@@ -220,4 +220,8 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
         $('#' + this.element.id).empty();
     };
+
+    r360.googleMapsPolygonLayer = function(map) {
+        return new GoogleMapsPolygonLayer(map);
+    }
 }

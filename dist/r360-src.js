@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (28b1925), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 ("af5cd49"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -138,7 +138,7 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    serviceUrl      : 'https://api.route360.net/api_dev/',
+    serviceUrl      : 'https://service.route360.net/brandenburg/',
     // serviceUrl      : 'http://localhost:8080/api/',
     nominatimUrl    : 'https://geocode.route360.net/',
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
@@ -439,7 +439,7 @@ r360.config = {
         switchLanguage : function() {
 
             var selector = [];
-            r360.each(r360.config.i18n.configuredLanguages, function(language){
+            _.each(r360.config.i18n.configuredLanguages, function(language){
                 selector.push("[lang='"+language+"']"); 
             });
 
@@ -450,7 +450,7 @@ r360.config = {
         getSpan : function(key) {
 
             var translation = "";    
-            r360.each(r360.keys(r360.config.i18n[key]), function(language){
+            _.each(_.keys(r360.config.i18n[key]), function(language){
                 translation += '<span lang="'+language+'">'+r360.config.i18n[key][language]+'</span>';
             })
 
@@ -460,10 +460,10 @@ r360.config = {
         getSpan : function(key, variables) {
 
             var translation = "";    
-            r360.each(r360.keys(r360.config.i18n[key]), function(language){
+            _.each(_.keys(r360.config.i18n[key]), function(language){
 
                 var template = r360.config.i18n[key][language];
-                r360.each(variables, function(variable){
+                _.each(variables, function(variable){
                     template = template.replace("{}", variable);
                 })
 
@@ -476,7 +476,7 @@ r360.config = {
         get : function(key){
 
             var translation;
-            r360.each(r360.keys(r360.config.i18n), function(aKey){
+            _.each(_.keys(r360.config.i18n), function(aKey){
                 if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
             })
 
@@ -4957,6 +4957,10 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
         $('#' + this.element.id).empty();
     };
+
+    r360.googleMapsPolygonLayer = function(map) {
+        return new GoogleMapsPolygonLayer(map);
+    }
 }
 
 r360.GoogleMapsUtil = {
