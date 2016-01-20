@@ -14,19 +14,30 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             if ( r360.has(options, 'label'))       this.options.label       = options.label;
             if ( r360.has(options, 'country'))     this.options.country     = options.country;
             if ( r360.has(options, 'reset'))       this.options.reset       = options.reset;
-            if ( r360.has(options, 'serviceUrl'))  this.options.serviceUrl       = options.serviceUrl;
+            if ( r360.has(options, 'serviceUrl'))  this.options.serviceUrl  = options.serviceUrl;
             if ( r360.has(options, 'reverse'))     this.options.reverse     = options.reverse;
             if ( r360.has(options, 'placeholder')) this.options.placeholder = options.placeholder;
             if ( r360.has(options, 'width'))       this.options.width       = options.width;
             if ( r360.has(options, 'maxRows'))     this.options.maxRows     = options.maxRows;
             if ( r360.has(options, 'image'))       this.options.image       = options.image;
             if ( r360.has(options, 'index'))       this.options.index       = options.index;
+            if ( r360.has(options, 'autoHide'))    this.options.autoHide      = options.autoHide;
             if ( r360.has(options, 'options')) {
 
                  this.options.options    = options.options;
                  this.options.travelType = r360.has(this.options.options, 'init') ? this.options.options.init : 'walk';
             }   
         }
+    },
+
+    toggleOptions : function(container){
+
+        var that = this;
+
+        if ( typeof container == 'undefined' )
+            $('#' + that.options.id + '-options').slideToggle();
+        else 
+            $(container).find('#' + that.options.id + '-options').slideToggle();
     },
 
     onAdd: function(map){
@@ -73,19 +84,31 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             if ( that.options.options && that.options.options.walk ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
                     + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
             
             if ( that.options.options && that.options.options.bike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
                     + (this.options.travelType == 'bike' ? 'active' : '') + 
-                    '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
+                    '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span></button>');
 
-            if ( that.options.options && that.options.options.hirebike ) 
+            if ( that.options.options && that.options.options.rentbike ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
-                    '" travel-type="hirebike"> \
-                            <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
+                    + (this.options.travelType == 'rentbike' ? 'active' : '') + 
+                    '" travel-type="rentbike"> \
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
                         </button>');
+
+            if ( that.options.options && that.options.options.rentandreturnbike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
+                    '" travel-type="rentandreturnbike"> \
+                            <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
+                        </button>');
+            
+            if ( that.options.options && that.options.options.ebike ) 
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'ebike' ? 'active' : '') + 
+                    '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span></button>');
             
             if ( that.options.options && that.options.options.transit ) 
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
@@ -138,9 +161,12 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             $(nameContainer).find('.travel-type-button').removeClass('active');
             $(this).addClass('active');
 
-            setTimeout(function() {
-                  $('#' + that.options.id + '-options').slideToggle();
-            }, 300);
+            if ( that.options.autoHide ) {
+
+                setTimeout(function() {
+                    $('#' + that.options.id + '-options').slideToggle();
+                }, 300);
+            }
 
             that.options.travelType = $(this).attr('travel-type');
             that.options.onTravelTypeChange();
@@ -180,7 +206,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                 // }
 
                 $.ajax({
-                    url: that.options.serviceUrl, 
+                    url: "https://service.route360.net/geocode/api/", 
                     // dataType: "jsonp",
                     // jsonp: 'json.wrf',
                     async: false,
@@ -268,6 +294,16 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         this.onResize();     
 
         return nameContainer;
+    },
+
+    updateI18n : function(source) {
+
+        var that = this;
+        $("#autocomplete-" + that.options.id).attr("placeholder", r360.config.i18n.get(source ? 'placeholderSrc' : 'placeholderTrg'));
+        $('#' + that.options.id + '-reverse-button').attr('title', r360.config.i18n.get('reverse'));
+        $('#' + that.options.id + '-reset-button').attr('title', r360.config.i18n.get('reset'));
+        $('#' + that.options.id + '-options-btn').attr('title', r360.config.i18n.get('settings'));
+        
     },
 
     onSelect: function(onSelect){

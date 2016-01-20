@@ -152,6 +152,10 @@ r360.Util = {
         $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
     },
 
+    getAddressByCoordinatesService : function(latlng, language, callback) {  // + '&json_callback=?'
+        $.getJSON("https://service.route360.net/geocode/reverse?&format=json&lat=" + latlng.lat + '&lon=' + latlng.lng , callback);    
+    },
+
     /* 
      * This method takes a result from the nominatim reverse geocoder and formats
      * it to a readable and displayable string. It builds up an address like this:
@@ -186,6 +190,8 @@ r360.Util = {
      * @return {[type]}       [description]
      */
     formatPhotonReverseGeocoding : function(place) {
+
+        place = place.features[0].properties;
 
         var streetAdress = [];
         if ( r360.has(place, 'name') )         streetAdress.push(place.name);

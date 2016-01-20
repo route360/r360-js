@@ -42,7 +42,6 @@ var deps = {
     ,
     leaflet : {
         src: ['extension/leaflet/control/PhotonPlaceAutoCompleteControl.js',
-              'extension/leaflet/control/PlaceAutoCompleteControl.js',
               'extension/leaflet/control/TravelStartDateControl.js',
               'extension/leaflet/control/TravelStartTimeControl.js',
               'extension/leaflet/control/TravelTimeControl.js',
