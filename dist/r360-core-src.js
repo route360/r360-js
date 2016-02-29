@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 ("902dc64"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 ("1766606"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -138,7 +138,7 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    serviceUrl      : 'https://service.route360.net/brandenburg/',
+    serviceUrl      : 'https://api.route360.net/api_dev/',
     // serviceUrl      : 'http://localhost:8080/api/',
     nominatimUrl    : 'https://geocode.route360.net/',
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
