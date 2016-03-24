@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (543477b), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 ("1766606"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 if ( window.google ) {
@@ -52,7 +52,7 @@ if ( window.google ) {
         this.element.id = 'r360-googlemaps-polygon-layer-canvas-in-' + this.id;
 
         // Add the element to the "overlayLayer" pane.
-        this.getPanes().overlayLayer.appendChild(this.element);  
+        this.getPanes().overlayLayer.appendChild(this.element);
     };
 
     GoogleMapsPolygonLayer.prototype.getMapPixelBounds = function(){
@@ -60,14 +60,14 @@ if ( window.google ) {
         var bottomLeft = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getBounds().getSouthWest(), this.map.getZoom());
         var topRight   = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getBounds().getNorthEast(), this.map.getZoom());
 
-        return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } }; 
+        return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } };
     };
 
     GoogleMapsPolygonLayer.prototype.getPixelOrigin = function(){
 
         var viewHalf = r360.PolygonUtil.divide({ x : this.map.getDiv().offsetWidth, y : this.map.getDiv().offsetHeight }, 2);
         var center = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getCenter(), this.map.getZoom());
-        
+
         return r360.PolygonUtil.roundPoint(r360.PolygonUtil.subtract(center, viewHalf.x, viewHalf.y));
     };
 
@@ -101,11 +101,11 @@ if ( window.google ) {
 
     GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
 
-        var svg = r360.SvgUtil.createSvgData(polygon, { 
-            bounds      : r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY), 
-            scale       : Math.pow(2, this.map.getZoom()) * 256, 
-            tolerance   : this.tolerance, 
-            pixelOrigin : this.getPixelOrigin(),  
+        var svg = r360.SvgUtil.createSvgData(polygon, {
+            bounds      : r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY),
+            scale       : Math.pow(2, this.map.getZoom()) * 256,
+            tolerance   : this.tolerance,
+            pixelOrigin : this.getPixelOrigin(),
             offset      : {x:0,y:0}
         });
 
@@ -133,7 +133,7 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.draw = function(test) {
 
         if ( typeof this.multiPolygons !== 'undefined' && this.element != null ) {
-                 
+
             this.svgWidth  = this.map.getDiv().offsetWidth;
             this.svgHeight = this.map.getDiv().offsetHeight;
 
@@ -153,23 +153,23 @@ if ( window.google ) {
             // clear layer from previous drawings
             $('#'+ this.element.id).empty();
 
-            var gElements = [];  
-            
+            var gElements = [];
+
             // go through each multipolygon (represents each travel time)
             for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
-                
+
                 var multiPolygon = this.multiPolygons[i], svgData = [];
 
                 // add each polygon for the given travel time
-                for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                for ( var j = 0; j < multiPolygon.polygons.length; j++)
                     svgData.push(this.createSvgData(multiPolygon.polygons[j]));
 
-                if ( svgData.length != 0 ) 
+                if ( svgData.length != 0 )
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1                       : multiPolygon.getOpacity(),
                         strokeWidth       : this.strokeWidth
-                    })); 
+                    }));
             }
 
             var options = {
@@ -184,7 +184,7 @@ if ( window.google ) {
             }
 
             // add the svg string to the container
-            $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+            $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                          : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
     };
@@ -222,6 +222,7 @@ if ( window.google ) {
     // The onRemove() method will be called automatically from the API if
     // we ever set the overlay's map property to 'null'.
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
+        if (typeof this.element == 'undefined' || this.elemenet == null) return;
         $('#' + this.element.id).empty();
     };
 }

@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 (543477b), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 ("1766606"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -439,7 +439,7 @@ r360.config = {
         switchLanguage : function() {
 
             var selector = [];
-            r360.each(r360.config.i18n.configuredLanguages, function(language){
+            _.each(r360.config.i18n.configuredLanguages, function(language){
                 selector.push("[lang='"+language+"']"); 
             });
 
@@ -450,7 +450,7 @@ r360.config = {
         getSpan : function(key) {
 
             var translation = "";    
-            r360.each(r360.keys(r360.config.i18n[key]), function(language){
+            _.each(_.keys(r360.config.i18n[key]), function(language){
                 translation += '<span lang="'+language+'">'+r360.config.i18n[key][language]+'</span>';
             })
 
@@ -460,10 +460,10 @@ r360.config = {
         getSpan : function(key, variables) {
 
             var translation = "";    
-            r360.each(r360.keys(r360.config.i18n[key]), function(language){
+            _.each(_.keys(r360.config.i18n[key]), function(language){
 
                 var template = r360.config.i18n[key][language];
-                r360.each(variables, function(variable){
+                _.each(variables, function(variable){
                     template = template.replace("{}", variable);
                 })
 
@@ -476,7 +476,7 @@ r360.config = {
         get : function(key){
 
             var translation;
-            r360.each(r360.keys(r360.config.i18n), function(aKey){
+            _.each(_.keys(r360.config.i18n), function(aKey){
                 if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
             })
 
@@ -1659,6 +1659,10 @@ r360.Util = {
         $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
     },
 
+    getAddressByCoordinatesService : function(latlng, language, callback) {  // + '&json_callback=?'
+        $.getJSON("https://service.route360.net/geocode/reverse?&format=json&lat=" + latlng.lat + '&lon=' + latlng.lng , callback);    
+    },
+
     /* 
      * This method takes a result from the nominatim reverse geocoder and formats
      * it to a readable and displayable string. It builds up an address like this:
@@ -1693,6 +1697,8 @@ r360.Util = {
      * @return {[type]}       [description]
      */
     formatPhotonReverseGeocoding : function(place) {
+
+        place = place.features[0].properties;
 
         var streetAdress = [];
         if ( r360.has(place, 'name') )         streetAdress.push(place.name);
