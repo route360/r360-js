@@ -6,11 +6,11 @@ r360.PolygonService = {
     getCfg : function(travelOptions){
 
         // we only need the source points for the polygonizing and the polygon travel times
-        var cfg = {}; 
+        var cfg = {};
         cfg.sources = [];
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) || 
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
              !r360.isUndefined(travelOptions.getRenderWatts()) || !r360.isUndefined(travelOptions.getSupportWatts()) ) {
 
             cfg.polygon = {};
@@ -23,7 +23,7 @@ r360.PolygonService = {
             if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
-            
+
         // add each source point and it's travel configuration to the cfg
         travelOptions.getSources().forEach(function(source){
 
@@ -41,20 +41,20 @@ r360.PolygonService = {
 
             // set special routing parameters depending on the travel type
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
-                
+
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
-                
+
                 src.tm.ebike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'rentbike' ) {
-                
+
                 src.tm.rentbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -64,7 +64,7 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'rentandreturnbike' ) {
-                
+
                 src.tm.rentandreturnbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -74,14 +74,14 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'bike' ) {
-                
+
                 src.tm.bike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'walk') {
-                
+
                 src.tm.walk = {};
                 if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
@@ -111,11 +111,11 @@ r360.PolygonService = {
 
             var options = r360.PolygonService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback, typeof method == 'undefined' ? 'GET' : method);
 
-            // make the request to the Route360° backend 
+            // make the request to the Route360° backend
             // use GET as fallback, otherwise use the supplied option
             $.ajax(options);
         }
-        else { 
+        else {
 
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
@@ -153,7 +153,7 @@ r360.PolygonService = {
                             // call successCallback with returned results
                             successCallback(r360.Util.parsePolygons(result.data));
                         }
-                        else 
+                        else
                             // check if the error callback is defined
                             if ( r360.isFunction(errorCallback) )
                                 errorCallback(result.code, result.message);
@@ -168,18 +168,18 @@ r360.PolygonService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
+                error: function(data){
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    
+
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
+                        if ( data.status == 403 )
+                            errorCallback("not-authorized", data.responseText);
+                        else
+                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later.");
                     }
                 }
             };
@@ -189,7 +189,7 @@ r360.PolygonService = {
             options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
-            options.async       = false;
+            options.async       = true;
         }
 
         return options;

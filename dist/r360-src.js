@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 ("af5cd49"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 ("31eb22e"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -138,7 +138,7 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    serviceUrl      : 'https://service.route360.net/brandenburg/',
+    serviceUrl      : 'https://api.route360.net/api_dev/',
     // serviceUrl      : 'http://localhost:8080/api/',
     nominatimUrl    : 'https://geocode.route360.net/',
     osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
@@ -2626,11 +2626,11 @@ r360.PolygonService = {
     getCfg : function(travelOptions){
 
         // we only need the source points for the polygonizing and the polygon travel times
-        var cfg = {}; 
+        var cfg = {};
         cfg.sources = [];
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) || 
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
              !r360.isUndefined(travelOptions.getRenderWatts()) || !r360.isUndefined(travelOptions.getSupportWatts()) ) {
 
             cfg.polygon = {};
@@ -2643,7 +2643,7 @@ r360.PolygonService = {
             if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
-            
+
         // add each source point and it's travel configuration to the cfg
         travelOptions.getSources().forEach(function(source){
 
@@ -2661,20 +2661,20 @@ r360.PolygonService = {
 
             // set special routing parameters depending on the travel type
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
-                
+
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
             }
             if ( travelType == 'ebike' ) {
-                
+
                 src.tm.ebike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'rentbike' ) {
-                
+
                 src.tm.rentbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -2684,7 +2684,7 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'rentandreturnbike' ) {
-                
+
                 src.tm.rentandreturnbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -2694,14 +2694,14 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'bike' ) {
-                
+
                 src.tm.bike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'walk') {
-                
+
                 src.tm.walk = {};
                 if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
@@ -2731,11 +2731,11 @@ r360.PolygonService = {
 
             var options = r360.PolygonService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback, typeof method == 'undefined' ? 'GET' : method);
 
-            // make the request to the Route360° backend 
+            // make the request to the Route360° backend
             // use GET as fallback, otherwise use the supplied option
             $.ajax(options);
         }
-        else { 
+        else {
 
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
@@ -2773,7 +2773,7 @@ r360.PolygonService = {
                             // call successCallback with returned results
                             successCallback(r360.Util.parsePolygons(result.data));
                         }
-                        else 
+                        else
                             // check if the error callback is defined
                             if ( r360.isFunction(errorCallback) )
                                 errorCallback(result.code, result.message);
@@ -2788,18 +2788,18 @@ r360.PolygonService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
+                error: function(data){
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    
+
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
+                        if ( data.status == 403 )
+                            errorCallback("not-authorized", data.responseText);
+                        else
+                            errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later.");
                     }
                 }
             };
@@ -2809,7 +2809,7 @@ r360.PolygonService = {
             options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
-            options.async       = false;
+            options.async       = true;
         }
 
         return options;
@@ -4785,7 +4785,7 @@ if ( window.google ) {
         this.element.id = 'r360-googlemaps-polygon-layer-canvas-in-' + this.id;
 
         // Add the element to the "overlayLayer" pane.
-        this.getPanes().overlayLayer.appendChild(this.element);  
+        this.getPanes().overlayLayer.appendChild(this.element);
     };
 
     GoogleMapsPolygonLayer.prototype.getMapPixelBounds = function(){
@@ -4793,14 +4793,14 @@ if ( window.google ) {
         var bottomLeft = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getBounds().getSouthWest(), this.map.getZoom());
         var topRight   = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getBounds().getNorthEast(), this.map.getZoom());
 
-        return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } }; 
+        return { max : { x : topRight.x, y : bottomLeft.y }, min : { x : bottomLeft.x, y : topRight.y } };
     };
 
     GoogleMapsPolygonLayer.prototype.getPixelOrigin = function(){
 
         var viewHalf = r360.PolygonUtil.divide({ x : this.map.getDiv().offsetWidth, y : this.map.getDiv().offsetHeight }, 2);
         var center = r360.GoogleMapsUtil.googleLatlngToPoint(this.map, this.map.getCenter(), this.map.getZoom());
-        
+
         return r360.PolygonUtil.roundPoint(r360.PolygonUtil.subtract(center, viewHalf.x, viewHalf.y));
     };
 
@@ -4834,11 +4834,11 @@ if ( window.google ) {
 
     GoogleMapsPolygonLayer.prototype.createSvgData = function(polygon){
 
-        var svg = r360.SvgUtil.createSvgData(polygon, { 
-            bounds      : r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY), 
-            scale       : Math.pow(2, this.map.getZoom()) * 256, 
-            tolerance   : this.tolerance, 
-            pixelOrigin : this.getPixelOrigin(),  
+        var svg = r360.SvgUtil.createSvgData(polygon, {
+            bounds      : r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY),
+            scale       : Math.pow(2, this.map.getZoom()) * 256,
+            tolerance   : this.tolerance,
+            pixelOrigin : this.getPixelOrigin(),
             offset      : {x:0,y:0}
         });
 
@@ -4866,7 +4866,7 @@ if ( window.google ) {
     GoogleMapsPolygonLayer.prototype.draw = function(test) {
 
         if ( typeof this.multiPolygons !== 'undefined' && this.element != null ) {
-                 
+
             this.svgWidth  = this.map.getDiv().offsetWidth;
             this.svgHeight = this.map.getDiv().offsetHeight;
 
@@ -4886,23 +4886,23 @@ if ( window.google ) {
             // clear layer from previous drawings
             $('#'+ this.element.id).empty();
 
-            var gElements = [];  
-            
+            var gElements = [];
+
             // go through each multipolygon (represents each travel time)
             for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
-                
+
                 var multiPolygon = this.multiPolygons[i], svgData = [];
 
                 // add each polygon for the given travel time
-                for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                for ( var j = 0; j < multiPolygon.polygons.length; j++)
                     svgData.push(this.createSvgData(multiPolygon.polygons[j]));
 
-                if ( svgData.length != 0 ) 
+                if ( svgData.length != 0 )
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1                       : multiPolygon.getOpacity(),
                         strokeWidth       : this.strokeWidth
-                    })); 
+                    }));
             }
 
             var options = {
@@ -4917,7 +4917,7 @@ if ( window.google ) {
             }
 
             // add the svg string to the container
-            $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+            $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                          : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
     };
@@ -4959,6 +4959,7 @@ if ( window.google ) {
     };
 
     r360.googleMapsPolygonLayer = function(map) {
+        if (typeof this.element == 'undefined' || this.elemenet == null) return;
         return new GoogleMapsPolygonLayer(map);
     }
 }
