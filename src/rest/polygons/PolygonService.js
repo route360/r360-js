@@ -133,8 +133,10 @@ r360.PolygonService = {
      */
     getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback, method) {
 
+        var serviceUrl = typeof travelOptions.getServiceUrl() !== 'undefined' ? travelOptions.getServiceUrl() : r360.config.serviceUrl;
+
         var options = {
-                url         : r360.config.serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
+                url         : serviceUrl+ r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 type        : method,
@@ -186,10 +188,10 @@ r360.PolygonService = {
 
         if ( method == 'POST' ) {
 
-            options.url         = r360.config.serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
+            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
-            options.async       = true;
+            options.async       = false;
         }
 
         return options;

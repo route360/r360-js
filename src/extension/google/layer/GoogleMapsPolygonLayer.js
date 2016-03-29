@@ -218,6 +218,7 @@ if ( window.google ) {
     // The onRemove() method will be called automatically from the API if
     // we ever set the overlay's map property to 'null'.
     GoogleMapsPolygonLayer.prototype.onRemove = function() {
+        if (typeof this.element == 'undefined' || this.elemenet == null) return;
         $('#' + this.element.id).empty();
     };
 
