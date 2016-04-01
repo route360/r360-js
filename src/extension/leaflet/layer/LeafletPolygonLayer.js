@@ -27,10 +27,12 @@ r360.LeafletPolygonLayer = L.Class.extend({
         this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
         this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor;
         this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity;
+        this.colors            = r360.config.defaultPolygonLayerOptions.travelTimes;
 
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
 
+            if ( typeof options.colors         != 'undefined') this.colors       = options.colors;
             if ( typeof options.opacity        != 'undefined') this.opacity      = options.opacity;
             if ( typeof options.strokeWidth    != 'undefined') this.strokeWidth  = options.strokeWidth;
             if ( typeof options.inverse        != 'undefined') this.inverse      = options.inverse;
@@ -204,6 +206,18 @@ r360.LeafletPolygonLayer = L.Class.extend({
     setStrokeWidth: function(strokeWidth){
 
         this.strokeWidth = strokeWidth;
+    },
+
+    setColors: function(colors) {
+        if ( typeof this.multiPolygons == 'undefined' ) return;
+        this.colors = colors;
+        for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+            var multipolygon = this.multiPolygons[i];
+            this.colors.forEach(function(colorSet) {
+                if (colorSet.time == multipolygon.getTravelTime()) multipolygon.setColor(colorSet.color);
+            })
+        }
+        this.draw();
     },
 
     /*

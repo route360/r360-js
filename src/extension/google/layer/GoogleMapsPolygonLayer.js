@@ -108,6 +108,18 @@ if ( window.google ) {
         return svg;
     };
 
+    GoogleMapsPolygonLayer.prototype.setColors = function(colors) {
+        if ( typeof this.multiPolygons == 'undefined' ) return;
+        colors = colors;
+        for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
+            var multipolygon = this.multiPolygons[i];
+            colors.forEach(function(colorSet) {
+                if (colorSet.time == multipolygon.getTravelTime()) multipolygon.setColor(colorSet.color);
+            })
+        }
+        this.draw();
+    };
+
     /**
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {[type]} [description]
