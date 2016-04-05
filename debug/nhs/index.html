@@ -1,0 +1,81 @@
+<head>
+  <!--  Include r360 stylesheet -->
+  <link rel="stylesheet" href="https://developers.route360.net/resources/css/r360.css" />
+
+ <!--  Include underscore.js -->
+ <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+
+  <!--  Include jQuery and jQuery UI -->
+  <script src="https://developers.route360.net/vendors/jquery/jquery.min.js"></script>
+  <script src="https://developers.route360.net/vendors/jquery-ui/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://developers.route360.net/vendors/jquery-ui/jquery-ui-1.10.0.custom.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+
+  <script type="text/javascript" src="../../build/deps.js"></script>
+  <script type="text/javascript" src="../../build/r360-include.js"></script>
+
+  <!-- <script type="text/javascript" src="r360-core.js"></script> -->
+  <!-- <script type="text/javascript" src="r360-leaflet.js"></script> -->
+
+  <style media="screen">
+      html, body {
+    width: 100%;
+    height: 100%;}
+
+    #map {
+    width: 100%;
+    height: 100%;}
+  </style>
+
+  <script type="text/javascript">
+      $(document).ready(function(){
+
+          r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                  { time : 600  , color : "#006837", opacity : 0.1 },
+                  { time : 1200 , color : "#39B54A", opacity : 0.2 },
+                  { time : 1800 , color : "#8CC63F", opacity : 0.3 },
+                  { time : 2400 , color : "#F7931E", opacity : 0.4 },
+                  { time : 3000 , color : "#F15A24", opacity : 0.5 },
+                  { time : 3600 , color : "#C1272D", opacity : 1.0 }
+              ];
+
+          var latlon = [52.385528, -2.261409];
+          var map = L.map('map').setView(latlon, 14);
+          var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a       href='https://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='https://www.route360.net/de/' target='_blank'>Route360°</a>";
+          L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
+
+          r360.config.serviceKey = 'OLKVJQKTCY7LNJVUKXQY';
+          r360.config.serviceUrl = 'https://service.route360.net/britishisles/';
+          var blueMarker = L.icon({
+              iconUrl: 'https://developers.route360.net/download/basic-example/images/marker-icon.png',
+              iconSize:     [25, 41], // size of the icon
+              iconAnchor:   [12, 41], // point of the icon which will correspond to marker's location
+          });
+
+          var marker1 = L.marker([52.280812, -1.912178], {icon: blueMarker}).addTo(map);
+          var marker2 = L.marker([52.385528, -2.261409], {icon: blueMarker}).addTo(map);
+          var marker3 = L.marker([52.086285, -1.948706], {icon: blueMarker}).addTo(map);
+          var marker4 = L.marker([52.191756, -2.182956], {icon: blueMarker}).addTo(map);
+
+          var polygonLayer = r360.leafletPolygonLayer().addTo(map);
+          var travelOptions = r360.travelOptions();
+          travelOptions.addSource(marker1);
+          travelOptions.addSource(marker2);
+          travelOptions.addSource(marker3);
+          travelOptions.addSource(marker4);
+          travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
+          travelOptions.setTravelType('car');
+
+          r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
+              polygonLayer.clearAndAddLayers(polygons, true);
+          });
+        });
+    </script>
+
+</head>
+
+<body>
+  <div id="map"></div>
+</body>
