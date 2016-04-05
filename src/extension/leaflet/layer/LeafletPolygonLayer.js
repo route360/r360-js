@@ -227,6 +227,9 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof this.multiPolygons !== 'undefined' ) {
 
+            this.extendWidthX = this.map.getSize().x * 1.8 - this.map.getSize().x ;
+            this.extendWidthY = this.map.getSize().y * 1.8 - this.map.getSize().y ;
+
             this.svgWidth  = this.map.getSize().x + this.extendWidthX;
             this.svgHeight = this.map.getSize().y + this.extendWidthY;
 
@@ -239,8 +242,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
             // adjust the offset after map panning / zooming
             if ( svgPosition ) {
-                this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX/2;
-                this.offset.y += (mapPosition.top - svgPosition.top) - this.extendWidthY/2;
+                this.offset.x += (mapPosition.left - svgPosition.left) - this.extendWidthX / 2;
+                this.offset.y += (mapPosition.top - svgPosition.top)   - this.extendWidthY / 2;
             }
 
             // clear layer from previous drawings
@@ -266,7 +269,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
             }
 
             var options = {
-                id                : $(this.map._container).attr("id"),
+                id                : $(this.map._container).attr("id") + '-' + this.id,
                 offset            : this.offset,
                 svgHeight         : this.svgHeight,
                 svgWidth          : this.svgWidth,

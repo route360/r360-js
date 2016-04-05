@@ -55,17 +55,17 @@
           });
 
           var marker1 = L.marker([52.280812, -1.912178], {icon: blueMarker}).addTo(map);
-          var marker2 = L.marker([52.385528, -2.261409], {icon: blueMarker}).addTo(map);
-          var marker3 = L.marker([52.086285, -1.948706], {icon: blueMarker}).addTo(map);
-          var marker4 = L.marker([52.191756, -2.182956], {icon: blueMarker}).addTo(map);
+        //   var marker2 = L.marker([52.385528, -2.261409], {icon: blueMarker}).addTo(map);
+        //   var marker3 = L.marker([52.086285, -1.948706], {icon: blueMarker}).addTo(map);
+        //   var marker4 = L.marker([52.191756, -2.182956], {icon: blueMarker}).addTo(map);
 
           var polygonLayer = r360.leafletPolygonLayer().addTo(map);
           var travelOptions = r360.travelOptions();
           travelOptions.addSource(marker1);
-          travelOptions.addSource(marker2);
-          travelOptions.addSource(marker3);
-          travelOptions.addSource(marker4);
-          travelOptions.setTravelTimes([600, 1200, 1800, 2400, 3000, 3600]);
+        //   travelOptions.addSource(marker2);
+        //   travelOptions.addSource(marker3);
+        //   travelOptions.addSource(marker4);
+          travelOptions.setTravelTimes([600, 1200, 1800]);
           travelOptions.setTravelType('car');
 
           r360.PolygonService.getTravelTimePolygons(travelOptions, function(polygons){
