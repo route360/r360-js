@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (52fa8af), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (6f63a87), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2745,7 +2745,7 @@ r360.PolygonService = {
         var serviceUrl = typeof travelOptions.getServiceUrl() !== 'undefined' ? travelOptions.getServiceUrl() : r360.config.serviceUrl;
 
         var options = {
-                url         : serviceUrl+ r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
+                url         : serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+travelOptions.getServiceKey(),
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 type        : method,
@@ -2797,7 +2797,7 @@ r360.PolygonService = {
 
         if ( method == 'POST' ) {
 
-            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
+            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' + travelOptions.getServiceKey();
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
             options.async       = false;
@@ -4343,8 +4343,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
      * @return {[type]}                  [description]
      */
     clearAndAddLayers : function(multiPolygons, fitMap, options){
-
-        console.log("clearAndAddLayers");
 
         this.clearLayers();
         this.addLayer(multiPolygons);

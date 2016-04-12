@@ -123,8 +123,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     clearAndAddLayers : function(multiPolygons, fitMap, options){
 
-        console.log("clearAndAddLayers");
-
         this.clearLayers();
         this.addLayer(multiPolygons);
 

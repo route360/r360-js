@@ -136,7 +136,7 @@ r360.PolygonService = {
         var serviceUrl = typeof travelOptions.getServiceUrl() !== 'undefined' ? travelOptions.getServiceUrl() : r360.config.serviceUrl;
 
         var options = {
-                url         : serviceUrl+ r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+r360.config.serviceKey,
+                url         : serviceUrl + r360.config.serviceVersion + '/polygon?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+travelOptions.getServiceKey(),
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 type        : method,
@@ -188,7 +188,7 @@ r360.PolygonService = {
 
         if ( method == 'POST' ) {
 
-            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' +r360.config.serviceKey;
+            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' + travelOptions.getServiceKey();
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
             options.async       = false;
