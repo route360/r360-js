@@ -7,10 +7,10 @@ r360.RouteService = {
      */
     getCfg : function(travelOptions){
 
-        var cfg = { sources : [], targets : [], 
+        var cfg = { sources : [], targets : [],
             pathSerializer : travelOptions.getPathSerializer(),
             elevation : travelOptions.isElevationEnabled() };
-        
+
         travelOptions.getSources().forEach(function(source){
 
             // set the basic information for this source
@@ -22,26 +22,26 @@ r360.RouteService = {
             };
 
             var travelType = r360.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
-            
+
             src.tm[travelType] = {};
 
             // set special routing parameters depending on the travel type
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
-                
+
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
                 if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
             }
             if ( travelType == 'ebike' ) {
-                
+
                 src.tm.ebike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'rentbike' ) {
-                
+
                 src.tm.rentbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -51,7 +51,7 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'rentandreturnbike' ) {
-                
+
                 src.tm.rentandreturnbike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
@@ -61,14 +61,14 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
             }
             if ( travelType == 'bike' ) {
-                
+
                 src.tm.bike = {};
                 if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
                 if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
                 if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
             }
             if ( travelType == 'walk') {
-                
+
                 src.tm.walk = {};
                 if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
@@ -108,13 +108,13 @@ r360.RouteService = {
 
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
-            // make the request to the Route360° backend 
+            // make the request to the Route360° backend
             $.ajax({
-                url         : r360.config.serviceUrl + r360.config.serviceVersion + '/route?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+r360.config.serviceKey,
+                url         : travelOptions.getServiceUrl() + r360.config.serviceVersion + '/route?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+travelOptions.getServiceKey(),
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
-                    
+
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
@@ -128,7 +128,7 @@ r360.RouteService = {
                             // call successCallback with returned results
                             successCallback(r360.Util.parseRoutes(result.data));
                         }
-                        else 
+                        else
                             // check if the error callback is defined
                             if ( r360.isFunction(errorCallback) )
                                 errorCallback(result.code, result.message);
@@ -143,7 +143,7 @@ r360.RouteService = {
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
+                error: function(data){
 
                     // hide the please wait control
                     if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
@@ -151,20 +151,20 @@ r360.RouteService = {
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
-                        if ( data.status == 403 ) 
-                            errorCallback("not-authorized", data.responseText); 
-                        else 
-                            errorCallback("service-not-available", "The routing service is currently not available, please try again later."); 
+                        if ( data.status == 403 )
+                            errorCallback("not-authorized", data.responseText);
+                        else
+                            errorCallback("service-not-available", "The routing service is currently not available, please try again later.");
                     }
                 }
             });
         }
-        else { 
+        else {
 
             // hide the please wait control
             if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
-            successCallback(r360.Util.parseRoutes(JSON.parse(JSON.stringify(r360.RouteService.cache[JSON.stringify(cfg)])))); 
+            successCallback(r360.Util.parseRoutes(JSON.parse(JSON.stringify(r360.RouteService.cache[JSON.stringify(cfg)]))));
         }
     }
 };
