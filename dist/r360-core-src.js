@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 ("55c441f"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (212dc08), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -198,19 +198,8 @@ r360.config = {
         { routeType : 7          , color : "yellow",    haloColor : "yellow" }
     ],
 
-    defaultPlaceAutoCompleteOptions : {
-        serviceUrl : "https://geocode.route360.net/solr/select?",
-        position : 'topleft',
-        reset : false,
-        reverse : false,
-        autoHide : true,
-        placeholder : 'Select source',
-        maxRows : 5,
-        width : 300
-    },
-
     photonPlaceAutoCompleteOptions : {
-        serviceUrl : "https://geocode2.route360.net/photon/api?",
+        serviceUrl : "https://service.route360.net/geocode/",
         position : 'topleft',
         reset : false,
         reverse : false,

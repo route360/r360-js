@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.2.1 ("55c441f"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.2.1 (212dc08), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg and Daniel Gerber, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {r360.photonPlaceAutoCompleteControl = function (options) {
@@ -1286,8 +1286,6 @@ r360.LeafletPolygonLayer = L.Class.extend({
      */
     clearAndAddLayers : function(multiPolygons, fitMap, options){
 
-        console.log("clearAndAddLayers");
-
         this.clearLayers();
         this.addLayer(multiPolygons);
 
@@ -1417,7 +1415,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
             }
 
             var options = {
-                id                : $(this.map._container).attr("id"),
+                id                : $(this.map._container).attr("id") + '-' + this.id,
                 offset            : this.offset,
                 svgHeight         : this.svgHeight,
                 svgWidth          : this.svgWidth,
