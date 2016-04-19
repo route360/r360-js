@@ -8,6 +8,11 @@ r360.PolygonService = {
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {};
         cfg.sources = [];
+        cfg.x = travelOptions.getX();
+        cfg.y = travelOptions.getY();
+        cfg.z = travelOptions.getZ();
+
+        debugger
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
         if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
@@ -19,8 +24,6 @@ r360.PolygonService = {
             if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
             if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
             if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )           cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
 

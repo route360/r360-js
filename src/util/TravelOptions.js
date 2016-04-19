@@ -679,16 +679,16 @@ r360.TravelOptions = function(){
         this.z = z;
     }
 
-    this.getX = function(x){
-        this.x = x;
+    this.getX = function(){
+        return this.x;
     }
 
-    this.getY = function(y){
-        this.y = y;
+    this.getY = function(){
+        return this.y;
     }
 
-    this.getZ = function(z){
-        this.z = z;
+    this.getZ = function(){
+        return this.z;
     }
 };
 

@@ -13,6 +13,7 @@ var deps = {
               'util/Util.js',
               'util/DomUtil.js',
               'util/TravelOptions.js',
+              'rest/mobie/MobieService.js',
               'rest/polygons/PolygonService.js',
               'rest/population/PopulationService.js',
               'rest/routes/RouteService.js',

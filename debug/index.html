@@ -1,0 +1,79 @@
+<head>
+  <!--  Include r360 stylesheet -->
+  <link rel="stylesheet" href="https://developers.route360.net/resources/css/r360.css" />
+
+ <!--  Include underscore.js -->
+ <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+
+  <!--  Include jQuery and jQuery UI -->
+  <script src="https://developers.route360.net/vendors/jquery/jquery.min.js"></script>
+  <script src="https://developers.route360.net/vendors/jquery-ui/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://developers.route360.net/vendors/jquery-ui/jquery-ui-1.10.0.custom.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+
+  <script type="text/javascript" src="../build/deps.js"></script>
+  <script type="text/javascript" src="../build/r360-include.js"></script>
+
+  <style media="screen">
+      html, body {
+    width: 100%;
+    height: 100%;}
+
+    #map {
+    width: 100%;
+    height: 100%;}
+  </style>
+
+  <script type="text/javascript">
+      $(document).ready(function(){
+
+          r360.config.defaultTravelTimeControlOptions.travelTimes = [
+                  { time : 600  , color : "#006837", opacity : 0.1 },
+                  { time : 1200 , color : "#39B54A", opacity : 0.2 },
+                  { time : 1800 , color : "#8CC63F", opacity : 0.3 },
+                  { time : 2400 , color : "#F7931E", opacity : 0.4 },
+                  { time : 3000 , color : "#F15A24", opacity : 0.5 },
+                  { time : 3600 , color : "#C1272D", opacity : 1.0 }
+              ];
+
+          var latlon = [52.5200, 13.4050];
+          var map = L.map('map').setView(latlon, 14);
+          var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a       href='https://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='https://www.route360.net/de/' target='_blank'>Route360°</a>";
+          L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', { maxZoom: 18, attribution: attribution }).addTo(map);
+          var marker = L.marker(latlon).addTo(map);
+
+          var travelOptions = r360.travelOptions();
+          travelOptions.setServiceKey('uhWrWpUhyZQy8rPfiC7X');
+          travelOptions.setServiceUrl('https://service.route360.net/brandenburg/');
+          travelOptions.setServiceUrl('http://localhost:8080/');
+          travelOptions.addSource(marker);
+          travelOptions.setMaxRoutingTime(3600);
+          travelOptions.setTravelType('car');
+          travelOptions.setX(8802);
+          travelOptions.setY(5373);
+          travelOptions.setZ(14);
+
+          r360.MobieService.getGraph(travelOptions, function(graph){
+
+              graph.tile.debugEdges.forEach(function(edge){
+
+                  var latlngs = [];
+
+                  edge.forEach(function(point){
+
+                      latlngs.push(r360.Util.webMercatorToLatLng(new r360.Point(point[0], point[1])));
+                  });
+
+                  var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+              })
+          });
+        });
+    </script>
+
+</head>
+
+<body>
+  <div id="map"></div>
+</body>
