@@ -48,6 +48,7 @@
           travelOptions.setServiceKey('uhWrWpUhyZQy8rPfiC7X');
           travelOptions.setServiceUrl('https://service.route360.net/brandenburg/');
           travelOptions.setServiceUrl('http://localhost:8080/');
+          travelOptions.setServiceUrl('https://dev.route360.net/mobie/');
           travelOptions.addSource(marker);
           travelOptions.setMaxRoutingTime(3600);
           travelOptions.setTravelType('car');
@@ -56,6 +57,8 @@
           travelOptions.setZ(14);
 
           r360.MobieService.getGraph(travelOptions, function(graph){
+
+              console.log(graph);
 
               graph.tile.debugEdges.forEach(function(edge){
 
