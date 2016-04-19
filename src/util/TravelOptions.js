@@ -16,7 +16,7 @@ r360.TravelOptions = function(){
 
     this.supportWatts       = undefined;
     this.renderWatts        = undefined;
-    
+
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
@@ -26,6 +26,10 @@ r360.TravelOptions = function(){
     this.date               = undefined;
     this.recommendations    = undefined;
     this.errors             = [];
+
+    this.x                  = undefined;
+    this.y                  = undefined;
+    this.z                  = undefined;
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
@@ -68,7 +72,7 @@ r360.TravelOptions = function(){
                 if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
 
                     // validate downhill/uphill penalties
-                    if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )  
+                    if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )
                         this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
                             Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
                 }
@@ -81,7 +85,7 @@ r360.TravelOptions = function(){
                 if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
 
                     // validate downhill/uphill penalties
-                    if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )  
+                    if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )
                         this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
                             Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
                 }
@@ -223,7 +227,7 @@ r360.TravelOptions = function(){
 
         return this.bikeSpeed;
     }
-    
+
     /*
      *
      *
@@ -233,7 +237,7 @@ r360.TravelOptions = function(){
 
         return this.bikeUphill;
     }
-    
+
     /*
      *
      *
@@ -243,7 +247,7 @@ r360.TravelOptions = function(){
 
         return this.bikeDownhill;
     }
-    
+
     /*
      *
      *
@@ -253,7 +257,7 @@ r360.TravelOptions = function(){
 
         return this.walkSpeed;
     }
-    
+
     /*
      *
      *
@@ -263,7 +267,7 @@ r360.TravelOptions = function(){
 
         return this.walkUphill;
     }
-    
+
     /*
      *
      *
@@ -273,7 +277,7 @@ r360.TravelOptions = function(){
 
         return this.walkDownhill;
     }
-    
+
     /*
      *
      *
@@ -283,7 +287,7 @@ r360.TravelOptions = function(){
 
         return this.travelTimes;
     }
-    
+
     /*
      *
      *
@@ -293,7 +297,7 @@ r360.TravelOptions = function(){
 
         return this.travelType;
     }
-    
+
     /*
      *
      *
@@ -303,7 +307,7 @@ r360.TravelOptions = function(){
 
         return this.time;
     }
-    
+
     /*
      *
      *
@@ -313,7 +317,7 @@ r360.TravelOptions = function(){
 
         return this.date;
     }
-    
+
     /*
      *
      *
@@ -403,7 +407,7 @@ r360.TravelOptions = function(){
 
         return this.serviceKey;
     }
-    
+
     /*
      *
      *
@@ -413,7 +417,7 @@ r360.TravelOptions = function(){
 
         this.serviceKey = serviceKey;
     }
-    
+
     /*
      *
      *
@@ -423,7 +427,7 @@ r360.TravelOptions = function(){
 
         this.serviceUrl = serviceUrl;
     }
-    
+
     /*
      *
      *
@@ -433,7 +437,7 @@ r360.TravelOptions = function(){
 
         this.recommendations = recommendations;
     }
-    
+
     /*
      *
      *
@@ -443,7 +447,7 @@ r360.TravelOptions = function(){
 
         this.intersectionMode = intersectionMode;
     }
-    
+
     /*
      *
      *
@@ -453,7 +457,7 @@ r360.TravelOptions = function(){
 
         this.maxRoutingTime = maxRoutingTime;
     }
-    
+
     /*
      *
      *
@@ -469,7 +473,7 @@ r360.TravelOptions = function(){
         this.polygonSerializer = polygonSerializer;
     }
 
-    
+
     /*
      *
      *
@@ -497,7 +501,7 @@ r360.TravelOptions = function(){
 
         return this.minPolygonHoleSize;
     }
-    
+
     /*
      *
      *
@@ -507,7 +511,7 @@ r360.TravelOptions = function(){
 
         this.sources = sources;
     }
-    
+
     /*
      *
      *
@@ -517,7 +521,7 @@ r360.TravelOptions = function(){
 
         this.targets = targets;
     }
-    
+
     /*
      *
      *
@@ -527,7 +531,7 @@ r360.TravelOptions = function(){
 
         this.bikeSpeed = bikeSpeed;
     }
-    
+
     /*
      *
      *
@@ -537,7 +541,7 @@ r360.TravelOptions = function(){
 
         this.bikeUphill = bikeUphill;
     }
-    
+
     /*
      *
      *
@@ -547,7 +551,7 @@ r360.TravelOptions = function(){
 
         this.bikeDownhill = bikeDownhill;
     }
-    
+
     /*
      *
      *
@@ -557,7 +561,7 @@ r360.TravelOptions = function(){
 
         this.walkSpeed = walkSpeed;
     }
-    
+
     /*
      *
      *
@@ -567,7 +571,7 @@ r360.TravelOptions = function(){
 
         this.walkUphill = walkUphill;
     }
-    
+
     /*
      *
      *
@@ -577,7 +581,7 @@ r360.TravelOptions = function(){
 
         this.walkDownhill = walkDownhill;
     }
-    
+
     /*
      *
      *
@@ -587,7 +591,7 @@ r360.TravelOptions = function(){
 
         this.travelTimes = travelTimes;
     }
-    
+
     /*
      *
      *
@@ -597,7 +601,7 @@ r360.TravelOptions = function(){
 
         this.travelType = travelType;
     }
-    
+
     /*
      *
      *
@@ -607,7 +611,7 @@ r360.TravelOptions = function(){
 
         this.time = time;
     }
-    
+
     /*
      *
      *
@@ -617,7 +621,7 @@ r360.TravelOptions = function(){
 
         this.date = date;
     }
-    
+
     /*
      *
      *
@@ -629,10 +633,10 @@ r360.TravelOptions = function(){
     }
 
     /**
-     * [isElevationEnabled if true the service will return elevation data, if the backend is 
+     * [isElevationEnabled if true the service will return elevation data, if the backend is
      * configured with elevation data, if the backend is not configured with elevation data
      * the z value of all points in routes is 0]
-     * 
+     *
      * @return {[boolean]} [returns true if elevation enabled]
      */
     this.isElevationEnabled = function() {
@@ -641,7 +645,7 @@ r360.TravelOptions = function(){
     }
 
     /**
-     * [setElevationEnabled if set to true the service will return elevation data, if the backend is 
+     * [setElevationEnabled if set to true the service will return elevation data, if the backend is
      * configured with elevation data, if the backend is not configured with elevation data
      * the z value of all points in routes is 0]
      * @param {[type]} elevationEnabled [set the backend to consider elevation data for polygonizing and routing]
@@ -649,38 +653,6 @@ r360.TravelOptions = function(){
     this.setElevationEnabled = function(elevationEnabled){
 
         this.elevationEnabled = elevationEnabled;
-    }
-
-    /**
-     * [setRenderingMode description]
-     * @param {[type]} renderWatts [description]
-     */
-    this.setRenderWatts = function(renderWatts){
-        this.renderWatts = renderWatts;
-    }
-
-    /**
-     * [getRenderingMode description]
-     * @return {[type]} [description]
-     */
-    this.getRenderWatts = function(){
-       return this.renderWatts;
-    }
-
-    /**
-     * [setSupportWatts description]
-     * @param {[type]} supportWatts [description]
-     */
-    this.setSupportWatts = function(supportWatts){
-        this.supportWatts = supportWatts;
-    }
-
-    /**
-     * [getSupportWatts description]
-     * @return {[type]} [description]
-     */
-    this.getSupportWatts = function(){
-        return this.supportWatts;
     }
 
     this.disablePointReduction = function(){
@@ -694,8 +666,32 @@ r360.TravelOptions = function(){
     this.isPointReductionEnabled = function(){
         return this.pointReduction;
     }
+
+    this.setX = function(x){
+        this.x = x;
+    }
+
+    this.setY = function(y){
+        this.y = y;
+    }
+
+    this.setZ = function(z){
+        this.z = z;
+    }
+
+    this.getX = function(x){
+        this.x = x;
+    }
+
+    this.getY = function(y){
+        this.y = y;
+    }
+
+    this.getZ = function(z){
+        this.z = z;
+    }
 };
 
-r360.travelOptions = function () { 
+r360.travelOptions = function () {
     return new r360.TravelOptions();
 };
