@@ -218,25 +218,21 @@ function getRoute360TileBuffer(tile, zoom) {
             }
 
             /* generate random vertex, index and color buffers */
-            var vtx = new Float32Array(vtxSize * r360Tile.tile.gltf.buffers.vertices.length);
+            var vtx = new Float32Array(r360Tile.tile.gltf.buffers.vertices.length);
             var idx = new Uint16Array(r360Tile.tile.gltf.buffers.indices.length);
-            var clr = new Float32Array(clrSize * r360Tile.tile.gltf.buffers.vertices.length);
+            var clr = new Float32Array(r360Tile.tile.gltf.buffers.colors.length * clrSize); /* @TODO bugged */
 
             /* vertex buffer: random points within the tile bounds */
             for (var i = 0, j = 0; i < r360Tile.tile.gltf.buffers.vertices.length; i += vtxSize, j++) {
 
+
               vtx[i]     = r360Tile.tile.gltf.buffers.vertices[i];
               vtx[i + 1] = r360Tile.tile.gltf.buffers.vertices[i + 1];
 
-              clr[i * clrSize]     = red.r + r360Tile.tile.gltf.buffers.colors[j] * (green.r - red.r);
-              clr[i * clrSize + 1] = red.g + r360Tile.tile.gltf.buffers.colors[j] * (green.g - red.g);
-              clr[i * clrSize + 2] = red.b + r360Tile.tile.gltf.buffers.colors[j] * (green.b - red.b);
-              clr[i * clrSize + 3] = 1.0;
-
-              clr[(i + 1) * clrSize]     = red.r + r360Tile.tile.gltf.buffers.colors[j] * (green.r - red.r);
-              clr[(i + 1) * clrSize + 1] = red.g + r360Tile.tile.gltf.buffers.colors[j] * (green.g - red.g);
-              clr[(i + 1) * clrSize + 2] = red.b + r360Tile.tile.gltf.buffers.colors[j] * (green.b - red.b);
-              clr[(i + 1) * clrSize + 3] = 1.0;
+              clr[j * clrSize]     = red.r + r360Tile.tile.gltf.buffers.colors[j] * (green.r - red.r);
+              clr[j * clrSize + 1] = red.g + r360Tile.tile.gltf.buffers.colors[j] * (green.g - red.g);
+              clr[j * clrSize + 2] = red.b + r360Tile.tile.gltf.buffers.colors[j] * (green.b - red.b);
+              clr[j * clrSize + 3] = 1.0;
             };
 
             /* index buffer: draw continuous lines */
