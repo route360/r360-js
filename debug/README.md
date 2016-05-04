@@ -19,6 +19,7 @@ Credits
 
 Prototype 4 written and (c) by Alexander Schoedon <schoedon@uni-potsdam.de>
 for Spatial Analytics at the Hasso-Plattner-Institute.
+  - https://hpi.de/de/computer-graphics-systems/
 
 Inspired by Stanislav Sumbera's Leaflet Canvas Overlay.
   - http://blog.sumbera.com/2014/04/20/leaflet-canvas/
