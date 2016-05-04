@@ -14,8 +14,6 @@ var TILE_CACHE;
 /* some map geometries */
 var EARTH_EQUATOR = 40075016.68557849;
 var EARTH_RADIUS = 6378137.0;
-var TILE_SIZE  = 256.0;
-//   var TILE_SIZE  = 1;
 
 /**
  * initialize the distance map visualization
@@ -220,7 +218,7 @@ function getRoute360TileBuffer(tile, zoom) {
             /* generate random vertex, index and color buffers */
             var vtx = new Float32Array(r360Tile.tile.gltf.buffers.vertices.length);
             var idx = new Uint16Array(r360Tile.tile.gltf.buffers.indices.length);
-            var clr = new Float32Array(r360Tile.tile.gltf.buffers.colors.length * clrSize); /* @TODO bugged */
+            var clr = new Float32Array(r360Tile.tile.gltf.buffers.times.length * clrSize);
 
             /* vertex buffer: random points within the tile bounds */
             for (var i = 0, j = 0; i < r360Tile.tile.gltf.buffers.vertices.length; i += vtxSize, j++) {
@@ -229,9 +227,9 @@ function getRoute360TileBuffer(tile, zoom) {
               vtx[i]     = r360Tile.tile.gltf.buffers.vertices[i];
               vtx[i + 1] = r360Tile.tile.gltf.buffers.vertices[i + 1];
 
-              clr[j * clrSize]     = red.r + r360Tile.tile.gltf.buffers.colors[j] * (green.r - red.r);
-              clr[j * clrSize + 1] = red.g + r360Tile.tile.gltf.buffers.colors[j] * (green.g - red.g);
-              clr[j * clrSize + 2] = red.b + r360Tile.tile.gltf.buffers.colors[j] * (green.b - red.b);
+              clr[j * clrSize]     = red.r + r360Tile.tile.gltf.buffers.times[j] * (green.r - red.r);
+              clr[j * clrSize + 1] = red.g + r360Tile.tile.gltf.buffers.times[j] * (green.g - red.g);
+              clr[j * clrSize + 2] = red.b + r360Tile.tile.gltf.buffers.times[j] * (green.b - red.b);
               clr[j * clrSize + 3] = 1.0;
             };
 
@@ -313,7 +311,7 @@ function drawGL() {
 
     /* precalculate map scale, offset and line width */
     var zoom = m.getZoom();
-    var scale = Math.pow(2, zoom);
+    var scale = Math.pow(2, zoom) * 256;
     var offset = latLonToPixels(topLeft.lat, topLeft.lng);
     var width = Math.max(zoom - 12.0, 1.0);
 
@@ -414,8 +412,8 @@ function scaleMatrix(m, x, y) {
  * @return {L.point} Leaflet point with tile pixel x and y corrdinates
  */
 function mercatorToPixels(p)  {
-  var pixelX = (p.x + (EARTH_EQUATOR / 2.0)) / (EARTH_EQUATOR / TILE_SIZE);
-  var pixelY = ((p.y - (EARTH_EQUATOR / 2.0)) / (EARTH_EQUATOR / -TILE_SIZE));
+  var pixelX = (p.x + (EARTH_EQUATOR / 2.0)) / EARTH_EQUATOR;
+  var pixelY = ((p.y - (EARTH_EQUATOR / 2.0)) / -EARTH_EQUATOR );
   return L.point(pixelX, pixelY);
 }
 
@@ -428,8 +426,8 @@ function mercatorToPixels(p)  {
  */
 function latLonToPixels(lat, lon) {
   var sinLat = Math.sin(lat * Math.PI / 180.0);
-  var pixelX = ((lon + 180) / 360) * TILE_SIZE;
-  var pixelY = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (Math.PI * 4)) * TILE_SIZE;
+  var pixelX = ((lon + 180) / 360);
+  var pixelY = (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (Math.PI * 4));
   return L.point(pixelX, pixelY);
 }
 
