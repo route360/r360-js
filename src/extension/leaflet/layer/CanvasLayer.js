@@ -16,10 +16,10 @@ CanvasLayer = L.Class.extend({
       */
     initialize: function (options) {
         'use strict';
-        this.items = new Array();
+        this.items = [];
         var that = this;
 
-        that.mapZoomPowerLookup = new Array();
+        that.mapZoomPowerLookup = [];
 
         for(var i = 0; i < 25; i++){
             that.mapZoomPowerLookup[i] = Math.pow(2, i) * 256;
@@ -113,11 +113,11 @@ CanvasLayer = L.Class.extend({
 
         $( "#" + $(that.map._container).attr("id") ).on( "mousemove", function( event ) {
             that.clearMarkerHover();
-            $('#' + that.poiCanvasId).attr("style", "cursor: move; cursor: grab; cursor:-moz-grab; cursor:-webkit-grab;");
+            $('.leaflet-overlay-pane').attr("style", "cursor: move; cursor: grab; cursor:-moz-grab; cursor:-webkit-grab;");
             var item = that.getItemBelowCursor(that.items, event);
-            if(item != null){
+            if(item !== null){
                 item.onHover();
-                $('#'+ that.poiCanvasId).css('cursor', 'pointer');
+                $('.leaflet-overlay-pane').css('cursor', 'pointer');
                 that.drawMarkerHover(item);
             }
         });
@@ -127,7 +127,7 @@ CanvasLayer = L.Class.extend({
             // console.log("click");
             that.clearMarkerHover();
             var item = that.getItemBelowCursor(that.items, event);
-            if(item != null){
+            if(item !== null){
                 item.onClick();
                 that.drawMarkerClick(item);
             }
@@ -271,34 +271,34 @@ CanvasLayer = L.Class.extend({
 
 
     drawMarkerHover: function(item){
-        var c = document.getElementById('#' + this.poiMarkerHoverId);
+        var c = document.getElementById(this.poiMarkerHoverId);
         var ctx = c.getContext("2d");
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.drawRingIcon(ctx, item.hoverIcon, item.currentPixel);
     },
 
     drawMarkerClick: function(item){
-        var c = document.getElementById("#" + this.poiMarkerClickId);
+        var c = document.getElementById(this.poiMarkerClickId);
         var ctx = c.getContext("2d");
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.drawRingIcon(ctx, item.clickIcon, item.currentPixel);
     },
 
     clearMarkerHover: function(){
-        var c = document.getElementById('#' + this.poiMarkerHoverId);
+        var c = document.getElementById(this.poiMarkerHoverId);
         var ctx = c.getContext("2d");
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     },
 
     clearMarkerClick: function(){
-        var c = document.getElementById("#" + this.poiMarkerClickId);
+        var c = document.getElementById(this.poiMarkerClickId);
         var ctx = c.getContext("2d");
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     },
 
 
     getCanvas: function(width, height, zIndex, id) {
-      var canvas = '<canvas id="#' + id + '" width="' + width + '" height="' + height + '" style="position:absolute; top:0px; left:0px; z-index: ' + zIndex + ';"></canvas>';
+      var canvas = '<canvas id="' + id + '" width="' + width + '" height="' + height + '" style="position:absolute; top:0px; left:0px; z-index: ' + zIndex + ';"></canvas>';
       return canvas;
     },
 
@@ -310,7 +310,7 @@ CanvasLayer = L.Class.extend({
         item.currentPixel = pixel;
 
         if(this.containedByCanvas(pixel)){
-             if(this.arr[pixel.x + ";" + pixel.y] != true){
+             if(this.arr[pixel.x + ";" + pixel.y] !== true){
                 this.drawRingIcon(this.mainMarcerCanvasCtx, item.icon, pixel);
                 this.arr[pixel.x + ";" + pixel.y] = true;
             }
@@ -351,21 +351,21 @@ CanvasLayer = L.Class.extend({
 
         var markerClickCanvas = this.getCanvas(this.canvasWidth, this.canvasHeight, 20, this.poiMarkerClickId);
         var markerHoverCanvas = this.getCanvas(this.canvasWidth, this.canvasHeight, 10, this.poiMarkerHoverId);
-        var markerMainCanvas  = this.getCanvas(this.canvasWidth, this.canvasHeight, 0, this.markerMainCanvasId)
+        var markerMainCanvas  = this.getCanvas(this.canvasWidth, this.canvasHeight, 0, this.markerMainCanvasId);
 
         var canvas_div_id = "canvas_div_" + that.id;
 
         // add the canvas string to the container
         $('#'+ this.poiCanvasId).append(
-          '<div id='+ canvas_div_id + ' style="' + translation + '">'
-            + markerClickCanvas + markerHoverCanvas + markerMainCanvas +
+          '<div id='+ canvas_div_id + ' style="' + translation + '">' +
+            markerClickCanvas + markerHoverCanvas + markerMainCanvas +
           '</div>');
         this.updateOffset();
 
-        c = document.getElementById("#"+ this.markerMainCanvasId);
+        c = document.getElementById(this.markerMainCanvasId);
         this.mainMarcerCanvasCtx = c.getContext("2d");
 
-        this.arr = new Array();
+        this.arr = [];
 
         this.origin = this.map.getPixelOrigin();
     },
@@ -380,6 +380,6 @@ CanvasLayer = L.Class.extend({
         that.resetCanvas();
         that.items.forEach(function(item){
             that.draw(item);
-        })
+        });
     }
 });
