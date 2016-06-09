@@ -264,7 +264,11 @@ r360.LeafletPolygonLayer = L.Class.extend({
             $('#canvas'+ $(this.map._container).attr("id") + '-' + this.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
-    }
+    },
+    
+    _layerAdd: function(options) {
+		this.onAdd(options.target);
+	}
 });
 
 r360.leafletPolygonLayer = function (options) {
