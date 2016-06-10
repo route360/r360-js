@@ -11,7 +11,7 @@ The Route360° JavaScript API is a modern open-source JavaScript library designe
 * Support for elevation data
 
 # Demonstration and Usage
-A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net). You can see what the service is capable of at the technology [demo](http://apps.route360.net/demo)
+A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net). You can see what the service is capable of at the technology [demo](http://apps.route360.net/demo), just select the country you want to test.
 
 <img src="http://i1284.photobucket.com/albums/a576/gerbsen/gif_zps7710423c.gif" alt="Route360°" />
 
