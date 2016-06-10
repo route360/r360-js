@@ -15,17 +15,10 @@ The Route360° JavaScript API is a modern open-source JavaScript library designe
 # Demonstration and Usage
 A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net).
 
-# Projects using Route360°
-If you want to use Route360° yourself don't hesitate to contact us at [mail@motionintelligence.net](mailto:mail@motionintelligence.net). Check out the tutorial and apply for your service key. 
+# Route360° Angular Library
+Since we mostly develop our apps with Angular we also developed a public library which should be very helpful. Please keep in mind that this library is in a very early stage and is subject to change on any given day. We are working on making a stable build und write the documentation, but this will take some time. :/ 
+You can find the library [here](https://github.com/route360/r360-angular).
 
-### Naturtip.org
-[Naturtrip.org](http://naturtrip.org) is a platform to plan your weekend activities with public transportation. No car needed. You can select different kinds of trips, e.g. 'animals', 'culture' and 'wellness', and it will show you only trips which are reachable within a given time frame. Additionally you get a travel plan, where all the stops, transfers and distances are included.
-
-### Sykledit
-[Sykledit](http://www.forbrukerradet.no/tips-og-r%C3%A5d/sykle-dit;jsessionid=618DC2DB1DB2D79DA8C2185EA1827995) was developed for governmental organization for the protection of consumers in norway. Users can instantly see how far they can go riding with their bikes. You can select different speed modes to match your fitness level. Elevation data is used to create exact routing and polygon information in a mountain righ area like norway.
-
-### Business Location Center Berlin
-The [Business Location Center (Berlin)](http://www.businesslocationcenter.de/de) uses Route360° in its internal real estate portal to help find company's the perfect location.
 
 # Bower
 You can use our project in bower
