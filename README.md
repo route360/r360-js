@@ -10,10 +10,10 @@ The Route360° JavaScript API is a modern open-source JavaScript library designe
 * Get routing information for hundreds of POIs in a single request in milliseconds
 * Support for elevation data
 
-<img src="http://i1284.photobucket.com/albums/a576/gerbsen/gif_zps7710423c.gif" alt="Route360°" />
-
 # Demonstration and Usage
-A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net).
+A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net). You can see what the service is capable of at the technology [demo](http://apps.route360.net/demo)
+
+<img src="http://i1284.photobucket.com/albums/a576/gerbsen/gif_zps7710423c.gif" alt="Route360°" />
 
 # Route360° Angular Library
 Since we mostly develop our apps with Angular we also developed a public library which should be very helpful. Please keep in mind that this library is in a very early stage and is subject to change on any given day. We are working on making a stable build und write the documentation, but this will take some time. :/ 
