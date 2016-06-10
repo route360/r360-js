@@ -282,6 +282,11 @@ r360.LeafletPolygonLayer = L.Class.extend({
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
     }
+    
+    // fix for leaflet 1.0
+    _layerAdd: function(options) {
+        this.onAdd(options.target);
+ 	}
 });
 
 r360.leafletPolygonLayer = function (options) {
