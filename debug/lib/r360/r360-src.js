@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (36af649), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (d1f929a), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1943,6 +1943,7 @@ r360.TravelOptions = function(){
     this.x                  = undefined;
     this.y                  = undefined;
     this.z                  = undefined;
+    this.decimalPlaces      = 6;
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
@@ -2592,6 +2593,14 @@ r360.TravelOptions = function(){
         this.z = z;
     }
 
+    this.setDecimalPlaces = function(decimalPlaces){
+        this.decimalPlaces = decimalPlaces;
+    }
+
+    this.getDecimalPlaces = function(){
+        return this.decimalPlaces;
+    }
+
     this.getX = function(){
         return this.x;
     }
@@ -2623,6 +2632,7 @@ r360.MobieService = {
         cfg.x = travelOptions.getX();
         cfg.y = travelOptions.getY();
         cfg.z = travelOptions.getZ();
+        cfg.decimalPlaces = travelOptions.getDecimalPlaces();
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )
             cfg.elevation = travelOptions.isElevationEnabled();

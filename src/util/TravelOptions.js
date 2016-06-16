@@ -30,6 +30,7 @@ r360.TravelOptions = function(){
     this.x                  = undefined;
     this.y                  = undefined;
     this.z                  = undefined;
+    this.decimalPlaces      = 6;
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
@@ -677,6 +678,14 @@ r360.TravelOptions = function(){
 
     this.setZ = function(z){
         this.z = z;
+    }
+
+    this.setDecimalPlaces = function(decimalPlaces){
+        this.decimalPlaces = decimalPlaces;
+    }
+
+    this.getDecimalPlaces = function(){
+        return this.decimalPlaces;
     }
 
     this.getX = function(){

@@ -273,7 +273,7 @@ function requestTile(x, y, z, callback) {
     // if (document.location.hostname == "localhost")
         // travelOptions.setServiceUrl('http://localhost:8080/');
     // else
-        travelOptions.setServiceUrl('https://dev.route360.net/mobie/');
+        travelOptions.setServiceUrl('https://dev.route360.net/mobie/v2/');
 
     travelOptions.addSource(marker);
     travelOptions.setMaxRoutingTime(1200);
@@ -281,6 +281,7 @@ function requestTile(x, y, z, callback) {
     travelOptions.setX(x);
     travelOptions.setY(y);
     travelOptions.setZ(z);
+    travelOptions.setDecimalPlaces(8);
     r360.MobieService.getGraph(travelOptions, callback);
 }
 
