@@ -12,6 +12,7 @@ r360.MobieService = {
         cfg.y = travelOptions.getY();
         cfg.z = travelOptions.getZ();
         cfg.decimalPlaces = travelOptions.getDecimalPlaces();
+        cfg.edgeClasses = travelOptions.getEdgeClasses();
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )
             cfg.elevation = travelOptions.isElevationEnabled();

@@ -31,6 +31,7 @@ r360.TravelOptions = function(){
     this.y                  = undefined;
     this.z                  = undefined;
     this.decimalPlaces      = 6;
+    this.edgeClasses        = [1, 11, 12, 13, 14, 15, 16, 21, 22, 31, 32, 41, 42, 51, 63, 62, 71, 72, 81, 91, 92, 99];
 
     this.intersectionMode   = undefined;
     this.pathSerializer     = r360.config.pathSerializer;
@@ -672,6 +673,14 @@ r360.TravelOptions = function(){
         this.x = x;
     }
 
+    this.setEdgeClasses = function(edgeClasses){
+        this.edgeClasses = edgeClasses;
+    }
+
+    this.getEdgeClasses = function(){
+        return this.edgeClasses;
+    }
+    
     this.setY = function(y){
         this.y = y;
     }
