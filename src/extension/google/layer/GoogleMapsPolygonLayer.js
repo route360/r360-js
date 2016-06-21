@@ -1,4 +1,4 @@
-if ( window.google ) {
+if (typeof google === 'object' && typeof google.maps === 'object') {
 
     GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
