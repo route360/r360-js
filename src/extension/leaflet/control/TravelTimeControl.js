@@ -2,26 +2,26 @@
  *
  */
 r360.TravelTimeControl = L.Control.extend({
-   
+
     /**
       * ...
-      * 
+      *
       * @param {Object} [options] The typical JS options array.
-      * @param {Number} [options.position] 
-      * @param {Number} [options.initValue] 
-      * @param {Number} [options.label] 
+      * @param {Number} [options.position]
+      * @param {Number} [options.initValue]
+      * @param {Number} [options.label]
       * @param {Array}  [options.travelTimes] Each element of this arrays has to contain a "time" and a "color" field.
       *     An example would be: { time : 600  , color : "#006837"}. The color needs to be specified in HEX notation.
-      * @param {Number} [options.icon] 
+      * @param {Number} [options.icon]
       */
     initialize: function (travelTimeControlOptions) {
-        
+
         // use the default options
         this.options = JSON.parse(JSON.stringify(r360.config.defaultTravelTimeControlOptions));
 
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
-            
+
             if ( r360.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
             if ( r360.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
             if ( r360.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
@@ -40,7 +40,7 @@ r360.TravelTimeControl = L.Control.extend({
     onAdd: function (map) {
         var that = this;
         this.options.map = map;
-        map.on("resize", this.onResize.bind(this));          
+        map.on("resize", this.onResize.bind(this));
 
         var sliderColors = "";
         var percent = 100 / this.options.travelTimes.length;
@@ -105,10 +105,11 @@ r360.TravelTimeControl = L.Control.extend({
             min:    0,
             max:    that.options.maxValue,
             step:   that.options.step,
-            
+
             slide: function (e, ui) {
                 if ( ui.value == 0) return false;
                 $(that.options.travelTimeSpan).text(ui.value);
+                that.options.onSlideMove(travelTimes);
             },
             stop: function(e, ui){
                 var travelTimes = new Array()
@@ -122,7 +123,7 @@ r360.TravelTimeControl = L.Control.extend({
         /*
         prevent map click when clicking on slider
         */
-        L.DomEvent.disableClickPropagation(this.options.sliderContainer);  
+        L.DomEvent.disableClickPropagation(this.options.sliderContainer);
 
         return this.options.sliderContainer;
     },
@@ -131,7 +132,7 @@ r360.TravelTimeControl = L.Control.extend({
      *
      */
     onResize: function(){
-        
+
         if ( this.options.map.getSize().x < 550 ){
             this.removeAndAddClass(this.options.miBox, 'leaflet-traveltime-slider-container-max', 'leaflet-traveltime-slider-container-min');
             this.removeAndAddClass(this.options.travelTimeInfo, 'travel-time-info-max', 'travel-time-info-min');
@@ -156,9 +157,17 @@ r360.TravelTimeControl = L.Control.extend({
     /*
      *
      */
+    onSlideMove: function (onSlideMove) {
+        var options = this.options;
+        options.onSlideMove = onSlideMove;
+    },
+
+    /*
+     *
+     */
     onSlideStop: function (onSlideStop) {
         var options = this.options;
-        options.onSlideStop = onSlideStop;  
+        options.onSlideStop = onSlideStop;
     },
 
     /**
@@ -178,18 +187,18 @@ r360.TravelTimeControl = L.Control.extend({
         var options = this.options;
         var travelTimes = new Array()
 
-        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
+        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step)
             travelTimes.push(options.travelTimes[i/options.step].time);
-            
+
         return travelTimes;
     },
 
     /**
-     * [getMaxValue Returns the maximum selected value in seconds, 
+     * [getMaxValue Returns the maximum selected value in seconds,
      *              internally it used the getValues method and returns the maximum.]
-     *              
+     *
      * @return {[Number]}
-     */ 
+     */
     getMaxValue : function() {
 
         return r360.max(this.getValues());
