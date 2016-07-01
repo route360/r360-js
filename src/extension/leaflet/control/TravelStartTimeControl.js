@@ -24,6 +24,14 @@ r360.TravelStartTimeControl = L.Control.extend({
     /*
      *
      */
+    onSlideMove: function (func){
+
+        this.options.slideMove = func;
+    },
+
+    /*
+     *
+     */
     onSlideStop: function (func){
 
         this.options.slideStop = func;
@@ -65,7 +73,7 @@ r360.TravelStartTimeControl = L.Control.extend({
 
         $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
 
-        $(that.label).text(r360.config.i18n.get('departure') + ': '+ 
+        $(that.label).text(r360.config.i18n.get('departure') + ': '+
             that.minToString(this.options.value) + ' ' + r360.Util.getTimeFormat(that.options.value));
 
         $(that.slider).slider({
@@ -74,12 +82,12 @@ r360.TravelStartTimeControl = L.Control.extend({
             min:    that.options.min,
             max:    that.options.max,
             step:   that.options.step,
-            
+
             slide: function (e, ui) {
 
                 $(that.label).text(r360.config.i18n.get('departure') + ': ' +
                     that.minToString(ui.value) + ' ' + r360.Util.getTimeFormat(ui.value));
-                
+
                 that.options.value = ui.value;
             },
             stop: function(e, ui){
@@ -87,12 +95,12 @@ r360.TravelStartTimeControl = L.Control.extend({
                 that.options.slideStop(ui.value);
             }
         });
-    
+
         this.onResize();
        /*
         prevent map click when clicking on slider
         */
-        L.DomEvent.disableClickPropagation(sliderContainer);  
+        L.DomEvent.disableClickPropagation(sliderContainer);
 
         return sliderContainer;
     },
@@ -127,7 +135,7 @@ r360.TravelStartTimeControl = L.Control.extend({
     /*
      *
      */
-    getValue : function() {    
+    getValue : function() {
         return this.options.value;
     }
 });
