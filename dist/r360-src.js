@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 ("44f1a3e"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (62ade4e), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -138,10 +138,6 @@ if (!Function.prototype.bind) {
 
 r360.config = {
 
-    serviceUrl      : 'https://api.route360.net/api_dev/',
-    // serviceUrl      : 'http://localhost:8080/api/',
-    nominatimUrl    : 'https://geocode.route360.net/',
-    osmServiceUrl   : 'https://api.route360.net/r360-osm-api-norway/',
     serviceVersion  : 'v1',
     pathSerializer  : 'compact',
     requestTimeout  : 10000,
@@ -473,6 +469,7 @@ r360.config = {
         }
     }
 }
+
 
 /*
  * r360.Bounds represents a rectangular area on the screen in pixel coordinates.
@@ -4349,6 +4346,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
 
+        if ( options && options.callback && typeof options.callback === "function" ) {
+
+            this.map.addOneTimeEventListener('moveend', function(){
+
+                options.callback(); 
+            });
+        }
+
         return this;
     },
 
@@ -4502,7 +4507,12 @@ r360.LeafletPolygonLayer = L.Class.extend({
             $('#canvas'+ $(this.map._container).attr("id") + '-' + this.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
-    }
+    },
+    
+    // fix for leaflet 1.0
+    _layerAdd: function(options) {
+        this.onAdd(options.target);
+ 	}
 });
 
 r360.leafletPolygonLayer = function (options) {
@@ -5136,7 +5146,7 @@ r360.LeafletUtil = {
     }
 };
 
-if ( window.google ) {
+if (typeof google === 'object' && typeof google.maps === 'object') {
 
     GoogleMapsPolygonLayer.prototype = new google.maps.OverlayView();
 
@@ -5377,6 +5387,7 @@ if ( window.google ) {
         return new GoogleMapsPolygonLayer(map);
     }
 }
+
 
 r360.GoogleMapsUtil = {
 

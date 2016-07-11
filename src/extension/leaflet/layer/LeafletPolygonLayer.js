@@ -128,8 +128,13 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
 
-        if ( options && options.callback && getClass.call(options.callback) == '[object Function]' )
-            options.callback(); 
+        if ( options && options.callback && typeof options.callback === "function" ) {
+
+            this.map.addOneTimeEventListener('moveend', function(){
+
+                options.callback(); 
+            });
+        }
 
         return this;
     },
@@ -284,7 +289,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
             $('#canvas'+ $(this.map._container).attr("id") + '-' + this.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
-    }
+    },
     
     // fix for leaflet 1.0
     _layerAdd: function(options) {
