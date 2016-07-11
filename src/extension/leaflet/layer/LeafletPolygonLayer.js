@@ -128,6 +128,9 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         if ( typeof fitMap !== 'undefined' && fitMap === true ) this.fitMap(options);
 
+        if ( options && options.callback && getClass.call(options.callback) == '[object Function]' )
+            options.callback(); 
+
         return this;
     },
 
