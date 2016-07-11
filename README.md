@@ -1,4 +1,4 @@
-# IMPORTANT: The current version is outdated. Please use the angular_ready branch for further development.
+## IMPORTANT: The current version is outdated. Please use the angular_ready branch for further development.
 
 #r360-js
 
