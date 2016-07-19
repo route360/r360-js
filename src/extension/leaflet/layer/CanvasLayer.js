@@ -363,7 +363,8 @@ CanvasLayer = L.Class.extend({
         this.updateOffset();
 
         c = document.getElementById(this.markerMainCanvasId);
-        this.mainMarcerCanvasCtx = c.getContext("2d");
+         if (c !== null)
+            this.mainMarcerCanvasCtx = c.getContext("2d");
 
         this.arr = [];
 
