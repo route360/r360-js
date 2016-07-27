@@ -153,7 +153,7 @@ r360.PolygonService = {
                             // cache the result
                             r360.PolygonService.cache[JSON.stringify(cfg)] = result.data;
                             // call successCallback with returned results
-                            successCallback(r360.Util.parsePolygons(result.data));
+                            successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? result.data : r360.Util.parsePolygons(result.data));
                         }
                         else
                             // check if the error callback is defined
@@ -166,7 +166,7 @@ r360.PolygonService = {
                         // cache the result
                         r360.PolygonService.cache[JSON.stringify(cfg)] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parsePolygons(result));
+                        successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? result.data : r360.Util.parsePolygons(result));
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response

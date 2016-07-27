@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 ("61f8f01"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (d5146f6), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2759,7 +2759,7 @@ r360.PolygonService = {
                             // cache the result
                             r360.PolygonService.cache[JSON.stringify(cfg)] = result.data;
                             // call successCallback with returned results
-                            successCallback(r360.Util.parsePolygons(result.data));
+                            successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? result.data : r360.Util.parsePolygons(result.data));
                         }
                         else
                             // check if the error callback is defined
@@ -2772,7 +2772,7 @@ r360.PolygonService = {
                         // cache the result
                         r360.PolygonService.cache[JSON.stringify(cfg)] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parsePolygons(result));
+                        successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? result.data : r360.Util.parsePolygons(result));
                     }
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
