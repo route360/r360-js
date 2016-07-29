@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (d5146f6), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (8e91e74), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -222,251 +222,6 @@ r360.config = {
 
         animate : false,
         animationDuration : 1
-    },
-
-    i18n : {
-
-        language             : 'en',
-        configuredLanguages  : ['en', 'de', 'no'],
-
-        info                 : { en : 'More information',
-                                 de : 'Mehr informationen', 
-                                 no : 'Mer Informasjon'},
-
-        fullscreen           : { en : 'Fullscreen',
-                                 de : 'Vollbild', 
-                                 no : 'Fullskjerm'},
-
-        slow                 : { en : 'Slow',
-                                 de : 'Langsam', 
-                                 no : 'Sakte'},
-
-        low                  : { en : 'Low',
-                                 de : 'Gering', 
-                                 no : 'Lav'},
-        
-        medium               : { en : 'Medium',
-                                 de : 'Mittel', 
-                                 no : 'Medium'},
-
-        fast                 : { en : 'Fast',
-                                 de : 'Schnell', 
-                                 no : 'Raskt' },
-
-        high                 : { en : 'High',
-                                 de : 'Hoch', 
-                                 no : 'Høy' },
-
-        departure            : { en : 'Departure',
-                                 de : 'Abfahrt', 
-                                 no : 'TODO TRANSLATION: '},
-        
-        placeholderSrc       : { en : 'Select source!',
-                                 de : 'Start wählen!',   
-                                 no : 'Start'},
-        
-        placeholderTrg       : { en : 'Select target!',
-                                 de : 'Ziel wählen!' ,   
-                                 no : 'Mål' },
-        
-        line                 : { en : 'Line',
-                                 de : 'Linie', 
-                                 no : 'TODO TRANSLATION: ' },
-        
-        arrival              : { en : 'Arrival',
-                                 de : 'Ankunft',
-                                 no : 'TODO TRANSLATION: ' },
-        
-        from                 : { en : 'From',
-                                 de : 'Von' , 
-                                 no : 'TODO TRANSLATION: '},
-        
-        to                   : { en : 'To',
-                                 de : 'Nach', 
-                                 no : 'TODO TRANSLATION: ' },
-        
-        travelTime           : { en : 'Travel time',
-                                 de : 'Reisezeit', 
-                                 no : 'Reisetid' },
-        
-        totalTime            : { en : 'Total time',
-                                 de : 'Gesamtzeit', 
-                                 no : 'TODO TRANSLATION: ' },
-       
-        batteryCapacity      : { en : 'Battery capacity',
-                                 de : 'Akkuleistung', 
-                                 no : 'Batterikapasitet' },
-       
-        distance             : { en : 'Distance',
-                                 de : 'Distanz', 
-                                 no : 'Avstand' },
-        
-        wait                 : { en : 'Please wait!',
-                                 de : 'Bitte warten!' ,  
-                                 no : 'Vennligst vent!' },
-       
-        polygonWait          : { en : 'Calculating reachable area!',
-                                 de : 'Berechne erreichbare Fläche!' ,  
-                                 no : 'Vennligst vent!' },
-       
-        routeWait            : { en : 'Searching route to target(s)!',
-                                 de : 'Suche Route zum Ziel!' ,  
-                                 no : 'Vennligst vent!' },
-       
-        timeWait             : { en : 'Getting travel times to target(s)!',
-                                 de : 'Berechne Reisezeiten für Ziele!' ,  
-                                 no : 'Vennligst vent!' },
-       
-        osmWait              : { en : 'Searching for points of interests!',
-                                 de : 'Suche nach Sehenswürdigkeiten!' ,  
-                                 no : 'Vennligst vent!' },
-       
-        populationWait       : { en : 'Calculating population statistics!',
-                                 de : 'Berechne Bevölkerungsstatistik!',
-                                 no : 'Vennligst vent!' },
- 
-        elevation            : { en : 'Elevation',       
-                                 de : 'Höhenunterschied',
-                                 no : 'Stigning' },
-        
-        timeFormat           : { en : 'a.m.',            
-                                 de : 'Uhr',
-                                 no : 'TODO_TRANSLATION' },
-        
-        reset                : { en : 'Reset input',     
-                                 de : 'Eingeben löschen', 
-                                 no : 'Reset' },
-        
-        reverse              : { en : 'Switch source and target',   
-                                 de : 'Start und Ziel tauschen', 
-                                 no : 'Motsatt' },
-        
-        settings             : { en : 'Switch travel type',   
-                                 de : 'Reisemodus wechseln', 
-                                 no : 'Reisemåte' },
-        
-        noRouteFound         : { en : 'No route found!', 
-                                 de : 'Keine Route gefunden!',
-                                 no : 'TODO TRANSLATION' },
-        
-        monthNames           : { en : ['January','February','March','April','May','June','July','August','September','October','November','December'] ,
-                                 de : ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
-                                 no : ['TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION','TODO_TRANSLATION']},
-        
-        dayNames             : { en : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                                 de : ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag','Samstag'],
-                                 no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION','TODO_TRANSLATION'] },
-        
-        dayNamesMin          : { en : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                                 de : ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-                                 no : ['TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION', 'TODO_TRANSLATION'] },
-
-        museum               : { en : 'Museum', 
-                                 de : 'Museum',
-                                 no : 'Museum' },
-
-        swimming_pool        : { en : 'Swimming pool', 
-                                 de : 'Schwimmbad',
-                                 no : 'Svømmebassenger' },
-
-        restaurant           : { en : 'Restaurant', 
-                                 de : 'Restaurant',
-                                 no : 'Restaurant' },
-
-        cinema               : { en : 'Cinema', 
-                                 de : 'Kino',
-                                 no : 'Kino' },
-
-        theater              : { en : 'Theater', 
-                                 de : 'Theater',
-                                 no : 'Teater' },
-
-        library              : { en : 'Library', 
-                                 de : 'Bibliothek',
-                                 no : 'Bibliotek' },
-
-        bike_rental_station  : { en : 'Bike rental station', 
-                                 de : 'Fahrradleihstation',
-                                 no : 'TODO TRANSLATION' },
-
-        cycling_speed_help   : { en : 'Cycling speed: {}km/h', 
-                                 de : 'Fahrradgeschwindigkeit: {}km/h',
-                                 no : 'G Fart: {}km/h, Fart: {}km/h' },
-
-        walking_speed_help   : { en : 'Walk speed: {}km/h', 
-                                 de : 'Laufgeschwindigkeit: {}km/h',
-                                 no : 'Fart: {}km/h' },
-
-        walking_and_cycling_speed_help  : { en : 'Walk speed: {}km/h, Cycling speed: {}km/h', 
-                                 de : 'Laufgeschwindigkeit: {}km/h, Fahrradgeschwindigkeit: {}km/h',
-                                 no : 'Fart: {}km/h (Gå), Fart: {}km/h (Sykle)' },
-
-        ebike_speed_help_fast : { en : 'Little support from the pedelec', 
-                                 de : 'Keine Unterstützung durch das Pedelec',
-                                 no : 'Høy egeninnsats - Lav motorinnsats' },
-
-        ebike_speed_help_medium: { en : 'Medium support from the pedelec', 
-                                 de : 'Mittlere Unterstützung durch das Pedelec',
-                                 no : 'Medium egeninnsats - Medium motorinnsats' },
-
-        ebike_speed_help_slow: { en : 'Full support from the pedelec', 
-                                 de : 'Volle Unterstützung durch das Pedelec',
-                                 no : 'Lav egeninnsats - Høy motorinnsats' },
-
-        contribution:          { en : 'Personal contribution', 
-                                 de : 'Eigenleistung',
-                                 no : 'Egeninnsats' },
-
-        low_contribution:      { en : 'Low personal contribution', 
-                                 de : 'Geringe Eigenleistung',
-                                 no : 'Lav Egeninnsats' },
-
-        switchLanguage : function() {
-
-            var selector = [];
-            _.each(r360.config.i18n.configuredLanguages, function(language){
-                selector.push("[lang='"+language+"']"); 
-            });
-
-            $(selector.join(", ")).hide();
-            $("[lang='"+r360.config.i18n.language+"']").show();
-        },
-
-        getSpan : function(key) {
-
-            var translation = "";    
-            _.each(_.keys(r360.config.i18n[key]), function(language){
-                translation += '<span lang="'+language+'">'+r360.config.i18n[key][language]+'</span>';
-            })
-
-            return translation;             
-        },
-
-        getSpan : function(key, variables) {
-
-            var translation = "";    
-            _.each(_.keys(r360.config.i18n[key]), function(language){
-
-                var template = r360.config.i18n[key][language];
-                _.each(variables, function(variable){
-                    template = template.replace("{}", variable);
-                })
-
-                translation += '<span lang="' + language + '">' + template + '</span>';
-            })
-
-            return translation == '' ? '_' + key + '_' : translation;             
-        },
-        
-        get : function(key){
-
-            var translation;
-            _.each(_.keys(r360.config.i18n), function(aKey){
-                if ( key == aKey ) translation = r360.config.i18n[key][r360.config.i18n.language];
-            })
-
-            return translation;
-        }
     }
 }
 
@@ -4238,14 +3993,21 @@ r360.LeafletPolygonLayer = L.Class.extend({
     initialize: function (options) {
 
         // set default parameters
-        this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
-        this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
-        this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
-        this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor;
-        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity;
-        this.colors            = r360.config.defaultPolygonLayerOptions.travelTimes;
+        this.opacity           = 0.4;
+        this.strokeWidth       = 30;
+        this.tolerance         = 15;
+        this.extendWidthX      = this.strokeWidth / 2;
+        this.extendWidthY      = this.strokeWidth / 2;
+        this.backgroundColor   = "#000000";
+        this.backgroundOpacity = 0.5;
+        this.colors            = [
+            { time : 300  , color : "#006837", opacity : 0.1 },
+            { time : 600  , color : "#39B54A", opacity : 0.2 },
+            { time : 900  , color : "#8CC63F", opacity : 0.3 },
+            { time : 1200 , color : "#F7931E", opacity : 0.4 },
+            { time : 1500 , color : "#F15A24", opacity : 0.5 },
+            { time : 1800 , color : "#C1272D", opacity : 1.0 }
+        ];
 
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
@@ -4433,14 +4195,21 @@ r360.LeafletPolygonLayer = L.Class.extend({
     },
 
     setColors: function(colors) {
-        if ( typeof this.multiPolygons == 'undefined' ) return;
+        
         this.colors = colors;
+        
+        if ( typeof this.multiPolygons == 'undefined' ) return;
+        
         for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
             var multipolygon = this.multiPolygons[i];
             this.colors.forEach(function(colorSet) {
-                if (colorSet.time == multipolygon.getTravelTime()) multipolygon.setColor(colorSet.color);
-            })
+                if (colorSet.time == multipolygon.getTravelTime()) {
+                    multipolygon.setColor(colorSet.color);
+                    multipolygon.setOpacity(colorSet.opacity);
+                }
+            });
         }
+
         this.draw();
     },
 
@@ -4486,8 +4255,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
                 if ( svgData.length != 0 )
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
-                        color             : !this.inverse ? multiPolygon.getColor() : 'black',
-                        opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
+                        color             : !this.inverse ? this.getColor(multiPolygon) : 'black',
+                        opacity           : !this.inverse ? 1 : this.getOpacity(multiPolygon),
                         strokeWidth       : this.strokeWidth
                     }));
             }
@@ -4507,6 +4276,32 @@ r360.LeafletPolygonLayer = L.Class.extend({
             $('#canvas'+ $(this.map._container).attr("id") + '-' + this.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
+    },
+
+    getColor: function(multiPolygon) {
+
+        var color = "#000000";
+
+        this.colors.forEach(function(colorSet) {
+            if (colorSet.time == multiPolygon.getTravelTime() && r360.has(colorSet, 'color')) {
+                color = colorSet.color;
+            }
+        });
+
+        return color;
+    },
+
+    getOpacity: function(multiPolygon) {
+
+        var opacity = 1.0;
+
+        this.colors.forEach(function(colorSet) {
+            if (colorSet.time == multiPolygon.getTravelTime() && r360.has(colorSet, 'opacity')) {
+                opacity = colorSet.opacity;
+            }
+        });
+
+        return opacity;
     },
     
     // fix for leaflet 1.0

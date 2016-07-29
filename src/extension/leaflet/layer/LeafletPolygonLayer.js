@@ -20,14 +20,21 @@ r360.LeafletPolygonLayer = L.Class.extend({
     initialize: function (options) {
 
         // set default parameters
-        this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
-        this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
-        this.tolerance         = r360.config.defaultPolygonLayerOptions.tolerance;
-        this.extendWidthX      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.extendWidthY      = r360.config.defaultPolygonLayerOptions.strokeWidth / 2;
-        this.backgroundColor   = r360.config.defaultPolygonLayerOptions.backgroundColor;
-        this.backgroundOpacity = r360.config.defaultPolygonLayerOptions.backgroundOpacity;
-        this.colors            = r360.config.defaultPolygonLayerOptions.travelTimes;
+        this.opacity           = 0.4;
+        this.strokeWidth       = 30;
+        this.tolerance         = 15;
+        this.extendWidthX      = this.strokeWidth / 2;
+        this.extendWidthY      = this.strokeWidth / 2;
+        this.backgroundColor   = "#000000";
+        this.backgroundOpacity = 0.5;
+        this.colors            = [
+            { time : 300  , color : "#006837", opacity : 0.1 },
+            { time : 600  , color : "#39B54A", opacity : 0.2 },
+            { time : 900  , color : "#8CC63F", opacity : 0.3 },
+            { time : 1200 , color : "#F7931E", opacity : 0.4 },
+            { time : 1500 , color : "#F15A24", opacity : 0.5 },
+            { time : 1800 , color : "#C1272D", opacity : 1.0 }
+        ];
 
         // overwrite defaults with optional parameters
         if ( typeof options != 'undefined' ) {
@@ -215,14 +222,21 @@ r360.LeafletPolygonLayer = L.Class.extend({
     },
 
     setColors: function(colors) {
-        if ( typeof this.multiPolygons == 'undefined' ) return;
+        
         this.colors = colors;
+        
+        if ( typeof this.multiPolygons == 'undefined' ) return;
+        
         for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
             var multipolygon = this.multiPolygons[i];
             this.colors.forEach(function(colorSet) {
-                if (colorSet.time == multipolygon.getTravelTime()) multipolygon.setColor(colorSet.color);
-            })
+                if (colorSet.time == multipolygon.getTravelTime()) {
+                    multipolygon.setColor(colorSet.color);
+                    multipolygon.setOpacity(colorSet.opacity);
+                }
+            });
         }
+
         this.draw();
     },
 
@@ -268,8 +282,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
                 if ( svgData.length != 0 )
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
-                        color             : !this.inverse ? multiPolygon.getColor() : 'black',
-                        opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
+                        color             : !this.inverse ? this.getColor(multiPolygon) : 'black',
+                        opacity           : !this.inverse ? 1 : this.getOpacity(multiPolygon),
                         strokeWidth       : this.strokeWidth
                     }));
             }
@@ -289,6 +303,32 @@ r360.LeafletPolygonLayer = L.Class.extend({
             $('#canvas'+ $(this.map._container).attr("id") + '-' + this.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
+    },
+
+    getColor: function(multiPolygon) {
+
+        var color = "#000000";
+
+        this.colors.forEach(function(colorSet) {
+            if (colorSet.time == multiPolygon.getTravelTime() && r360.has(colorSet, 'color')) {
+                color = colorSet.color;
+            }
+        });
+
+        return color;
+    },
+
+    getOpacity: function(multiPolygon) {
+
+        var opacity = 1.0;
+
+        this.colors.forEach(function(colorSet) {
+            if (colorSet.time == multiPolygon.getTravelTime() && r360.has(colorSet, 'opacity')) {
+                opacity = colorSet.opacity;
+            }
+        });
+
+        return opacity;
     },
     
     // fix for leaflet 1.0
