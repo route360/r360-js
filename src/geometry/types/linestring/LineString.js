@@ -1,4 +1,4 @@
-r360.lineString = function (coordinateArray) { 
+r360.lineString = function (coordinateArray) {
     return new r360.LineString(coordinateArray);
 };
 
@@ -25,7 +25,7 @@ r360.LineString = function(coordinateArray) {
 
     /**
      * [getTopRight4326 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRight4326 = function(){
         return r360.Util.webMercatorToLatLng(new r360.Point(this.topRight_3857.x, this.topRight_3857.y));
@@ -33,23 +33,23 @@ r360.LineString = function(coordinateArray) {
 
     /**
      * [getTopRight3857 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRight3857 = function(){
-        return this.topRight_3857;   
+        return this.topRight_3857;
     }
 
     /**
      * [getTopRightDecimal description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRightDecimal = function(){
-        return r360.Util.webMercatorToLeaflet(this.topRight_3857);   
+        return r360.Util.webMercatorToLeaflet(this.topRight_3857);
     }
 
     /**
      * [getBottomLeft4326 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeft4326 = function(){
         return r360.Util.webMercatorToLatLng(new r360.Point(this.bottomLeft_3857.x, this.bottomLeft_3857.y));
@@ -57,7 +57,7 @@ r360.LineString = function(coordinateArray) {
 
     /**
      * [getBottomLeft3857 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeft3857 = function(){
         return this.bottomLeft_3857;
@@ -65,15 +65,15 @@ r360.LineString = function(coordinateArray) {
 
     /**
      * [getBottomLeftDecimal description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeftDecimal = function(){
-        return r360.Util.webMercatorToLeaflet(this.bottomLeft_3857);   
+        return r360.Util.webMercatorToLeaflet(this.bottomLeft_3857);
     }
 
     /**
      * [getCoordinates description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getCoordinates = function(){
     	return this.coordinates;
@@ -81,8 +81,8 @@ r360.LineString = function(coordinateArray) {
 
     /**
      * [getCoordinate description]
-     * @param  {[type]} index [description]
-     * @return {[type]}       [description]
+     * @param  {type} index [description]
+     * @return {type}       [description]
      */
     this.getCoordinate = function(index){
     	return this.coordinate[index];

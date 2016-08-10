@@ -13,12 +13,12 @@ r360.Route = function(travelTime, segments){
     that.sourceHeight    = undefined;
 
     // the server delivers the route from target to source
-    segments.reverse().forEach(function(segment){                
+    segments.reverse().forEach(function(segment){
 
         var routeSegment = r360.routeSegment(segment);
         that.routeSegments.push(routeSegment);
 
-        that.points = that.points.concat(routeSegment.getPoints().reverse());            
+        that.points = that.points.concat(routeSegment.getPoints().reverse());
     });
 
     that.equals = function(route) {
@@ -30,8 +30,8 @@ r360.Route = function(travelTime, segments){
         var key     = travelTime;
         var points  = "";
 
-        that.getSegments().forEach(function(segment){ 
-            
+        that.getSegments().forEach(function(segment){
+
             key += " " + segment.getRouteShortName() + " " + segment.getDepartureTime() + " " + segment.getArrivalTime();
 
             segment.getPoints().forEach(function(point){ points += " " + point.lat + "" + point.lng; });
@@ -68,7 +68,7 @@ r360.Route = function(travelTime, segments){
 
     /**
      * [getElevationGain description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     that.getElevationGain = function(){
         var distance = 0;
@@ -80,7 +80,7 @@ r360.Route = function(travelTime, segments){
 
     /**
      * [getElevations description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     that.getElevations = function() {
 
@@ -95,8 +95,8 @@ r360.Route = function(travelTime, segments){
 
     /**
      * [getElevationAt description]
-     * @param  {[type]} meter [description]
-     * @return {[type]}       [description]
+     * @param  {type} meter [description]
+     * @return {type}       [description]
      */
     that.getElevationAt = function(meter) {
 
@@ -113,7 +113,7 @@ r360.Route = function(travelTime, segments){
             if ( currentLength > meter ) return currentPoint.alt;
         }
     }
-  
+
     /*
      *
      */
@@ -145,7 +145,7 @@ r360.Route = function(travelTime, segments){
             if ( typeof previousHeight != 'undefined' ) {
 
                 // we go up
-                if ( previousHeight > that.points[i].alt )  
+                if ( previousHeight > that.points[i].alt )
                     that.uphillMeter += (previousHeight - that.points[i].alt);
                 // and down
                 else if ( previousHeight < that.points[i].alt )
@@ -164,6 +164,6 @@ r360.Route = function(travelTime, segments){
     };
 };
 
-r360.route = function (travelTime, segments) { 
+r360.route = function (travelTime, segments) {
     return new r360.Route(travelTime, segments);
 };

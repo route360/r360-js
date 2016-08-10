@@ -4,7 +4,7 @@ $(document).ready(function(){
 
     // add the map and set the initial center to berlin
     var map = L.map('map', {zoomControl : false}).setView([city.lat, city.lng], 10);
-    // attribution to give credit to OSM map data and VBB for public transportation 
+    // attribution to give credit to OSM map data and VBB for public transportation
     var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | \
         Transit Data © <a href='http://opendatasoft.com/'>Paris</a>, <a href='https://data.toulouse-metropole.fr/'>Toulouse</a>, <a href='http://data.keolis-rennes.com'>Rennes</a>, <a href='http://opendata.cts-strasbourg.fr'>Strasbourg</a> | \
         developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
@@ -57,7 +57,7 @@ $(document).ready(function(){
     r360.config.serviceUrl                                  = city.serviceUrl;
     // r360.config.serviceUrl                                  = 'http://api2-eu.route360.net/france/';
     // r360.config.serviceUrl                                  = 'http://localhost:8080/api/';
-    r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://photon.komoot.de/api/"; 
+    r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://photon.komoot.de/api/";
     polygonLayer.setInverse(false);
 
     var options = { bike : true, walk : true, car : true, transit : true, init : 'transit' };
@@ -114,7 +114,7 @@ $(document).ready(function(){
     });
 
     // in case we have a defined source and target we need to switch them,
-    // get new polygons and create routes for the opposite direction, furthermore 
+    // get new polygons and create routes for the opposite direction, furthermore
     // we have to switch the labels in the source and target autocompletes
     targetAutoComplete.onReverse(function(){
 
@@ -158,7 +158,7 @@ $(document).ready(function(){
             autoComplete.reset();
         }
         // only target selected, means we have to switch the target and source (marker and autocomplete)
-        // and we can get new poylgons, but no routes (since we don't have a target) 
+        // and we can get new poylgons, but no routes (since we don't have a target)
         else if ( sourceMarker == '' && targetMarker != '' ) {
 
             polygonLayer.clearLayers();
@@ -199,7 +199,7 @@ $(document).ready(function(){
 
     var polygonButtons = r360.radioButtonControl({
         buttons : [
-            // each button has a label which is displayed, a key, a tooltip for mouseover events 
+            // each button has a label which is displayed, a key, a tooltip for mouseover events
             // and a boolean which indicates if the button is selected by default
             // labels may contain html
             { label: '<span class=""></span> Color', key: 'color',   checked : true  },
@@ -208,13 +208,13 @@ $(document).ready(function(){
     });
 
     // what happens if action is performed
-    polygonButtons.onChange(function(){ 
+    polygonButtons.onChange(function(){
 
         polygonLayer.setInverse(!polygonLayer.getInverse());
         updateSource();
     });
     travelTimeControl.onSlideStop(updateSource);
-    
+
     // add to map
     map.addControl(travelTimeControl);
     map.addControl(polygonButtons);
@@ -229,9 +229,9 @@ $(document).ready(function(){
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
-    // 
+    //
     //                                              END OF INITIALIZE
-    // 
+    //
     // ----------------------------------------------------------------------------------------------------------------------------------
     // ==================================================================================================================================
 
@@ -261,20 +261,20 @@ $(document).ready(function(){
 
     /**
      * [updateAutocomplete Updates the label and latlng value of an autocomplete component, by a reverse geocoding request to nominatim.]
-     * @param  {[type]} autoComplete [the autocomplete to update]
-     * @param  {[type]} marker       [the marker from which the latlng object get's reverse geocoded.]
+     * @param  {type} autoComplete [the autocomplete to update]
+     * @param  {type} marker       [the marker from which the latlng object get's reverse geocoded.]
      */
     function updateAutocomplete(){
 
         if ( sourceMarker != '' ) {
 
-            $.getJSON('http://photon.komoot.de/reverse?&lat=' + sourceMarker.getLatLng().lat + '&lon=' + sourceMarker.getLatLng().lng, 
+            $.getJSON('http://photon.komoot.de/reverse?&lat=' + sourceMarker.getLatLng().lat + '&lon=' + sourceMarker.getLatLng().lng,
                 function(json){
 
                     var displayName = r360.Util.formatPhotonReverseGeocoding(json.features[0].properties);
                     autoComplete.setFieldValue(displayName);
                     sourceMarker.bindPopup(displayName);
-                }   
+                }
             );
         }
     }
@@ -282,13 +282,13 @@ $(document).ready(function(){
     function updateTargetAutocomplete(){
 
         // http://photon.komoot.de/reverse?lon=10&lat=52
-        $.getJSON('http://photon.komoot.de/reverse?&lat=' + targetMarker.getLatLng().lat + '&lon=' + targetMarker.getLatLng().lng, 
+        $.getJSON('http://photon.komoot.de/reverse?&lat=' + targetMarker.getLatLng().lat + '&lon=' + targetMarker.getLatLng().lng,
             function(json){
 
                 var displayName = r360.Util.formatPhotonReverseGeocoding(json.features[0].properties);
                 targetAutoComplete.setFieldValue(displayName);
                 targetMarker.bindPopup(displayName);
-            }   
+            }
         );
     }
 
@@ -306,7 +306,7 @@ $(document).ready(function(){
 
     /**
      * [updateTarget This method gets new routes and updates the target autocomplete with a reverse geocoding.]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     function updateTarget(updateAutoComplete) {
 
@@ -317,11 +317,11 @@ $(document).ready(function(){
     /**
      * [createMarker Creates a leaflet awesome marker with predefined properties]
      * @param  {[LatLng]} latLng  [the lat/lng location of the marker]
-     * @param  {[type]} icon    [the string value of font awesome icon, e.g. 'home' (no 'fa-')]
-     * @param  {[type]} color   [the color of the marker, as defined by awesomeMarkers.css]
-     * @param  {[type]} layer   [the layer to which to add the marker]
-     * @param  {[type]} dragend [the callback function that is called if the marker is draged in the map]
-     * @param  {[type]} popup   [the popup to show if someone clicks on the marker]
+     * @param  {type} icon    [the string value of font awesome icon, e.g. 'home' (no 'fa-')]
+     * @param  {type} color   [the color of the marker, as defined by awesomeMarkers.css]
+     * @param  {type} layer   [the layer to which to add the marker]
+     * @param  {type} dragend [the callback function that is called if the marker is draged in the map]
+     * @param  {type} popup   [the popup to show if someone clicks on the marker]
      * @return {[Marker]}         [the leaflet marker]
      */
     function createMarker(latLng, icon, color, layer, dragend, popup){
@@ -336,7 +336,7 @@ $(document).ready(function(){
 
     /**
      * [getRoutes This method performs a request to the r360 webservice for the configured source and target with the specified travel options.
-     * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the 
+     * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the
      * leaflet marker popup.]
      */
     function getRoutes(){
@@ -344,7 +344,7 @@ $(document).ready(function(){
         routeLayer.clearLayers();
 
         var travelOptions = r360.travelOptions();
-        travelOptions.addSource(sourceMarker);            
+        travelOptions.addSource(sourceMarker);
         travelOptions.setDate(date);
         travelOptions.setTime(time);
         travelOptions.setTravelType(autoComplete.getTravelType());
@@ -354,7 +354,7 @@ $(document).ready(function(){
 
         r360.RouteService.getRoutes(travelOptions, function(routes) {
 
-            var html        = 
+            var html        =
                 '<table class="table table-striped" style="width: 100%"> \
                     <thead>\
                         <tr>\
@@ -383,12 +383,12 @@ $(document).ready(function(){
 
             targetMarker.bindPopup(html);
             targetMarker.openPopup();
-        }, 
+        },
         function(code, message){
 
-            if ( 'travel-time-exceeded' == code ) 
+            if ( 'travel-time-exceeded' == code )
                 alert("The travel time to the given target exceeds the server limit.");
-            if ( 'could-not-connect-point-to-network' == code ) 
+            if ( 'could-not-connect-point-to-network' == code )
                 alert("We could not connect the target point to the network.");
         });
     };
@@ -396,7 +396,7 @@ $(document).ready(function(){
     /**
      * [getPolygons This method performs a webservice request to the r360 polygon service for the specified source and travel options.
      * The returned travel type polygons are then painted on the map]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     function getPolygons(callback){
 
@@ -420,16 +420,16 @@ $(document).ready(function(){
             if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
                 travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
-            if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+            if ( r360.config.defaultPolygonLayerOptions.inverse )
                 travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
             // call the service
-            r360.PolygonService.getTravelTimePolygons(travelOptions, 
+            r360.PolygonService.getTravelTimePolygons(travelOptions,
                 function(polygons){
 
                     polygonLayer.clearAndAddLayers(polygons, true);
                     if ( typeof callback !== 'undefined') callback();
-                }, 
+                },
                 function(error) {
 
                     console.log(error);

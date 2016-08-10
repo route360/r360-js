@@ -126,10 +126,10 @@ r360.PolygonService = {
 
     /**
      * [getAjaxOptions description]
-     * @param  {[type]} travelOptions   [description]
-     * @param  {[type]} successCallback [description]
-     * @param  {[type]} errorCallback   [description]
-     * @return {[type]}                 [description]
+     * @param  {type} travelOptions   [description]
+     * @param  {type} successCallback [description]
+     * @param  {type} errorCallback   [description]
+     * @return {type}                 [description]
      */
     getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback, method) {
 

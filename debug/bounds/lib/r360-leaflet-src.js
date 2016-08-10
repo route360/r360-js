@@ -13,7 +13,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         this.options = JSON.parse(JSON.stringify(r360.config.photonPlaceAutoCompleteOptions));
 
         if ( typeof options !== "undefined" ) {
-            
+
             if ( _.has(options, 'position'))    this.options.position    = options.position;
             if ( _.has(options, 'label'))       this.options.label       = options.label;
             if ( _.has(options, 'country'))     this.options.country     = options.country;
@@ -28,20 +28,20 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                  this.options.options    = options.options;
                  this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
-            }   
+            }
         }
     },
 
     onAdd: function(map){
-        
+
         var that = this;
-        var i18n            = r360.config.i18n;   
+        var i18n            = r360.config.i18n;
         var countrySelector =  "";
         var nameContainer   = L.DomUtil.create('div', that._container);
         that.options.map    = map;
         that.options.id     = $(map._container).attr("id") + r360.Util.generateId(10);
 
-        map.on("resize", that.onResize.bind(that));          
+        map.on("resize", that.onResize.bind(that));
 
         // calculate the width in dependency to the number of buttons attached to the field
         var width = that.options.width;
@@ -49,14 +49,14 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         // if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
-        that.options.input = 
+        that.options.input =
             '<div class="input-group autocomplete" '+style+'> \
                 <input id="autocomplete-'+that.options.id+'" style="color: black;width:'+width+'" \
                 type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
                     <img style="height:22px;" src="'+that.options.image+'"> \
                  </span>';
@@ -65,7 +65,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         var optionsHtml = [];
         // if ( that.options.options ) {
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
@@ -73,33 +73,33 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center" style="color: black;width:'+width+'; display: none;">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
-            if ( that.options.options && that.options.options.walk ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
-                    + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
-            
-            if ( that.options.options && that.options.options.bike ) 
+            if ( that.options.options && that.options.options.walk )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    + (this.options.travelType == 'walk' ? 'active' : '') +
+                    '" travel-type="walk"><span class="map-icon-walking travel-type-icon"></span> <span lang="en">Walk</span><span lang="de">zu Fuß</span></button>');
+
+            if ( that.options.options && that.options.options.bike )
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') +
                     '" travel-type="bike"><span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Bike</span><span lang="de">Fahrrad</span></button>');
 
-            if ( that.options.options && that.options.options.hirebike ) 
+            if ( that.options.options && that.options.options.hirebike )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'hirebike' ? 'active' : '') + 
+                    + (this.options.travelType == 'hirebike' ? 'active' : '') +
                     '" travel-type="hirebike"> \
                             <span class="map-icon-bicycling travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="de">Leihfahrrad</span>\
                         </button>');
-            
-            if ( that.options.options && that.options.options.transit ) 
+
+            if ( that.options.options && that.options.options.transit )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'transit' ? 'active' : '') + 
+                    + (this.options.travelType == 'transit' ? 'active' : '') +
                     '" travel-type="transit"><span class="map-icon-train-station travel-type-icon"></span> <span lang="en">Transit</span><span lang="de">ÖPNV</span></button>');
-            
-            if ( that.options.options && that.options.options.car ) 
+
+            if ( that.options.options && that.options.options.car )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'car' ? 'active' : '') + 
+                    + (this.options.travelType == 'car' ? 'active' : '') +
                     '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="de">Auto</span></button>');
-            
+
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
         // }
@@ -107,19 +107,19 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         // add a reset button to the input field
         // if ( that.options.reset ) {
 
-             that.options.input += 
+             that.options.input +=
                 '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
                 </span>';
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
                 </span>';
         // }
         // if ( that.options.reverse ) {
 
-           
+
         // }
 
         that.options.input += '</div>';
@@ -131,7 +131,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
         $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
         $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
         $(nameContainer).find('#' + that.options.id + '-options-button').click(
-            function(){ 
+            function(){
                 // slide in or out on the click of the options button
                 $('#' + that.options.id + '-options').slideToggle();
             });
@@ -149,8 +149,8 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
             that.options.onTravelTypeChange();
         });
 
-        // no click on the map, if click on container        
-        L.DomEvent.disableClickPropagation(nameContainer);      
+        // no click on the map, if click on container
+        L.DomEvent.disableClickPropagation(nameContainer);
 
         if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
@@ -164,9 +164,9 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                 var numbers = new Array();
                 var requestString = "";
                 var numberString = "";
-                    
+
                 for(var i = 0; i < requestElements.length; i++){
-                    
+
                     if(requestElements[i].search(".*[0-9].*") != -1)
                         numbers.push(requestElements[i]);
                     else
@@ -175,7 +175,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
 
                 if ( numbers.length > 0 ) {
                     numberString += " OR ";
-                    
+
                     for(var j = 0; j < numbers.length; j++){
                         var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
                         numberString +=  n;
@@ -185,7 +185,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                 console.log(that.options.map.getCenter());
 
                 $.ajax({
-                    url: that.options.serviceUrl, 
+                    url: that.options.serviceUrl,
                     // dataType: "jsonp",
                     // jsonp: 'json.wrf',
                     async: false,
@@ -199,7 +199,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                       limit : that.options.maxRows
                       // lat : that.options.map.getCenter().lat,
                       // lon : that.options.map.getCenter().lng
-                    }, 
+                    },
                     success: function( data ) {
 
                         var places = new Array();
@@ -224,11 +224,11 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                             if (place.city)       secondRow.push(place.city);
 
                             // only show country if undefined
-                            // if ( !_.has(that.options, 'country') && place.country ) 
+                            // if ( !_.has(that.options, 'country') && place.country )
                                 secondRow.push(place.country);
 
-                            // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            // if same looking object is in list already: return
+                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return;
                             else places.push(firstRow.join() + secondRow.join());
 
                             return {
@@ -245,7 +245,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                 });
             },
             minLength: 2,
-              
+
             select: function( event, ui ) {
                 that.options.value = ui.item;
                 that.options.onSelect(ui.item);
@@ -259,18 +259,18 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
                 return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
             }
 
-            var highlightedFirstRow = 
+            var highlightedFirstRow =
                 item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
 
-            var highlightedSecondRow = 
+            var highlightedSecondRow =
                 item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
 
             var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
 
             return $( "<li>" ).append(html).appendTo(ul);
         };
-        
-        this.onResize();     
+
+        this.onResize();
 
         return nameContainer;
     },
@@ -286,7 +286,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
     },
 
     onReverse: function(onReverse){
-       
+
        this.options.onReverse = onReverse;
     },
 
@@ -342,7 +342,7 @@ r360.PhotonPlaceAutoCompleteControl = L.Control.extend({
     },
 
     onResize: function(){
-        
+
         var that = this;
         if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
         else $(that.options.input).css({'width':''});
@@ -360,7 +360,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         this.options = JSON.parse(JSON.stringify(r360.config.defaultPlaceAutoCompleteOptions));
 
         if ( typeof options !== "undefined" ) {
-            
+
             if ( _.has(options, 'position'))      this.options.position      = options.position;
             if ( _.has(options, 'label'))         this.options.label         = options.label;
             if ( _.has(options, 'country'))       this.options.country       = options.country;
@@ -377,7 +377,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
                  this.options.options    = options.options;
                  this.options.travelType = _.has(this.options.options, 'init') ? this.options.options.init : 'walk';
-            }   
+            }
         }
     },
 
@@ -387,14 +387,14 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         if ( typeof container == 'undefined' )
             $('#' + that.options.id + '-options').slideToggle();
-        else 
+        else
             $(container).find('#' + that.options.id + '-options').slideToggle();
     },
 
     onAdd: function(map){
 
         var that = this;
-        var i18n            = r360.config.i18n;   
+        var i18n            = r360.config.i18n;
         var countrySelector =  "";
         var nameContainer   = L.DomUtil.create('div', that._container);
         that.options.map    = map;
@@ -402,7 +402,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
         // $(nameContainer).addClass("r360-box-shadow");
 
-        map.on("resize", that.onResize.bind(that));          
+        map.on("resize", that.onResize.bind(that));
 
         // calculate the width in dependency to the number of buttons attached to the field
         var width = that.options.width;
@@ -410,14 +410,14 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         // if ( that.options.reverse ) width += 37;
         var style = 'style="width:'+ width +'px;"';
 
-        that.options.input = 
+        that.options.input =
             '<div class="input-group autocomplete r360-box-shadow" '+style+'> \
                 <input id="autocomplete-'+that.options.id+'" style="color: black;widthe:'+width+'" \
                 type="text" class="form-control r360-autocomplete" placeholder="' + that.options.placeholder + '" onclick="this.select()">';
 
         if ( that.options.image ) {
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-image" class="input-group-addon btn-autocomplete-marker"> \
                     <img style="height:22px;" src="'+that.options.image+'"> \
                  </span>';
@@ -426,7 +426,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         var optionsHtml = [];
         // if ( that.options.options ) {
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-options-button" class="input-group-btn travel-type-buttons" ' + (!that.options.options ? 'style="display: none;"' : '') + '> \
                     <button id="'+that.options.id+'-options-btn" class="btn btn-autocomplete" type="button" title="' + i18n.get('settings') + '"><i class="fa fa-cog fa-fw"></i></button> \
                 </span>';
@@ -434,45 +434,45 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             optionsHtml.push('<div id="'+that.options.id+'-options" class="text-center r360-box-shadoww" style="color: black;widtth:'+width+'; display: '+ (this.options.showOnStartup ? 'block' : 'none') +';">');
             optionsHtml.push('  <div class="btn-group text-center">');
 
-            if ( that.options.options && that.options.options.walk ) 
-                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button ' 
-                    + (this.options.travelType == 'walk' ? 'active' : '') + 
-                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
-            
-            if ( that.options.options && that.options.options.bike ) 
+            if ( that.options.options && that.options.options.walk )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'bike' ? 'active' : '') + 
+                    + (this.options.travelType == 'walk' ? 'active' : '') +
+                    '" travel-type="walk"><span class="fa fa-male travel-type-icon"></span> <span lang="en">Walk</span><span lang="no">Gå</span><span lang="de">zu Fuß</span></button>');
+
+            if ( that.options.options && that.options.options.bike )
+                optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
+                    + (this.options.travelType == 'bike' ? 'active' : '') +
                     '" travel-type="bike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Bike</span><span lang="no">Sykle</span><span lang="de">Fahrrad</span></button>');
 
-            if ( that.options.options && that.options.options.rentbike ) 
+            if ( that.options.options && that.options.options.rentbike )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'rentbike' ? 'active' : '') + 
+                    + (this.options.travelType == 'rentbike' ? 'active' : '') +
                     '" travel-type="rentbike"> \
                             <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
                         </button>');
 
-            if ( that.options.options && that.options.options.rentandreturnbike ) 
+            if ( that.options.options && that.options.options.rentandreturnbike )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') + 
+                    + (this.options.travelType == 'rentandreturnbike' ? 'active' : '') +
                     '" travel-type="rentandreturnbike"> \
                             <span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">Hire & Return Bike</span><span lang="no">Bysykkel</span><span lang="de">Leihfahrrad</span>\
                         </button>');
-            
-            if ( that.options.options && that.options.options.ebike ) 
+
+            if ( that.options.options && that.options.options.ebike )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'ebike' ? 'active' : '') + 
+                    + (this.options.travelType == 'ebike' ? 'active' : '') +
                     '" travel-type="ebike"><span class="fa fa-bicycle travel-type-icon"></span> <span lang="en">E-Bike</span><span lang="no">Elsykkel</span><span lang="de">E-Fahrrad</span></button>');
-            
-            if ( that.options.options && that.options.options.transit ) 
+
+            if ( that.options.options && that.options.options.transit )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'transit' ? 'active' : '') + 
+                    + (this.options.travelType == 'transit' ? 'active' : '') +
                     '" travel-type="transit"><span class="fa fa-bus travel-type-icon"></span> <span lang="en">Transit</span><span lang="no">TODO</span><span lang="de">ÖPNV</span></button>');
-            
-            if ( that.options.options && that.options.options.car ) 
+
+            if ( that.options.options && that.options.options.car )
                 optionsHtml.push('<button type="button" class="btn btn-default travel-type-button '
-                    + (this.options.travelType == 'car' ? 'active' : '') + 
+                    + (this.options.travelType == 'car' ? 'active' : '') +
                     '" travel-type="car"><span class="fa fa-car"></span> <span lang="en">Car</span><span lang="no">TODO</span><span lang="de">Auto</span></button>');
-            
+
             optionsHtml.push('  </div>');
             optionsHtml.push('</div>');
         // }
@@ -480,19 +480,19 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         // add a reset button to the input field
         // if ( that.options.reset ) {
 
-             that.options.input += 
+             that.options.input +=
                 '<span id="'+that.options.id+'-reverse" ' + (!that.options.reverse ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button id="'+that.options.id+'-reverse-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reverse') + '"><i class="fa fa-arrows-v fa-fw"></i></button> \
                 </span>';
 
-            that.options.input += 
+            that.options.input +=
                 '<span id="'+that.options.id+'-reset" ' + (!that.options.reset ? 'style="display: none;"' : '') + '" class="input-group-btn"> \
                     <button id="'+that.options.id+'-reset-button" class="btn btn-autocomplete" type="button" title="' + i18n.get('reset') + '"><i class="fa fa-times fa-fw"></i></button> \
                 </span>';
         // }
         // if ( that.options.reverse ) {
 
-           
+
         // }
 
         that.options.input += '</div>';
@@ -504,7 +504,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         $(nameContainer).find('#' + that.options.id + '-reset').click(function(){ that.options.onReset(); });
         $(nameContainer).find('#' + that.options.id + '-reverse').click(function(){ that.options.onReverse(); });
         $(nameContainer).find('#' + that.options.id + '-options-button').click(
-            function(){ 
+            function(){
                 // slide in or out on the click of the options button
                 $('#' + that.options.id + '-options').slideToggle();
             });
@@ -525,8 +525,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
             that.options.onTravelTypeChange();
         });
 
-        // no click on the map, if click on container        
-        L.DomEvent.disableClickPropagation(nameContainer);      
+        // no click on the map, if click on container
+        L.DomEvent.disableClickPropagation(nameContainer);
 
         if ( _.has(that.options, 'country' ) ) countrySelector += " AND country:" + that.options.country;
 
@@ -540,9 +540,9 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 var numbers = new Array();
                 var requestString = "";
                 var numberString = "";
-                    
+
                 for(var i = 0; i < requestElements.length; i++){
-                    
+
                     if(requestElements[i].search(".*[0-9].*") != -1)
                         numbers.push(requestElements[i]);
                     else
@@ -551,7 +551,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
 
                 if ( numbers.length > 0 ) {
                     numberString += " OR ";
-                    
+
                     for(var j = 0; j < numbers.length; j++){
                         var n = "(postcode : " + numbers[j] + " OR housenumber : " + numbers[j] + " OR street : " + numbers[j] + ") ";
                         numberString +=  n;
@@ -561,7 +561,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 // delay: 150,
 
                 $.ajax({
-                    url: that.options.serviceUrl, 
+                    url: that.options.serviceUrl,
                     dataType: "jsonp",
                     jsonp: 'json.wrf',
                     async: false,
@@ -571,7 +571,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                       rows: that.options.maxRows,
                       qt: 'en',
                       q:  "(" + requestString + numberString + ")" + countrySelector
-                    }, 
+                    },
                     success: function( data ) {
 
                         var places = new Array();
@@ -599,8 +599,8 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                             // only show country if undefined
                             if ( !_.has(that.options, 'country') && place.country ) secondRow.push(place.country);
 
-                            // if same looking object is in list already: return 
-                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return; 
+                            // if same looking object is in list already: return
+                            if ( _.contains(places, firstRow.join() + secondRow.join()) ) return;
                             else places.push(firstRow.join() + secondRow.join());
 
                             return {
@@ -617,7 +617,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 });
             },
             minLength: 2,
-              
+
             select: function( event, ui ) {
                 that.options.value = ui.item;
                 that.options.onSelect(ui.item);
@@ -631,18 +631,18 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
                 return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
             }
 
-            var highlightedFirstRow = 
+            var highlightedFirstRow =
                 item.term ? (item.firstRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.firstRow;
 
-            var highlightedSecondRow = 
+            var highlightedSecondRow =
                 item.term ? (item.secondRow).replace(new RegExp(escapeRegexp(item.term), 'gi'), '<strong>$&</strong>') : item.secondRow;
 
             var html = "<a><span class='address-row1'>"+ highlightedFirstRow + "</span><br/><span class='address-row2'>  " + highlightedSecondRow + "</span></a>";
 
             return $( "<li>" ).append(html).appendTo(ul);
         };
-        
-        this.onResize(); 
+
+        this.onResize();
 
         return nameContainer;
     },
@@ -658,7 +658,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     },
 
     onReverse: function(onReverse){
-       
+
        this.options.onReverse = onReverse;
     },
 
@@ -674,7 +674,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
         $('#' + that.options.id + '-reverse-button').attr('title', r360.config.i18n.get('reverse'));
         $('#' + that.options.id + '-reset-button').attr('title', r360.config.i18n.get('reset'));
         $('#' + that.options.id + '-options-btn').attr('title', r360.config.i18n.get('settings'));
-        
+
     },
 
     reset : function(){
@@ -724,7 +724,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
     },
 
     onResize: function(){
-        
+
         var that = this;
         if ( this.options.map.getSize().x < 550) $(that.options.input).css({'width':'45px'});
         else $(that.options.input).css({'width':''});
@@ -735,7 +735,7 @@ r360.PlaceAutoCompleteControl = L.Control.extend({
  *
  */
 r360.TravelStartDateControl = L.Control.extend({
-    
+
     options: {
         position: 'topright',
         dateFormat: "yy-mm-dd",
@@ -753,7 +753,7 @@ r360.TravelStartDateControl = L.Control.extend({
     onAdd: function (map) {
         var that = this;
         that.options.map = map;
-       
+
         var dateContainer = L.DomUtil.create('div', 'startDatePicker', this._container);
 
         that.datepicker = $('<div/>');
@@ -775,14 +775,14 @@ r360.TravelStartDateControl = L.Control.extend({
             options.dayNamesMin = i18n.dayNamesMin[i18n.language];
         }
 
-        $(that.datepicker).datepicker(options);    
+        $(that.datepicker).datepicker(options);
 
-        L.DomEvent.disableClickPropagation(dateContainer);         
-       
+        L.DomEvent.disableClickPropagation(dateContainer);
+
         return dateContainer;
     },
 
-    getValue : function() {   
+    getValue : function() {
         var that = this;
         var date = $(that.datepicker).datepicker({ dateFormat: 'dd-mm-yy' }).val()
         var splitDate = date.split('/');
@@ -862,7 +862,7 @@ r360.TravelStartTimeControl = L.Control.extend({
 
         $(sliderContainer).append(that.miBox.append(that.startTimeInfo.append(that.label)).append(that.slider))
 
-        $(that.label).text(r360.config.i18n.get('departure') + ': '+ 
+        $(that.label).text(r360.config.i18n.get('departure') + ': '+
             that.minToString(this.options.value) + ' ' + r360.Util.getTimeFormat(that.options.value));
 
         $(that.slider).slider({
@@ -871,12 +871,12 @@ r360.TravelStartTimeControl = L.Control.extend({
             min:    that.options.min,
             max:    that.options.max,
             step:   that.options.step,
-            
+
             slide: function (e, ui) {
 
                 $(that.label).text(r360.config.i18n.get('departure') + ': ' +
                     that.minToString(ui.value) + ' ' + r360.Util.getTimeFormat(ui.value));
-                
+
                 that.options.value = ui.value;
             },
             stop: function(e, ui){
@@ -884,12 +884,12 @@ r360.TravelStartTimeControl = L.Control.extend({
                 that.options.slideStop(ui.value);
             }
         });
-    
+
         this.onResize();
        /*
         prevent map click when clicking on slider
         */
-        L.DomEvent.disableClickPropagation(sliderContainer);  
+        L.DomEvent.disableClickPropagation(sliderContainer);
 
         return sliderContainer;
     },
@@ -924,7 +924,7 @@ r360.TravelStartTimeControl = L.Control.extend({
     /*
      *
      */
-    getValue : function() {    
+    getValue : function() {
         return this.options.value;
     }
 });
@@ -937,26 +937,26 @@ r360.travelStartTimeControl = function () {
  *
  */
 r360.TravelTimeControl = L.Control.extend({
-   
+
     /**
       * ...
-      * 
+      *
       * @param {Object} [options] The typical JS options array.
-      * @param {Number} [options.position] 
-      * @param {Number} [options.initValue] 
-      * @param {Number} [options.label] 
+      * @param {Number} [options.position]
+      * @param {Number} [options.initValue]
+      * @param {Number} [options.label]
       * @param {Array}  [options.travelTimes] Each element of this arrays has to contain a "time" and a "color" field.
       *     An example would be: { time : 600  , color : "#006837"}. The color needs to be specified in HEX notation.
-      * @param {Number} [options.icon] 
+      * @param {Number} [options.icon]
       */
     initialize: function (travelTimeControlOptions) {
-        
+
         // use the default options
         this.options = JSON.parse(JSON.stringify(r360.config.defaultTravelTimeControlOptions));
 
         // overwrite default options if possible
         if ( typeof travelTimeControlOptions !== "undefined" ) {
-            
+
             if ( _.has(travelTimeControlOptions, "position") )    this.options.position     = travelTimeControlOptions.position;
             if ( _.has(travelTimeControlOptions, "unit") )        this.options.unit         = travelTimeControlOptions.unit;
             if ( _.has(travelTimeControlOptions, "initValue") )   this.options.initValue    = travelTimeControlOptions.initValue;
@@ -975,7 +975,7 @@ r360.TravelTimeControl = L.Control.extend({
     onAdd: function (map) {
         var that = this;
         this.options.map = map;
-        map.on("resize", this.onResize.bind(this));          
+        map.on("resize", this.onResize.bind(this));
 
         var sliderColors = "";
         var percent = 100 / this.options.travelTimes.length;
@@ -1040,7 +1040,7 @@ r360.TravelTimeControl = L.Control.extend({
             min:    0,
             max:    that.options.maxValue,
             step:   that.options.step,
-            
+
             slide: function (e, ui) {
                 if ( ui.value == 0) return false;
                 $(that.options.travelTimeSpan).text(ui.value);
@@ -1057,7 +1057,7 @@ r360.TravelTimeControl = L.Control.extend({
         /*
         prevent map click when clicking on slider
         */
-        L.DomEvent.disableClickPropagation(this.options.sliderContainer);  
+        L.DomEvent.disableClickPropagation(this.options.sliderContainer);
 
         return this.options.sliderContainer;
     },
@@ -1066,7 +1066,7 @@ r360.TravelTimeControl = L.Control.extend({
      *
      */
     onResize: function(){
-        
+
         if ( this.options.map.getSize().x < 550 ){
             this.removeAndAddClass(this.options.miBox, 'leaflet-traveltime-slider-container-max', 'leaflet-traveltime-slider-container-min');
             this.removeAndAddClass(this.options.travelTimeInfo, 'travel-time-info-max', 'travel-time-info-min');
@@ -1093,12 +1093,12 @@ r360.TravelTimeControl = L.Control.extend({
      */
     onSlideStop: function (onSlideStop) {
         var options = this.options;
-        options.onSlideStop = onSlideStop;  
+        options.onSlideStop = onSlideStop;
     },
 
     /**
      * [setValue description]
-     * @param {[type]} value [description]
+     * @param {type} value [description]
      */
     setValue: function(value) {
 
@@ -1113,18 +1113,18 @@ r360.TravelTimeControl = L.Control.extend({
         var options = this.options;
         var travelTimes = new Array()
 
-        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step) 
+        for(var i = 0; i < $(this.options.travelTimeSlider).slider("value"); i+= options.step)
             travelTimes.push(options.travelTimes[i/options.step].time);
-            
+
         return travelTimes;
     },
 
     /**
-     * [getMaxValue Returns the maximum selected value in seconds, 
+     * [getMaxValue Returns the maximum selected value in seconds,
      *              internally it used the getValues method and returns the maximum.]
-     *              
+     *
      * @return {[Number]}
-     */ 
+     */
     getMaxValue : function() {
 
         return _.max(this.getValues());
@@ -1140,7 +1140,7 @@ r360.waitControl = function (options) {
 };
 
 L.Control.WaitControl = L.Control.extend({
-    
+
     options: {
         position : 'topleft'
     },
@@ -1152,7 +1152,7 @@ L.Control.WaitControl = L.Control.extend({
     onAdd: function (map) {
         this.options.map = map;
         this.options.mapId = $(map._container).attr("id");
-       
+
         var waitContainer = L.DomUtil.create('div', 'leaflet-control-wait');
         $(waitContainer).append(
             '<div id="wait-control-'+this.options.mapId+'" class="mi-box waitControl"> \
@@ -1174,8 +1174,8 @@ L.Control.WaitControl = L.Control.extend({
     },
 
     hide : function(){
-        
-        $('#wait-control-'+this.options.mapId).hide();  
+
+        $('#wait-control-'+this.options.mapId).hide();
     }
 });
 
@@ -1184,7 +1184,7 @@ r360.htmlControl = function (options) {
 };
 
 L.Control.HtmlControl = L.Control.extend({
-    
+
     options: {
         position: 'topleft',
     },
@@ -1197,18 +1197,18 @@ L.Control.HtmlControl = L.Control.extend({
 
         // in case of multiple maps per page
         this.options.id  = $(map._container).attr("id") + r360.Util.generateId();
-       
+
         var htmlContainer = L.DomUtil.create('div', 'leaflet-control-html');
         $(htmlContainer).append('<div id="html-control-'+this.options.id+'" class="html-control '+ this.options.classes +'"></div>');
 
         $(htmlContainer).on('mouseover', function(){ map.scrollWheelZoom.disable(); });
-        $(htmlContainer).on('mouseout' , function(){ map.scrollWheelZoom.enable(); });      
+        $(htmlContainer).on('mouseout' , function(){ map.scrollWheelZoom.enable(); });
 
         return htmlContainer;
     },
 
     setHtml : function(html) {
-        $('#html-control-'+this.options.id).html(html);        
+        $('#html-control-'+this.options.id).html(html);
     },
 
     show : function(){
@@ -1217,13 +1217,13 @@ L.Control.HtmlControl = L.Control.extend({
     },
 
     hide : function(){
-        
-        $('#html-control-'+this.options.id).hide();  
+
+        $('#html-control-'+this.options.id).hide();
     },
 
     toggle : function(){
-        
-        $('#html-control-'+this.options.id).toggle();  
+
+        $('#html-control-'+this.options.id).toggle();
     }
 });
 
@@ -1233,8 +1233,8 @@ r360.RadioButtonControl = L.Control.extend({
 
         this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
 
-        if ( typeof options !== 'undefined') { 
-            
+        if ( typeof options !== 'undefined') {
+
             if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
             if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
             if ( typeof options.onChange !== 'undefined' ) this.options.onChange = options.onChange;
@@ -1255,7 +1255,7 @@ r360.RadioButtonControl = L.Control.extend({
 
             that.options.checked = $("input[name='r360_radiobuttongroup_" + that.options.buttonGroupId + "']:checked").attr("key");
             that.options.onChange(that.options.checked);
-        });  
+        });
 
         $(this.options.input).each(function(index){
 
@@ -1280,7 +1280,7 @@ r360.RadioButtonControl = L.Control.extend({
                     }
                 }
             });
-        }); 
+        });
 
         // prevent map click when clicking on slider
         L.DomEvent.addListener(buttonContainer, 'click', L.DomEvent.stopPropagation);
@@ -1289,7 +1289,7 @@ r360.RadioButtonControl = L.Control.extend({
     },
 
     onChange: function (func){
-        this.options.onChange = func;      
+        this.options.onChange = func;
     },
 
     setValue: function(key) {
@@ -1309,7 +1309,7 @@ r360.RadioButtonControl = L.Control.extend({
 
     getRadioButtonHTML: function(){
 
-        var that = this; 
+        var that = this;
 
         // generate an ID for the complete button group
         that.options.buttonGroupId = r360.Util.generateId(5);
@@ -1323,16 +1323,16 @@ r360.RadioButtonControl = L.Control.extend({
             // generate a unique id for each button
             var id = r360.Util.generateId();
 
-            var input = $('<input/>', { 
-                "type" : 'radio', 
-                "id"   : 'r360_' + id, 
-                "value": button.key, 
-                "key"  : button.key, 
+            var input = $('<input/>', {
+                "type" : 'radio',
+                "id"   : 'r360_' + id,
+                "value": button.key,
+                "key"  : button.key,
                 "name" : 'r360_radiobuttongroup_' + that.options.buttonGroupId
             });
 
-            var label = $('<label/>', { 
-                "for"  : 'r360_' + id, 
+            var label = $('<label/>', {
+                "for"  : 'r360_' + id,
                 "html" : button.label
             });
 
@@ -1343,7 +1343,7 @@ r360.RadioButtonControl = L.Control.extend({
                 input.attr({"checked" : "checked"})
             };
             // add a tooltip if one was provided
-            if ( typeof button.tooltip != 'undefined' ) 
+            if ( typeof button.tooltip != 'undefined' )
                 label.attr({"title" : button.tooltip});//
                 //{
 
@@ -1363,7 +1363,7 @@ r360.RadioButtonControl = L.Control.extend({
             //         }
             //     });
             // }
-                
+
 
             div.append(input);
             div.append(label);
@@ -1384,8 +1384,8 @@ r360.CheckboxButtonControl = L.Control.extend({
         this.options = JSON.parse(JSON.stringify(r360.config.defaultRadioOptions));
         this.options.checked = {};
 
-        if ( typeof options !== 'undefined') { 
-            
+        if ( typeof options !== 'undefined') {
+
             if ( typeof options.position !== 'undefined' ) this.options.position = options.position;
             if ( typeof options.buttons  !== 'undefined' ) this.options.buttons  = options.buttons;
             if ( typeof options.onChange !== 'undefined' ) this.options.onChange = options.onChange;
@@ -1411,7 +1411,7 @@ r360.CheckboxButtonControl = L.Control.extend({
             });
 
             that.options.onChange(that.options.checked);
-        });  
+        });
 
         $(this.options.input).each(function(){
 
@@ -1436,7 +1436,7 @@ r360.CheckboxButtonControl = L.Control.extend({
                     }
                 }
             });
-        }); 
+        });
 
         // prevent map click when clicking on slider
         L.DomEvent.addListener(buttonContainer, 'click', L.DomEvent.stopPropagation);
@@ -1446,7 +1446,7 @@ r360.CheckboxButtonControl = L.Control.extend({
 
     onChange: function (func){
 
-        this.options.onChange = func;      
+        this.options.onChange = func;
     },
 
     getValue: function(){
@@ -1461,7 +1461,7 @@ r360.CheckboxButtonControl = L.Control.extend({
 
     getCheckboxButtonHTML: function(){
 
-        var that = this; 
+        var that = this;
 
         // generate an ID for the complete button group
         that.options.buttonGroupId = r360.Util.generateId(5);
@@ -1476,16 +1476,16 @@ r360.CheckboxButtonControl = L.Control.extend({
             // generate a unique id for each button
             var id = r360.Util.generateId();
 
-            var input = $('<input/>', { 
-                "type" : 'checkbox', 
-                "id"   : 'r360_' + id, 
-                "value": button.key, 
-                "key"  : button.key, 
+            var input = $('<input/>', {
+                "type" : 'checkbox',
+                "id"   : 'r360_' + id,
+                "value": button.key,
+                "key"  : button.key,
                 "name" : 'r360_checkboxbuttongroup_' + that.options.buttonGroupId
             });
 
-            var label = $('<label/>', { 
-                "for"  : 'r360_' + id, 
+            var label = $('<label/>', {
+                "for"  : 'r360_' + id,
                 "html" : !_.isUndefined(button.icon) ? button.icon + " " + button.label : "" + button.label
             });
 
@@ -1514,23 +1514,23 @@ r360.checkboxButtonControl = function (options) {
  *
  */
 r360.LeafletPolygonLayer = L.Class.extend({
-   
+
     /**
       * This methods initializes the polygon layer's stroke width and polygon opacity.
       * It uses the default values, and in case the options contain other values, the
-      * default values are overwritten. 
+      * default values are overwritten.
       *
       * @method send
-      * 
+      *
       * @param {Object} [options] The typical JS options array.
-      * @param {Number} [options.opacity] Defines the opacity of the polygons. 
+      * @param {Number} [options.opacity] Defines the opacity of the polygons.
       *     Higher values mean that the polygon is less opaque.
       * @param {Number} [options.strokeWidth] Defines the strokewidth of the polygons boundaries.
       *     Since we have degenerated polygons (they can have no area), the stroke width defines the
       *     thickness of a polygon. Thicker polygons are not as informative as thinner ones.
       */
     initialize: function (options) {
-        
+
         // set default parameters
         this.opacity           = r360.config.defaultPolygonLayerOptions.opacity;
         this.strokeWidth       = r360.config.defaultPolygonLayerOptions.strokeWidth;
@@ -1555,14 +1555,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
     /**
      * [setInverse Sets this layer to the inverse representation, meaning only reachable parts are displayed
      *     and the rest is greyed out.]
-     * @param {[type]} inverse [true or false]
+     * @param {type} inverse [true or false]
      */
     setInverse: function(inverse){
         this.inverse = inverse;
     },
 
     /**
-     * @return {[type]} [returns the current state of this layer]
+     * @return {type} [returns the current state of this layer]
      */
     getInverse: function(){
         return this.inverse;
@@ -1570,7 +1570,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
     /**
      * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     getBoundingBox3857 : function(){
 
@@ -1579,13 +1579,13 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
     /**
      * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     getBoundingBox4326 : function(){
 
         return this.multiPolygons[0].getBoundingBox4326();
     },
-    
+
     /*
      *
      */
@@ -1596,7 +1596,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
         // create a DOM element with a unique ID to have multiple maps on one page
         this.element = L.DomUtil.create('div', 'r360-leaflet-polygon-layer-' + $(map._container).attr("id") + ' leaflet-zoom-hide');
         $(this.element).attr("id", "canvas" + $(this.map._container).attr("id"));
-        
+
         // we append the layer to the overlay pane at the last position
         this.map.getPanes().overlayPane.appendChild(this.element);
 
@@ -1610,7 +1610,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
     /**
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     fitMap: function(){
 
@@ -1625,8 +1625,8 @@ r360.LeafletPolygonLayer = L.Class.extend({
     /**
      * [clearAndAddLayers clears the polygons from this layer and adds the new ones. If fitMap is not undefined wesvg
      *     also adjust the map bounds/zoom to show the polygons as big as possible.]
-     * @param  {[type]} multiPolygons [description]
-     * @return {[type]}                  [description]
+     * @param  {type} multiPolygons [description]
+     * @return {type}                  [description]
      */
     clearAndAddLayers : function(multiPolygons, fitMap){
 
@@ -1637,14 +1637,14 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
         return this;
     },
-    
+
     /**
      * [addLayer description]
-     * @param {[type]} multiPolygons [description]
+     * @param {type} multiPolygons [description]
      */
     addLayer : function(multiPolygons) {
-            
-        this.multiPolygons = multiPolygons;    
+
+        this.multiPolygons = multiPolygons;
 
         // paint them
         this.draw();
@@ -1652,18 +1652,18 @@ r360.LeafletPolygonLayer = L.Class.extend({
 
     /**
      * [addTo Adds this layer to the given map]
-     * @param {[type]} map [the leaflet map on which the layer should be drawn]
+     * @param {type} map [the leaflet map on which the layer should be drawn]
      */
     addTo: function (map) {
 
         map.addLayer(this);
         return this;
     },
-    
+
     /**
      * [onRemove description]
-     * @param  {[type]} map [description]
-     * @return {[type]}     [description]
+     * @param  {type} map [description]
+     * @return {type}     [description]
      */
     onRemove: function (map) {
 
@@ -1671,39 +1671,39 @@ r360.LeafletPolygonLayer = L.Class.extend({
         map.getPanes().overlayPane.removeChild(this.element);
         map.off('viewreset', this.draw, this);
     },
-    
+
     /**
      * [createSvgData Creates the SVG representation of a given polygon]
-     * @param  {[type]} polygon [description]
-     * @return {[type]}         [description]
+     * @param  {type} polygon [description]
+     * @return {type}         [description]
      */
     createSvgData: function(polygon){
 
         var bounds = r360.PolygonUtil.extendBounds(this.getMapPixelBounds(), this.extendWidthX, this.extendWidthY);
-        return r360.SvgUtil.createSvgData(polygon, { 
-            bounds      : bounds, 
-            scale       : Math.pow(2, this.map._zoom) * 256, 
-            tolerance   : this.tolerance, 
-            pixelOrigin : this.map.getPixelOrigin(),  
+        return r360.SvgUtil.createSvgData(polygon, {
+            bounds      : bounds,
+            scale       : Math.pow(2, this.map._zoom) * 256,
+            tolerance   : this.tolerance,
+            pixelOrigin : this.map.getPixelOrigin(),
             offset      : this.offset
         });
     },
 
     /**
      * [getMapPixelBounds description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     getMapPixelBounds : function(){
 
         var bounds = this.map.getPixelBounds();
-        return { max : { x : bounds.max.x, y : bounds.max.y }, min : { x : bounds.min.x, y : bounds.min.y } }; 
+        return { max : { x : bounds.max.x, y : bounds.max.y }, min : { x : bounds.min.x, y : bounds.min.y } };
     },
 
     /**
      * [clearLayers Remove all child nodes of this layer from the DOM and initializes the layer.]
      */
-    clearLayers: function(){        
-        
+    clearLayers: function(){
+
         $('#canvas'+ $(this.map._container).attr("id")).empty();
         this.initialize();
     },
@@ -1714,7 +1714,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
     draw: function () {
 
         if ( typeof this.multiPolygons !== 'undefined' ) {
-             
+
             this.svgWidth  = this.map.getSize().x;
             this.svgHeight = this.map.getSize().y;
 
@@ -1734,23 +1734,23 @@ r360.LeafletPolygonLayer = L.Class.extend({
             // clear layer from previous drawings
             $('#canvas'+ $(this.map._container).attr("id")).empty();
 
-            var gElements = [];  
-            
+            var gElements = [];
+
             // go through each multipolygon (represents each travel time)
             for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
-                
+
                 var multiPolygon = this.multiPolygons[i], svgData = [];
 
                 // add each polygon for the given travel time
-                for ( var j = 0; j < multiPolygon.polygons.length; j++) 
+                for ( var j = 0; j < multiPolygon.polygons.length; j++)
                     svgData.push(this.createSvgData(multiPolygon.polygons[j]));
 
-                if ( svgData.length != 0 ) 
+                if ( svgData.length != 0 )
                     gElements.push(r360.SvgUtil.getGElement(svgData, {
                         color             : !this.inverse ? multiPolygon.getColor() : 'black',
                         opacity           : !this.inverse ? 1 : multiPolygon.getOpacity(),
                         strokeWidth       : r360.config.defaultPolygonLayerOptions.strokeWidth
-                    })); 
+                    }));
             }
 
             var options = {
@@ -1765,7 +1765,7 @@ r360.LeafletPolygonLayer = L.Class.extend({
             }
 
             // add the svg string to the container
-            $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options) 
+            $('#canvas'+ $(this.map._container).attr("id")).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                                                  : r360.SvgUtil.getInverseSvgElement(gElements, options));
         }
     }
@@ -1781,9 +1781,9 @@ r360.leafletPolygonLayer = function (options) {
 r360.LeafletUtil = {
 
     /*
-     * Convenients method to generate a Leaflet marker with the 
+     * Convenients method to generate a Leaflet marker with the
      * specified marker color. For available colors look at 'dist/images'
-     * 
+     *
      * @method getMarker
      * @param {Object} [latlon] The coordinate
      * @param {Number} [latlon.lat] The latitude of the coordinate.
@@ -1799,11 +1799,11 @@ r360.LeafletUtil = {
             iconSize     : [25, 41], // size of the icon
             iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
-            
+
             shadowSize   : [41, 41], // size of the shadow
             shadowUrl    : options.iconPath + 'marker-shadow.png',
             shadowAnchor : [41 / 3, 41], // point of the shadow which will correspond to marker's location
-            
+
             popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
         });
 
@@ -1815,7 +1815,7 @@ r360.LeafletUtil = {
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-        fadePathSegment(0);        
+        fadePathSegment(0);
 
         function fadePathSegment(z){
 
@@ -1827,21 +1827,21 @@ r360.LeafletUtil = {
 
             // transfer don't have a linestring, just a point
             if ( segment.getType() != "TRANSFER" ) {
-                fader(segment, timeToDraw, options, z); 
+                fader(segment, timeToDraw, options, z);
             }
             else {
-                
-                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !r360.has(options, 'paintTransfer') )) 
-                    addTransferSegment(segment, options); 
+
+                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !r360.has(options, 'paintTransfer') ))
+                    addTransferSegment(segment, options);
 
                 if(++z < route.routeSegments.length)
                     fadePathSegment(z);
-            }          
+            }
         }
 
         function addTransferSegment(segment, options){
 
-            addCircularMarker(segment.points[0], segment, options);     
+            addCircularMarker(segment.points[0], segment, options);
 
             // if inter station transfer -> involves two stops -> we need a second circle
             if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
@@ -1849,16 +1849,16 @@ r360.LeafletUtil = {
         }
 
         function addCircularMarker(latLng, segment, options) {
-            var marker = L.circleMarker(latLng, { 
-                    color:          !r360.isUndefined(options) && r360.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
-                    fillColor:      !r360.isUndefined(options) && r360.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
-                    fillOpacity:    !r360.isUndefined(options) && r360.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1, 
-                    opacity:        !r360.isUndefined(options) && r360.has(options, 'transferOpacity')    ? options.transferOpacity     : 1, 
-                    stroke:         !r360.isUndefined(options) && r360.has(options, 'transferStroke')     ? options.transferStroke      : true, 
-                    weight:         !r360.isUndefined(options) && r360.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
-                    radius:         !r360.isUndefined(options) && r360.has(options, 'transferRadius')     ? options.transferRadius      : 8 
-                });         
-    
+            var marker = L.circleMarker(latLng, {
+                    color:          !r360.isUndefined(options) && r360.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(),
+                    fillColor:      !r360.isUndefined(options) && r360.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D',
+                    fillOpacity:    !r360.isUndefined(options) && r360.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1,
+                    opacity:        !r360.isUndefined(options) && r360.has(options, 'transferOpacity')    ? options.transferOpacity     : 1,
+                    stroke:         !r360.isUndefined(options) && r360.has(options, 'transferStroke')     ? options.transferStroke      : true,
+                    weight:         !r360.isUndefined(options) && r360.has(options, 'transferWeight')     ? options.transferWeight      : 4,
+                    radius:         !r360.isUndefined(options) && r360.has(options, 'transferRadius')     ? options.transferRadius      : 8
+                });
+
             var popup = !r360.isUndefined(options) && r360.has(options, 'popup') ? options.popup : "INSERT_TEXT";
 
             if ( typeof segment !== 'undefined') {
@@ -1878,7 +1878,7 @@ r360.LeafletUtil = {
             marker.addTo(layer);
             marker.bringToFront();
         }
-        
+
 
         function fader(segment, millis, options, z){
 
@@ -1888,7 +1888,7 @@ r360.LeafletUtil = {
             polylineOptions.weight      = !r360.isUndefined(options) && r360.has(options, 'weight' )  ? options.weight  : 5;
 
             if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK") )  {
-                
+
                 polylineOptions.color     = !r360.isUndefined(options) && r360.has(options, 'walkColor' )     ? options.walkColor     : '#006F35';
                 polylineOptions.weight    = !r360.isUndefined(options) && r360.has(options, 'walkWeight' )    ? options.walkWeight : 7;
                 polylineOptions.dashArray = !r360.isUndefined(options) && r360.has(options, 'walkDashArray' ) ? options.walkDashArray : "1, 10";
@@ -1915,27 +1915,27 @@ r360.LeafletUtil = {
         /*
         function is recalling itself every 25ms
         if you want the line to be drawn in one second you need to add a chopped line in (roughly) 40 pieces
-        When line is drawn fadePathSegment is called in order to draw the next segment. 
+        When line is drawn fadePathSegment is called in order to draw the next segment.
         */
 
         function fadeLine(polyLine, haloLine, choppedLine, i, z){
 
             var latlngs = polyLine.getLatLngs();
 
-            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ )
                 latlngs.push(choppedLine[i][j])
-            
-            
+
+
             if ( latlngs.length != 0 ) {
                 haloLine.setLatLngs(latlngs);
                 polyLine.setLatLngs(latlngs);
-            } 
+            }
 
             if ( ++i < choppedLine.length ) {
-                setTimeout(function(){ 
-                    fadeLine(polyLine, haloLine, choppedLine, i, z); 
+                setTimeout(function(){
+                    fadeLine(polyLine, haloLine, choppedLine, i, z);
                 }, 15);
-            }else{               
+            }else{
                 if(++z < route.routeSegments.length)
                    fadePathSegment(z);
             }
@@ -1948,23 +1948,23 @@ r360.LeafletUtil = {
         function chopLineString(latlngs, pieces){
 
             var length          = 0;
-            var steps           = 1 / pieces;        
+            var steps           = 1 / pieces;
             var percentSoFar    = 0;
             var segmentDistance;
             var segmentPercent;
             var newLatLngs  = new Array();
-           
+
             for(var i = 1; i < latlngs.length; i++){
                 length += latlngs[i-1].distanceTo(latlngs[i]);
             }
 
-            var part        = new Array(); 
+            var part        = new Array();
 
             for(var i = 0; i < latlngs.length -1; i++){
 
-                
+
                 part.push(latlngs[i]);
-               
+
                 segmentDistance  = latlngs[i].distanceTo(latlngs[i + 1]);
                 segmentPercent   = segmentDistance / length;
                 percentSoFar    += segmentPercent;
@@ -1977,7 +1977,7 @@ r360.LeafletUtil = {
 
                         newLatLngs.push(part);
                         part        = new Array();
-                    } 
+                    }
                 }
             }
 
@@ -2009,7 +2009,7 @@ r360.LeafletUtil = {
 
             var latlng = tempmap.unproject(L.point(newPoint.x, newPoint.y));
 
-            return latlng;          
+            return latlng;
         };
     }
 };

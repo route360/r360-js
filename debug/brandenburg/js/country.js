@@ -6,7 +6,7 @@ $(document).ready(function(){
 
     // add the map and set the initial center to berlin
     var map = L.map('map', {zoomControl : false}).setView([city.lat, city.lng], 12);
-    // attribution to give credit to OSM map data and VBB for public transportation 
+    // attribution to give credit to OSM map data and VBB for public transportation
     var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | Transit Data © <a href='http://www.gbrail.info/' target='_blank'>GB Rail</a> | developed by <a href='http://www.route360.net/de/' target='_blank'>Route360°</a>";
 
     // initialising the base map. To change the base map just change following
@@ -25,7 +25,7 @@ $(document).ready(function(){
 
     // var date = '20151016';
     // var time = '28800';
-    // 
+    //
     var date = '20151020';
     var time = '30000';
 
@@ -66,7 +66,7 @@ $(document).ready(function(){
     r360.config.serviceUrl                                  = city.serviceUrl;
     r360.config.serviceUrl                                  = "http://localhost:8080/api/";
     // r360.config.serviceUrl                                  = "http://api1-eu.route360.net/brandenburg/";
-    r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?"; 
+    r360.config.defaultPlaceAutoCompleteOptions.serviceUrl  = "http://geocode2.route360.net/solr/select?";
     r360.config.defaultPolygonLayerOptions.inverse          = false;
     r360.config.nominatimUrl                                = 'http://geocode2.route360.net/nominatim/';
     polygonLayer.setInverse(false);
@@ -157,7 +157,7 @@ $(document).ready(function(){
 
     var intersectionButtons = r360.radioButtonControl({
         buttons : [
-            // each button has a label which is displayed, a key, a tooltip for mouseover events 
+            // each button has a label which is displayed, a key, a tooltip for mouseover events
             // and a boolean which indicates if the button is selected by default
             // labels may contain html
             { label: '<span class=""></span> Union', key: 'union', checked : true },
@@ -168,7 +168,7 @@ $(document).ready(function(){
 
     var polygonButtons = r360.radioButtonControl({
         buttons : [
-            // each button has a label which is displayed, a key, a tooltip for mouseover events 
+            // each button has a label which is displayed, a key, a tooltip for mouseover events
             // and a boolean which indicates if the button is selected by default
             // labels may contain html
             { label: '<span class=""></span> Color', key: 'color',   checked : true  },
@@ -202,7 +202,7 @@ $(document).ready(function(){
     // test();
 
     // what happens if action is performed
-    polygonButtons.onChange(function(){ 
+    polygonButtons.onChange(function(){
 
         r360.config.defaultPolygonLayerOptions.inverse = !r360.config.defaultPolygonLayerOptions.inverse;
         polygonLayer.setInverse(r360.config.defaultPolygonLayerOptions.inverse);
@@ -210,7 +210,7 @@ $(document).ready(function(){
     });
     intersectionButtons.onChange(updateSource);
     travelTimeControl.onSlideStop(updateSource);
-    
+
     // add to map
     map.addControl(travelTimeControl);
     // map.addControl(intersectionButtons);
@@ -221,9 +221,9 @@ $(document).ready(function(){
 
     // ==================================================================================================================================
     // ----------------------------------------------------------------------------------------------------------------------------------
-    // 
+    //
     //                                              END OF INITIALIZE
-    // 
+    //
     // ----------------------------------------------------------------------------------------------------------------------------------
     // ==================================================================================================================================
 
@@ -301,8 +301,8 @@ $(document).ready(function(){
 
     /**
      * [updateAutocomplete Updates the label and latlng value of an autocomplete component, by a reverse geocoding request to nominatim.]
-     * @param  {[type]} autoComplete [the autocomplete to update]
-     * @param  {[type]} marker       [the marker from which the latlng object get's reverse geocoded.]
+     * @param  {type} autoComplete [the autocomplete to update]
+     * @param  {type} marker       [the marker from which the latlng object get's reverse geocoded.]
      */
     function updateAutocomplete(){
 
@@ -323,7 +323,7 @@ $(document).ready(function(){
                         autoCompletes[index].setValue({ firstRow : displayName, latlng : sourceMarker.getLatLng(), label : displayName });
                         autoCompletes[index].setFieldValue('Source: ' + (index + 1));
                         sourceMarker.bindPopup(displayName);
-                    });    
+                    });
                 };
 
                 update(autoCompletes[j].getIndex());
@@ -340,7 +340,7 @@ $(document).ready(function(){
             targetAutoComplete.setValue({ firstRow : displayName, latlng : targetMarker.getLatLng(), label : displayName });
             targetAutoComplete.setFieldValue(displayName);
             targetMarker.bindPopup(displayName);
-        });    
+        });
     }
 
     /**
@@ -356,7 +356,7 @@ $(document).ready(function(){
 
     /**
      * [updateTarget This method gets new routes and updates the target autocomplete with a reverse geocoding.]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     function updateTarget() {
 
@@ -367,11 +367,11 @@ $(document).ready(function(){
     /**
      * [createMarker Creates a leaflet awesome marker with predefined properties]
      * @param  {[LatLng]} latLng  [the lat/lng location of the marker]
-     * @param  {[type]} icon    [the string value of font awesome icon, e.g. 'home' (no 'fa-')]
-     * @param  {[type]} color   [the color of the marker, as defined by awesomeMarkers.css]
-     * @param  {[type]} layer   [the layer to which to add the marker]
-     * @param  {[type]} dragend [the callback function that is called if the marker is draged in the map]
-     * @param  {[type]} popup   [the popup to show if someone clicks on the marker]
+     * @param  {type} icon    [the string value of font awesome icon, e.g. 'home' (no 'fa-')]
+     * @param  {type} color   [the color of the marker, as defined by awesomeMarkers.css]
+     * @param  {type} layer   [the layer to which to add the marker]
+     * @param  {type} dragend [the callback function that is called if the marker is draged in the map]
+     * @param  {type} popup   [the popup to show if someone clicks on the marker]
      * @return {[Marker]}         [the leaflet marker]
      */
     function createMarker(latLng, icon, color, layer, dragend, popup, index){
@@ -382,7 +382,7 @@ $(document).ready(function(){
 
         sourceMarkers[index] = marker;
 
-        for ( var i = 0 ; i < maxSources ; i++ ) 
+        for ( var i = 0 ; i < maxSources ; i++ )
             if ( typeof sourceMarkers[i] != 'number' )
                 sourceMarkers[i].addTo(layer);
 
@@ -391,7 +391,7 @@ $(document).ready(function(){
 
     /**
      * [getRoutes This method performs a request to the r360 webservice for the configured source and target with the specified travel options.
-     * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the 
+     * The returned data from the service is then used to paint the routes on the map and to create a pretty popup with elevation data in the
      * leaflet marker popup.]
      */
     function getRoutes(){
@@ -404,7 +404,7 @@ $(document).ready(function(){
 
                 var sourceMarker        = sourceMarkers[i];
                 sourceMarker.travelType = autoCompletes[i].getTravelType();
-                travelOptions.addSource(sourceMarker);            
+                travelOptions.addSource(sourceMarker);
             }
         }
 
@@ -418,7 +418,7 @@ $(document).ready(function(){
 
             var data         = [];
             var longestLabel = [];
-            var html        = 
+            var html        =
                 '<table class="table table-striped"> \
                     <thead>\
                         <tr>\
@@ -442,7 +442,7 @@ $(document).ready(function(){
 
                 var elevations = currentRoute.getElevations();
 
-                if ( elevations.x.length > longestLabel.length) 
+                if ( elevations.x.length > longestLabel.length)
                     longestLabel = elevations.x;
 
                 data.push({
@@ -465,9 +465,9 @@ $(document).ready(function(){
             $('.routeModus2').css('border', "1px solid rgba(" + hexToRgb(elevationColors[2].strokeColor).join(', ') + ", " +  elevationColors[2].strokeColorOpacity + ")");
         }, function(code, message){
 
-            if ( 'travel-time-exceeded' == code ) 
+            if ( 'travel-time-exceeded' == code )
                 alert("The travel time to the given target exceeds the server limit.");
-            if ( 'could-not-connect-point-to-network' == code ) 
+            if ( 'could-not-connect-point-to-network' == code )
                 alert("We could not connect the target point to the network.");
         });
     };
@@ -475,7 +475,7 @@ $(document).ready(function(){
     /**
      * [getPolygons This method performs a webservice request to the r360 polygon service for the specified source and travel options.
      * The returned travel type polygons are then painted on the map]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     function getPolygons(){
 
@@ -493,13 +493,13 @@ $(document).ready(function(){
 
                     var sourceMarker        = sourceMarkers[i];
                     sourceMarker.travelType = autoCompletes[i].getTravelType();
-                    travelOptions.addSource(sourceMarker);            
+                    travelOptions.addSource(sourceMarker);
                 }
             }
 
             // travelOptions.addSource({lat : 52.501175722709434, lng : 13.373794555664062, travelType : 'transit'});
             // travelOptions.addSource({lat : 52.53224576102008, lng : 13.360444755304684, travelType : 'car'});
-            
+
             if ( travelOptions.getSources().length > 0 ) {
 
                 travelOptions.setIntersectionMode(intersectionButtons.getValue());
@@ -523,7 +523,7 @@ $(document).ready(function(){
                 if ( maxTravelTime == 6000 || maxTravelTime == 7200 )
                     travelOptions.setMinPolygonHoleSize(1000 * 1000 * 1000);
 
-                if ( r360.config.defaultPolygonLayerOptions.inverse ) 
+                if ( r360.config.defaultPolygonLayerOptions.inverse )
                     travelOptions.setTravelTimes([_.max(travelTimeControl.getValues())]);
 
                 // call the service
@@ -531,12 +531,12 @@ $(document).ready(function(){
 
                     polygonLayer.clearAndAddLayers(polygons);
                     // polygonLayer.fitMap();
-                    
+
                 }, function(error) {
 
                     console.log(error);
                     alert("Sorry... an error occured. Please try again!");
-                }, 
+                },
                 'GET');
             }
         }
@@ -544,8 +544,8 @@ $(document).ready(function(){
 
     /**
      * [hexToRgb This method returns the rgb values of a hex color in form of an array.]
-     * @param  {[type]} hex [the color in hex]
-     * @return {[type]}     [an array with 3 entries for r, g and b]
+     * @param  {type} hex [the color in hex]
+     * @return {type}     [an array with 3 entries for r, g and b]
      */
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

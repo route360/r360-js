@@ -69,7 +69,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
 
     /**
      * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     GoogleMapsPolygonLayer.prototype.getBoundingBox3857 = function(){
 
@@ -78,7 +78,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
 
     /**
      * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     GoogleMapsPolygonLayer.prototype.getBoundingBox4326 = function(){
 
@@ -122,7 +122,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
 
     /**
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     GoogleMapsPolygonLayer.prototype.fitMap = function(){
 

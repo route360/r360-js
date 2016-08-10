@@ -2,7 +2,7 @@
  *
  */
 r360.MultiPolygon = function() {
-    
+
     this.travelTime;
     this.color;
     this.polygons      = new Array();
@@ -13,7 +13,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [addPolygon description]
-     * @param {[type]} polygon [description]
+     * @param {type} polygon [description]
      */
     this.addPolygon = function(polygon){
         this.polygons.push(polygon);
@@ -26,7 +26,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getBoundingBox3857 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBoundingBox3857 = function() {
 
@@ -35,7 +35,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getBoundingBox4326 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBoundingBox4326 = function() {
 
@@ -44,7 +44,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [setOpacity description]
-     * @param {[type]} opacity [description]
+     * @param {type} opacity [description]
      */
     this.setOpacity = function(opacity){
         this.opacity = opacity;
@@ -52,7 +52,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getOpacity description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getOpacity = function(){
         return this.opacity;
@@ -60,7 +60,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getArea description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getArea = function(){
 
@@ -71,7 +71,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getPolygons description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getPolygons = function(){
         return this.polygons;
@@ -79,7 +79,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [setColor description]
-     * @param {[type]} color [description]
+     * @param {type} color [description]
      */
     this.setColor = function(color){
         this.color = color;
@@ -87,7 +87,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getColor description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getColor = function(){
         return this.color;
@@ -95,7 +95,7 @@ r360.MultiPolygon = function() {
 
     /**
      * [getTravelTime description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTravelTime = function(){
         return this.travelTime;
@@ -103,13 +103,13 @@ r360.MultiPolygon = function() {
 
     /**
      * [setTravelTime description]
-     * @param {[type]} travelTime [description]
+     * @param {type} travelTime [description]
      */
     this.setTravelTime = function(travelTime){
         this.travelTime = travelTime;
     }
 };
 
-r360.multiPolygon = function () { 
+r360.multiPolygon = function () {
     return new r360.MultiPolygon();
 };

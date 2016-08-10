@@ -53,14 +53,14 @@ if ( typeof L === 'object' ) {
         /**
          * [setInverse Sets this layer to the inverse representation, meaning only reachable parts are displayed
          *     and the rest is greyed out.]
-         * @param {[type]} inverse [true or false]
+         * @param {type} inverse [true or false]
          */
         setInverse: function(inverse){
             this.inverse = inverse;
         },
 
         /**
-         * @return {[type]} [returns the current state of this layer]
+         * @return {type} [returns the current state of this layer]
          */
         getInverse: function(){
             return this.inverse;
@@ -68,7 +68,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getBoundingBox3857 : function(){
 
@@ -77,7 +77,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getBoundingBox4326 : function(){
 
@@ -110,7 +110,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         fitMap: function(options){
 
@@ -126,8 +126,8 @@ if ( typeof L === 'object' ) {
         /**
          * [clearAndAddLayers clears the polygons from this layer and adds the new ones. If fitMap is not undefined wesvg
          *     also adjust the map bounds/zoom to show the polygons as big as possible.]
-         * @param  {[type]} multiPolygons [description]
-         * @return {[type]}                  [description]
+         * @param  {type} multiPolygons [description]
+         * @return {type}                  [description]
          */
         clearAndAddLayers : function(multiPolygons, fitMap, options){
 
@@ -140,7 +140,7 @@ if ( typeof L === 'object' ) {
 
                 this.map.addOneTimeEventListener('moveend', function(){
 
-                    options.callback(); 
+                    options.callback();
                 });
             }
 
@@ -149,7 +149,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [addLayer description]
-         * @param {[type]} multiPolygons [description]
+         * @param {type} multiPolygons [description]
          */
         addLayer : function(multiPolygons) {
 
@@ -161,7 +161,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [addTo Adds this layer to the given map]
-         * @param {[type]} map [the leaflet map on which the layer should be drawn]
+         * @param {type} map [the leaflet map on which the layer should be drawn]
          */
         addTo: function (map) {
 
@@ -171,8 +171,8 @@ if ( typeof L === 'object' ) {
 
         /**
          * [onRemove description]
-         * @param  {[type]} map [description]
-         * @return {[type]}     [description]
+         * @param  {type} map [description]
+         * @return {type}     [description]
          */
         onRemove: function (map) {
 
@@ -183,8 +183,8 @@ if ( typeof L === 'object' ) {
 
         /**
          * [createSvgData Creates the SVG representation of a given polygon]
-         * @param  {[type]} polygon [description]
-         * @return {[type]}         [description]
+         * @param  {type} polygon [description]
+         * @return {type}         [description]
          */
         createSvgData: function(polygon){
 
@@ -200,7 +200,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getMapPixelBounds description]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getMapPixelBounds : function(){
 
@@ -223,11 +223,11 @@ if ( typeof L === 'object' ) {
         },
 
         setColors: function(colors) {
-            
+
             this.colors = colors;
-            
+
             if ( typeof this.multiPolygons == 'undefined' ) return;
-            
+
             for ( var i = 0 ; i < this.multiPolygons.length ;  i++){
                 var multipolygon = this.multiPolygons[i];
                 this.colors.forEach(function(colorSet) {
@@ -331,7 +331,7 @@ if ( typeof L === 'object' ) {
 
             return opacity;
         },
-        
+
         // fix for leaflet 1.0
         _layerAdd: function(options) {
             this.onAdd(options.target);

@@ -1,4 +1,4 @@
-r360.polygon = function (traveltime, area, outerBoundary) { 
+r360.polygon = function (traveltime, area, outerBoundary) {
     return new r360.Polygon(traveltime, area, outerBoundary);
 };
 
@@ -16,7 +16,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [setTravelTime description]
-     * @param {[type]} travelTime [description]
+     * @param {type} travelTime [description]
      */
     this.setTravelTime = function(travelTime){
         this.travelTime = travelTime;
@@ -24,7 +24,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getTravelTime description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTravelTime = function(){
         return this.travelTime;
@@ -32,7 +32,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
         /**
      * [getColor description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getColor = function(){
         return this.color;
@@ -40,7 +40,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [setColor description]
-     * @param {[type]} color [description]
+     * @param {type} color [description]
      */
     this.setColor = function(color){
         this.color = color;
@@ -48,7 +48,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [setOpacity description]
-     * @param {[type]} opacity [description]
+     * @param {type} opacity [description]
      */
     this.setOpacity = function(opacity){
         this.opacity = opacity;
@@ -56,7 +56,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getOpacity description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getOpacity =function(){
         return this.opacity;
@@ -64,7 +64,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getArea description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getArea = function(){
         return this.area;
@@ -72,7 +72,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [setArea description]
-     * @param {[type]} area [description]
+     * @param {type} area [description]
      */
     this.setArea = function(area){
         this.area = area;
@@ -80,7 +80,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getOuterBoundary description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getOuterBoundary = function() {
         return this.lineStrings[0];
@@ -88,7 +88,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getInnerBoundary description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getInnerBoundary = function() {
         return this.lineStrings.slice(1);
@@ -96,7 +96,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getTopRight4326 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRight4326 = function(){
         return this.getOuterBoundary().getTopRight4326();
@@ -104,15 +104,15 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getTopRight3857 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRight3857 = function(){
-        return this.getOuterBoundary().getTopRight3857();   
+        return this.getOuterBoundary().getTopRight3857();
     }
 
     /**
      * [getTopRightDecimal description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getTopRightDecimal = function(){
         return this.getOuterBoundary().getTopRightDecimal();
@@ -120,7 +120,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getBottomLeft4326 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeft4326 = function(){
         return this.getOuterBoundary().getBottomLeft4326();
@@ -128,7 +128,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getBottomLeft3857 description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeft3857 = function(){
         return this.getOuterBoundary().getBottomLeft3857();
@@ -136,7 +136,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [getBottomLeftDecimal description]
-     * @return {[type]} [description]
+     * @return {type} [description]
      */
     this.getBottomLeftDecimal = function(){
         return this.getOuterBoundary().getBottomLeftDecimal();
@@ -144,7 +144,7 @@ r360.Polygon = function(traveltime, area, outerBoundary) {
 
     /**
      * [addInnerBoundary description]
-     * @param {[type]} innerBoundary [description]
+     * @param {type} innerBoundary [description]
      */
     this.addInnerBoundary = function(innerBoundary){
         this.lineStrings.push(innerBoundary);

@@ -74,7 +74,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getBoundingBox3857 returns a boundingbox (in web mercator) from the left bottom to the top right of this layer]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getBoundingBox3857 : function(){
 
@@ -82,7 +82,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getBoundingBox4326 returns a boundingbox (in wgs84) from the left bottom to the top right of this layer]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getBoundingBox4326 : function(){
 
@@ -164,7 +164,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [addLayer description]
-         * @param {[type]} multiPolygons [description]
+         * @param {type} multiPolygons [description]
          */
 
 
@@ -202,7 +202,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [addTo Adds this layer to the given map]
-         * @param {[type]} map [the leaflet map on which the layer should be drawn]
+         * @param {type} map [the leaflet map on which the layer should be drawn]
          */
         addTo: function (map) {
             map.addLayer(this);
@@ -211,8 +211,8 @@ if ( typeof L === 'object' ) {
 
         /**
          * [onRemove description]
-         * @param  {[type]} map [description]
-         * @return {[type]}     [description]
+         * @param  {type} map [description]
+         * @return {type}     [description]
          */
         onRemove: function (map) {
 
@@ -224,7 +224,7 @@ if ( typeof L === 'object' ) {
 
         /**
          * [getMapPixelBounds description]
-         * @return {[type]} [description]
+         * @return {type} [description]
          */
         getMapPixelBounds : function(){
             var bounds = this.map.getPixelBounds();
