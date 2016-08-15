@@ -11,15 +11,12 @@ r360.TimeService = {
         };
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
-             !r360.isUndefined(travelOptions.getRenderWatts()) || !r360.isUndefined(travelOptions.getSupportWatts()) ) {
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ) {
 
             cfg.polygon = {};
 
             if ( !r360.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
             if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
 
@@ -114,12 +111,6 @@ r360.TimeService = {
 
     getRouteTime : function(travelOptions, successCallback, errorCallback) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
-        }
-
         var cfg = r360.TimeService.getCfg(travelOptions);
 
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
@@ -133,9 +124,6 @@ r360.TimeService = {
                 timeout:     r360.config.requestTimeout,
                 dataType:    "json",
                 success: function (result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // the new version is an object, old one an array
                     if ( r360.has(result, 'data')  ) {
@@ -164,9 +152,6 @@ r360.TimeService = {
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
                 error: function(data){
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
@@ -180,8 +165,6 @@ r360.TimeService = {
         }
         else {
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
             successCallback(r360.TimeService.cache[JSON.stringify(cfg)]);
         }

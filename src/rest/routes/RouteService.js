@@ -98,12 +98,6 @@ r360.RouteService = {
      */
     getRoutes : function(travelOptions, successCallback, errorCallback) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
-
         var cfg = r360.RouteService.getCfg(travelOptions);
 
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
@@ -114,9 +108,6 @@ r360.RouteService = {
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // the new version is an object, old one an array
                     if ( r360.has(result, 'data')  ) {
@@ -145,9 +136,6 @@ r360.RouteService = {
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
                 error: function(data){
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
@@ -161,8 +149,6 @@ r360.RouteService = {
         }
         else {
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
             successCallback(r360.Util.parseRoutes(JSON.parse(JSON.stringify(r360.RouteService.cache[JSON.stringify(cfg)]))));
         }
