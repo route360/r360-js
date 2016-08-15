@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (faf8e7d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (7700449), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -10,13 +10,13 @@ var r360 = {
   isUndefined : function(obj) {
       return obj === void 0;
   },
-
+  
   // Shortcut function for checking if an object has a given property directly
   // on itself (in other words, not on a prototype).
   has : function(obj, key) {
       return obj != null && hasOwnProperty.call(obj, key);
   },
-
+  
   // is a given object a function
   isFunction : function(obj) {
     return typeof obj == 'function' || false;
@@ -43,7 +43,7 @@ var r360 = {
       if (predicate(elem, index, array)) results.push(elem);
     });
     return results;
-  },
+  }, 
 
   contains : function(array,item) {
     return array.indexOf(item) > -1;
@@ -99,7 +99,7 @@ function expose() {
 }
 
 // define r360 for Node module pattern loaders, including Browserify
-if (typeof module === 'object' && typeof module.exports === 'object')
+if (typeof module === 'object' && typeof module.exports === 'object') 
 	module.exports = r360;
 
 // define r360 as an AMD module
@@ -119,8 +119,8 @@ if (!Function.prototype.bind) {
       throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
     }
 
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
+    var aArgs = Array.prototype.slice.call(arguments, 1), 
+        fToBind = this, 
         fNOP = function () {},
         fBound = function () {
           return fToBind.apply(this instanceof fNOP && oThis
@@ -183,7 +183,7 @@ r360.config = {
         { routeType : 1000       , color : "blue",      haloColor : "white" },
         { routeType : 109        , color : "#006F35",   haloColor : "white" },
         { routeType : 100        , color : "red",       haloColor : "white" },
-        // new york
+        // new york      
         { routeType : 1          , color : "red",       haloColor : "red"},
         { routeType : 2          , color : "blue",      haloColor : "blue"},
         { routeType : 3          , color : "yellow",    haloColor : "yellow"},
@@ -1619,7 +1619,7 @@ r360.Util = {
 r360.extend = r360.Util.extend;
 
 r360.DomUtil = {
-
+    
     setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
 
         if (r360.Browser.any3d) {
@@ -1664,7 +1664,6 @@ r360.TravelOptions = function(){
 
     this.sources            = [];
     this.targets            = [];
-    this.service;
 
     this.bikeSpeed          = undefined;
     this.bikeUphill         = undefined;
@@ -1673,163 +1672,39 @@ r360.TravelOptions = function(){
     this.walkUphill         = undefined;
     this.walkDownhill       = undefined;
 
-    this.supportWatts       = undefined;
-    this.renderWatts        = undefined;
-
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
+    
     this.minPolygonHoleSize = undefined;
+    this.buffer             = undefined;
+    this.simplify           = undefined;
+    this.srid               = undefined;
+    this.quadrantSegments   = undefined;
 
     this.time               = undefined;
     this.date               = undefined;
     this.recommendations    = undefined;
-    this.errors             = [];
 
     this.intersectionMode   = undefined;
-    this.pathSerializer     = r360.config.pathSerializer;
+    this.pathSerializer     = 'compact';
     this.polygonSerializer  = 'json';
     this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
-    this.waitControl;
 
-    this.isValidPolygonServiceOptions = function(isRouteRequest){
-
-        // reset errors
-        this.errors = [];
-
-        // check if sources are of type array
-        if ( Object.prototype.toString.call(this.getSources()) === '[object Array]' ) {
-
-            if ( this.getSources().length == 0 ) this.getErrors().push('Sources do not contain any points!');
-            else {
-
-                // validate each source
-                this.getSources().forEach(function(source){
-
-                    if ( !r360.has(source, 'lat') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined latitude!');
-                    if ( !r360.has(source, 'lon') && !r360.has(source, 'lng') && typeof source.getLatLng !== 'function' ) this.getErrors().push('Sources contains source with undefined longitude!');
-                });
-            }
-        }
-        else this.getErrors().push('Sources are not of type array!');
-
-        // is the given travel type supported
-        if ( !r360.contains(['bike', 'transit', 'walk', 'car', 'rentbike', 'rentandreturnbike', 'ebike'], this.getTravelType() ) )
-            this.getErrors().push('Not supported travel type given: ' + this.getTravelType() );
-        else {
-
-            if ( this.getTravelType() == 'car' ) ; // nothing to do
-            else if ( this.getTravelType() == 'bike' || this.getTravelType() == 'rentbike' || this.getTravelType() == 'rentandreturnbike') {
-
-                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
-
-                    // validate downhill/uphill penalties
-                    if ( this.getBikeUphill() < 0 || this.getBikeDownhill() > 0 || this.getBikeUphill() < -(this.getBikeDownhill()) )
-                        this.getErrors().push("Uphill cycle speed has to be larger then 0. Downhill cycle speed has to be smaller then 0. \
-                            Absolute value of downhill cycle speed needs to be smaller then uphill cycle speed.");
-                }
-
-                // we need to have a positiv speed
-                if ( this.getBikeSpeed() <= 0 ) this.getErrors().push("Bike speed needs to be larger then 0.");
-            }
-            else if ( this.getTravelType() == 'walk' ) {
-
-                if ( typeof this.getBikeUphill() != '' && typeof this.getBikeDownhill() != '' && typeof this.getBikeUphill() != 'undefined') {
-
-                    // validate downhill/uphill penalties
-                    if ( this.getWalkUphill() < 0 || this.getWalkDownhill() > 0 || this.getWalkUphill() < -(this.getWalkDownhill()) )
-                        this.getErrors().push("Uphill walking speed has to be larger then 0. Downhill walking speed has to be smaller then 0. \
-                            Absolute value of downhill walking speed needs to be smaller then uphill walking speed.");
-                }
-
-                // we need to have a positiv speeds
-                if ( this.getWalkSpeed() <= 0 ) this.getErrors().push("Walk speed needs to be larger then 0.");
-            }
-            else if ( this.getTravelType() == 'transit' ) {
-
-                // so far no checks needed for transit, default values for date and time are generated on server side
-            }
-        }
-
-        if ( !isRouteRequest ) {
-
-            // travel times needs to be an array
-            if ( typeof this.getTravelTimes() == 'undefined' || Object.prototype.toString.call(this.getTravelTimes()) !== '[object Array]' ) {
-                this.getErrors().push('Travel times have to be an array!');
-            }
-            else {
-
-                if ( r360.filter(this.getTravelTimes(), function(entry){ return typeof entry !== 'number'; }).length > 0 )
-                    this.getErrors().push('Travel times contain non number entries: ' + this.getTravelTimes());
-            }
-        }
-
-        // false if we found errors
-        return this.errors.length == 0;
-    }
-
-    /*
-     *
-     *
-     *
-     */
-    this.isValidRouteServiceOptions = function(){
-
-        this.isValidPolygonServiceOptions(true);
-
-        // check if targets are of type array
-        if ( Object.prototype.toString.call(this.getTargets()) === '[object Array]' ) {
-
-            if ( this.getTargets().length == 0 ) this.getErrors().push('Sources do not contain any points!');
-            else {
-
-                // validate each source
-                this.getTargets().forEach(function(target){
-
-                    if ( !r360.has(target, 'lat') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined latitude!');
-                    if ( !r360.has(target, 'lon') && !r360.has(target, 'lng') && typeof target.getLatLng !== 'function' ) this.getErrors().push('Targets contains target with undefined longitude!');
-                });
-            }
-        }
-        else this.getErrors().push('Targets are not of type array!');
-
-        // is the given path serializer supported
-        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
-            this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
-
-        // false if we found errors
-        return this.errors.length == 0;
-    }
-
-    /*
-     *
-     *
-     *
-     */
-    this.isValidTimeServiceOptions = function(){
-
-        this.isValidRouteServiceOptions();
-
-        // is the given path serializer supported
-        if ( !r360.contains(['travelTime', 'compact', 'detailed'], this.getPathSerializer() ) )
-            this.getErrors().push('Path serializer not supported: ' + this.getPathSerializer() );
-
-        // false if we found errors
-        return this.errors.length == 0;
-    }
-
-    /*
-     *
-     *
-     *
-     */
-    this.getErrors = function(){
-
-        return this.errors;
-    }
+    this.getBufferMeter = function(){ return this.buffer; }
+    this.setBufferMeter = function(buffer){ this.buffer = buffer; }
+    
+    this.getSimplifyMeter = function(){ return this.simplify; }
+    this.setSimplifyMeter = function(simplify){ this.simplify = simplify; }
+    
+    this.getSrid = function(){ return this.srid; }
+    this.setSrid = function(srid){ this.srid = srid; }
+    
+    this.getQuadrantSegments = function(){ return this.quadrantSegments; }
+    this.setQuadrantSegments = function(quadrantSegments){ this.quadrantSegments = quadrantSegments; }
 
     /*
      *
@@ -1973,26 +1848,6 @@ r360.TravelOptions = function(){
         return this.date;
     }
 
-    /*
-     *
-     *
-     *
-     */
-    this.getWaitControl = function(){
-
-        return this.waitControl;
-    }
-
-
-    /*
-     *
-     *
-     *
-     */
-    this.getService = function(){
-
-        return this.service;
-    }
 
     /*
      *
@@ -2128,16 +1983,6 @@ r360.TravelOptions = function(){
         this.polygonSerializer = polygonSerializer;
     }
 
-
-    /*
-     *
-     *
-     *
-     */
-    this.setService = function(service){
-
-        this.service = service;
-    }
 
     /**
     * [setMinPolygonHoleSize description]
@@ -2277,16 +2122,6 @@ r360.TravelOptions = function(){
         this.date = date;
     }
 
-    /*
-     *
-     *
-     *
-     */
-    this.setWaitControl = function(waitControl){
-
-        this.waitControl = waitControl;
-    }
-
     /**
      * [isElevationEnabled if true the service will return elevation data, if the backend is
      * configured with elevation data, if the backend is not configured with elevation data
@@ -2308,38 +2143,6 @@ r360.TravelOptions = function(){
     this.setElevationEnabled = function(elevationEnabled){
 
         this.elevationEnabled = elevationEnabled;
-    }
-
-    /**
-     * [setRenderingMode description]
-     * @param {type} renderWatts [description]
-     */
-    this.setRenderWatts = function(renderWatts){
-        this.renderWatts = renderWatts;
-    }
-
-    /**
-     * [getRenderingMode description]
-     * @return {type} [description]
-     */
-    this.getRenderWatts = function(){
-       return this.renderWatts;
-    }
-
-    /**
-     * [setSupportWatts description]
-     * @param {type} supportWatts [description]
-     */
-    this.setSupportWatts = function(supportWatts){
-        this.supportWatts = supportWatts;
-    }
-
-    /**
-     * [getSupportWatts description]
-     * @return {type} [description]
-     */
-    this.getSupportWatts = function(){
-        return this.supportWatts;
     }
 
     this.disablePointReduction = function(){
@@ -2371,8 +2174,7 @@ r360.PolygonService = {
         cfg.sources = [];
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
-             !r360.isUndefined(travelOptions.getRenderWatts()) || !r360.isUndefined(travelOptions.getSupportWatts()) ) {
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ) {
 
             cfg.polygon = {};
 
@@ -2380,9 +2182,11 @@ r360.PolygonService = {
             if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
             if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
             if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )           cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )          cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
+            if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
+            if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
+            if ( !r360.isUndefined(travelOptions.getBufferMeter()) )           cfg.polygon.buffer             = travelOptions.getBufferMeter();
+            if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
         }
 
         // add each source point and it's travel configuration to the cfg
@@ -2460,12 +2264,6 @@ r360.PolygonService = {
      */
     getTravelTimePolygons : function(travelOptions, successCallback, errorCallback, method) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('polygonWait'));
-        }
-
         var cfg = r360.PolygonService.getCfg(travelOptions);
 
         if ( !r360.has(r360.PolygonService.cache, JSON.stringify(cfg)) ) {
@@ -2478,8 +2276,6 @@ r360.PolygonService = {
         }
         else {
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call successCallback with returned results
             successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
         }
@@ -2502,9 +2298,6 @@ r360.PolygonService = {
                 dataType    : "json",
                 type        : method,
                 success     : function(result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // the new version is an object, old one an array
                     if ( r360.has(result, 'data')  ) {
@@ -2532,9 +2325,6 @@ r360.PolygonService = {
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
                 error: function(data){
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
@@ -2570,26 +2360,17 @@ r360.PopulationService = {
      */
     getPopulationStatistics : function(travelOptions, populationStatistics, successCallback, errorCallback) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('populationWait'));
-        }
-
         // we only need the source points for the polygonizing and the polygon travel times
         var cfg = {};
         cfg.sources = [];
 
         if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' ||
-             typeof travelOptions.getRenderWatts() != 'undefined' || typeof travelOptions.getSupportWatts()     != 'undefined' ) {
+        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' ) {
 
             cfg.polygon = {};
 
             if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
             if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
-            if ( typeof travelOptions.getRenderWatts()      != 'undefined' ) cfg.polygon.renderWatts      = travelOptions.getRenderWatts();
-            if ( typeof travelOptions.getSupportWatts()     != 'undefined' ) cfg.polygon.supportWatts     = travelOptions.getSupportWatts();
         }
 
         // add each source point and it's travel configuration to the cfg
@@ -2820,12 +2601,6 @@ r360.RouteService = {
      */
     getRoutes : function(travelOptions, successCallback, errorCallback) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('routeWait'));
-        }
-
         var cfg = r360.RouteService.getCfg(travelOptions);
 
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
@@ -2836,9 +2611,6 @@ r360.RouteService = {
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // the new version is an object, old one an array
                     if ( r360.has(result, 'data')  ) {
@@ -2867,9 +2639,6 @@ r360.RouteService = {
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
                 error: function(data){
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
@@ -2883,8 +2652,6 @@ r360.RouteService = {
         }
         else {
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
             successCallback(r360.Util.parseRoutes(JSON.parse(JSON.stringify(r360.RouteService.cache[JSON.stringify(cfg)]))));
         }
@@ -2905,15 +2672,12 @@ r360.TimeService = {
         };
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ||
-             !r360.isUndefined(travelOptions.getRenderWatts()) || !r360.isUndefined(travelOptions.getSupportWatts()) ) {
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ) {
 
             cfg.polygon = {};
 
             if ( !r360.isUndefined(travelOptions.getTravelTimes()) )        cfg.polygon.values             = travelOptions.getTravelTimes();
             if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )   cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
-            if ( !r360.isUndefined(travelOptions.getRenderWatts()) )        cfg.polygon.renderWatts        = travelOptions.getRenderWatts();
-            if ( !r360.isUndefined(travelOptions.getSupportWatts()) )       cfg.polygon.supportWatts       = travelOptions.getSupportWatts();
             if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) ) cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         }
 
@@ -3008,12 +2772,6 @@ r360.TimeService = {
 
     getRouteTime : function(travelOptions, successCallback, errorCallback) {
 
-        // swho the please wait control
-        if ( travelOptions.getWaitControl() ) {
-            travelOptions.getWaitControl().show();
-            travelOptions.getWaitControl().updateText(r360.config.i18n.getSpan('timeWait'));
-        }
-
         var cfg = r360.TimeService.getCfg(travelOptions);
 
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
@@ -3027,9 +2785,6 @@ r360.TimeService = {
                 timeout:     r360.config.requestTimeout,
                 dataType:    "json",
                 success: function (result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
 
                     // the new version is an object, old one an array
                     if ( r360.has(result, 'data')  ) {
@@ -3058,9 +2813,6 @@ r360.TimeService = {
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
                 error: function(data){
 
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
                     // call error callback if defined
                     if ( r360.isFunction(errorCallback) ) {
 
@@ -3074,8 +2826,6 @@ r360.TimeService = {
         }
         else {
 
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
             // call callback with returned results
             successCallback(r360.TimeService.cache[JSON.stringify(cfg)]);
         }
@@ -3091,13 +2841,7 @@ r360.OsmService = {
     /*
      *
      */
-    getPoisInBoundingBox : function(boundingBox, tags, waitControl, successCallback, errorCallback) {
-
-        // swho the please wait control
-        if ( waitControl ) {
-            waitControl.show();
-            waitControl.updateText(r360.config.i18n.getSpan('osmWait'));
-        }
+    getPoisInBoundingBox : function(boundingBox, tags, successCallback, errorCallback) {
 
         var data = $.param({
             tags      : tags
@@ -3111,33 +2855,25 @@ r360.OsmService = {
 
         if ( !r360.has(r360.OsmService.cache, data) ) {
 
-            // make the request to the Route360° backend
+            // make the request to the Route360° backend 
             $.ajax({
                 url         : r360.config.osmServiceUrl + 'pois/search?callback=?&' + data,
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
                 success     : function(result) {
 
-                    if ( waitControl )
-                        waitControl.hide();
-
                     successCallback(result);
                 },
                 // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){
-
-                    if ( waitControl )
-                        waitControl.hide();
+                error: function(data){ 
 
                     if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later.");
+                        errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
                 }
             });
         }
-        else {
+        else { 
 
-            // hide the please wait control
-            if ( waitControl ) waitControl.hide();
             // call successCallback with returned results
             successCallback(r360.OsmService.cache[data]);
         }
@@ -3682,7 +3418,7 @@ r360.LineString = function(coordinateArray) {
 /*
  *
  */
-r360.RouteSegment = function(segment){
+r360.RouteSegment = function(segment){      
 
     var that             = this;
     that.points          = [];
@@ -3694,10 +3430,10 @@ r360.RouteSegment = function(segment){
     * Call it distance instead
     */
 
-    that.distance        = segment.length / 1000;
-    that.warning         = segment.warning;
+    that.distance        = segment.length / 1000;    
+    that.warning         = segment.warning;    
     that.elevationGain   = segment.elevationGain;
-    that.errorMessage;
+    that.errorMessage;   
     that.transitSegment  = false;
     that.startname      = segment.startname;
     that.endname        = segment.endname;
@@ -3709,7 +3445,7 @@ r360.RouteSegment = function(segment){
 
     // in case we have a transit route, we set a color depending
     //  on the route type (bus, subway, tram etc.)
-    // and we set information which are only available
+    // and we set information which are only available 
     // for transit segments like depature station and route short sign
     if ( segment.isTransit ) {
 
@@ -3797,7 +3533,7 @@ r360.RouteSegment = function(segment){
     }
 };
 
-r360.routeSegment = function (segment) {
+r360.routeSegment = function (segment) { 
     return new r360.RouteSegment(segment);
 };
 
@@ -4712,9 +4448,9 @@ if ( typeof L === 'object' ) {
 r360.LeafletUtil = {
 
     /*
-     * Convenients method to generate a Leaflet marker with the
+     * Convenients method to generate a Leaflet marker with the 
      * specified marker color. For available colors look at 'dist/images'
-     *
+     * 
      * @method getMarker
      * @param {Object} [latlon] The coordinate
      * @param {Number} [latlon.lat] The latitude of the coordinate.
@@ -4730,11 +4466,11 @@ r360.LeafletUtil = {
             iconSize     : [25, 41], // size of the icon
             iconUrl      : options.iconPath + 'marker-icon' + color + '.png',
             iconAnchor   : [12, 41], // point of the icon which will correspond to marker's location
-
+            
             shadowSize   : [41, 41], // size of the shadow
             shadowUrl    : options.iconPath + 'marker-shadow.png',
             shadowAnchor : [41 / 3, 41], // point of the shadow which will correspond to marker's location
-
+            
             popupAnchor  : [0, -35]  // point from which the popup should open relative to the iconAnchor
         });
 
@@ -4746,7 +4482,7 @@ r360.LeafletUtil = {
         if ( typeof drawingTime == 'undefined' ) drawingTime = 0;
         if ( typeof fadingType  == 'undefined')  fadingType  = 'travelTime';
 
-        fadePathSegment(0);
+        fadePathSegment(0);        
 
         function fadePathSegment(z){
 
@@ -4758,21 +4494,21 @@ r360.LeafletUtil = {
 
             // transfer don't have a linestring, just a point
             if ( segment.getType() != "TRANSFER" ) {
-                fader(segment, timeToDraw, options, z);
+                fader(segment, timeToDraw, options, z); 
             }
             else {
-
-                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !r360.has(options, 'paintTransfer') ))
-                    addTransferSegment(segment, options);
+                
+                if ( typeof options === 'undefined' || options.paintTransfer || (typeof options !== 'undefined' && !r360.has(options, 'paintTransfer') )) 
+                    addTransferSegment(segment, options); 
 
                 if(++z < route.routeSegments.length)
                     fadePathSegment(z);
-            }
+            }          
         }
 
         function addTransferSegment(segment, options){
 
-            addCircularMarker(segment.points[0], segment, options);
+            addCircularMarker(segment.points[0], segment, options);     
 
             // if inter station transfer -> involves two stops -> we need a second circle
             if( segment.points.length > 1 && segment.points[0].lat !=  segment.points[1].lat && segment.points[0].lng !=  segment.points[1].lng )
@@ -4780,16 +4516,16 @@ r360.LeafletUtil = {
         }
 
         function addCircularMarker(latLng, segment, options) {
-            var marker = L.circleMarker(latLng, {
-                    color:          !r360.isUndefined(options) && r360.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(),
-                    fillColor:      !r360.isUndefined(options) && r360.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D',
-                    fillOpacity:    !r360.isUndefined(options) && r360.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1,
-                    opacity:        !r360.isUndefined(options) && r360.has(options, 'transferOpacity')    ? options.transferOpacity     : 1,
-                    stroke:         !r360.isUndefined(options) && r360.has(options, 'transferStroke')     ? options.transferStroke      : true,
-                    weight:         !r360.isUndefined(options) && r360.has(options, 'transferWeight')     ? options.transferWeight      : 4,
-                    radius:         !r360.isUndefined(options) && r360.has(options, 'transferRadius')     ? options.transferRadius      : 8
-                });
-
+            var marker = L.circleMarker(latLng, { 
+                    color:          !r360.isUndefined(options) && r360.has(options, 'transferColor')      ? options.transferColor       : segment.getColor(), 
+                    fillColor:      !r360.isUndefined(options) && r360.has(options, 'transferHaloColor')  ? options.transferHaloColor   : typeof segment.getHaloColor() !== 'undefined' ? segment.getHaloColor() : '#9D9D9D', 
+                    fillOpacity:    !r360.isUndefined(options) && r360.has(options, 'transferFillOpacity')? options.transferFillOpacity : 1, 
+                    opacity:        !r360.isUndefined(options) && r360.has(options, 'transferOpacity')    ? options.transferOpacity     : 1, 
+                    stroke:         !r360.isUndefined(options) && r360.has(options, 'transferStroke')     ? options.transferStroke      : true, 
+                    weight:         !r360.isUndefined(options) && r360.has(options, 'transferWeight')     ? options.transferWeight      : 4, 
+                    radius:         !r360.isUndefined(options) && r360.has(options, 'transferRadius')     ? options.transferRadius      : 8 
+                });         
+    
             var popup = !r360.isUndefined(options) && r360.has(options, 'popup') ? options.popup : "INSERT_TEXT";
 
             if ( typeof segment !== 'undefined') {
@@ -4809,7 +4545,7 @@ r360.LeafletUtil = {
             marker.addTo(layer);
             marker.bringToFront();
         }
-
+        
 
         function fader(segment, millis, options, z){
 
@@ -4819,7 +4555,7 @@ r360.LeafletUtil = {
             polylineOptions.weight      = !r360.isUndefined(options) && r360.has(options, 'weight' )  ? options.weight  : 5;
 
             if ( segment.getType() != "TRANSIT" && (segment.getType() == "WALK") )  {
-
+                
                 polylineOptions.color     = !r360.isUndefined(options) && r360.has(options, 'walkColor' )     ? options.walkColor     : '#006F35';
                 polylineOptions.weight    = !r360.isUndefined(options) && r360.has(options, 'walkWeight' )    ? options.walkWeight : 7;
                 polylineOptions.dashArray = !r360.isUndefined(options) && r360.has(options, 'walkDashArray' ) ? options.walkDashArray : "1, 10";
@@ -4846,27 +4582,27 @@ r360.LeafletUtil = {
         /*
         function is recalling itself every 25ms
         if you want the line to be drawn in one second you need to add a chopped line in (roughly) 40 pieces
-        When line is drawn fadePathSegment is called in order to draw the next segment.
+        When line is drawn fadePathSegment is called in order to draw the next segment. 
         */
 
         function fadeLine(polyLine, haloLine, choppedLine, i, z){
 
             var latlngs = polyLine.getLatLngs();
 
-            for ( var j = 0 ; j < choppedLine[i].length ; j++ )
+            for ( var j = 0 ; j < choppedLine[i].length ; j++ ) 
                 latlngs.push(choppedLine[i][j])
-
-
+            
+            
             if ( latlngs.length != 0 ) {
                 haloLine.setLatLngs(latlngs);
                 polyLine.setLatLngs(latlngs);
-            }
+            } 
 
             if ( ++i < choppedLine.length ) {
-                setTimeout(function(){
-                    fadeLine(polyLine, haloLine, choppedLine, i, z);
+                setTimeout(function(){ 
+                    fadeLine(polyLine, haloLine, choppedLine, i, z); 
                 }, 15);
-            }else{
+            }else{               
                 if(++z < route.routeSegments.length)
                    fadePathSegment(z);
             }
@@ -4879,23 +4615,23 @@ r360.LeafletUtil = {
         function chopLineString(latlngs, pieces){
 
             var length          = 0;
-            var steps           = 1 / pieces;
+            var steps           = 1 / pieces;        
             var percentSoFar    = 0;
             var segmentDistance;
             var segmentPercent;
             var newLatLngs  = new Array();
-
+           
             for(var i = 1; i < latlngs.length; i++){
                 length += latlngs[i-1].distanceTo(latlngs[i]);
             }
 
-            var part        = new Array();
+            var part        = new Array(); 
 
             for(var i = 0; i < latlngs.length -1; i++){
 
-
+                
                 part.push(latlngs[i]);
-
+               
                 segmentDistance  = latlngs[i].distanceTo(latlngs[i + 1]);
                 segmentPercent   = segmentDistance / length;
                 percentSoFar    += segmentPercent;
@@ -4908,7 +4644,7 @@ r360.LeafletUtil = {
 
                         newLatLngs.push(part);
                         part        = new Array();
-                    }
+                    } 
                 }
             }
 
@@ -4940,7 +4676,7 @@ r360.LeafletUtil = {
 
             var latlng = tempmap.unproject(L.point(newPoint.x, newPoint.y));
 
-            return latlng;
+            return latlng;          
         };
     }
 };
@@ -5199,7 +4935,7 @@ r360.GoogleMapsUtil = {
     googleLatlngToPoint : function(map, latlng, z){
         var normalizedPoint = map.getProjection().fromLatLngToPoint(latlng); // returns x,y normalized to 0~255
         var scale = Math.pow(2, z);
-        return new google.maps.Point(normalizedPoint.x * scale, normalizedPoint.y * scale);
+        return new google.maps.Point(normalizedPoint.x * scale, normalizedPoint.y * scale); 
     },
 
     /**
@@ -5212,7 +4948,7 @@ r360.GoogleMapsUtil = {
         var scale = Math.pow(2, z);
         var normalizedPoint = new google.maps.Point(point.x / scale, point.y / scale);
         var latlng = map.getProjection().fromPointToLatLng(normalizedPoint);
-        return latlng;
+        return latlng; 
     }
 };
 
