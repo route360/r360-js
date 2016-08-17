@@ -30,8 +30,8 @@ var travelOptions = r360.travelOptions();
 // please contact us and request your own key
 travelOptions.setServiceKey('uhWrWpUhyZQy8rPfiC7X');
 // set the service url for your area
-travelOptions.setServiceUrl('https://service.route360.net/germany/');
-travelOptions.setServiceUrl('http://localhost:8080/');
+travelOptions.setServiceUrl('https://service.route360.net/africa/');
+// travelOptions.setServiceUrl('http://localhost:8080/');
 
 
 travelOptions.setQuadrantSegments(8);
