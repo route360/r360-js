@@ -65,13 +65,13 @@ r360.MobieService = {
     /*
      *
      */
-    getGraph : function(travelOptions, successCallback, errorCallback) {
+    getGraph : function(id, travelOptions, successCallback, errorCallback) {
 
         var cfg = r360.MobieService.getCfg(travelOptions);
 
         if ( !r360.has(r360.MobieService.cache, JSON.stringify(cfg)) ) {
 
-            var options = r360.MobieService.getAjaxOptions(travelOptions, cfg, successCallback, errorCallback);
+            var options = r360.MobieService.getAjaxOptions(id, travelOptions, cfg, successCallback, errorCallback);
 
             // make the request to the Route360° backend
             // use GET as fallback, otherwise use the supplied option
@@ -93,12 +93,12 @@ r360.MobieService = {
      * @param  {[type]} errorCallback   [description]
      * @return {[type]}                 [description]
      */
-    getAjaxOptions : function(travelOptions, cfg, successCallback, errorCallback) {
+    getAjaxOptions : function(id, travelOptions, cfg, successCallback, errorCallback) {
 
         var serviceUrl = typeof travelOptions.getServiceUrl() !== 'undefined' ? travelOptions.getServiceUrl() : r360.config.serviceUrl;
 
         var options = {
-            url         : serviceUrl + r360.config.serviceVersion + '/mobie?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+travelOptions.getServiceKey(),
+            url         : serviceUrl + r360.config.serviceVersion + '/mobie?id='+id+'&cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+travelOptions.getServiceKey(),
             timeout     : r360.config.requestTimeout,
             dataType    : "json",
             type        : "GET",
