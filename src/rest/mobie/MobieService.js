@@ -113,9 +113,9 @@ r360.MobieService = {
                     if ( result.code == 'ok' ) {
 
                         // cache the result
-                        r360.MobieService.cache[JSON.stringify(cfg)] = result.data;
+                        r360.MobieService.cache[JSON.stringify(cfg)] = result;
                         // call successCallback with returned results
-                        successCallback(r360.Util.parseNetwork(result.data));
+                        successCallback(r360.Util.parseNetwork(result));
                     }
                     else
                         // check if the error callback is defined
