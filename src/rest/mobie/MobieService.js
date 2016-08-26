@@ -14,6 +14,9 @@ r360.MobieService = {
         cfg.decimalPlaces = travelOptions.getDecimalPlaces();
         cfg.edgeClasses = travelOptions.getEdgeClasses();
 
+        if ( !r360.isUndefined(travelOptions.getIntersectionMode()) ) 
+            cfg.polygon = { 'intersectionMode' : travelOptions.getIntersectionMode() };
+
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )
             cfg.elevation = travelOptions.isElevationEnabled();
         if ( !r360.isUndefined(travelOptions.getMaxRoutingTime()) )
