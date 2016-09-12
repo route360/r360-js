@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (7700449), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 ("36a87bb"), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1504,7 +1504,8 @@ r360.Util = {
         var routes = new Array();
 
         for(var i = 0; i < json.routes.length; i++){
-            routes.push(r360.route(json.routes[i].travelTime, json.routes[i].segments));
+            var meta = json.routes[i];
+            routes.push(r360.route(json.routes[i].travelTime, json.routes[i].segments, meta));
         }
 
         return routes;
@@ -3540,7 +3541,7 @@ r360.routeSegment = function (segment) {
 /*
  *
  */
-r360.Route = function(travelTime, segments){
+r360.Route = function(travelTime, segments, meta){
 
     var that             = this;
     that.travelTime      = travelTime;
@@ -3550,6 +3551,9 @@ r360.Route = function(travelTime, segments){
     that.downhillMeter   = 0;
     that.targetHeight    = undefined;
     that.sourceHeight    = undefined;
+    that.sourceId        = undefined;
+    that.targetId        = undefined;
+    that.length          = undefined;
 
     // the server delivers the route from target to source
     segments.reverse().forEach(function(segment){
@@ -3559,6 +3563,13 @@ r360.Route = function(travelTime, segments){
 
         that.points = that.points.concat(routeSegment.getPoints().reverse());
     });
+
+
+    if(typeof meta !== 'undefined') {
+        that.sourceId = meta.source_id;
+        that.targetId = meta.target_id;
+        that.length   = meta.length;
+    }
 
     that.equals = function(route) {
         return that.getKey() === route.getKey();
@@ -3703,8 +3714,8 @@ r360.Route = function(travelTime, segments){
     };
 };
 
-r360.route = function (travelTime, segments) {
-    return new r360.Route(travelTime, segments);
+r360.route = function (travelTime, segments, meta) {
+    return new r360.Route(travelTime, segments, meta);
 };
 
 if ( typeof L === 'object' ) {

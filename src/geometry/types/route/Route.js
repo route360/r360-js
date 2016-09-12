@@ -1,7 +1,7 @@
 /*
  *
  */
-r360.Route = function(travelTime, segments){
+r360.Route = function(travelTime, segments, meta){
 
     var that             = this;
     that.travelTime      = travelTime;
@@ -11,6 +11,9 @@ r360.Route = function(travelTime, segments){
     that.downhillMeter   = 0;
     that.targetHeight    = undefined;
     that.sourceHeight    = undefined;
+    that.sourceId        = undefined;
+    that.targetId        = undefined;
+    that.length          = undefined;
 
     // the server delivers the route from target to source
     segments.reverse().forEach(function(segment){
@@ -20,6 +23,13 @@ r360.Route = function(travelTime, segments){
 
         that.points = that.points.concat(routeSegment.getPoints().reverse());
     });
+
+
+    if(typeof meta !== 'undefined') {
+        that.sourceId = meta.source_id;
+        that.targetId = meta.target_id;
+        that.length   = meta.length;
+    }
 
     that.equals = function(route) {
         return that.getKey() === route.getKey();
@@ -164,6 +174,6 @@ r360.Route = function(travelTime, segments){
     };
 };
 
-r360.route = function (travelTime, segments) {
-    return new r360.Route(travelTime, segments);
+r360.route = function (travelTime, segments, meta) {
+    return new r360.Route(travelTime, segments, meta);
 };
