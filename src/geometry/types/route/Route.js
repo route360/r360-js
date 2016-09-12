@@ -14,12 +14,15 @@ r360.Route = function(travelTime, segments, meta){
     that.sourceId        = undefined;
     that.targetId        = undefined;
     that.length          = undefined;
+    that.transfers       = 0;
 
     // the server delivers the route from target to source
     segments.reverse().forEach(function(segment){
 
         var routeSegment = r360.routeSegment(segment);
         that.routeSegments.push(routeSegment);
+
+        if (routeSegment.type === 'TRANSFER') that.transfers++;
 
         that.points = that.points.concat(routeSegment.getPoints().reverse());
     });
