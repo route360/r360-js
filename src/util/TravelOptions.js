@@ -25,6 +25,8 @@ r360.TravelOptions = function(){
 
     this.time               = undefined;
     this.date               = undefined;
+    this.frameDuration      = undefined;
+    this.reverse            = undefined;
     this.recommendations    = undefined;
 
     this.intersectionMode   = undefined;
@@ -34,6 +36,12 @@ r360.TravelOptions = function(){
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
+
+    this.getReverse = function(){ return this.reverse; }
+    this.setReverse = function(reverse){ this.reverse = reverse; }
+
+    this.getFrameDuration = function(){ return this.frameDuration; }
+    this.setFrameDuration = function(frameDuration){ this.frameDuration = frameDuration; }
 
     this.getBufferMeter = function(){ return this.buffer; }
     this.setBufferMeter = function(buffer){ this.buffer = buffer; }

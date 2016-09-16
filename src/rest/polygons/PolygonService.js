@@ -10,20 +10,19 @@ r360.PolygonService = {
         cfg.sources = [];
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ) {
+        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
 
-            cfg.polygon = {};
+        cfg.polygon = {};
 
-            if ( !r360.isUndefined(travelOptions.getTravelTimes()) )           cfg.polygon.values             = travelOptions.getTravelTimes();
-            if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
-            if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
-            if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
-            if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
-            if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
-            if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
-            if ( !r360.isUndefined(travelOptions.getBufferMeter()) )           cfg.polygon.buffer             = travelOptions.getBufferMeter();
-            if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
-        }
+        if ( !r360.isUndefined(travelOptions.getTravelTimes()) )           cfg.polygon.values             = travelOptions.getTravelTimes();
+        if ( !r360.isUndefined(travelOptions.getIntersectionMode()) )      cfg.polygon.intersectionMode   = travelOptions.getIntersectionMode();
+        if ( !r360.isUndefined(travelOptions.getPolygonSerializer()) )     cfg.polygon.serializer         = travelOptions.getPolygonSerializer();
+        if ( !r360.isUndefined(travelOptions.isPointReductionEnabled()) )  cfg.polygon.pointReduction     = travelOptions.isPointReductionEnabled();
+        if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
+        if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
+        if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
+        if ( !r360.isUndefined(travelOptions.getBufferMeter()) )           cfg.polygon.buffer             = travelOptions.getBufferMeter();
+        if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
 
         // add each source point and it's travel configuration to the cfg
         travelOptions.getSources().forEach(function(source){
@@ -44,35 +43,9 @@ r360.PolygonService = {
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
 
                 src.tm[travelType].frame = {};
-                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
-                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
-            }
-            if ( travelType == 'ebike' ) {
-
-                src.tm.ebike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'rentbike' ) {
-
-                src.tm.rentbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'rentandreturnbike' ) {
-
-                src.tm.rentandreturnbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
+                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time      = travelOptions.getTime();
+                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date      = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getFrame()) ) src.tm[travelType].frame.duration = travelOptions.getFrame();
             }
             if ( travelType == 'bike' ) {
 
