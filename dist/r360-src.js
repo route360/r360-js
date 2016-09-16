@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (681a09f), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (1ac9807), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2218,7 +2218,7 @@ r360.PolygonService = {
                 src.tm[travelType].frame = {};
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time      = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date      = travelOptions.getDate();
-                if ( !r360.isUndefined(travelOptions.getFrame()) ) src.tm[travelType].frame.duration = travelOptions.getFrame();
+                if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration = travelOptions.getFrameDuration();
             }
             if ( travelType == 'bike' ) {
 
