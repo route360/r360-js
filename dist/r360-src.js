@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (1ac9807), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (508185a), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2492,9 +2492,10 @@ r360.RouteService = {
      */
     getCfg : function(travelOptions){
 
-        var cfg = { sources : [], targets : [],
-            pathSerializer : travelOptions.getPathSerializer(),
-            elevation : travelOptions.isElevationEnabled() };
+        var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
+
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
 
         travelOptions.getSources().forEach(function(source){
 
@@ -2517,33 +2518,7 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
                 if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
                 if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
-            }
-            if ( travelType == 'ebike' ) {
-
-                src.tm.ebike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'rentbike' ) {
-
-                src.tm.rentbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'rentandreturnbike' ) {
-
-                src.tm.rentandreturnbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
+                if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration = travelOptions.getFrameDuration();
             }
             if ( travelType == 'bike' ) {
 
