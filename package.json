@@ -1,0 +1,33 @@
+{
+  "name": "r360-js",
+  "version": "1.0.1",
+  "description": "The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps.",
+  "main": "Jakefile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jake test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/route360/r360-js.git"
+  },
+  "keywords": [
+    "r360",
+    "route360",
+    "javascript",
+    "polygon",
+    "routing"
+  ],
+  "author": "Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH",
+  "license": "SEE LICENSE IN 'LICENSE'",
+  "bugs": {
+    "url": "https://github.com/route360/r360-js/issues"
+  },
+  "homepage": "https://github.com/route360/r360-js#readme",
+  "devDependencies": {
+    "jshint": "^2.9.3",
+    "uglify-js": "^2.7.3"
+  }
+}
