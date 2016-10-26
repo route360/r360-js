@@ -29,4 +29,4 @@ A demonstration of the library's features, as well as detailed coding examples c
 # Bower
 You can use our project in bower
 
-    bower install route360 --save
+    bower install route360#angular-ready --save
