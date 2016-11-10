@@ -79,7 +79,7 @@ module.exports = function(grunt) {
         // },
         dist: {
           // the files to concatenate
-          src: ['src/**/*.js'],
+        	src: ['src/r360.js', 'src/util/Util.js', 'src/geometry/crs/CRS.js', 'src/geometry/types/bounds/Bounds.js', 'src/geometry/types/point/Point.js', 'src/geometry/transformation/Transformation.js', 'src/geometry/projection/Projection.SphericalMercator.js',  'src/**/*.js'],
           // the location of the resulting JS file
           dest: 'dist/r360-src.js'
         }

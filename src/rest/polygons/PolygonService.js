@@ -11,6 +11,7 @@ r360.PolygonService = {
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
         if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) ) cfg.edgeWeight = travelOptions.getEdgeWeight();
 
         cfg.polygon = {};
 

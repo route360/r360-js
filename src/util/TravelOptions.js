@@ -36,6 +36,7 @@ r360.TravelOptions = function(){
     this.maxRoutingTime     = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
+    this.edgeWeight			= 'time';
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
@@ -504,6 +505,14 @@ r360.TravelOptions = function(){
 
     this.isPointReductionEnabled = function(){
         return this.pointReduction;
+    }
+    
+    this.getEdgeWeight = function(){
+    	return this.edgeWeight;
+    }
+    
+    this.setEdgeWeight = function(edgeWeight){
+    	this.edgeWeight = edgeWeight;
     }
 };
 
