@@ -4,6 +4,7 @@ r360.config = {
     pathSerializer  : 'compact',
     requestTimeout  : 10000,
     maxRoutingTime  : 3600,
+    maxRoutingLength : 100000,
     bikeSpeed       : 15,
     bikeUphill      : 20,
     bikeDownhill    : -10,

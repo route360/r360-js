@@ -34,6 +34,7 @@ r360.TravelOptions = function(){
     this.polygonSerializer  = 'json';
     this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
+    this.maxRoutingLength   = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
     this.edgeWeight			= 'time';
@@ -233,6 +234,16 @@ r360.TravelOptions = function(){
      *
      *
      */
+    this.getMaxRoutingLength = function(){
+
+        return this.maxRoutingLength;
+    }
+
+    /*
+     *
+     *
+     *
+     */
     this.getIntersectionMode = function(){
 
         return this.intersectionMode;
@@ -316,6 +327,16 @@ r360.TravelOptions = function(){
     this.setMaxRoutingTime = function(maxRoutingTime){
 
         this.maxRoutingTime = maxRoutingTime;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.setMaxRoutingLength = function(maxRoutingLength){
+
+        this.maxRoutingLength = maxRoutingLength;
     }
 
     /*

@@ -15,6 +15,7 @@ describe("the TravelOptions object", function() {
         travelOptions.setIntersectionMode('average');
         travelOptions.setPathSerializer('compact');
         travelOptions.setMaxRoutingTime(3600);
+        travelOptions.setMaxRoutingLength(100000);
         travelOptions.setBikeSpeed(4);
         travelOptions.setBikeUphill(5);
         travelOptions.setBikeDownhill(6);
@@ -31,6 +32,7 @@ describe("the TravelOptions object", function() {
         expect(travelOptions.getIntersectionMode()).toBe('average');
         expect(travelOptions.getPathSerializer()).toBe('compact');
         expect(travelOptions.getMaxRoutingTime()).toBe(3600);
+        expect(travelOptions.getMaxRoutingLength()).toBe(100000);
         expect(travelOptions.getBikeSpeed()).toBe(4);
         expect(travelOptions.getBikeUphill()).toBe(5);
         expect(travelOptions.getBikeDownhill()).toBe(6);
