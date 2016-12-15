@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (e32765d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (7d0518d), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -142,6 +142,7 @@ r360.config = {
     pathSerializer  : 'compact',
     requestTimeout  : 10000,
     maxRoutingTime  : 3600,
+    maxRoutingLength : 100000,
     bikeSpeed       : 15,
     bikeUphill      : 20,
     bikeDownhill    : -10,
@@ -1694,6 +1695,7 @@ r360.TravelOptions = function(){
     this.polygonSerializer  = 'json';
     this.pointReduction     = true;
     this.maxRoutingTime     = undefined;
+    this.maxRoutingLength   = undefined;
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
     this.edgeWeight			= 'time';
@@ -1893,6 +1895,16 @@ r360.TravelOptions = function(){
      *
      *
      */
+    this.getMaxRoutingLength = function(){
+
+        return this.maxRoutingLength;
+    }
+
+    /*
+     *
+     *
+     *
+     */
     this.getIntersectionMode = function(){
 
         return this.intersectionMode;
@@ -1976,6 +1988,16 @@ r360.TravelOptions = function(){
     this.setMaxRoutingTime = function(maxRoutingTime){
 
         this.maxRoutingTime = maxRoutingTime;
+    }
+
+    /*
+     *
+     *
+     *
+     */
+    this.setMaxRoutingLength = function(maxRoutingLength){
+
+        this.maxRoutingLength = maxRoutingLength;
     }
 
     /*
@@ -2635,7 +2657,8 @@ r360.TimeService = {
         var cfg = {
             sources : [], targets : [],
             pathSerializer : travelOptions.getPathSerializer(),
-            maxRoutingTime : travelOptions.getMaxRoutingTime()
+            maxRoutingTime : travelOptions.getMaxRoutingTime(),
+            maxRoutingLength : travelOptions.getMaxRoutingLength()
         };
 
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
