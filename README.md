@@ -1,9 +1,5 @@
-#r360-js#angular-ready
+#r360-js
 
-## Angular Ready
-The angular-ready branch of r360 does not include jquery and jquery ui. There are no control components included in this branch. It is designed to be used with angular 1. We started to develop an [angular module](https://github.com/route360/r360-angular) for r360 including controls as angular components. However this module is still in development and is subject to change on any given day. We are working on making a stable build and write the documentation, but this will take some time. :/
-
-You may have a look at some (undocumented) examples on how to implement r360 in angular [here](http://codepen.io/collection/DNzZEv/)
 
 ## API-Key
 Get your API key [here ](https://developers.route360.net/apikey.html).
@@ -29,4 +25,4 @@ A demonstration of the library's features, as well as detailed coding examples c
 # Bower
 You can use our project in bower
 
-    bower install route360#angular-ready --save
+    bower install route360 --save
