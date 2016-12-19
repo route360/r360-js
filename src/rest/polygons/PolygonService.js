@@ -22,7 +22,7 @@ r360.PolygonService = {
         if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
         if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
-        if ( !r360.isUndefined(travelOptions.getBufferMeter()) )           cfg.polygon.buffer             = travelOptions.getBufferMeter();
+        if ( !r360.isUndefined(travelOptions.getBuffer()) )                cfg.polygon.buffer             = travelOptions.getBuffer();
         if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
 
         // add each source point and it's travel configuration to the cfg

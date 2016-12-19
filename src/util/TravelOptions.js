@@ -16,7 +16,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
-    
+
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
     this.simplify           = undefined;
@@ -45,15 +45,15 @@ r360.TravelOptions = function(){
     this.getFrameDuration = function(){ return this.frameDuration; }
     this.setFrameDuration = function(frameDuration){ this.frameDuration = frameDuration; }
 
-    this.getBufferMeter = function(){ return this.buffer; }
-    this.setBufferMeter = function(buffer){ this.buffer = buffer; }
-    
+    this.getBuffer = function(){ return this.buffer; }
+    this.setBuffer = function(buffer){ this.buffer = buffer; }
+
     this.getSimplifyMeter = function(){ return this.simplify; }
     this.setSimplifyMeter = function(simplify){ this.simplify = simplify; }
-    
+
     this.getSrid = function(){ return this.srid; }
     this.setSrid = function(srid){ this.srid = srid; }
-    
+
     this.getQuadrantSegments = function(){ return this.quadrantSegments; }
     this.setQuadrantSegments = function(quadrantSegments){ this.quadrantSegments = quadrantSegments; }
 
@@ -527,11 +527,11 @@ r360.TravelOptions = function(){
     this.isPointReductionEnabled = function(){
         return this.pointReduction;
     }
-    
+
     this.getEdgeWeight = function(){
     	return this.edgeWeight;
     }
-    
+
     this.setEdgeWeight = function(edgeWeight){
     	this.edgeWeight = edgeWeight;
     }

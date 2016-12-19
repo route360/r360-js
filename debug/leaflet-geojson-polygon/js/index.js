@@ -8,13 +8,13 @@ var latlon = [52.51, 13.37];
 // add the map and set the initial center to berlin
 var map = L.map('map').setView(latlon, 14);
 
-// attribution to give credit to OSM map data and VBB for public transportation 
+// attribution to give credit to OSM map data and VBB for public transportation
 var attribution ="<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox © OpenStreetMap</a> | ÖPNV Daten © <a href='https://www.vbb.de/de/index.html' target='_blank'>VBB</a> | developed by <a href='https://www.route360.net/de/' target='_blank'>Route360°</a>";
 
 // initialise the base map. To change the base map just change following
 // lines as described by cloudmade, mapbox etc..
 // note that mapbox is a paid service
-L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png', 
+L.tileLayer('https://a.tiles.mapbox.com/v3/mi.0ad4304c/{z}/{x}/{y}.png',
             { maxZoom: 18, attribution: attribution }).addTo(map);
 
 // create the marker and add it to the map
@@ -36,15 +36,16 @@ travelOptions.setServiceUrl('https://service.route360.net/africa/');
 
 travelOptions.setQuadrantSegments(8);
 travelOptions.setSimplifyMeter(10);
-travelOptions.setBufferMeter(50);
+// ~50m in degrees at 52° latitude
+travelOptions.setBuffer(0.00073);
 travelOptions.setSrid(4326);
 
 // we only have one source which is the marker we just added
-travelOptions.addSource(marker); 
+travelOptions.addSource(marker);
 // we want to have polygons for 5 to 30 minutes
-travelOptions.setTravelTimes([900, 1800]); 
+travelOptions.setTravelTimes([900, 1800]);
 // go by foot
-travelOptions.setTravelType('walk');  
+travelOptions.setTravelType('walk');
 // request geojson
 travelOptions.setPolygonSerializer('geojson');
 

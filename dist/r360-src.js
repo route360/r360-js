@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v1.0.1 (7d0518d), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v1.0.1 (a531f4f), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -1677,7 +1677,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
-    
+
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
     this.simplify           = undefined;
@@ -1706,15 +1706,15 @@ r360.TravelOptions = function(){
     this.getFrameDuration = function(){ return this.frameDuration; }
     this.setFrameDuration = function(frameDuration){ this.frameDuration = frameDuration; }
 
-    this.getBufferMeter = function(){ return this.buffer; }
-    this.setBufferMeter = function(buffer){ this.buffer = buffer; }
-    
+    this.getBuffer = function(){ return this.buffer; }
+    this.setBuffer = function(buffer){ this.buffer = buffer; }
+
     this.getSimplifyMeter = function(){ return this.simplify; }
     this.setSimplifyMeter = function(simplify){ this.simplify = simplify; }
-    
+
     this.getSrid = function(){ return this.srid; }
     this.setSrid = function(srid){ this.srid = srid; }
-    
+
     this.getQuadrantSegments = function(){ return this.quadrantSegments; }
     this.setQuadrantSegments = function(quadrantSegments){ this.quadrantSegments = quadrantSegments; }
 
@@ -2188,11 +2188,11 @@ r360.TravelOptions = function(){
     this.isPointReductionEnabled = function(){
         return this.pointReduction;
     }
-    
+
     this.getEdgeWeight = function(){
     	return this.edgeWeight;
     }
-    
+
     this.setEdgeWeight = function(edgeWeight){
     	this.edgeWeight = edgeWeight;
     }
@@ -2201,6 +2201,7 @@ r360.TravelOptions = function(){
 r360.travelOptions = function () {
     return new r360.TravelOptions();
 };
+
 
 
 r360.PolygonService = {
@@ -2226,7 +2227,7 @@ r360.PolygonService = {
         if ( !r360.isUndefined(travelOptions.getMinPolygonHoleSize()) )    cfg.polygon.minPolygonHoleSize = travelOptions.getMinPolygonHoleSize();
         if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
         if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
-        if ( !r360.isUndefined(travelOptions.getBufferMeter()) )           cfg.polygon.buffer             = travelOptions.getBufferMeter();
+        if ( !r360.isUndefined(travelOptions.getBuffer()) )                cfg.polygon.buffer             = travelOptions.getBuffer();
         if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
 
         // add each source point and it's travel configuration to the cfg
@@ -2360,157 +2361,6 @@ r360.PolygonService = {
         }
 
         return options;
-    }
-}
-
-
-
-r360.PopulationService = {
-
-    cache : {},
-
-    /*
-     *
-     */
-    getPopulationStatistics : function(travelOptions, populationStatistics, successCallback, errorCallback) {
-
-        // we only need the source points for the polygonizing and the polygon travel times
-        var cfg = {};
-        cfg.sources = [];
-
-        if ( typeof travelOptions.isElevationEnabled() != 'undefined' ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( typeof travelOptions.getTravelTimes() != 'undefined' || typeof travelOptions.getIntersectionMode() != 'undefined' ) {
-
-            cfg.polygon = {};
-
-            if ( typeof travelOptions.getTravelTimes()      != 'undefined' ) cfg.polygon.values           = travelOptions.getTravelTimes();
-            if ( typeof travelOptions.getIntersectionMode() != 'undefined' ) cfg.polygon.intersectionMode = travelOptions.getIntersectionMode();
-        }
-
-        // add each source point and it's travel configuration to the cfg
-        travelOptions.getSources().forEach(function(source){
-
-            var src = {
-                lat : r360.has(source, 'lat') ? source.lat : source.getLatLng().lat,
-                lng : r360.has(source, 'lon') ? source.lon : r360.has(source, 'lng') ? source.lng : source.getLatLng().lng,
-                id  : r360.has(source, 'id')  ? source.id  : source.lat + ';' + source.lng,
-                tm  : {}
-            };
-
-            var travelType = r360.has(source, 'travelType') ? source.travelType : travelOptions.getTravelType();
-
-            // this enables car routing
-            src.tm[travelType] = {};
-
-            // set special routing parameters depending on the travel type
-            if ( travelType == 'transit' ) {
-
-                src.tm.transit.frame = {};
-                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm.transit.frame.time = travelOptions.getTime();
-                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm.transit.frame.date = travelOptions.getDate();
-            }
-            if ( travelType == 'ebike' ) {
-
-                src.tm.ebike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.ebike.speed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.ebike.uphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.ebike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'rentbike' ) {
-
-                src.tm.rentbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'rentandreturnbike' ) {
-
-                src.tm.rentandreturnbike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.rentandreturnbike.bikespeed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.rentandreturnbike.bikeuphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.rentandreturnbike.bikedownhill = travelOptions.getBikeDownhill();
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.rentandreturnbike.walkspeed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.rentandreturnbike.walkuphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.rentandreturnbike.walkdownhill = travelOptions.getWalkDownhill();
-            }
-            if ( travelType == 'bike' ) {
-
-                src.tm.bike = {};
-                if ( !r360.isUndefined(travelOptions.getBikeSpeed()) )     src.tm.bike.speed    = travelOptions.getBikeSpeed();
-                if ( !r360.isUndefined(travelOptions.getBikeUphill()) )    src.tm.bike.uphill   = travelOptions.getBikeUphill();
-                if ( !r360.isUndefined(travelOptions.getBikeDownhill()) )  src.tm.bike.downhill = travelOptions.getBikeDownhill();
-            }
-            if ( travelType == 'walk') {
-
-                src.tm.walk = {};
-                if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
-                if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
-                if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
-            }
-
-            cfg.sources.push(src);
-        });
-
-        var statistics = [];
-        r360.each(populationStatistics, function(statistic) { statistics.push('statistics=' + statistic); })
-
-        if ( !r360.has(r360.PopulationService.cache, JSON.stringify(cfg) + statistics.join("&")) ) {
-
-            // make the request to the Route360° backend
-            $.ajax({
-                url         : travelOptions.getServiceUrl() + r360.config.serviceVersion + '/population?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + '&cb=?&key='+travelOptions.getServiceKey() + '&' + statistics.join("&"),
-                timeout     : r360.config.requestTimeout,
-                dataType    : "json",
-                success     : function(result) {
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-
-                    // the new version is an object, old one an array
-                    if ( r360.has(result, 'data')  ) {
-
-                        if ( result.code == 'ok' ) {
-
-                            // cache the result
-                            r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result.data;
-                            // call successCallback with returned results
-                            successCallback(result.data);
-                        }
-                        else
-                            // check if the error callback is defined
-                            if ( r360.isFunction(errorCallback) )
-                                errorCallback(result.code, result.message);
-                    }
-                    // fallback for old clients
-                    else {
-
-                        // cache the result
-                        r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")] = result;
-                        // call successCallback with returned results
-                        successCallback(result);
-                    }
-                },
-                // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){
-
-                    // hide the please wait control
-                    if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-                    // call error callback if defined
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The population service is currently not available, please try again later.");
-                }
-            });
-        }
-        else {
-
-            // hide the please wait control
-            if ( travelOptions.getWaitControl() ) travelOptions.getWaitControl().hide();
-            // call callback with returned results
-            successCallback(r360.PopulationService.cache[JSON.stringify(cfg) + statistics.join("&")]);
-        }
     }
 }
 
@@ -2822,53 +2672,6 @@ r360.TimeService = {
     }
 };
 
-
-
-r360.OsmService = {
-
-    cache : {},
-
-    /*
-     *
-     */
-    getPoisInBoundingBox : function(boundingBox, tags, successCallback, errorCallback) {
-
-        var data = $.param({
-            tags      : tags
-        }, true);
-
-        if ( typeof boundingBox !== 'undefined' ) {
-
-            data.northEast = boundingBox._northEast.lng + '|' + boundingBox._northEast.lat;
-            data.southWest = boundingBox._southWest.lng + '|' + boundingBox._southWest.lat;
-        }
-
-        if ( !r360.has(r360.OsmService.cache, data) ) {
-
-            // make the request to the Route360° backend 
-            $.ajax({
-                url         : r360.config.osmServiceUrl + 'pois/search?callback=?&' + data,
-                timeout     : r360.config.requestTimeout,
-                dataType    : "json",
-                success     : function(result) {
-
-                    successCallback(result);
-                },
-                // this only happens if the service is not available, all other errors have to be transmitted in the response
-                error: function(data){ 
-
-                    if ( r360.isFunction(errorCallback) )
-                        errorCallback("service-not-available", "The travel time polygon service is currently not available, please try again later."); 
-                }
-            });
-        }
-        else { 
-
-            // call successCallback with returned results
-            successCallback(r360.OsmService.cache[data]);
-        }
-    }
-}
 
 /*
  * Spherical Mercator is the most popular map projection, used by EPSG:3857 CRS used by default.
