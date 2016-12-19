@@ -1,22 +1,22 @@
 /*
- Route360° JavaScript API v1.0.1 (a531f4f), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.0 (428f249), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v1.0.1',
+	version : 'v0.3.0',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
       return obj === void 0;
   },
-  
+
   // Shortcut function for checking if an object has a given property directly
   // on itself (in other words, not on a prototype).
   has : function(obj, key) {
       return obj != null && hasOwnProperty.call(obj, key);
   },
-  
+
   // is a given object a function
   isFunction : function(obj) {
     return typeof obj == 'function' || false;
@@ -43,7 +43,7 @@ var r360 = {
       if (predicate(elem, index, array)) results.push(elem);
     });
     return results;
-  }, 
+  },
 
   contains : function(array,item) {
     return array.indexOf(item) > -1;
@@ -99,7 +99,7 @@ function expose() {
 }
 
 // define r360 for Node module pattern loaders, including Browserify
-if (typeof module === 'object' && typeof module.exports === 'object') 
+if (typeof module === 'object' && typeof module.exports === 'object')
 	module.exports = r360;
 
 // define r360 as an AMD module
@@ -119,8 +119,8 @@ if (!Function.prototype.bind) {
       throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
     }
 
-    var aArgs = Array.prototype.slice.call(arguments, 1), 
-        fToBind = this, 
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
         fNOP = function () {},
         fBound = function () {
           return fToBind.apply(this instanceof fNOP && oThis
@@ -135,6 +135,7 @@ if (!Function.prototype.bind) {
     return fBound;
   };
 }
+
 
 r360.config = {
 
