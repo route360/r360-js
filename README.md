@@ -2,7 +2,7 @@
 
 
 ## API-Key
-Get your API key [here ](https://developers.route360.net/apikey.html).
+Get your API key [here ](https://developers.route360.net/pricing/).
 
 The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH.
 
@@ -21,6 +21,11 @@ A demonstration of the library's features, as well as detailed coding examples c
 
 <img src="http://i1284.photobucket.com/albums/a576/gerbsen/gif_zps7710423c.gif" alt="Route360°" />
 
+
+# Npm
+You can use our project with npm
+
+    npm install route360 --save
 
 # Bower
 You can use our project in bower
