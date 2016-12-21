@@ -45,7 +45,15 @@ r360.TravelOptions = function(){
     this.getFrameDuration = function(){ return this.frameDuration; }
     this.setFrameDuration = function(frameDuration){ this.frameDuration = frameDuration; }
 
+
     this.getBuffer = function(){ return this.buffer; }
+
+    /**
+    * @description Set the buffer to apply to the polygons. Buffer is in units as defined by the srid. For WGS84 (lat/long, srid: 4326) the unit is degrees. The length of a degree varies depending on location, and specifically for longitute, which converges at the poles. You may want to [calculate](http://msi.nga.mil/MSISiteContent/StaticFiles/Calculators/degree.html) the buffer in degrees based on location, if using WGS84.
+    * For
+    *
+    * @param {long} buffer - The polygon's buffer width (in srid units).
+    */
     this.setBuffer = function(buffer){ this.buffer = buffer; }
 
     this.getSimplifyMeter = function(){ return this.simplify; }
