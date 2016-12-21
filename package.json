@@ -1,0 +1,28 @@
+{
+  "name": "route360",
+  "version": "0.3.0",
+  "description": "The Route360° JavaScript API for Motion Intelligence's time-based access mapping service.",
+  "main": "dist/r360.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/route360/r360-js.git"
+  },
+  "keywords": [
+    "map",
+    "gis",
+    "leaflet",
+    "isochrone"
+  ],
+  "author": "Motion Intelligence GmbH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/route360/r360-js/issues"
+  },
+  "homepage": "https://developers.route360.net"
+}
