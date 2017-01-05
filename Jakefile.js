@@ -23,7 +23,7 @@ function hint(msg, paths) {
 			console.log('\tCheck passed.\n');
 			complete();
 		});
-	}
+	};
 }
 
 desc('Check r360 source for errors with JSHint');
@@ -41,7 +41,7 @@ task('build', {async: true}, function (compsBase32, buildName) {
 
 	}).on('stdout', function (data) {
 		v = version + ' (' + data.toString() + ')';
-	})
+	});
 });
 
 desc('Run PhantomJS tests');

@@ -1,0 +1,23 @@
+{
+  "bitwise": true,
+  "browser": true,
+  "curly": false,
+  "eqeqeq": true,
+  "esnext": true,
+  "latedef": false,
+  "noarg": true,
+  "node": true,
+  "shadow": true,
+  "strict": false,
+  "undef": true,
+  "unused": true,
+  "multistr": true,
+  "loopfunc": true,
+  "globals": {
+    "angular": false,
+    "L": false,
+    "r360": false,
+    "$": false,
+    "_": false
+  }
+}

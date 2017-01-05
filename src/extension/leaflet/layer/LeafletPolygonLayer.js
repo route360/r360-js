@@ -38,15 +38,15 @@ if ( typeof L === 'object' ) {
             ];
 
             // overwrite defaults with optional parameters
-            if ( typeof options != 'undefined' ) {
+            if ( typeof options !== 'undefined' ) {
 
-                if ( typeof options.colors         != 'undefined') this.colors       = options.colors;
-                if ( typeof options.opacity        != 'undefined') this.opacity      = options.opacity;
-                if ( typeof options.strokeWidth    != 'undefined') this.strokeWidth  = options.strokeWidth;
-                if ( typeof options.inverse        != 'undefined') this.inverse      = options.inverse;
-                if ( typeof options.tolerance      != 'undefined') this.tolerance    = options.tolerance;
-                if ( typeof options.extendWidthX   != 'undefined') this.extendWidthX = options.extendWidthX;
-                if ( typeof options.extendWidthY   != 'undefined') this.extendWidthY = options.extendWidthY;
+                if ( typeof options.colors         !== 'undefined') this.colors       = options.colors;
+                if ( typeof options.opacity        !== 'undefined') this.opacity      = options.opacity;
+                if ( typeof options.strokeWidth    !== 'undefined') this.strokeWidth  = options.strokeWidth;
+                if ( typeof options.inverse        !== 'undefined') this.inverse      = options.inverse;
+                if ( typeof options.tolerance      !== 'undefined') this.tolerance    = options.tolerance;
+                if ( typeof options.extendWidthX   !== 'undefined') this.extendWidthX = options.extendWidthX;
+                if ( typeof options.extendWidthY   !== 'undefined') this.extendWidthY = options.extendWidthY;
             }
         },
 
@@ -72,7 +72,7 @@ if ( typeof L === 'object' ) {
          */
         getBoundingBox3857 : function(){
 
-            return this.multiPolygons[0].getBoundingBox3857();
+            return this.multiPolygons[0] ? this.multiPolygons[0].getBoundingBox3857() : undefined;
         },
 
         /**
@@ -81,7 +81,7 @@ if ( typeof L === 'object' ) {
          */
         getBoundingBox4326 : function(){
 
-            return this.multiPolygons[0].getBoundingBox4326();
+            return this.multiPolygons[0] ? this.multiPolygons[0].getBoundingBox4326() : undefined;
         },
 
         /*
@@ -117,10 +117,11 @@ if ( typeof L === 'object' ) {
             // we have to transform the r360.latLngBounds to a L.latLngBounds since the map object
             // only knows the leaflet version
             var bounds = this.getBoundingBox4326();
+            if (typeof bounds === 'undefined') return;
+
             var sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
 
-            this.map.fitBounds(
-                L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})), options);
+            this.map.fitBounds(L.latLngBounds(L.latLng({ lat : sw.lat, lng : sw.lng}), L.latLng({ lat : ne.lat, lng : ne.lng})), options);
         },
 
         /**
@@ -281,7 +282,7 @@ if ( typeof L === 'object' ) {
                     for ( var j = 0; j < multiPolygon.polygons.length; j++)
                         svgData.push(this.createSvgData(multiPolygon.polygons[j]));
 
-                    if ( svgData.length != 0 )
+                    if ( svgData.length !== 0 )
                         gElements.push(r360.SvgUtil.getGElement(svgData, {
                             color             : !this.inverse ? this.getColor(multiPolygon) : 'black',
                             opacity           : !this.inverse ? 1 : this.getOpacity(multiPolygon),
