@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.3.0 ("eb78c1b"), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.1 (c393b55), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.3.0',
+	version : 'v0.3.1',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -1616,10 +1616,37 @@ r360.Util = {
             }
         }
         return dest;
+    },
+
+    // return the length of 1 degree in meters, for both latitude and longitude, based on a given latitude
+    //http://pordlabs.ucsd.edu/matlab/coord.htm
+    degreeInMeters: function(lat) {
+      var rlat = lat * (Math.PI / 180)
+
+      var latlen =  111132.92 - 559.82 * Math.cos(2 * rlat) + 1.175 * Math.cos(4 * rlat);
+
+      var lnglen = 111415.13 * Math.cos(rlat) - 94.55 * Math.cos(3 * rlat);
+
+      return {
+        lat: latlen,
+        lng: lnglen
+      }
+
+    },
+
+    // return the degrees of a set distance in meters, for both latitude and longitude
+    metersInDegrees: function(m, lat) {
+      var degreeLengths = this.degreeInMeters(lat);
+
+      return {
+        lat: m / degreeLengths.lat,
+        lng: m / degreeLengths.lng
+      }
     }
 };
 
 r360.extend = r360.Util.extend;
+
 
 r360.DomUtil = {
     
@@ -4619,6 +4646,12 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
         this.draw();
     };
 
+    GoogleMapsPolygonLayer.prototype.setStrokeWidth = function(strokeWidth){
+
+        this.strokeWidth = strokeWidth;
+        this.draw();
+    };
+
     /**
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {type} [description]
@@ -4733,9 +4766,9 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
         $('#' + this.element.id).empty();
     };
 
-    r360.googleMapsPolygonLayer = function(map) {
+    r360.googleMapsPolygonLayer = function(map, options) {
         if (typeof this.element != 'undefined' || this.element != null) return;
-        return new GoogleMapsPolygonLayer(map);
+        return new GoogleMapsPolygonLayer(map, options);
     }
 }
 

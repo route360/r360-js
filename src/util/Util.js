@@ -366,6 +366,32 @@ r360.Util = {
             }
         }
         return dest;
+    },
+
+    // return the length of 1 degree in meters, for both latitude and longitude, based on a given latitude
+    //http://pordlabs.ucsd.edu/matlab/coord.htm
+    degreeInMeters: function(lat) {
+      var rlat = lat * (Math.PI / 180)
+
+      var latlen =  111132.92 - 559.82 * Math.cos(2 * rlat) + 1.175 * Math.cos(4 * rlat);
+
+      var lnglen = 111415.13 * Math.cos(rlat) - 94.55 * Math.cos(3 * rlat);
+
+      return {
+        lat: latlen,
+        lng: lnglen
+      }
+
+    },
+
+    // return the degrees of a set distance in meters, for both latitude and longitude
+    metersInDegrees: function(m, lat) {
+      var degreeLengths = this.degreeInMeters(lat);
+
+      return {
+        lat: m / degreeLengths.lat,
+        lng: m / degreeLengths.lng
+      }
     }
 };
 

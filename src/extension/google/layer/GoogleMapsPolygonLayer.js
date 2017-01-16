@@ -120,6 +120,12 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
         this.draw();
     };
 
+    GoogleMapsPolygonLayer.prototype.setStrokeWidth = function(strokeWidth){
+
+        this.strokeWidth = strokeWidth;
+        this.draw();
+    };
+
     /**
      * [fitMap adjust the map to fit the complete polygon with maximum zoom level]
      * @return {type} [description]
@@ -234,8 +240,8 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
         $('#' + this.element.id).empty();
     };
 
-    r360.googleMapsPolygonLayer = function(map) {
+    r360.googleMapsPolygonLayer = function(map, options) {
         if (typeof this.element != 'undefined' || this.element != null) return;
-        return new GoogleMapsPolygonLayer(map);
+        return new GoogleMapsPolygonLayer(map, options);
     }
 }
