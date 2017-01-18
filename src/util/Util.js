@@ -149,7 +149,7 @@ r360.Util = {
      */
     getAddressByCoordinates : function(latlng, language, callback){
 
-        $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
+        r360.RequestUtil.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
     },
 
     /*

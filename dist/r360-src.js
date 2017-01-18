@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.3.1 (dc7a7e4), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.1 (88b6050), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (undefined) {
@@ -1412,7 +1412,7 @@ r360.Util = {
      */
     getAddressByCoordinates : function(latlng, language, callback){
 
-        $.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
+        r360.RequestUtil.getJSON(r360.config.nominatimUrl + 'reverse.php?&format=json&lat=' + latlng.lat + '&accept-language=' + language + '&lon=' + latlng.lng + '&json_callback=?', callback);
     },
 
     /*
@@ -2291,6 +2291,20 @@ if (r360.Browser.nodejs) {
             options.error(error || {status: response.statusCode})
           }
         })
+      },
+
+      getJSON: function(url, callback) {
+        var requestOptions = {
+          uri: url,
+          method: 'GET',
+          gzip: true,
+          json: true
+        };
+
+        request(requestOptions, function (error, response, body) {
+          if (!error)
+            callback(body)
+        })
       }
     }
   })();
@@ -2298,6 +2312,10 @@ if (r360.Browser.nodejs) {
   r360.RequestUtil = {
     request: function(options) {
         return $.ajax(options);
+    },
+
+    getJSON: function(url, callback) {
+      return $.getJSON(url, callback)
     }
   }
 }

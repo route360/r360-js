@@ -34,6 +34,20 @@ if (r360.Browser.nodejs) {
             options.error(error || {status: response.statusCode})
           }
         })
+      },
+
+      getJSON: function(url, callback) {
+        var requestOptions = {
+          uri: url,
+          method: 'GET',
+          gzip: true,
+          json: true
+        };
+
+        request(requestOptions, function (error, response, body) {
+          if (!error)
+            callback(body)
+        })
       }
     }
   })();
@@ -41,6 +55,10 @@ if (r360.Browser.nodejs) {
   r360.RequestUtil = {
     request: function(options) {
         return $.ajax(options);
+    },
+
+    getJSON: function(url, callback) {
+      return $.getJSON(url, callback)
     }
   }
 }
