@@ -117,7 +117,7 @@ r360.TimeService = {
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
             // execute routing time service and call callback with results
-            $.ajax({
+            r360.RequestUtil.request({
                 url:         travelOptions.getServiceUrl() + r360.config.serviceVersion + '/time?key=' +travelOptions.getServiceKey(),
                 type:        "POST",
                 data:        JSON.stringify(cfg) ,

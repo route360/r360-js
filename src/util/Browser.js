@@ -3,6 +3,16 @@
  */
 
 (function () {
+    var browser = new Function("try {return this===window;}catch(e){ return false;}")();
+
+    if (!browser) {
+      r360.Browser = {
+        nodejs: true,
+        browser: false,
+      }
+
+      return;
+    }
 
     var ua = navigator.userAgent.toLowerCase(),
         doc = document.documentElement,
@@ -28,6 +38,9 @@
             (window.DocumentTouch && document instanceof window.DocumentTouch));
 
     r360.Browser = {
+        nodejs: false,
+        browser: true,
+
         ie: ie,
         ielt9: ie && !document.addEventListener,
         webkit: webkit,

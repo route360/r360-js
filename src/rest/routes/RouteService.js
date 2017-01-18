@@ -78,7 +78,7 @@ r360.RouteService = {
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend
-            $.ajax({
+            r360.RequestUtil.request({
                 url         : travelOptions.getServiceUrl() + r360.config.serviceVersion + '/route?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+travelOptions.getServiceKey(),
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",

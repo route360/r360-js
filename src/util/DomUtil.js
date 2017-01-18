@@ -1,5 +1,5 @@
 r360.DomUtil = {
-    
+
     setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
 
         if (r360.Browser.any3d) {
@@ -18,6 +18,9 @@ r360.DomUtil = {
     },
 
     testProp: function (props) {
+        if (!r360.Browser.browser) {
+          return false;
+        }
 
         var style = document.documentElement.style;
 

@@ -77,8 +77,8 @@ function build(callback, version, buildName, module){
     if ( module == 'core' ) {
 
         var copy = fs.readFileSync('src/copyright.js', 'utf8').replace('{VERSION}', version),
-        intro = '(function (window, document, undefined) {',
-        outro = '}(window, document));\n\n',
+        intro = '(function (undefined) {',
+        outro = '}());\n\n',
         newSrc = copy + intro + combinedFiles + outro,
 
         pathPart = 'dist/r360' + (buildName ? '-' + buildName : ''),

@@ -82,7 +82,7 @@ r360.PolygonService = {
 
             // make the request to the Route360° backend
             // use GET as fallback, otherwise use the supplied option
-            $.ajax(options);
+            r360.RequestUtil.request(options);
         }
         else {
 

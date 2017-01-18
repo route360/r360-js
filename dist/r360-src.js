@@ -1,8 +1,8 @@
 /*
- Route360° JavaScript API v0.3.1 (c393b55), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.1 (dc7a7e4), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
-(function (window, document, undefined) {
+(function (undefined) {
 var r360 = {
 	version : 'v0.3.1',
 
@@ -739,6 +739,16 @@ r360.latLng = function (a, b, c) {
  */
 
 (function () {
+    var browser = new Function("try {return this===window;}catch(e){ return false;}")();
+
+    if (!browser) {
+      r360.Browser = {
+        nodejs: true,
+        browser: false,
+      }
+
+      return;
+    }
 
     var ua = navigator.userAgent.toLowerCase(),
         doc = document.documentElement,
@@ -764,6 +774,9 @@ r360.latLng = function (a, b, c) {
             (window.DocumentTouch && document instanceof window.DocumentTouch));
 
     r360.Browser = {
+        nodejs: false,
+        browser: true,
+
         ie: ie,
         ielt9: ie && !document.addEventListener,
         webkit: webkit,
@@ -1649,7 +1662,7 @@ r360.extend = r360.Util.extend;
 
 
 r360.DomUtil = {
-    
+
     setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
 
         if (r360.Browser.any3d) {
@@ -1668,6 +1681,9 @@ r360.DomUtil = {
     },
 
     testProp: function (props) {
+        if (!r360.Browser.browser) {
+          return false;
+        }
 
         var style = document.documentElement.style;
 
@@ -2240,6 +2256,53 @@ r360.travelOptions = function () {
 
 
 
+
+if (r360.Browser.nodejs) {
+  (function() {
+    var requireNode = eval('require');
+    var request = requireNode('request');
+
+    r360.RequestUtil = {
+      request: function(options) {
+        var requestOptions = {
+          uri: options.url,
+          method: options.type || 'POST',
+          timeout: options.timeout,
+          gzip: true,
+          body: options.data,
+          headers: {
+            'accept': 'application/json'
+          }
+        };
+
+        request(requestOptions, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            if (body[0] == '?') {
+              body = body.substring(2, body.length - 1);
+            }
+
+            try {
+              options.success(JSON.parse(body));
+            } catch (ex) {
+              options.error(ex);
+            }
+
+          } else {
+            options.error(error || {status: response.statusCode})
+          }
+        })
+      }
+    }
+  })();
+} else {
+  r360.RequestUtil = {
+    request: function(options) {
+        return $.ajax(options);
+    }
+  }
+}
+
+
 r360.PolygonService = {
 
     cache : {},
@@ -2323,7 +2386,7 @@ r360.PolygonService = {
 
             // make the request to the Route360° backend
             // use GET as fallback, otherwise use the supplied option
-            $.ajax(options);
+            r360.RequestUtil.request(options);
         }
         else {
 
@@ -2481,7 +2544,7 @@ r360.RouteService = {
         if ( !r360.has(r360.RouteService.cache, JSON.stringify(cfg)) ) {
 
             // make the request to the Route360° backend
-            $.ajax({
+            r360.RequestUtil.request({
                 url         : travelOptions.getServiceUrl() + r360.config.serviceVersion + '/route?cfg=' + encodeURIComponent(JSON.stringify(cfg)) + "&cb=?&key="+travelOptions.getServiceKey(),
                 timeout     : r360.config.requestTimeout,
                 dataType    : "json",
@@ -2653,7 +2716,7 @@ r360.TimeService = {
         if ( !r360.has(r360.TimeService.cache, JSON.stringify(cfg)) ) {
 
             // execute routing time service and call callback with results
-            $.ajax({
+            r360.RequestUtil.request({
                 url:         travelOptions.getServiceUrl() + r360.config.serviceVersion + '/time?key=' +travelOptions.getServiceKey(),
                 type:        "POST",
                 data:        JSON.stringify(cfg) ,
@@ -4801,5 +4864,5 @@ r360.GoogleMapsUtil = {
     }
 };
 
-}(window, document));
+}());
 

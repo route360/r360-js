@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/route360/r360-js/issues"
   },
-  "homepage": "https://developers.route360.net"
+  "homepage": "https://developers.route360.net",
+  "dependencies": {
+    "request": "^2.79.0"
+  }
 }
