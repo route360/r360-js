@@ -14,6 +14,7 @@ var deps = {
               'util/DomUtil.js',
               'util/TravelOptions.js',
               'util/RequestUtil.js',
+              'rest/poi/PointOfInterestService.js',
               'rest/polygons/PolygonService.js',
               'rest/routes/RouteService.js',
               'rest/time/TimeService.js',

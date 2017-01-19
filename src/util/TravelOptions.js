@@ -36,8 +36,21 @@ r360.TravelOptions = function(){
     this.maxRoutingTime     = undefined;
     this.maxRoutingLength   = undefined;
     this.serviceUrl         = undefined;
+    this.poiServiceUrl      = undefined;
     this.serviceKey         = undefined;
     this.edgeWeight			= 'time';
+
+    this.poiQuery           = undefined;
+    this.poiQueryFormat     = 'geojson';
+
+    this.getPoiServiceUrl = function(){ return this.poiServiceUrl; }
+    this.setPoiServiceUrl = function(poiServiceUrl){ this.poiServiceUrl = poiServiceUrl; }
+
+    this.getPoiQuery = function(){ return this.poiQuery; }
+    this.setPoiQuery = function(poiQuery){ this.poiQuery = poiQuery; }
+
+    this.getPoiQueryFormat = function(){ return this.poiQueryFormat; }
+    this.setPoiQueryFormat = function(poiQueryFormat){ this.poiQueryFormat = poiQueryFormat; }
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
