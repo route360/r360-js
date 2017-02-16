@@ -20,13 +20,13 @@ r360.Util = {
         return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
     },
 
-    /*
-     * This method returns the current time, at the time this method is executed,
-     * in seconds. This means that the current hours, minutes and seconds of the current
-     * time are added up, e.g.: 12:11 pm:
+    /* 
+     * This method returns the current time in seconds, rounded down to the nearest minute,
+     * at the time this method is executed. This means that the current hours and minutes of the
+     * current time are converted to seconds and added up, e.g.: 12:11 pm: 
      *
-     *      -> (12 * 3600) + (11 * 60) = 43875w
-     *
+     *      -> (12 * 3600) + (11 * 60) = 43860
+     * 
      * @method getHoursAndMinutesInSeconds
      *
      * @returns {Number} The current time in seconds
