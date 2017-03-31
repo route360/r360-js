@@ -62,6 +62,10 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
+            if (travelType == 'car') {
+                src.tm.enableCongestion = false;
+                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+            }
 
             cfg.sources.push(src);
         });

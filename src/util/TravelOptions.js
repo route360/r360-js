@@ -16,6 +16,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
+    this.enableCongestion   = undefined;
 
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
@@ -522,6 +523,22 @@ r360.TravelOptions = function(){
     this.setElevationEnabled = function(elevationEnabled){
 
         this.elevationEnabled = elevationEnabled;
+    }
+
+    /**
+     * [isCongestionEnabled if true the service will return congested speed data, if the backend is
+     * configured with congestion data
+     *
+     * @return {boolean} [returns true if congestion enabled]
+     */
+    this.isCongestionEnabled = function() {
+
+        return this.enableCongestion;
+    }
+
+    this.setCongestionEnabled = function(enableCongestion){
+
+        this.enableCongestion = enableCongestion;
     }
 
     this.disablePointReduction = function(){

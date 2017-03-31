@@ -49,6 +49,10 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
+            if (travelType == 'car') {
+                src.tm.enableCongestion = false;
+                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+            }
 
             // add it to the list of sources
             cfg.sources.push(src);
