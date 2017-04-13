@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.3.1 (c393b55), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.1 (5299ce2), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -153,6 +153,7 @@ r360.config = {
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
     logging         : false,
+    enableCongestion: false,
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -1270,13 +1271,13 @@ r360.Util = {
         return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
     },
 
-    /*
-     * This method returns the current time, at the time this method is executed,
-     * in seconds. This means that the current hours, minutes and seconds of the current
-     * time are added up, e.g.: 12:11 pm:
+    /* 
+     * This method returns the current time in seconds, rounded down to the nearest minute,
+     * at the time this method is executed. This means that the current hours and minutes of the
+     * current time are converted to seconds and added up, e.g.: 12:11 pm: 
      *
-     *      -> (12 * 3600) + (11 * 60) = 43875w
-     *
+     *      -> (12 * 3600) + (11 * 60) = 43860
+     * 
      * @method getHoursAndMinutesInSeconds
      *
      * @returns {Number} The current time in seconds
@@ -1647,7 +1648,6 @@ r360.Util = {
 
 r360.extend = r360.Util.extend;
 
-
 r360.DomUtil = {
     
     setPosition: function (el, point) { // (HTMLElement, Point[, Boolean])
@@ -1705,6 +1705,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
+    this.enableCongestion   = undefined;
 
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
@@ -2213,6 +2214,22 @@ r360.TravelOptions = function(){
         this.elevationEnabled = elevationEnabled;
     }
 
+    /**
+     * [isCongestionEnabled if true the service will return congested speed data, if the backend is
+     * configured with congestion data
+     *
+     * @return {boolean} [returns true if congestion enabled]
+     */
+    this.isCongestionEnabled = function() {
+
+        return this.enableCongestion;
+    }
+
+    this.setCongestionEnabled = function(enableCongestion){
+
+        this.enableCongestion = enableCongestion;
+    }
+
     this.disablePointReduction = function(){
         this.pointReduction = false;
     }
@@ -2303,6 +2320,10 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
+            if (travelType == 'car') {
+                src.tm.enableCongestion = false;
+                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+            }
 
             cfg.sources.push(src);
         });
@@ -2328,7 +2349,7 @@ r360.PolygonService = {
         else {
 
             // call successCallback with returned results
-            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+            successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? r360.PolygonService.cache[JSON.stringify(cfg)] : r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
         }
     },
 
@@ -2451,6 +2472,10 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkSpeed()) )     src.tm.walk.speed    = travelOptions.getWalkSpeed();
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
+            }
+            if (travelType == 'car') {
+                src.tm.enableCongestion = false;
+                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
             }
 
             // add it to the list of sources

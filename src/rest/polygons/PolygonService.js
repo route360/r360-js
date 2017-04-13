@@ -91,7 +91,7 @@ r360.PolygonService = {
         else {
 
             // call successCallback with returned results
-            successCallback(r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
+            successCallback(travelOptions.getPolygonSerializer() == 'geojson' ? r360.PolygonService.cache[JSON.stringify(cfg)] : r360.Util.parsePolygons(r360.PolygonService.cache[JSON.stringify(cfg)]));
         }
     },
 
