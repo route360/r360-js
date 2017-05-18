@@ -50,8 +50,8 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
             if (travelType == 'car') {
-                src.tm.enableCongestion = false;
-                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm[travelType].rushHour = travelOptions.isRushHour();
+                src.tm[travelType].rushHour = false;
+                if ( !r360.isUndefined(travelOptions.isRushHour()) ) src.tm[travelType].rushHour = travelOptions.isRushHour();
             }
 
             // add it to the list of sources
