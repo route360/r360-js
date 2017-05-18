@@ -14,7 +14,7 @@ r360.config = {
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
     logging         : false,
-    enableCongestion: false,
+    rushHour        : false,
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {

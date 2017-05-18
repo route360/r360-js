@@ -64,7 +64,7 @@ r360.PolygonService = {
             }
             if (travelType == 'car') {
                 src.tm.enableCongestion = false;
-                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm[travelType].rushHour = travelOptions.isRushHour();
             }
 
             cfg.sources.push(src);

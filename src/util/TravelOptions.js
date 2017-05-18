@@ -16,7 +16,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
-    this.enableCongestion   = undefined;
+    this.rushHour           = undefined;
 
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
@@ -526,19 +526,19 @@ r360.TravelOptions = function(){
     }
 
     /**
-     * [isCongestionEnabled if true the service will return congested speed data, if the backend is
-     * configured with congestion data
+     * [isRushHour if true the service will return congested speed data, if the backend is
+     * configured with rush hour data
      *
-     * @return {boolean} [returns true if congestion enabled]
+     * @return {boolean} [returns true if rush hour is enabled]
      */
-    this.isCongestionEnabled = function() {
+    this.isRushHour = function() {
 
-        return this.enableCongestion;
+        return this.rushHour;
     }
 
-    this.setCongestionEnabled = function(enableCongestion){
+    this.setRushHour = function(rushHour){
 
-        this.enableCongestion = enableCongestion;
+        this.rushHour = rushHour;
     }
 
     this.disablePointReduction = function(){
