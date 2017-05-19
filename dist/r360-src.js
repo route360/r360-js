@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.3.1 (5299ce2), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.2 (847210b), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.3.1',
+	version : 'v0.3.2',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -153,7 +153,7 @@ r360.config = {
     travelTimes     : [300, 600, 900, 1200, 1500, 1800],
     travelType      : "walk",
     logging         : false,
-    enableCongestion: false,
+    rushHour        : false,
 
     // options for the travel time slider; colors and lengths etc.
     defaultTravelTimeControlOptions : {
@@ -1705,7 +1705,7 @@ r360.TravelOptions = function(){
     this.travelTimes        = undefined;
     this.travelType         = undefined;
     this.elevationEnabled   = undefined;
-    this.enableCongestion   = undefined;
+    this.rushHour           = undefined;
 
     this.minPolygonHoleSize = undefined;
     this.buffer             = undefined;
@@ -2215,19 +2215,37 @@ r360.TravelOptions = function(){
     }
 
     /**
-     * [isCongestionEnabled if true the service will return congested speed data, if the backend is
-     * configured with congestion data
+     * [isRushHour if true the service will return congested speed data, if the backend is
+     * configured with rush hour data
      *
-     * @return {boolean} [returns true if congestion enabled]
+     * @return {boolean} [returns true if rush hour is enabled]
      */
-    this.isCongestionEnabled = function() {
+    this.isRushHour = function() {
 
-        return this.enableCongestion;
+        return this.rushHour;
     }
 
-    this.setCongestionEnabled = function(enableCongestion){
+    this.setRushHour = function(rushHour){
 
-        this.enableCongestion = enableCongestion;
+        this.rushHour = rushHour;
+}
+
+    /**
+     * @deprecated since v0.3.2. use isRushHour instead
+     *
+     * @return {boolean} [returns true if rush hour is enabled]
+     */
+    this.isCongestionEnabled = function() {
+        console.warn("Calling deprecated function \"isCongestionEnabled()\". Use \"isRushHour()\" instead.");
+        return this.rushHour;
+    }
+
+    /**
+     * @deprecated since v0.3.2. Use setRushHour instead
+     */
+    this.setCongestionEnabled = function(rushHour){
+        console.warn("Calling deprecated function \"setCongestionEnabled()\". Use \"setRushHour()\" instead.")
+        this.rushHour = rushHour;
     }
 
     this.disablePointReduction = function(){
@@ -2321,8 +2339,8 @@ r360.PolygonService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
             if (travelType == 'car') {
-                src.tm.enableCongestion = false;
-                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+                src.tm[travelType].rushHour = false;
+                if ( !r360.isUndefined(travelOptions.isRushHour()) ) src.tm[travelType].rushHour = travelOptions.isRushHour();
             }
 
             cfg.sources.push(src);
@@ -2474,8 +2492,8 @@ r360.RouteService = {
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
             if (travelType == 'car') {
-                src.tm.enableCongestion = false;
-                if ( !r360.isUndefined(travelOptions.isCongestionEnabled()) ) src.tm.enableCongestion = travelOptions.isCongestionEnabled();
+                src.tm[travelType].rushHour = false;
+                if ( !r360.isUndefined(travelOptions.isRushHour()) ) src.tm[travelType].rushHour = travelOptions.isRushHour();
             }
 
             // add it to the list of sources
@@ -2648,7 +2666,10 @@ r360.TimeService = {
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
-
+            if (travelType == 'car') {
+                src.tm.car.rushHour = false;
+                if ( !r360.isUndefined(travelOptions.isRushHour()) ) src.tm.car.rushHour = travelOptions.isRushHour();
+            }
             // add to list of sources
             cfg.sources.push(src);
         });
