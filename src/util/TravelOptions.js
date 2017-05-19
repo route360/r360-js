@@ -539,6 +539,24 @@ r360.TravelOptions = function(){
     this.setRushHour = function(rushHour){
 
         this.rushHour = rushHour;
+}
+
+    /**
+     * @deprecated since v0.3.2. use isRushHour instead
+     *
+     * @return {boolean} [returns true if rush hour is enabled]
+     */
+    this.isCongestionEnabled = function() {
+        console.warn("Calling deprecated function \"isCongestionEnabled()\". Use \"isRushHour()\" instead.");
+        return this.rushHour;
+    }
+
+    /**
+     * @deprecated since v0.3.2. Use setRushHour instead
+     */
+    this.setCongestionEnabled = function(rushHour){
+        console.warn("Calling deprecated function \"setCongestionEnabled()\". Use \"setRushHour()\" instead.")
+        this.rushHour = rushHour;
     }
 
     this.disablePointReduction = function(){
