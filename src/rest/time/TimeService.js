@@ -87,7 +87,10 @@ r360.TimeService = {
                 if ( !r360.isUndefined(travelOptions.getWalkUphill()) )    src.tm.walk.uphill   = travelOptions.getWalkUphill();
                 if ( !r360.isUndefined(travelOptions.getWalkDownhill()) )  src.tm.walk.downhill = travelOptions.getWalkDownhill();
             }
-
+            if (travelType == 'car') {
+                src.tm.car.rushHour = false;
+                if ( !r360.isUndefined(travelOptions.isRushHour()) ) src.tm.car.rushHour = travelOptions.isRushHour();
+            }
             // add to list of sources
             cfg.sources.push(src);
         });
