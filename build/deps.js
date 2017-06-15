@@ -29,6 +29,7 @@ var deps = {
               'geometry/types/route/Route.js',
               'extension/leaflet/layer/LeafletPolygonLayer.js',
               'extension/leaflet/layer/CanvasLayer.js',
+              'extension/leaflet/layer/TileLayer.js',
               'extension/leaflet/util/LeafletUtil.js',
               'extension/google/layer/GoogleMapsPolygonLayer.js',
               'extension/google/util/GoogleMapsUtil.js'
