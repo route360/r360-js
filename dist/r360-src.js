@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.3.2 (08023da), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.3.3 (1db129d), a JS library for leaflet maps. http://route360.net
  (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.3.2',
+	version : 'v0.3.3',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -4332,6 +4332,15 @@ if ( typeof L === 'object' ) {
 }
 
 if (typeof L === 'object') {
+    
+    r360.basemapsLookup = {
+        'bright': 'osm-bright-gl-style',
+        'light': 'positron-gl-style',
+        'dark': 'dark-matter-gl-style',
+        'blues': 'fiord-color-gl-style',
+        'basic': 'klokantech-basic-gl-style'
+    };
+
     /*
      *
      */
@@ -4360,14 +4369,6 @@ if (typeof L === 'object') {
         }
 
     });
-
-    r360.basemapsLookup = {
-        'bright': 'osm-bright-gl-style',
-        'light': 'positron-gl-style',
-        'dark': 'dark-matter-gl-style',
-        'blues': 'fiord-color-gl-style',
-        'basic': 'klokantech-basic-gl-style'
-    };
 
     /**
      * [r360.getBasemapList returns an array of Route360 basemap names. ]
