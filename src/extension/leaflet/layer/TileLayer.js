@@ -1,12 +1,4 @@
 if (typeof L === 'object') {
-    
-    r360.basemapsLookup = {
-        'bright': 'osm-bright-gl-style',
-        'light': 'positron-gl-style',
-        'dark': 'dark-matter-gl-style',
-        'blues': 'fiord-color-gl-style',
-        'basic': 'klokantech-basic-gl-style'
-    };
 
     /*
      *
@@ -36,14 +28,6 @@ if (typeof L === 'object') {
         }
 
     });
-
-    /**
-     * [r360.getBasemapList returns an array of Route360 basemap names. ]
-     * @return {L.TileLayer}                  [returns new L.TileLayer instance of Route360 basemap]
-     */
-    r360.getBasemapList = function () {
-        return Object.keys(r360.basemapsLookup);
-    };
 
     /**
      * [r360.basemap returns a tilelayer for one of the r360 basemap styles. ]

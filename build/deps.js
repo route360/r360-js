@@ -27,6 +27,7 @@ var deps = {
               'geometry/types/route/RouteSegment.js',
               'geometry/types/route/RouteSegment.js',
               'geometry/types/route/Route.js',
+              'basemaps/Basemaps.js',
               'extension/leaflet/layer/LeafletPolygonLayer.js',
               'extension/leaflet/layer/CanvasLayer.js',
               'extension/leaflet/layer/TileLayer.js',
