@@ -250,7 +250,7 @@ r360.TravelOptions = function(){
         return this.maxRoutingLength;
     }
 
-    this.getEdgeWeightLength = function(){
+    this.getMaxEdgeWeight = function(){
         return this.maxEdgeWeight;
     }
 
@@ -356,7 +356,7 @@ r360.TravelOptions = function(){
     }
 
 
-    this.setEdgeWeightLength = function(maxEdgeWeight){
+    this.setMaxEdgeWeight = function(maxEdgeWeight){
         this.maxEdgeWeight = maxEdgeWeight;
     }
 

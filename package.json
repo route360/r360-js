@@ -1,6 +1,6 @@
 {
   "name": "route360",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The Route360° JavaScript API for Motion Intelligence's time-based access mapping service.",
   "main": "dist/r360.js",
   "directories": {
