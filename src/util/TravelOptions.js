@@ -34,11 +34,12 @@ r360.TravelOptions = function(){
     this.pathSerializer     = 'compact';
     this.polygonSerializer  = 'json';
     this.pointReduction     = true;
-    this.maxRoutingTime     = undefined;
-    this.maxRoutingLength   = undefined;
+    this.maxRoutingTime     = undefined;     // Deprecated
+    this.maxRoutingLength   = undefined;     // Deprecated
+    this.maxEdgeWeight		= undefined;
+    this.edgeWeight			= 'time';
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
-    this.edgeWeight			= 'time';
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
@@ -235,6 +236,7 @@ r360.TravelOptions = function(){
      */
     this.getMaxRoutingTime = function(){
 
+        console.warn("getMaxRoutingTime is deprecated. use getMaxEdgeWeight instead")
         return this.maxRoutingTime;
     }
 
@@ -244,8 +246,12 @@ r360.TravelOptions = function(){
      *
      */
     this.getMaxRoutingLength = function(){
-
+        console.warn("getMaxRoutingLength is deprecated. use getMaxEdgeWeight instead")
         return this.maxRoutingLength;
+    }
+
+    this.getEdgeWeightLength = function(){
+        return this.maxEdgeWeight;
     }
 
     /*
@@ -335,6 +341,7 @@ r360.TravelOptions = function(){
      */
     this.setMaxRoutingTime = function(maxRoutingTime){
 
+        console.warn("setMaxRoutingTime is deprecated. use setMaxEdgeWeight instead")
         this.maxRoutingTime = maxRoutingTime;
     }
 
@@ -344,8 +351,13 @@ r360.TravelOptions = function(){
      *
      */
     this.setMaxRoutingLength = function(maxRoutingLength){
-
+        console.warn("setMaxRoutingLength is deprecated. use setMaxEdgeWeight instead")
         this.maxRoutingLength = maxRoutingLength;
+    }
+
+
+    this.setEdgeWeightLength = function(maxEdgeWeight){
+        this.maxEdgeWeight = maxEdgeWeight;
     }
 
     /*
