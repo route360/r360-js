@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.4.0 (3042efc), a JS library for leaflet maps. http://route360.net
- (c) 2014 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2014 Motion Intelligence GmbH
+ Route360° JavaScript API v0.4.2 (e94217c), a JS library for leaflet maps. http://route360.net
+ (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.4.0',
+	version : 'v0.4.2',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -1723,11 +1723,12 @@ r360.TravelOptions = function(){
     this.pathSerializer     = 'compact';
     this.polygonSerializer  = 'json';
     this.pointReduction     = true;
-    this.maxRoutingTime     = undefined;
-    this.maxRoutingLength   = undefined;
+    this.maxRoutingTime     = undefined;     // Deprecated
+    this.maxRoutingLength   = undefined;     // Deprecated
+    this.maxEdgeWeight		= undefined;
+    this.edgeWeight			= 'time';
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
-    this.edgeWeight			= 'time';
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
@@ -1924,6 +1925,7 @@ r360.TravelOptions = function(){
      */
     this.getMaxRoutingTime = function(){
 
+        console.warn("getMaxRoutingTime is deprecated. use getMaxEdgeWeight instead")
         return this.maxRoutingTime;
     }
 
@@ -1933,8 +1935,12 @@ r360.TravelOptions = function(){
      *
      */
     this.getMaxRoutingLength = function(){
-
+        console.warn("getMaxRoutingLength is deprecated. use getMaxEdgeWeight instead")
         return this.maxRoutingLength;
+    }
+
+    this.getMaxEdgeWeight = function(){
+        return this.maxEdgeWeight;
     }
 
     /*
@@ -2024,6 +2030,7 @@ r360.TravelOptions = function(){
      */
     this.setMaxRoutingTime = function(maxRoutingTime){
 
+        console.warn("setMaxRoutingTime is deprecated. use setMaxEdgeWeight instead")
         this.maxRoutingTime = maxRoutingTime;
     }
 
@@ -2033,8 +2040,13 @@ r360.TravelOptions = function(){
      *
      */
     this.setMaxRoutingLength = function(maxRoutingLength){
-
+        console.warn("setMaxRoutingLength is deprecated. use setMaxEdgeWeight instead")
         this.maxRoutingLength = maxRoutingLength;
+    }
+
+
+    this.setMaxEdgeWeight = function(maxEdgeWeight){
+        this.maxEdgeWeight = maxEdgeWeight;
     }
 
     /*
