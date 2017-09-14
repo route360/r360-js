@@ -7,5 +7,8 @@
       "lib": [ "es2015", "dom" ],
       "outDir": "./lib",
       "strict": true
-    }
+    },
+    "exclude": [
+      "**/*.test.ts"
+    ]
   }

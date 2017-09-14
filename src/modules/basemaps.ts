@@ -1,5 +1,8 @@
 import { serviceUrls } from './config'
 
+/**
+ * @hidden
+ */
 const basemapsLookup:any = {
     'bright': 'osm-bright-gl-style',
     'light': 'positron-gl-style',

@@ -11,7 +11,9 @@
     "prepublish": "npm run build",
     "clean": "shx rm -rf _bundles lib lib-esm",
     "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack",
-    "test": "jest"
+    "test": "jest",
+    "docs-html": "typedoc --excludePrivate --mode modules --exclude **/*.test.ts --out _doc/ src/",
+    "docs-json": "typedoc --excludePrivate --mode modules --exclude **/*.test.ts --json _doc/docs.json src/"
   },
   "repository": {
     "type": "git",
