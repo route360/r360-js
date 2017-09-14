@@ -1,4 +1,0 @@
-#AuthType Basic
-#AuthName "Password Protected Area"
-#AuthUserFile /usr/www/users/motionr/project/switzerland/.htpasswd
-#Require valid-user
