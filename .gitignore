@@ -1,2 +1,15 @@
+.DS_Store
+.tslintrc
+tslint.json
+.eslintrc
+.vscode
+.idea
+*.ipr
+*.iml
+*.iws
+lib/
+lib-esm/
+_bundles/
 node_modules/
 bower_components/
+_doc
