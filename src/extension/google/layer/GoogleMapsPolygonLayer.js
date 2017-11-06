@@ -6,7 +6,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
 
         // set default parameters
         this.map               = map;
-        this.id                = this.map.getDiv().id;
+        this.id                = r360.Util.generateId();
         this.inverse           = false;
         this.topRight          = { lat : -90, lng : -180 };
         this.bottomLeft        = { lat : +90, lng : +180 };
