@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.4.2 (e94217c), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.4.3 (661aa02), a JS library for leaflet maps. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.4.2',
+	version : 'v0.4.3',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -1358,7 +1358,7 @@ r360.Util = {
      * It's more a pseudo random string.
      *
      * @method generateId
-     * @param the length of the returnd pseudo random string
+     * @param the length of the returned pseudo random string
      * @return a random string with the given length
      */
     generateId : function(length) {
@@ -4680,7 +4680,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
 
         // set default parameters
         this.map               = map;
-        this.id                = this.map.getDiv().id;
+        this.id                = r360.Util.generateId();
         this.inverse           = false;
         this.topRight          = { lat : -90, lng : -180 };
         this.bottomLeft        = { lat : +90, lng : +180 };

@@ -3,5 +3,6 @@ bower_components/
 lib-esm/
 lib/
 _bundles/
+_doc/
 _src/
 debug/

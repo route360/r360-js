@@ -107,7 +107,7 @@ r360.Util = {
      * It's more a pseudo random string.
      *
      * @method generateId
-     * @param the length of the returnd pseudo random string
+     * @param the length of the returned pseudo random string
      * @return a random string with the given length
      */
     generateId : function(length) {
