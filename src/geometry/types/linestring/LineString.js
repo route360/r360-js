@@ -85,6 +85,6 @@ r360.LineString = function(coordinateArray) {
      * @return {type}       [description]
      */
     this.getCoordinate = function(index){
-    	return this.coordinate[index];
+    	return this.coordinates[index];
     }
 }
