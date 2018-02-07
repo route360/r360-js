@@ -22,6 +22,9 @@ A demonstration of the library's features, as well as detailed coding examples c
 ![Route360](r360.png)
 
 
+# Build
+`npm run build`
+
 # Npm
 You can use our project with npm
 

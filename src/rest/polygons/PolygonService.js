@@ -9,9 +9,10 @@ r360.PolygonService = {
         var cfg = {};
         cfg.sources = [];
 
-        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
-        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) ) cfg.edgeWeight = travelOptions.getEdgeWeight();
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getReverse()) )           cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) )        cfg.edgeWeight = travelOptions.getEdgeWeight();
+        if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
 
         cfg.polygon = {};
 
@@ -23,7 +24,7 @@ r360.PolygonService = {
         if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
         if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
         if ( !r360.isUndefined(travelOptions.getBuffer()) )                cfg.polygon.buffer             = travelOptions.getBuffer();
-        if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
+        if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments(); 
 
         // add each source point and it's travel configuration to the cfg
         travelOptions.getSources().forEach(function(source){

@@ -1,13 +1,14 @@
 {
   "name": "route360",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "The Route360° JavaScript API for Motion Intelligence's time-based access mapping service.",
   "main": "dist/r360.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "jake build"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/route360/r360-js/issues"
   },
-  "homepage": "https://developers.route360.net"
+  "homepage": "https://developers.route360.net",
+  "devDependencies": {
+    "jake": "^8.0.15",
+    "jshint": "^2.9.5",
+    "uglify-js": "~2.7.5"
+  }
 }
