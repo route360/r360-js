@@ -9,8 +9,9 @@ r360.RouteService = {
 
         var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
 
-        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getReverse()) )           cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
 
         travelOptions.getSources().forEach(function(source){
 

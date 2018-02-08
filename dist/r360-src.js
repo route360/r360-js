@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.4.3 (661aa02), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.5.0 (8d15b49), a JS library for leaflet maps. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.4.3',
+	version : 'v0.5.0',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -1730,6 +1730,8 @@ r360.TravelOptions = function(){
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
 
+    this.travelTimeFactors  = undefined;
+
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
 
@@ -2279,6 +2281,14 @@ r360.TravelOptions = function(){
     this.setEdgeWeight = function(edgeWeight){
     	this.edgeWeight = edgeWeight;
     }
+
+    this.getTravelTimeFactors = function(){
+    	return this.travelTimeFactors;
+    }
+
+    this.setTravelTimeFactors = function(travelTimeFactors){
+    	this.travelTimeFactors = travelTimeFactors;
+    }
 };
 
 r360.travelOptions = function () {
@@ -2297,9 +2307,10 @@ r360.PolygonService = {
         var cfg = {};
         cfg.sources = [];
 
-        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
-        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) ) cfg.edgeWeight = travelOptions.getEdgeWeight();
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getReverse()) )           cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) )        cfg.edgeWeight = travelOptions.getEdgeWeight();
+        if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
 
         cfg.polygon = {};
 
@@ -2311,7 +2322,7 @@ r360.PolygonService = {
         if ( !r360.isUndefined(travelOptions.getSrid()) )                  cfg.polygon.srid               = travelOptions.getSrid();
         if ( !r360.isUndefined(travelOptions.getSimplifyMeter()) )         cfg.polygon.simplify           = travelOptions.getSimplifyMeter();
         if ( !r360.isUndefined(travelOptions.getBuffer()) )                cfg.polygon.buffer             = travelOptions.getBuffer();
-        if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments();
+        if ( !r360.isUndefined(travelOptions.getQuadrantSegments()) )      cfg.polygon.quadrantSegments   = travelOptions.getQuadrantSegments(); 
 
         // add each source point and it's travel configuration to the cfg
         travelOptions.getSources().forEach(function(source){
@@ -2463,8 +2474,9 @@ r360.RouteService = {
 
         var cfg = { sources : [], targets : [], pathSerializer : travelOptions.getPathSerializer() };
 
-        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
-        if ( !r360.isUndefined(travelOptions.getReverse()) ) cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getReverse()) )           cfg.reverse = travelOptions.getReverse();
+        if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
 
         travelOptions.getSources().forEach(function(source){
 
@@ -2602,7 +2614,8 @@ r360.TimeService = {
             maxRoutingLength : travelOptions.getMaxRoutingLength()
         };
 
-        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) ) cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
+        if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
         if ( !r360.isUndefined(travelOptions.getTravelTimes()) || !r360.isUndefined(travelOptions.getIntersectionMode()) ) {
 
             cfg.polygon = {};
