@@ -41,6 +41,8 @@ r360.TravelOptions = function(){
     this.serviceUrl         = undefined;
     this.serviceKey         = undefined;
 
+    this.travelTimeFactors  = undefined;
+
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
 
@@ -589,6 +591,14 @@ r360.TravelOptions = function(){
 
     this.setEdgeWeight = function(edgeWeight){
     	this.edgeWeight = edgeWeight;
+    }
+
+    this.getTravelTimeFactors = function(){
+    	return this.travelTimeFactors;
+    }
+
+    this.setTravelTimeFactors = function(travelTimeFactors){
+    	this.travelTimeFactors = travelTimeFactors;
     }
 };
 
