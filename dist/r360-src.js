@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.5.0 (8d15b49), a JS library for leaflet maps. http://route360.net
+ Route360° JavaScript API v0.5.1 (8b8cf3d), a JS library for leaflet.js and google maps API. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.5.0',
+	version : 'v0.5.1',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -1731,6 +1731,7 @@ r360.TravelOptions = function(){
     this.serviceKey         = undefined;
 
     this.travelTimeFactors  = undefined;
+    this.maxTransfers       = undefined;
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
@@ -2289,6 +2290,14 @@ r360.TravelOptions = function(){
     this.setTravelTimeFactors = function(travelTimeFactors){
     	this.travelTimeFactors = travelTimeFactors;
     }
+
+    this.getMaxTransfers = function(){
+        return this.maxTransfers;
+    }
+
+    this.setMaxTransfers = function(maxTransfers){
+        this.maxTransfers = maxTransfers;
+    }
 };
 
 r360.travelOptions = function () {
@@ -2343,9 +2352,10 @@ r360.PolygonService = {
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
 
                 src.tm[travelType].frame = {};
-                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time      = travelOptions.getTime();
-                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date      = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time              = travelOptions.getTime();
+                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date              = travelOptions.getDate();
                 if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration = travelOptions.getFrameDuration();
+                if ( !r360.isUndefined(travelOptions.getMaxTransfers()) ) src.tm[travelType].maxTransfers    = travelOptions.getMaxTransfers();
             }
             if ( travelType == 'bike' ) {
 
@@ -2452,7 +2462,7 @@ r360.PolygonService = {
 
         if ( method == 'POST' ) {
 
-            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon_post?key=' + travelOptions.getServiceKey();
+            options.url         = serviceUrl + r360.config.serviceVersion + '/polygon?key=' + travelOptions.getServiceKey();
             options.data        = JSON.stringify(cfg);
             options.contentType = 'application/json';
             options.async       = false;
@@ -2496,10 +2506,11 @@ r360.RouteService = {
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
 
                 src.tm[travelType].frame = {};
-                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
-                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time                 = travelOptions.getTime();
+                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date                 = travelOptions.getDate();
                 if ( !r360.isUndefined(travelOptions.getRecommendations()) ) src.tm[travelType].recommendations = travelOptions.getRecommendations();
-                if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration = travelOptions.getFrameDuration();
+                if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration    = travelOptions.getFrameDuration();
+                if ( !r360.isUndefined(travelOptions.getMaxTransfers()) ) src.tm[travelType].maxTransfers       = travelOptions.getMaxTransfers();
             }
             if ( travelType == 'bike' ) {
 
@@ -2647,8 +2658,10 @@ r360.TimeService = {
             if ( travelType == 'transit' || travelType == 'biketransit' ) {
 
                 src.tm[travelType].frame = {};
-                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time = travelOptions.getTime();
-                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getTime()) ) src.tm[travelType].frame.time              = travelOptions.getTime();
+                if ( !r360.isUndefined(travelOptions.getDate()) ) src.tm[travelType].frame.date              = travelOptions.getDate();
+                if ( !r360.isUndefined(travelOptions.getFrameDuration()) ) src.tm[travelType].frame.duration = travelOptions.getFrameDuration();
+                if ( !r360.isUndefined(travelOptions.getMaxTransfers()) ) src.tm[travelType].maxTransfers    = travelOptions.getMaxTransfers();
             }
             if ( travelType == 'ebike' ) {
 
@@ -3311,7 +3324,7 @@ r360.LineString = function(coordinateArray) {
      * @return {type}       [description]
      */
     this.getCoordinate = function(index){
-    	return this.coordinate[index];
+    	return this.coordinates[index];
     }
 }
 

@@ -42,6 +42,7 @@ r360.TravelOptions = function(){
     this.serviceKey         = undefined;
 
     this.travelTimeFactors  = undefined;
+    this.maxTransfers       = undefined;
 
     this.getReverse = function(){ return this.reverse; }
     this.setReverse = function(reverse){ this.reverse = reverse; }
@@ -599,6 +600,14 @@ r360.TravelOptions = function(){
 
     this.setTravelTimeFactors = function(travelTimeFactors){
     	this.travelTimeFactors = travelTimeFactors;
+    }
+
+    this.getMaxTransfers = function(){
+        return this.maxTransfers;
+    }
+
+    this.setMaxTransfers = function(maxTransfers){
+        this.maxTransfers = maxTransfers;
     }
 };
 
