@@ -1,6 +1,6 @@
 
 var r360 = {
-	version : 'v0.5.1',
+	version : 'v0.5.2',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {

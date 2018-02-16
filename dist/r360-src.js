@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.5.1 (8b8cf3d), a JS library for leaflet.js and google maps API. http://route360.net
+ Route360° JavaScript API v0.5.2 (ace54a8), a JS library for leaflet.js and google maps API. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.5.1',
+	version : 'v0.5.2',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -4855,6 +4855,14 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
             var svgPosition    = $('#svg_' + this.id).offset();
             var mapPosition    = $(this.map.getDiv()).offset();
 
+            // if first time through, there is not yet an svg to get offset for
+            if ( typeof svgPosition == 'undefined') {
+                svgPosition = {
+                    top: this.svgHeight / 2,
+                    left: this.svgWidth / 2
+                }
+            }
+
             if ( typeof this.offset == 'undefined' )
                 this.offset = { x : 0 , y : 0 };
 
@@ -4900,6 +4908,7 @@ if (typeof google === 'object' && typeof google.maps === 'object') {
             // add the svg string to the container
             $('#'+ this.element.id).append(!this.inverse ? r360.SvgUtil.getNormalSvgElement(gElements, options)
                                                          : r360.SvgUtil.getInverseSvgElement(gElements, options));
+
         }
     };
 
