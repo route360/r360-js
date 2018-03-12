@@ -1,10 +1,10 @@
 /*
- Route360° JavaScript API v0.5.2 (ace54a8), a JS library for leaflet.js and google maps API. http://route360.net
+ Route360° JavaScript API v0.5.3 (a575c9e), a JS library for leaflet.js and google maps API. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
 var r360 = {
-	version : 'v0.5.2',
+	version : 'v0.5.3',
 
   // Is a given variable undefined?
   isUndefined : function(obj) {
@@ -3767,6 +3767,7 @@ if ( typeof L === 'object' ) {
             // create a DOM element with a unique ID to have multiple maps on one page
             this.element = L.DomUtil.create('div', 'r360-leaflet-polygon-layer-' + $(map._container).attr("id") + '-' + this.id + ' leaflet-zoom-hide');
             $(this.element).attr("id", "canvas" + $(this.map._container).attr("id") + '-' + this.id);
+            $(this.element).css("position", "inherit");
 
             // we append the layer to the overlay pane at the last position
             this.map.getPanes().overlayPane.appendChild(this.element);

@@ -96,6 +96,7 @@ if ( typeof L === 'object' ) {
             // create a DOM element with a unique ID to have multiple maps on one page
             this.element = L.DomUtil.create('div', 'r360-leaflet-polygon-layer-' + $(map._container).attr("id") + '-' + this.id + ' leaflet-zoom-hide');
             $(this.element).attr("id", "canvas" + $(this.map._container).attr("id") + '-' + this.id);
+            $(this.element).css("position", "inherit");
 
             // we append the layer to the overlay pane at the last position
             this.map.getPanes().overlayPane.appendChild(this.element);
