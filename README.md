@@ -1,4 +1,4 @@
-# Important notice: Route360° is now called Targomo. The libraries here will no longer be maintained. We will keep them here for legacy purposes but for future use please visit: [github.com/targomo/targomo-js](github.com/targomo/targomo-js) For support on Leaflet and GoogleMaps please visit [targomo-js-leaflet](https://github.com/targomo/targomo-js-leaflet) and [targomo-js-googlemaps](https://github.com/targomo/targomo-js-googlemaps)
+# Important notice: Route360° is now called Targomo. The libraries here will no longer be maintained. We will keep them here for legacy purposes but for future use please visit: [github.com/targomo/targomo-js](https://github.com/targomo/targomo-js) For support on Leaflet and GoogleMaps please visit [targomo-js-leaflet](https://github.com/targomo/targomo-js-leaflet) and [targomo-js-googlemaps](https://github.com/targomo/targomo-js-googlemaps)
 
 # r360-js
 
