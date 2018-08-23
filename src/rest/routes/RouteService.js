@@ -12,6 +12,8 @@ r360.RouteService = {
         if ( !r360.isUndefined(travelOptions.isElevationEnabled()) )   cfg.elevation = travelOptions.isElevationEnabled();
         if ( !r360.isUndefined(travelOptions.getReverse()) )           cfg.reverse = travelOptions.getReverse();
         if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
+        if ( !r360.isUndefined(travelOptions.getMaxEdgeWeight()) )     cfg.maxEdgeWeight = travelOptions.getMaxEdgeWeight();
+        if ( !r360.isUndefined(travelOptions.getMaxRoutingTime()) )    cfg.maxRoutingTime = travelOptions.getMaxRoutingTime();
 
         travelOptions.getSources().forEach(function(source){
 
