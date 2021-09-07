@@ -4,7 +4,7 @@
 
 
 ## API-Key
-Get your API key [here ](https://developers.route360.net/pricing/).
+Get your API key [here ](https://www.targomo.com/developers/pricing/).
 
 The Route360° JavaScript API is a modern open-source JavaScript library designed for Leaflet's mobile-friendly interactive maps. It is developed by Henning Hollburg and Daniel Gerber from the Motion Intelligence GmbH.
 
@@ -19,7 +19,7 @@ The Route360° JavaScript API is a modern open-source JavaScript library designe
 * Support for elevation data
 
 # Demonstration and Usage
-A demonstration of the library's features, as well as detailed coding examples can be found [here](http://developers.route360.net). You can see what the service is capable of at the technology [demo](http://apps.route360.net/demo), just select the country you want to test.
+A demonstration of the library's features, as well as detailed coding examples can be found [here](https://www.targomo.com/developers/documentation/javascript/code_example/). You can see what the service is capable of at the technology [demo](https://app.targomo.com/demo/#!/), just select the country you want to test.
 
 ![Route360](r360.png)
 
