@@ -1,5 +1,5 @@
 /*
- Route360° JavaScript API v0.5.3 (05084b5), a JS library for leaflet.js and google maps API. http://route360.net
+ Route360° JavaScript API v0.5.3 (a2fdbe4), a JS library for leaflet.js and google maps API. http://route360.net
  (c) 2017 Henning Hollburg, Daniel Gerber and Jan Silbersiepe, (c) 2017 Motion Intelligence GmbH
 */
 (function (window, document, undefined) {
@@ -2489,6 +2489,7 @@ r360.RouteService = {
         if ( !r360.isUndefined(travelOptions.getTravelTimeFactors()) ) cfg.travelTimeFactors = travelOptions.getTravelTimeFactors();
         if ( !r360.isUndefined(travelOptions.getMaxEdgeWeight()) )     cfg.maxEdgeWeight = travelOptions.getMaxEdgeWeight();
         if ( !r360.isUndefined(travelOptions.getMaxRoutingTime()) )    cfg.maxRoutingTime = travelOptions.getMaxRoutingTime();
+        if ( !r360.isUndefined(travelOptions.getEdgeWeight()) )        cfg.edgeWeight = travelOptions.getEdgeWeight();
 
         travelOptions.getSources().forEach(function(source){
 
